@@ -5,31 +5,41 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ethereum Attestation Service 심층 분석 및 자체 구현 아키텍처 — Deepsearch</title>
 <meta name="description" content="EAS 프로토콜의 작동 원리와 온체인·오프체인 어테스테이션 인프라 구축 설계">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 <link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
 </head>
 <body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
 <article class="page">
   <nav class="report-nav" aria-label="Report navigation">
-    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+    <a class="report-back-link" href="../index.html">← 리포트 목록</a>
   </nav>
   <header class="masthead">
-    <div class="kicker">Deepsearch report</div>
+    <div class="kicker">Deepsearch 리포트</div>
     <h1>Ethereum Attestation Service 심층 분석 및 자체 구현 아키텍처</h1>
     <p class="subtitle">EAS 프로토콜의 작동 원리와 온체인·오프체인 어테스테이션 인프라 구축 설계</p>
     <div class="meta">
-      <span><strong>Published</strong> 2026-04-17</span>
-      <span><strong>Tags</strong> ethereum, attestation, identity, eas, architecture</span>
-      <span><strong>Status</strong> ready</span>
+      <span><strong>발행일</strong> 2026-04-17</span>
+      <span><strong>태그</strong> ethereum, attestation, identity, eas, architecture</span>
+      <span><strong>상태</strong> ready</span>
     </div>
-    <p class="report-download"><a class="report-download-link" href="./index.html" download="ethereum-attestation-service.html">Download HTML</a></p>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="ethereum-attestation-service.html">HTML 다운로드</a></p>
   </header>
 
   <section class="abstract">
-    <h2>Abstract</h2>
+    <h2>초록</h2>
     <p>Ethereum Attestation Service(EAS)는 EVM 호환 체인 상에서 스키마 기반의 검증 가능한 주장(어테스테이션)을 발급·조회·폐기할 수 있게 하는 퍼블릭 굿 프로토콜이다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 본 리포트는 EAS의 두 핵심 컨트랙트(<code>SchemaRegistry</code>, <code>EAS</code>)와 <code>Attestation</code> 구조체, 온체인·오프체인 발급 경로, EIP-712 기반 위임 서명, 리졸버 훅을 1차 소스 코드와 공식 문서로부터 정리한다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> 이어 Coinbase Verifications, Gitcoin Passport, Optimism RetroPGF 및 OP Stack predeploy 통합 사례를 통해 EAS가 이미 생태계 규모의 어테스테이션 레이어로 기능함을 확인하고,<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> Verax·Sign Protocol 등 대안과의 설계적 차이를 요약한다.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> 마지막으로 동일 기능군을 자체 구현할 때 필요한 9개 모듈(스키마 레지스트리, 어테스테이션 코어, 리졸버, 오프체인 서명·검증, 위임, 인덱서, Query API, 오프체인 저장소, SDK)을 정의하고, 참조 시스템 아키텍처와 단계적 구현 로드맵, EIP-712 도메인 분리·리졸버 재진입·스키마 버전 관리 등 보안·운영 체크리스트를 제시한다. 리포트는 어테스테이션 서비스를 신원 모델에 종속시키지 않는 <strong>중립 레이어</strong>로 설계한 EAS의 선택이 높은 조합성과 확장성을 제공한다고 평가하는 한편, 오프체인 인덱서 품질과 리졸버 보안이 자체 구현의 승패를 가르는 지점이라고 결론 맺는다.</p>
   </section>
 
@@ -223,46 +233,61 @@ function isPayable() public pure virtual returns (bool);</code></pre>
   </main>
 
   <section class="references">
-    <h2>References</h2>
+    <h2>참고문헌</h2>
     <ol>
-      <li id="ref-1"><span class="authors">Ethereum Attestation Service</span>. <a href="https://github.com/ethereum-attestation-service/eas-contracts">eas-contracts (README)</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-2"><span class="authors">Ethereum Attestation Service</span>. <a href="https://attest.org/ecosystem">EAS Ecosystem page</a>. <span class="venue">attest.org, 2024</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-3"><span class="authors">W3C</span>. <a href="https://www.w3.org/TR/vc-data-model/">Verifiable Credentials Data Model</a>. <span class="venue">W3C Recommendation, 2022</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-4"><span class="authors">Vitalik Buterin</span>. <a href="https://vitalik.eth.limo/general/2022/01/26/soulbound.html">Soulbound – Vitalik Buterin</a>. <span class="venue">vitalik.eth.limo, 2022</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-5"><span class="authors">Puja Ohlhaver, E. Glen Weyl, Vitalik Buterin</span>. <a href="https://www.microsoft.com/en-us/research/publication/decentralized-society-finding-web3s-soul/">Decentralized Society: Finding Web3&#x27;s Soul</a>. <span class="venue">Microsoft Research (preprint mirror), 2022</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-6"><span class="authors">T. Sullivan, R. Suarez</span>. <a href="https://eips.ethereum.org/EIPS/eip-5192">EIP-5192: Minimal Soulbound NFTs</a>. <span class="venue">Ethereum EIPs, 2022</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-7"><span class="authors">Linea / Consensys</span>. <a href="https://linea.build/blog/introducing-verax-an-on-chain-attestation-registry">Introducing Verax, An On-Chain Attestation Registry</a>. <span class="venue">Linea Blog, 2023</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-8"><span class="authors">QuickNode</span>. <a href="https://www.quicknode.com/guides/ethereum-development/smart-contracts/what-is-ethereum-attestation-service-and-how-to-use-it">What Is Ethereum Attestation Service (EAS) &amp; How to Use It</a>. <span class="venue">QuickNode Guides, 2024</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-9"><span class="authors">Ethereum Attestation Service</span>. <a href="https://github.com/ethereum-attestation-service/eas-contracts/blob/master/contracts/ISchemaRegistry.sol">ISchemaRegistry interface</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-10"><span class="authors">Ethereum Attestation Service</span>. <a href="https://github.com/ethereum-attestation-service/eas-contracts/blob/master/contracts/Common.sol">EAS Attestation struct (Common.sol)</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-11"><span class="authors">Ethereum Attestation Service</span>. <a href="https://github.com/ethereum-attestation-service/eas-docs-site/blob/main/docs/developer-tools/api.md">EAS Docs – GraphQL API</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-12"><span class="authors">Ethereum Attestation Service</span>. <a href="https://github.com/ethereum-attestation-service/eas-sdk">EAS SDK – off-chain attestation signing</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-13"><span class="authors">Ethereum Attestation Service</span>. <a href="https://github.com/ethereum-attestation-service/eas-docs-site/blob/main/docs/tutorials/delegated-attestations.md">EAS Docs – Delegated Attestations</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-14"><span class="authors">Ethereum Attestation Service</span>. <a href="https://github.com/ethereum-attestation-service/eas-docs-site/blob/main/docs/tutorials/delegated-attestations.md">EAS Delegated Attestations – proxy / nonce</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-15"><span class="authors">Ethereum Attestation Service</span>. <a href="https://github.com/ethereum-attestation-service/eas-contracts/blob/master/contracts/resolver/SchemaResolver.sol">SchemaResolver abstract contract</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-16"><span class="authors">Ethereum Attestation Service</span>. <a href="https://github.com/ethereum-attestation-service/eas-contracts">eas-contracts – Mainnet deployment (v0.26)</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-17"><span class="authors">OP Labs</span>. <a href="https://docs.optimism.io/chain/identity/contracts-eas">Contracts (EAS) – Optimism Docs</a>. <span class="venue">Optimism Docs, 2024</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-18"><span class="authors">OP Labs</span>. <a href="https://docs.optimism.io/chain/identity/contracts-eas">OP Stack EAS predeploy addresses</a>. <span class="venue">Optimism Docs, 2024</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-19"><span class="authors">Ethereum Attestation Service</span>. <a href="https://github.com/ethereum-attestation-service/eas-docs-site/blob/main/docs/quick--start/faqs.md">EAS Docs – FAQs (audit &amp; revocation)</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-20"><span class="authors">CryptoSlate</span>. <a href="https://cryptoslate.com/coinbase-rolls-out-on-chain-credential-verification/">Coinbase rolls out on-chain credential verification using EAS</a>. <span class="venue">CryptoSlate, 2023</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-21"><span class="authors">Coinbase</span>. <a href="https://github.com/coinbase/verifications/blob/main/README.md">Coinbase Verifications – README</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-22"><span class="authors">Verified Pools</span>. <a href="https://docs.verifiedpools.com/developers/verifications">Coinbase Verifications – Verified Pools Dev Docs</a>. <span class="venue">Verified Pools Docs, 2024</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-23"><span class="authors">Coinbase</span>. <a href="https://github.com/coinbase/verifications/blob/main/README.md">Coinbase Verifications – schema IDs / attester</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-24"><span class="authors">Gitcoin / Passport XYZ</span>. <a href="https://docs.passport.xyz/building-with-passport/smart-contracts/overview">Gitcoin Passport – Smart contract overview</a>. <span class="venue">Passport Docs, 2024</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-25"><span class="authors">CoinDesk</span>. <a href="https://www.coindesk.com/tech/2023/05/04/layer-2-network-optimism-to-use-ethereum-attestation-service-to-promote-user-trust">Optimism to Use Ethereum Attestation Service to Promote User Trust</a>. <span class="venue">CoinDesk, 2023</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-26"><span class="authors">Ethereum Attestation Service</span>. <a href="https://easscan.org/">easscan.org – Ethereum mainnet explorer</a>. <span class="venue">easscan.org, 2026</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-27"><span class="authors">Sign / EthSign</span>. <a href="https://docs.sign.global/">Sign Protocol documentation</a>. <span class="venue">Sign Docs, 2024</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
-      <li id="ref-28"><span class="authors">Xin Yan</span>. <a href="https://medium.com/ethsign/attestations-sign-everything-onchain-01db9ebf39e7">Attestations: Sign Everything Onchain</a>. <span class="venue">EthSign / Medium, 2024</span>. <span class="accessed">Accessed 2026-04-17.</span></li>
+      <li id="ref-1"><span class="authors">Ethereum Attestation Service</span>. <a href="https://github.com/ethereum-attestation-service/eas-contracts">eas-contracts (README)</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-2"><span class="authors">Ethereum Attestation Service</span>. <a href="https://attest.org/ecosystem">EAS Ecosystem page</a>. <span class="venue">attest.org, 2024</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-3"><span class="authors">W3C</span>. <a href="https://www.w3.org/TR/vc-data-model/">Verifiable Credentials Data Model</a>. <span class="venue">W3C Recommendation, 2022</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-4"><span class="authors">Vitalik Buterin</span>. <a href="https://vitalik.eth.limo/general/2022/01/26/soulbound.html">Soulbound – Vitalik Buterin</a>. <span class="venue">vitalik.eth.limo, 2022</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-5"><span class="authors">Puja Ohlhaver, E. Glen Weyl, Vitalik Buterin</span>. <a href="https://www.microsoft.com/en-us/research/publication/decentralized-society-finding-web3s-soul/">Decentralized Society: Finding Web3&#x27;s Soul</a>. <span class="venue">Microsoft Research (preprint mirror), 2022</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-6"><span class="authors">T. Sullivan, R. Suarez</span>. <a href="https://eips.ethereum.org/EIPS/eip-5192">EIP-5192: Minimal Soulbound NFTs</a>. <span class="venue">Ethereum EIPs, 2022</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-7"><span class="authors">Linea / Consensys</span>. <a href="https://linea.build/blog/introducing-verax-an-on-chain-attestation-registry">Introducing Verax, An On-Chain Attestation Registry</a>. <span class="venue">Linea Blog, 2023</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-8"><span class="authors">QuickNode</span>. <a href="https://www.quicknode.com/guides/ethereum-development/smart-contracts/what-is-ethereum-attestation-service-and-how-to-use-it">What Is Ethereum Attestation Service (EAS) &amp; How to Use It</a>. <span class="venue">QuickNode Guides, 2024</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-9"><span class="authors">Ethereum Attestation Service</span>. <a href="https://github.com/ethereum-attestation-service/eas-contracts/blob/master/contracts/ISchemaRegistry.sol">ISchemaRegistry interface</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-10"><span class="authors">Ethereum Attestation Service</span>. <a href="https://github.com/ethereum-attestation-service/eas-contracts/blob/master/contracts/Common.sol">EAS Attestation struct (Common.sol)</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-11"><span class="authors">Ethereum Attestation Service</span>. <a href="https://github.com/ethereum-attestation-service/eas-docs-site/blob/main/docs/developer-tools/api.md">EAS Docs – GraphQL API</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-12"><span class="authors">Ethereum Attestation Service</span>. <a href="https://github.com/ethereum-attestation-service/eas-sdk">EAS SDK – off-chain attestation signing</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-13"><span class="authors">Ethereum Attestation Service</span>. <a href="https://github.com/ethereum-attestation-service/eas-docs-site/blob/main/docs/tutorials/delegated-attestations.md">EAS Docs – Delegated Attestations</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-14"><span class="authors">Ethereum Attestation Service</span>. <a href="https://github.com/ethereum-attestation-service/eas-docs-site/blob/main/docs/tutorials/delegated-attestations.md">EAS Delegated Attestations – proxy / nonce</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-15"><span class="authors">Ethereum Attestation Service</span>. <a href="https://github.com/ethereum-attestation-service/eas-contracts/blob/master/contracts/resolver/SchemaResolver.sol">SchemaResolver abstract contract</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-16"><span class="authors">Ethereum Attestation Service</span>. <a href="https://github.com/ethereum-attestation-service/eas-contracts">eas-contracts – Mainnet deployment (v0.26)</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-17"><span class="authors">OP Labs</span>. <a href="https://docs.optimism.io/chain/identity/contracts-eas">Contracts (EAS) – Optimism Docs</a>. <span class="venue">Optimism Docs, 2024</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-18"><span class="authors">OP Labs</span>. <a href="https://docs.optimism.io/chain/identity/contracts-eas">OP Stack EAS predeploy addresses</a>. <span class="venue">Optimism Docs, 2024</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-19"><span class="authors">Ethereum Attestation Service</span>. <a href="https://github.com/ethereum-attestation-service/eas-docs-site/blob/main/docs/quick--start/faqs.md">EAS Docs – FAQs (audit &amp; revocation)</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-20"><span class="authors">CryptoSlate</span>. <a href="https://cryptoslate.com/coinbase-rolls-out-on-chain-credential-verification/">Coinbase rolls out on-chain credential verification using EAS</a>. <span class="venue">CryptoSlate, 2023</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-21"><span class="authors">Coinbase</span>. <a href="https://github.com/coinbase/verifications/blob/main/README.md">Coinbase Verifications – README</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-22"><span class="authors">Verified Pools</span>. <a href="https://docs.verifiedpools.com/developers/verifications">Coinbase Verifications – Verified Pools Dev Docs</a>. <span class="venue">Verified Pools Docs, 2024</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-23"><span class="authors">Coinbase</span>. <a href="https://github.com/coinbase/verifications/blob/main/README.md">Coinbase Verifications – schema IDs / attester</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-24"><span class="authors">Gitcoin / Passport XYZ</span>. <a href="https://docs.passport.xyz/building-with-passport/smart-contracts/overview">Gitcoin Passport – Smart contract overview</a>. <span class="venue">Passport Docs, 2024</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-25"><span class="authors">CoinDesk</span>. <a href="https://www.coindesk.com/tech/2023/05/04/layer-2-network-optimism-to-use-ethereum-attestation-service-to-promote-user-trust">Optimism to Use Ethereum Attestation Service to Promote User Trust</a>. <span class="venue">CoinDesk, 2023</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-26"><span class="authors">Ethereum Attestation Service</span>. <a href="https://easscan.org/">easscan.org – Ethereum mainnet explorer</a>. <span class="venue">easscan.org, 2026</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-27"><span class="authors">Sign / EthSign</span>. <a href="https://docs.sign.global/">Sign Protocol documentation</a>. <span class="venue">Sign Docs, 2024</span>. <span class="accessed">접근일 2026-04-17.</span></li>
+      <li id="ref-28"><span class="authors">Xin Yan</span>. <a href="https://medium.com/ethsign/attestations-sign-everything-onchain-01db9ebf39e7">Attestations: Sign Everything Onchain</a>. <span class="venue">EthSign / Medium, 2024</span>. <span class="accessed">접근일 2026-04-17.</span></li>
     </ol>
   </section>
 
-  <footer style="margin-top:3rem;font-size:0.78rem;color:var(--muted);">
-    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-04-17. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-04-17 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
   </footer>
 </article>
 
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
         onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
 </body>
 </html>
