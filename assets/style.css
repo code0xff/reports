@@ -112,32 +112,22 @@ body {
 }
 
 .report-download {
-  margin-top: 1.25rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
+  margin: 1rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
 }
 
 .report-download-link {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.25rem;
-  justify-content: center;
-  padding: 0.55rem 1rem;
-  border: 1px solid var(--ink);
-  color: var(--surface);
-  background: var(--ink);
-  text-decoration: none;
-  font-size: 0.8rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
 }
 
 .report-download-link:hover {
-  background: #2b2b2b;
-  border-color: #2b2b2b;
-  text-decoration: none;
+  color: var(--ink);
+  text-decoration-color: var(--ink);
 }
 
 /* ---------- Headings ---------- */
@@ -483,6 +473,5 @@ a.footnote-ref:hover {
   .report-nav { margin-bottom: 0.85rem; }
   .masthead h1 { font-size: 1.75rem; }
   .masthead .subtitle { font-size: 1.05rem; }
-  .report-download { margin-top: 1rem; }
-  .report-download-link { width: 100%; }
+  .report-download { margin-top: 0.75rem; }
 }
