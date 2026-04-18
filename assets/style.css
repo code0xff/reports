@@ -220,6 +220,26 @@ strong { font-weight: 600; }
 em { font-style: italic; }
 small { font-size: 0.85em; color: var(--muted); }
 
+/* Korean has no italic tradition and every Hangul fallback font lacks an
+   italic face; browsers end up rendering a broken fake oblique. Force
+   upright for emphasis inside Korean-language documents. Latin runs inside
+   Korean docs lose italic too, which is an acceptable tradeoff in practice. */
+:lang(ko) em,
+:lang(ko) i,
+:lang(ko) cite,
+:lang(ko) dfn,
+:lang(ko) blockquote,
+:lang(ko) figcaption,
+:lang(ko) h4 {
+  font-style: normal;
+}
+
+:lang(ko) em,
+:lang(ko) strong em,
+:lang(ko) em strong {
+  font-weight: 600;
+}
+
 ul, ol {
   margin: 0 0 1.25rem;
   padding-left: 1.6rem;
