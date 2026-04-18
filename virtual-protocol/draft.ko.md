@@ -1,0 +1,55 @@
+# Virtual Protocol의 기술적 기반
+
+## Introduction
+
+Virtual Protocol(공식 표기 Virtuals Protocol)은 자율 AI 에이전트를 온체인 자산으로 토큰화하고, 이들 사이의 서비스 교환을 하나의 경제 시스템으로 묶기 위해 설계된 web3 에이전트 인프라다. 공식 whitepaper 첫 문장은 이 프로토콜을 "자율 에이전트가 서비스나 상품을 생성하고 인간 및 다른 에이전트와 상거래에 참여하는 협조된 온체인 생태계"[^s01]로 정의한다. 에이전트는 단일 팀이 운영하는 블랙박스 SaaS 가 아니라, 전용 ERC-20 토큰을 통해 공동 소유되고 거래될 수 있는 단위로 재구성된다[^s07][^s17].
+
+주 디플로이 체인은 Coinbase 가 운영하는 Ethereum L2 인 Base 이며, 2024년 10월에 출시됐다[^s17][^s15]. 이후 Solana 를 시작으로 멀티체인 전략으로 확장돼, 2026년 시점에서는 Base, Ethereum, Solana, Ronin, Arbitrum 등 복수 체인에 1만 8천 개 이상의 에이전트가 배포돼 있다고 보고된다[^s21]. Solana 확장은 단일 토큰 재단의 이동이 아니라 브리지 기반 모델로, Stargate 브리지로 $VIRTUAL 을 이동시키고 Meteora 의 유동성 풀을 통해 거래되는 방식이다[^s22][^s16].
+
+본 리포트는 Virtual Protocol 의 **기술 스택** — 즉 온체인 토큰 레이어, GAME 에이전트 런타임, Immutable Contribution Vault(ICV), Agent Commerce Protocol(ACP), 그리고 감사 가시성 — 에 초점을 맞춘다. 시장 성과, 가격, 경쟁 프로토콜 비교, 에이전트 스테이킹/은퇴 경제 설계는 후속 리서치에서 별도로 다룬다.
+
+## Core Architecture
+
+Virtual Protocol 의 아키텍처는 크게 네 레이어로 나뉜다: (1) 기축 토큰 $VIRTUAL, (2) 에이전트 단위 ERC-20 토큰과 페어드 유동성, (3) 에이전트 구성 요소를 귀속시키는 Immutable Contribution Vault, (4) 에이전트의 의사결정 루프를 돌리는 GAME 프레임워크. 앞의 세 개는 온체인, 네 번째는 주로 오프체인이다.
+
+**$VIRTUAL 과 에이전트 토큰의 페어링.** 새 에이전트가 생성될 때마다 해당 에이전트에 고유한 ERC-20 토큰 10억 개(fixed supply 1,000,000,000)가 민팅된다[^s14][^s07][^s15]. 에이전트 토큰은 자체적으로 시장 가격을 가지지 않고, $VIRTUAL 과의 페어를 통해서만 거래된다 — 에이전트 토큰 구매 수요가 곧 $VIRTUAL 수요로 이어지는 구조다. 에이전트가 그래듀에이션한 뒤의 LP(Uniswap V2) 는 10년간 스테이킹 lock 되므로, 초기 유동성은 구조적으로 에이전트에 귀속된다[^s06].
+
+**GAME 프레임워크.** GAME(Generative Autonomous Multimodal Entities) 은 에이전트가 목표·성격·맥락·사용 가능한 액션을 바탕으로 자율적으로 계획하고 결정하도록 설계된 모듈형 에이전트 프레임워크다[^s02]. 공식 문서는 "high-level planner" 와 "low-level planner" 로 구성된 계층적 아키텍처를 언급하며, 프레임워크 자체는 오픈 소스 SDK("GAME SDK") 와 저코드 호스트 서비스("GAME Cloud") 로 외부 개발자에게 공개된다[^s03]. 프레임워크는 체인 추상화 레벨에서 "on-chain transactions" 플러그인을 지원하지만, 의사결정 루프 자체는 오프체인에서 실행되는 전통적 LLM 기반 추론 시스템으로 설계돼 있다[^s03].
+
+**Immutable Contribution Vault(ICV).** 에이전트의 실제 "뇌·목소리·비주얼" 은 ICV 라는 온체인 구조에 고정된다. 공식 문서에 따르면 ICV 는 "smart contract wallet ownership as the base layer, individual VIRTUAL agents as ERC-6551 NFTs, cognitive, voice, and visual cores stored beneath each agent, and Service NFTs of each core where approved contributions are stored" 의 다층 구조를 갖는다[^s08]. 각 기여자가 제출한 모델·데이터·IP 는 Service NFT 로 민팅돼 해당 core 밑에 귀속되고, 이 귀속 관계 자체가 스마트 컨트랙트에 등록됨으로써 수익 분배의 기준이 된다[^s08]. 한편 Agent Creation 가이드에서는 동일한 구조를 "ERC-1155 token-bound address" 로 표현하는 등 문서 내 표준 표기가 일관되지 않은 부분이 있다[^s14] — 실제 온체인 컨트랙트 검증까지 수행하지 않은 본 리포트 범위 안에서는 두 표기 중 어느 쪽이 최종 구현인지 단정하지 않고 모두 기록한다.
+
+**온체인/오프체인 경계.** 프로토콜의 현재 구조는 소유권(ICV 의 ERC-6551/ERC-1155 기반 NFT), 결제·정산(ACP 스마트 컨트랙트 에스크로[^s05]), 유동성·거버넌스(Uniswap V2 LP + 에이전트 토큰) 를 온체인에 두고, 추론·음성·메모리 같은 런타임 연산은 오프체인 GAME 런타임과 그 플러그인에 위임한다[^s03]. 공식 문서에는 이 경계를 한 문장으로 요약한 구절이 없으므로 본 진술은 여러 페이지를 종합한 해석이다 _(unverified — 단일 종합 문서 부재)_.
+
+## Agent Lifecycle
+
+에이전트의 출발점은 본딩 커브다. 100 $VIRTUAL 을 (환불 불가) 지불하면 신규 에이전트 ERC-20 토큰이 생성되고, 본딩 커브 위에서 거래가 시작된다[^s14]. 본딩 커브에 누적된 $VIRTUAL 이 **42,000** 에 도달하면 에이전트는 "graduate" — 즉 Uniswap V2 에 자동으로 에이전트 토큰/$VIRTUAL 풀이 만들어지고, 그 LP 토큰은 10년간 lock 된 채 스테이킹돼 emission 보상을 받는다[^s06][^s14]. 이 42k 임계값과 10년 lock 은 **모든 에이전트 런치가 공유하는 프로토콜 수준 불변식**이다[^s06].
+
+그 위에 얹힌 분배 메커니즘이 Genesis Launch 다. Genesis 는 "Virgen" 포인트를 쌓은 커뮤니티 참여자에게 런치 배분을 우선 할당하는 proof-of-contribution 방식의 분배로, 사용자 1 인당 최대 566 $VIRTUAL, 전체 21,000 $VIRTUAL 커밋이 목표이며 이 임계값이 충족되지 않으면 에이전트는 런치되지 않고 $VIRTUALS 과 Virgen 포인트가 모두 환불된다[^s10]. 즉 실패 시에도 원금 손실 없이 되돌아온다는 점이 Genesis 의 핵심 안전장치다[^s10]. 런치패드 운영 모듈 자체는 2024~2025 사이 Genesis → Unicorn 등으로 여러 차례 개편됐고, 현재 문서상으로는 개발자가 프로젝트 성격에 맞게 토글식으로 구성하는 모듈형 시스템으로 재편돼 있다.
+
+에이전트 토큰의 구체적인 공급 정책(lock/ vesting, 은퇴 시 처리)과 컨트리뷰터 스테이킹·revenue share 의 파라미터는 본 리포트 범위(기술 스택) 밖이며, 후속 리서치에서 별도로 다룬다.
+
+## Interoperability & Runtime
+
+**Agent Commerce Protocol(ACP).** ACP 는 복수 에이전트가 서로의 서비스를 사고팔 수 있도록 정의된 에이전트-대-에이전트 상거래 프로토콜이다. 공식 whitepaper 는 ACP 를 "smart contract-based escrow system, cryptographic verification of agreements, and independent evaluation phase" 로 구성된 설계로 명시한다[^s04]. 기술 심층 문서는 한 건의 거래를 네 단계 상태 기계로 나눈다: (1) Request — 에이전트가 초기 의사 타진, (2) Negotiation — 조건을 암호학적으로 서명해 Proof of Agreement(PoA) 를 만든다, (3) Transaction — 지불과 산출물을 스마트 컨트랙트 에스크로에 동시에 예치, (4) Evaluation — 합의된 기준에 맞는지 평가해 평판을 업데이트[^s05]. 특히 "evaluator" 라는 선택적 제3자 에이전트 역할을 도입해 결과물 수용 여부를 판단할 수 있도록 한 점이 특징이다[^s05].
+
+ACP 의 설계상 **지불과 계약 이행 증명 모두 온체인**에 기록되므로, GAME 런타임이 오프체인에서 추론하더라도 "누가 무엇을 얼마에 약속했는가" 와 "정산이 어떻게 이뤄졌는가" 는 체인 상에서 재구성 가능하다[^s05]. 2025년 하반기에는 Jobs 스키마를 도메인별로 유연하게 정의할 수 있는 ACP v2 가 발표돼, v1 의 단일 글로벌 스키마 한계가 완화됐다는 것이 공식 문서의 설명이다.
+
+**멀티체인 확장.** Virtual Protocol 은 Base 단일 체인에서 출발했으나, 2025년 초 Solana 로의 공식 확장이 이뤄지면서 멀티체인 구조로 전환됐다. $VIRTUAL 토큰 자체는 LayerZero 계열 Stargate 브리지로 Base ↔ Solana 간 이동이 가능해졌고, Solana 측에서는 Meteora 의 DLMM 풀을 공식 초기 유동성 레이어로 채택했다[^s22][^s16]. 2026년 시점에는 Ethereum 메인넷, Ronin, Arbitrum 등 체인에도 에이전트가 배포돼 있는 것으로 보고된다[^s21]. 단, 프로토콜 문서 레벨에서 각 체인 별 $VIRTUAL 공급·발행 권한의 소스 오브 트루스를 통합 설명한 페이지는 현재 공개 문서에서 찾기 어려웠다 — 이 통합 모델의 세부는 후속 온체인 검증이 필요하다.
+
+**GAME 런타임과 개발자 접근.** GAME SDK 는 Python, Node.js 양쪽으로 오픈 소스 공개돼 있다. 공식 GitHub 조직(`Virtual-Protocol`) 과 SDK 전용 조직(`game-by-virtuals`) 에 `game-python`, `game-node` 저장소가 존재하며[^s11][^s12][^s20], 공식 whitepaper 도 SDK 가 "an open-sourced repo that allows developers full customizability" 임을 명시한다[^s03]. 이 공개 정도는 Virtual Protocol 에이전트가 단지 호스티드 SaaS 가 아니라 외부 개발자도 자체 런타임을 구성할 수 있는 "프레임워크" 성격을 유지하고 있음을 뒷받침한다.
+
+## Limitations
+
+Virtual Protocol 은 2024년 3월 10일과 2024년 10월 31일 두 차례 PeckShield 감사를 받았고, 두 감사 보고서 PDF 는 공식 whitepaper 리소스 페이지에서 다운로드 가능하다[^s09][^s18][^s19]. 그러나 (a) 그 이후 추가 감사(예: CertiK 등)의 공식적인 공개 기록은 본 리서치 시점(2026-04-18) 에 확보되지 않았고, (b) 감사 보고서 내부의 심각도 분포·오픈 이슈 수·수정 커밋 추적은 본 리포트 범위 밖이다.
+
+그 밖의 한계는 다음과 같다:
+
+- 본 리포트는 **공식 whitepaper 텍스트** 와 **공개 뉴스·기술 기사** 에만 기반하고 있다. Basescan/Etherscan/Solscan 상에서 AgentFactory, Bonding, VIRTUAL 토큰 컨트랙트 등의 배포 주소와 바이트코드/소스 검증은 수행하지 않았다.
+- 공식 문서 내 **표준 표기 불일치** 가 관찰됐다. ICV 페이지(`s08`) 는 에이전트 NFT 를 "ERC-6551 NFT" 로, Agent Creation 페이지(`s14`) 는 "ERC-1155 token-bound address" 로 기술한다. 두 표기는 양립 가능한 조합일 수도 있으나, 이를 최종 구현에서 단정하려면 온체인 컨트랙트 레벨 검증이 필요하다.
+- 에이전트 토큰의 **스테이킹·리워드·은퇴 처리** 및 본딩 커브 경제의 장기 유동성 지속 가능성(저시총 에이전트의 가격 발견 등) 은 A 범위에서 명시적으로 제외했다. Messari, DWF Labs 등 유료 리서치 본문은 접근 제한으로 quote 수집을 완결하지 못했다.
+- ACP 의 **evaluator 역할이 실제로 독립적인지**(담합·평판 세탁 방어 등) 에 대한 보안 모델 분석은 본 리포트에서 수행하지 않았다 — 공식 문서상 evaluator 도입이 명시됐다는 사실까지만 인용했다.
+- 문서·인프라 변경 주기가 빠른 섹터인 만큼, 본 리포트의 기술적 진술은 **2026-04-18 기준**으로만 유효하다.
+
+## Abstract
+
+Virtual Protocol 은 자율 AI 에이전트를 온체인 자산으로 토큰화해 공동 소유·거래 가능한 단위로 재구성하는 web3 에이전트 인프라다. 프로토콜의 기술 스택은 네 층으로 정리된다: (1) $VIRTUAL 과 페어드된 에이전트 ERC-20 토큰(에이전트당 고정 공급 10억), (2) 본딩 커브 → 42,000 $VIRTUAL 그래듀에이션 → Uniswap V2 pool(10년 LP lock) 로 이어지는 생애주기, (3) 에이전트의 인지·음성·비주얼 core 와 각 기여(Service NFT) 를 온체인 금고에 귀속시키는 Immutable Contribution Vault, (4) 4-단계 상태 기계(Request/Negotiation/Transaction/Evaluation) 와 스마트 컨트랙트 에스크로로 에이전트 간 거래를 처리하는 Agent Commerce Protocol. 인지 루프 자체는 Python/Node 용 오픈 소스 GAME SDK 기반으로 오프체인에서 실행되고, 소유권·결제·감사 가시성은 온체인에 남는 구조다. 프로토콜은 Base 를 메인 배포 체인으로 2024년 10월 출시된 이후 Stargate 브리지와 Meteora 풀을 통해 Solana 로 확장됐고, Ethereum/Ronin/Arbitrum 에도 에이전트가 배포돼 있다. PeckShield 가 2 차례 감사를 진행했지만, 스마트 컨트랙트의 온체인 직접 검증, 감사 후 추가 보안 리뷰, 에이전트 경제의 장기 지속 가능성 평가는 본 리포트 범위 밖의 후속 과제로 남는다.

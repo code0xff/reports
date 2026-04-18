@@ -1,30 +1,30 @@
-# Ethereum Attestation Service 심층 분석 및 자체 구현 아키텍처
+# Ethereum Attestation Service: in-depth analysis and self-implementation architecture
 
-## 1. 서론
+## 1. Introduction
 
-블록체인 상에서 "이 주소는 KYC를 통과했다", "이 사용자는 특정 이벤트에 참여했다", "이 컨트랙트는 감사 완료되었다"처럼 검증 가능한 주장(claim)을 표현하려는 시도는 NFT·SBT·DID·Verifiable Credentials 등 다양한 형태로 전개되어 왔다. 이 중 **Ethereum Attestation Service(EAS)** 는 특정 신원 모델이나 토큰 표준에 종속되지 않는 **범용 어테스테이션 레이어**를 목표로 설계된 프로토콜이며, 이더리움 메인넷과 주요 EVM L2에 이미 배포되어 현업 규모로 사용되고 있다.[^s01][^s20]
+Attempts to express verifiable claims on a blockchain — statements like "this address passed KYC", "this user attended a particular event", or "this contract has been audited" — have taken many shapes: NFTs, SBTs, DIDs, and Verifiable Credentials among them. **Ethereum Attestation Service (EAS)** is a protocol designed as a **general-purpose attestation layer** that is not tied to any particular identity model or token standard, and it is already deployed on Ethereum mainnet and the major EVM L2s at production scale.[^s01][^s20]
 
-본 리포트의 목적은 두 가지다. 첫째, EAS의 프로토콜 설계(컨트랙트 구조, 스키마, 온체인/오프체인 어테스테이션, 리졸버, 위임 서명)를 1차 코드와 문서로부터 정리한다. 둘째, 동일한 기능군을 자체적으로 구현하려 할 때 필요한 컴포넌트와 운영 요건을 분해하고, 참조 아키텍처를 제시한다. 범위는 프로토콜·오프체인 인프라·SDK·인덱서까지이며, 법률적 KYC 규제, ZK 어테스테이션의 회로 세부 설계, 특정 도메인(금융, 공급망)의 데이터 모델링은 다루지 않는다.
+This report has two goals. First, it compiles EAS's protocol design — the contract structure, schemas, on-chain and off-chain attestations, resolvers, and delegated signing — from primary code and documentation. Second, it decomposes the components and operational requirements needed to build an equivalent attestation service in-house, and presents a reference architecture. The scope runs from the protocol through off-chain infrastructure, SDKs, and indexers; legal KYC regulation, the circuit details of ZK attestations, and domain-specific data modelling (finance, supply chain) are out of scope.
 
-## 2. 배경
+## 2. Background
 
-### 2.1 Verifiable Credentials와 3자 모델
+### 2.1 Verifiable Credentials and the three-party model
 
-W3C의 Verifiable Credentials(VC) 표준은 "암호학적으로 발급자(authorship)를 검증할 수 있는 변조 방지 자격 증명"을 정의하고, 발급자(Issuer) → 보유자(Holder) → 검증자(Verifier)의 3자 모델을 표준화한다.[^s15] Holder는 보유한 VC로부터 Verifiable Presentation을 생성하여 검증자에게 선택적으로 공개할 수 있다.[^s15] 온체인 어테스테이션 시스템은 이 3자 모델을 EVM 상에서 재현하는 시도로 볼 수 있다: 발급자는 `attester` 주소, 보유자는 `recipient` 주소, 검증자는 어테스테이션 UID를 조회하는 컨트랙트나 오프체인 서비스가 된다.
+The W3C Verifiable Credentials (VC) standard defines "tamper-evident credentials whose authorship can be cryptographically verified" and standardises the three-party model of Issuer → Holder → Verifier.[^s15] A Holder can generate a Verifiable Presentation from the VCs they hold and disclose it selectively to a Verifier.[^s15] On-chain attestation systems can be read as an attempt to reproduce this three-party model on the EVM: the Issuer becomes an `attester` address, the Holder becomes a `recipient` address, and the Verifier becomes a contract or off-chain service that queries an attestation UID.
 
-### 2.2 Soulbound Token과 Decentralized Society
+### 2.2 Soulbound Tokens and the Decentralized Society
 
-Vitalik Buterin은 2022년 1월 에세이에서 World of Warcraft의 "soulbound item" 은유를 빌려, 전송 불가능한 토큰이 자격 증명과 평판 표현에 적합하다고 주장했다: "A soulbound item, once picked up, cannot be transferred or sold to another player."[^s16] 이 아이디어는 같은 해 Ohlhaver·Weyl·Buterin 공저의 "Decentralized Society: Finding Web3's Soul"에서 **Soulbound Token(SBT)** 으로 공식화되었으며, 이들은 "Non-transferable 'soulbound' tokens (SBTs) representing the commitments, credentials, and affiliations of 'Souls' can encode the trust networks of the real economy to establish provenance and reputation."라고 서술한다.[^s25] 표준 트랙에서는 이후 **ERC-5192**가 EIP-721을 확장해 최소 인터페이스로 토큰 전송 불가 속성을 선언할 수 있게 했다.[^s17]
+In a January 2022 essay, Vitalik Buterin borrowed the "soulbound item" metaphor from World of Warcraft to argue that non-transferable tokens are a fit for credentials and reputation: "A soulbound item, once picked up, cannot be transferred or sold to another player."[^s16] The idea was formalised the same year as the **Soulbound Token (SBT)** in "Decentralized Society: Finding Web3's Soul" by Ohlhaver, Weyl, and Buterin, who wrote that "Non-transferable 'soulbound' tokens (SBTs) representing the commitments, credentials, and affiliations of 'Souls' can encode the trust networks of the real economy to establish provenance and reputation."[^s25] On the standards track, **ERC-5192** later extended EIP-721 so that non-transferability could be declared through a minimal interface.[^s17]
 
-### 2.3 SBT vs Attestation — 설계 관점의 차이
+### 2.3 SBT vs. attestation — a design-perspective difference
 
-SBT 경로는 NFT/ERC-721을 확장해 사용자 지갑에 "토큰"을 발행하는 방식을 택하며, 지갑 UI·기존 도구와의 호환성이 장점이다.[^s17] 반면 어테스테이션 경로는 **토큰을 발행하지 않고** 서명된 구조화 데이터(스키마 + 페이로드)를 저장하거나 서명만 배포한다. EAS 공식 README는 이를 "free and open protocol for on-chain attestations on EVM compatible blockchains"로 설명하며 토큰 발행을 필수로 요구하지 않는다.[^s01] 이 차이는 가스 비용, 폐기/갱신 흐름, 프라이버시(오프체인 가능 여부) 측면에서 트레이드오프를 만든다. Verax의 Linea 블로그는 "Verax는 EIP도 프로토콜도 제품도 아닌, 공유 가능한 프리미티브"라며 더 나아가 "레지스트리" 관점을 강조하는데, 이는 EAS가 SBT보다 레지스트리 성격에 가깝다는 점을 시사한다.[^s18]
+The SBT path extends NFTs and ERC-721 to issue a "token" to a user's wallet, which has the advantage of compatibility with wallet UIs and existing tooling.[^s17] The attestation path, by contrast, **does not issue a token**; it stores signed structured data (schema + payload) or distributes only a signature. The EAS README describes it as a "free and open protocol for on-chain attestations on EVM compatible blockchains" and does not require token issuance.[^s01] This difference produces trade-offs in gas cost, revocation/renewal flow, and privacy (whether an off-chain path is even possible). The Verax blog on Linea goes further and stresses the "registry" perspective, arguing that "Verax is not an EIP, a protocol, or a product, but a shareable primitive" — a framing that suggests EAS sits closer to a registry than to SBTs.[^s18]
 
-## 3. EAS 프로토콜 구조 — 현 상태
+## 3. EAS protocol structure — current state
 
-### 3.1 두 개의 핵심 컨트랙트
+### 3.1 Two core contracts
 
-EAS의 온체인 구현은 **`SchemaRegistry`** 와 **`EAS`** 두 컨트랙트로 구성된다. 전자는 스키마를 등록·조회하고, 후자는 그 스키마를 참조하는 어테스테이션을 생성·폐기한다.[^s01][^s06] `SchemaRegistry`의 핵심 저장 구조와 등록 함수는 다음과 같다.[^s04]
+EAS's on-chain implementation consists of two contracts: **`SchemaRegistry`** and **`EAS`**. The former registers and looks up schemas; the latter creates and revokes attestations that reference those schemas.[^s01][^s06] The core storage struct and registration function of `SchemaRegistry` are as follows.[^s04]
 
 ```solidity
 struct SchemaRecord {
@@ -41,11 +41,11 @@ function register(
 ) external returns (bytes32);
 ```
 
-`schema` 필드는 "주소 recipient, uint256 score, string country"와 같은 Solidity ABI-like 선언 문자열이다. UID는 스키마 내용과 리졸버·폐기 가능 여부의 해시로 결정론적으로 도출되므로, **동일 스키마 재등록 시 같은 UID**가 나온다.[^s04][^s06]
+The `schema` field is a Solidity ABI-like declaration string, for example `address recipient, uint256 score, string country`. The UID is derived deterministically from a hash of the schema content together with the resolver and the revocable flag, so **re-registering the same schema yields the same UID**.[^s04][^s06]
 
-### 3.2 Attestation 구조체
+### 3.2 The Attestation struct
 
-어테스테이션 자체는 `Common.sol`에 정의된 10개 필드의 구조체다.[^s03]
+The attestation itself is a ten-field struct defined in `Common.sol`.[^s03]
 
 ```solidity
 struct Attestation {
@@ -62,15 +62,16 @@ struct Attestation {
 }
 ```
 
-`refUID`는 다른 어테스테이션을 참조해 체이닝을 구성할 수 있게 한다(예: "A의 인증서를 기반으로 B가 추천을 발급"). `data`는 스키마에 선언된 타입으로 `abi.encode`된 바이트열이며, 오프체인 인덱서가 이 데이터를 스키마 문자열과 함께 디코딩해 GraphQL에 노출한다.[^s14]
+`refUID` enables chaining by referencing another attestation (for example, "B issues a recommendation based on A's credential"). `data` is a byte string `abi.encode`-ed against the types declared in the schema; off-chain indexers decode this data together with the schema string and expose it via GraphQL.[^s14]
 
-### 3.3 온체인 vs 오프체인 어테스테이션
+### 3.3 On-chain vs. off-chain attestation
 
-EAS는 두 가지 배포 모드를 공식 지원한다.
-- **온체인**: `EAS.attest()` 를 호출해 상태 저장. 가스가 들지만 영구 기록 및 컨트랙트에서 직접 조회 가능.
-- **오프체인**: EIP-712로 타입 지정 서명을 생성해 오프체인 매체(DB, IPFS, Arweave, 링크 URL)로 전달. 필요 시 UID만 온체인에 타임스탬프 가능.[^s06][^s23]
+EAS officially supports two deployment modes.
 
-EAS SDK는 오프체인 서명을 `getOffchain()` + `signOffchainAttestation()` 형태로 캡슐화한다.[^s23]
+- **On-chain**: call `EAS.attest()` to store state. Gas is required, but the record is permanent and can be queried directly from contracts.
+- **Off-chain**: produce a type-aware EIP-712 signature and deliver it through off-chain media (database, IPFS, Arweave, or a link URL). If needed, only the UID can be timestamped on-chain.[^s06][^s23]
+
+The EAS SDK encapsulates off-chain signing as `getOffchain()` + `signOffchainAttestation()`.[^s23]
 
 ```ts
 const offchain = await eas.getOffchain();
@@ -88,15 +89,15 @@ const offchainAttestation = await offchain.signOffchainAttestation(
 );
 ```
 
-서명의 도메인 분리자(domain separator)는 `name`, `version`, `chainId`, `verifyingContract(EAS)`를 포함해 교차 체인·교차 버전 리플레이를 방지한다.[^s23] 검증은 `verifyOffchainAttestationSignature`로 수행한다.[^s23]
+The signature's domain separator includes `name`, `version`, `chainId`, and `verifyingContract(EAS)` to prevent cross-chain and cross-version replay.[^s23] Verification is carried out by `verifyOffchainAttestationSignature`.[^s23]
 
-### 3.4 위임 어테스테이션(Delegated Attestation)
+### 3.4 Delegated attestation
 
-위임 어테스테이션은 서명자(attester)와 트랜잭션 전송자(sponsor)를 분리한다. 공식 튜토리얼은 이를 "Delegated Attestations enable an entity to sign an attestation while allowing another entity to cover the transaction fee."라고 정의한다.[^s13] 이 때 온체인 `attester` 필드는 서명자 주소로 기록된다.[^s13] 표준 경로는 EIP-712 스펙에 따른 **증가하는 nonce**를 요구하지만, 프록시 컨트랙트를 통해 "out of order" 수락과 서명 만료시간을 지원한다.[^s22] KYC 발급자가 수천 사용자에게 가스비를 부담시키지 않기 위한 대량 발급 패턴에서 특히 유용하다.[^s22]
+Delegated attestation separates the signer (attester) from the transaction sender (sponsor). The official tutorial defines it as: "Delegated Attestations enable an entity to sign an attestation while allowing another entity to cover the transaction fee."[^s13] The on-chain `attester` field is still recorded as the signer's address.[^s13] The standard path requires an **increasing nonce** per the EIP-712 spec, but proxy contracts also support "out of order" acceptance and a signature expiration time.[^s22] This is particularly useful for bulk-issuance patterns where a KYC issuer does not want to burden thousands of users with gas costs.[^s22]
 
-### 3.5 Schema Resolver — 훅 메커니즘
+### 3.5 Schema resolver — the hook mechanism
 
-`SchemaResolver`는 어테스테이션 발급·폐기 시점에 실행되는 훅 컨트랙트로, 스키마 등록 시 지정한다.[^s05] 추상 베이스는 다음과 같은 진입점을 노출한다.[^s05]
+`SchemaResolver` is a hook contract that executes at the moment of attestation issuance or revocation, and is bound to a schema at registration time.[^s05] The abstract base exposes entry points such as the following.[^s05]
 
 ```solidity
 function attest(Attestation calldata a) external payable onlyEAS returns (bool);
@@ -106,70 +107,70 @@ function multiRevoke(Attestation[] calldata a, uint256[] calldata v) ...;
 function isPayable() public pure virtual returns (bool);
 ```
 
-`onlyEAS` 모디파이어는 호출자를 EAS 컨트랙트로 제한해 권한 분리를 강제한다.[^s05] 이를 통해 수수료 수취, 화이트리스트 확인, 토큰 배포, 외부 오라클 호출과 같은 임의 로직을 스키마에 결합할 수 있다.[^s05][^s06]
+The `onlyEAS` modifier restricts callers to the EAS contract, enforcing separation of authority.[^s05] This lets arbitrary logic be bound to a schema: fee collection, whitelist checks, token distribution, external oracle calls, and so on.[^s05][^s06]
 
-### 3.6 배포 현황
+### 3.6 Deployment status
 
-EAS 컨트랙트는 Ethereum Mainnet(`EAS 0xA120...Ce587`, `SchemaRegistry 0xA7b3...7BDF`) 및 Optimism, Base, Arbitrum, Polygon, Scroll, zkSync, Celo 등 다수 EVM 체인에 배포되어 있다.[^s02] 특히 Optimism은 **OP Stack의 predeploy**로 EAS를 포함시켜 "Introduced: Bedrock; Proxied: yes"로 표기하고 있으며, 주소는 OP Mainnet/Sepolia 모두 `0x4200...0021`(EAS) / `0x4200...0020`(SchemaRegistry)로 고정된다.[^s07][^s08] 공개 인덱서 `easscan.org`는 체인별 GraphQL 엔드포인트(예: `https://base.easscan.org/graphql`)를 제공한다.[^s14] EAS 공식 FAQ는 컨트랙트가 Spearbit 제3자 감사를 거쳤음과, 어테스테이션 자체는 불변이며 폐기가 삭제가 아닌 상태 전이임을 명시한다: "EAS contracts have undergone a thorough audit by Spearbit… It does not delete the attestation."[^s28]
+The EAS contracts are deployed on Ethereum mainnet (`EAS 0xA120...Ce587`, `SchemaRegistry 0xA7b3...7BDF`) and on many EVM chains including Optimism, Base, Arbitrum, Polygon, Scroll, zkSync, and Celo.[^s02] Notably, Optimism includes EAS as an **OP Stack predeploy**, labelled "Introduced: Bedrock; Proxied: yes", with addresses fixed to `0x4200...0021` (EAS) / `0x4200...0020` (SchemaRegistry) on both OP Mainnet and OP Sepolia.[^s07][^s08] The public indexer `easscan.org` offers per-chain GraphQL endpoints such as `https://base.easscan.org/graphql`.[^s14] The official EAS FAQ notes that the contracts have undergone a third-party Spearbit audit and that attestations themselves are immutable, and that revocation is a state transition rather than a delete: "EAS contracts have undergone a thorough audit by Spearbit… It does not delete the attestation."[^s28]
 
-## 4. 생태계와 활용 사례
+## 4. Ecosystem and use cases
 
 ### 4.1 Coinbase Verifications
 
-Coinbase는 2023년 11월 Base 체인에서 EAS를 기반으로 한 "Coinbase Verifications"를 공개했다.[^s11] 초기 제공 스키마는 **Verified Account**(불리언, 항상 `true`)와 **Verified Country**(ISO 3166-1 alpha-2 문자열)이며, 이후 **Verified Coinbase One** 멤버십 스키마가 추가되었다.[^s09][^s27] Base Mainnet의 발급자(Coinbase Attester)는 `0x3574...d7EE`이고, Verified Account 스키마 UID는 `0xf8b0...0de9`이다.[^s10] 이 설계는 "발급자=Coinbase, 사용자=recipient, 스키마=사전 등록, 데이터=불리언/문자열"이라는 가장 얕은 EAS 패턴으로, KYC 같은 민감 정보를 직접 저장하지 않고 **검증 통과 여부만** 온체인화한다는 점에서 프라이버시-실용 트레이드오프의 대표 사례다.[^s09][^s27]
+In November 2023 Coinbase released "Coinbase Verifications" on the Base chain, built on EAS.[^s11] The initial schemas were **Verified Account** (boolean, always `true`) and **Verified Country** (ISO 3166-1 alpha-2 string); the **Verified Coinbase One** membership schema was added later.[^s09][^s27] On Base mainnet, the issuer (the Coinbase Attester) is `0x3574...d7EE`, and the Verified Account schema UID is `0xf8b0...0de9`.[^s10] This design — "issuer = Coinbase, user = recipient, schema = pre-registered, data = boolean/string" — is the shallowest EAS pattern, and it is a representative example of the privacy/utility trade-off: sensitive KYC information itself is not stored, only **the fact of passing** is recorded on-chain.[^s09][^s27]
 
 ### 4.2 Gitcoin Passport
 
-Gitcoin Passport는 "Stamp" 기반 Sybil 저항 시스템으로, 2024년 기준 여러 체인에서 온체인 민트를 지원한다: "Gitcoin Passport creates a Stamp and score attestation, and mints them onchain to EAS and other attestation registries, depending on which network users choose."[^s12] 즉 EAS는 Passport 데이터의 **다운스트림 싱크** 중 하나이며, 스코어/스탬프가 변동성이 있는 만큼 "온체인 값은 시점 스냅샷"이라는 한계를 문서에서 명시한다.[^s12]
+Gitcoin Passport is a "Stamp"-based Sybil-resistance system that as of 2024 supports on-chain minting across multiple chains: "Gitcoin Passport creates a Stamp and score attestation, and mints them onchain to EAS and other attestation registries, depending on which network users choose."[^s12] EAS is therefore one **downstream sink** for Passport data; because scores and stamps are volatile, the documentation explicitly warns that "on-chain values are point-in-time snapshots".[^s12]
 
-### 4.3 Optimism과 공공재 투표
+### 4.3 Optimism and public-goods voting
 
-Optimism은 2022년 AttestationStation을 별도로 구현해 RetroPGF의 시민 선정 등에 사용한 선행 사례를 가지고 있으며, 이후 2023년 5월에 EAS를 채택한다고 공표했다.[^s21] Bedrock 업그레이드 이후 EAS는 OP Stack의 **predeploy**로 포함되어, OP 공식 문서는 OP Mainnet과 OP Sepolia에 동일한 predeploy 주소로 EAS를 제공한다고 명시한다(OP Stack 파생 체인 전반의 상속 여부는 각 체인 구성에 따른다).[^s07][^s08] _(AttestationStation 원 컨트랙트의 기술 사양과 EAS 이전 과정을 다룬 1차 문서는 본 조사에서 확보하지 못했으며, 리포트는 "Optimism이 선행 AttestationStation을 운용한 뒤 EAS로 수렴"이라는 큰 줄기만 제시한다 — unverified — single source_)
+Optimism implemented its own AttestationStation in 2022 and used it, among other things, to select Retro Public Goods Funding (RetroPGF) citizens; in May 2023 it announced it would adopt EAS.[^s21] After the Bedrock upgrade, EAS was included as an **OP Stack predeploy**, and the OP documentation states that EAS is available at the same predeploy address on OP Mainnet and OP Sepolia (inheritance across derived OP Stack chains depends on each chain's configuration).[^s07][^s08] _(Primary sources documenting the technical specification of the original AttestationStation contract and the migration to EAS could not be obtained in this research; the report only presents the broad arc that "Optimism operated a predecessor AttestationStation and later converged on EAS" — unverified — single source.)_
 
-### 4.4 생태계 규모
+### 4.4 Ecosystem scale
 
-EAS 공식 생태계 페이지는 "420k+ unique attestors"와 주요 통합으로 Optimism, Coinbase Verifications, Gitcoin Passport, Guild, Icebreaker, KarmaHQ, Scroll Canvas, Arbitrum Arcade, Ceramic을 소개한다.[^s20] 한편 Ethereum Mainnet만 보면 `easscan.org`는 접속 시점 기준 **총 어테스테이션 13,730건 / 스키마 372개 / 고유 어테스터 781명**을 표시해, 생태계 전체 수치와 메인넷 활동량 사이에 뚜렷한 격차가 있음을 시사한다(L2에 상당량이 분산되어 있음을 시사하나, 체인별 점유율의 정량 비교는 본 조사 범위 밖).[^s26] 두 수치는 서로 충돌이 아니라 **범위 차이**(체인별 vs 생태계 전체)다.[^s20][^s26]
+The official EAS ecosystem page highlights "420k+ unique attestors" and lists major integrations such as Optimism, Coinbase Verifications, Gitcoin Passport, Guild, Icebreaker, KarmaHQ, Scroll Canvas, Arbitrum Arcade, and Ceramic.[^s20] Looking at Ethereum mainnet alone, `easscan.org` at the time of access displays a total of **13,730 attestations / 372 schemas / 781 unique attesters**, suggesting a clear gap between ecosystem-wide figures and mainnet activity (a substantial portion is presumably distributed across L2s, though a quantitative per-chain breakdown is out of scope).[^s26] The two numbers do not contradict one another; they simply reflect **different scopes** (per-chain vs. ecosystem-wide).[^s20][^s26]
 
-### 4.5 경쟁·보완 프로토콜
+### 4.5 Competitors and complements
 
-- **Verax(Linea, Consensys)** — 공유 레지스트리 성격을 강조하며 "Verax is not an Ethereum Improvement Proposal (EIP), or a protocol, or a product, but rather a simple primitive"로 자신을 정의한다. 설계 목표는 EAS와 유사하나 **모듈(Module) 중심 훅**과 **다른 표준과의 상호운용**에 더 기울어져 있다.[^s18]
-- **Sign Protocol(구 EthSign)** — "omni-chain attestation protocol"을 표방하며 스키마와 어테스테이션 프리미티브를 EAS와 유사하게 정의하되, 계약 서명(EthSign)·사설/ZK 어테스테이션을 상위 제품 라인업에 포함한다.[^s19][^s24] EAS와의 공식 비교표는 확인되지 않았고, 본 리포트는 두 제품이 동일한 "스키마 + 어테스테이션" 프리미티브 위에 각기 다른 기능군을 쌓는 것으로 정리한다.[^s19][^s24]
+- **Verax (Linea, Consensys)** — stresses its shared-registry character, defining itself as "Verax is not an Ethereum Improvement Proposal (EIP), or a protocol, or a product, but rather a simple primitive". Its design goals are similar to EAS, but it leans more heavily on **module-centric hooks** and on **interoperation with other standards**.[^s18]
+- **Sign Protocol (formerly EthSign)** — describes itself as an "omni-chain attestation protocol" and defines schema and attestation primitives similarly to EAS, while placing contract signing (EthSign) and private/ZK attestations higher up in its product line-up.[^s19][^s24] No official comparison table with EAS was identified; this report treats the two products as stacking different feature sets on top of a shared "schema + attestation" primitive.[^s19][^s24]
 
-## 5. 분석 — 설계 관점에서의 EAS
+## 5. Analysis — EAS as a design
 
-세 가지 관점으로 EAS의 설계 선택을 요약한다.
+We summarise EAS's design choices from three angles.
 
-**1) 미니멀한 온체인 코어, 두꺼운 오프체인 인덱서.** EAS 온체인은 `SchemaRegistry` + `EAS` + `SchemaResolver`의 3종 세트뿐이며, 대부분의 애플리케이션 의미론(점수 계산, Stamp 집계, 프로필 생성)은 오프체인 인덱서와 SDK에 위임된다.[^s14][^s23] 이는 표준화 부담을 낮추는 대신, 실사용자 경험의 질을 인덱서 품질에 종속시킨다.
+**1) A minimal on-chain core, a thick off-chain indexer.** The on-chain surface of EAS comprises just three contracts: `SchemaRegistry`, `EAS`, and `SchemaResolver`. Most application semantics — score computation, stamp aggregation, profile construction — are delegated to off-chain indexers and SDKs.[^s14][^s23] This lowers the standardisation burden but makes real user-experience quality dependent on indexer quality.
 
-**2) 스키마 UID의 결정론과 컴포저빌리티.** 스키마 UID가 결정론적으로 산출되기 때문에 동일 정의를 서로 다른 체인에 올려도 **UID 수준의 식별성**을 유지할 수 있다.[^s04] `refUID` 필드는 어테스테이션 간 인용 그래프를 만들 수 있는 기반이며, EAS 생태계 페이지가 Scroll Canvas를 "NFT badges를 어테스테이션으로 재해석"으로, KarmaHQ를 "Reputation & Governance"로 소개하는 등 평판·배지 인프라로의 활용이 보고되고 있다.[^s20]
+**2) Deterministic schema UIDs and composability.** Because schema UIDs are derived deterministically, the same definition deployed on different chains preserves **identity at the UID level**.[^s04] The `refUID` field is the foundation for building citation graphs between attestations; the EAS ecosystem page reports uses in reputation and badge infrastructure, with Scroll Canvas reinterpreting "NFT badges as attestations" and KarmaHQ positioned as "Reputation & Governance".[^s20]
 
-**3) 위임·리졸버를 통한 확장성.** 위임 어테스테이션은 엔터프라이즈 발급자(KYC 제공자, 게임 서버)의 사용자 가스 부담을 제거하고, 리졸버는 수수료·조건 검증·외부 훅을 스키마 단위로 주입한다. 단, 리졸버가 외부 컨트랙트·오라클을 호출할 경우 **재진입성과 권한 관리**가 핵심 리스크가 된다.[^s05][^s13]
+**3) Extensibility via delegation and resolvers.** Delegated attestations remove the per-user gas burden for enterprise issuers (KYC providers, game servers), and resolvers inject fees, condition checks, and external hooks on a per-schema basis. However, if a resolver calls an external contract or oracle, **re-entrancy and authorisation** become the central risks.[^s05][^s13]
 
-이 세 가지 선택의 합은 "어떤 신원 모델이냐"를 강제하지 않는 **중립 레이어**라는 포지셔닝으로 수렴하며, 이는 Verax가 "shared primitive"를 명시적 설계 목표로 삼는 방향과도 공통된다.[^s18]
+The sum of these three choices converges on a positioning as a **neutral layer** that does not force any particular identity model, which aligns with Verax's explicit design goal of being a "shared primitive".[^s18]
 
-## 6. 자체 구현 아키텍처
+## 6. Self-implementation architecture
 
-EAS와 기능적으로 동등한 자체 어테스테이션 서비스를 구현하려는 조직을 전제로, 최소 기능 집합과 참조 아키텍처를 제시한다.
+Assuming an organisation that wants to implement an attestation service functionally equivalent to EAS, we propose a minimum feature set and a reference architecture.
 
-### 6.1 기능 분해
+### 6.1 Feature decomposition
 
-최소 구현 범위는 다음 9개 모듈로 나뉜다.[^s01][^s04][^s05][^s13][^s14][^s23]
+A minimum implementation divides into the following nine modules.[^s01][^s04][^s05][^s13][^s14][^s23]
 
-| # | 모듈 | 주요 책임 |
-|---|-------|-----------|
-| M1 | Schema Registry (온체인) | 스키마 등록·조회, UID 결정론, 리졸버 바인딩 |
-| M2 | Attestation Core (온체인) | 어테스테이션 발급·폐기, UID 생성, 이벤트 방출 |
-| M3 | Schema Resolver (선택) | 발급/폐기 훅, 수수료 수취, 외부 검증 |
-| M4 | Offchain Signer / Verifier | EIP-712 타입 정의, 도메인 분리, 서명·검증 |
-| M5 | Delegated Attestation | 위임 서명·nonce·프록시, 만료 시간 |
-| M6 | Indexer | 체인 이벤트 ingest, ABI 기반 데이터 디코딩 |
-| M7 | Query API | GraphQL/REST, 스키마·어테스테이션·그래프 질의 |
-| M8 | Offchain Storage (선택) | 오프체인 페이로드 저장(IPFS/Arweave/전용 DB) |
-| M9 | SDK | TypeScript·Go 등 언어 바인딩, 서명 유틸, 인코더 |
+| # | Module | Main responsibilities |
+|---|--------|-----------------------|
+| M1 | Schema Registry (on-chain) | Schema registration and lookup, deterministic UIDs, resolver binding |
+| M2 | Attestation Core (on-chain) | Attestation issuance and revocation, UID generation, event emission |
+| M3 | Schema Resolver (optional) | Issuance/revocation hooks, fee collection, external verification |
+| M4 | Off-chain Signer / Verifier | EIP-712 type definitions, domain separation, signing and verification |
+| M5 | Delegated Attestation | Delegated signing, nonces, proxy, expiration time |
+| M6 | Indexer | Chain event ingest, ABI-based data decoding |
+| M7 | Query API | GraphQL/REST, queries over schemas, attestations, and graphs |
+| M8 | Off-chain Storage (optional) | Off-chain payload storage (IPFS / Arweave / dedicated DB) |
+| M9 | SDK | Language bindings (TypeScript, Go, …), signature utilities, encoders |
 
-M1·M2·M4·M6·M7은 **최소 기능**이며, 생태계 수준의 효용을 내려면 M5·M9가 사실상 필수다. M3·M8은 사용 사례가 요구할 때 추가한다.[^s05][^s12]
+M1, M2, M4, M6, and M7 are the **minimum feature set**; for ecosystem-level utility, M5 and M9 are effectively required as well. M3 and M8 are added when the use case demands them.[^s05][^s12]
 
-### 6.2 참조 아키텍처(시스템 구성도)
+### 6.2 Reference architecture (system diagram)
 
 ```
                   ┌───────────────────────────────┐
@@ -211,67 +212,69 @@ M1·M2·M4·M6·M7은 **최소 기능**이며, 생태계 수준의 효용을 내
       └────────────────────────────────────────────────┘
 ```
 
-데이터 흐름 요약:
-1. 애플리케이션이 SDK로 페이로드를 `abi.encode`하고 EIP-712 서명을 생성(M9).[^s23]
-2. 발급 방식에 따라 분기 — (a) 직접 `attest()` 호출, (b) 위임 서명만 생성 후 sponsor가 `attestByDelegation()` 호출, (c) 완전 오프체인일 경우 서명만 저장.[^s13][^s23]
-3. 온체인 경로는 `SchemaRegistry`에서 리졸버를 조회해 `onAttest` 훅을 실행(M1, M3).[^s05]
-4. 인덱서(M6)가 `Attested`/`Revoked` 이벤트를 수집, 스키마 정의로 디코딩 후 저장.[^s14]
-5. Query API(M7)가 GraphQL로 외부에 노출. 오프체인 어테스테이션은 저장소(M8) URI 기반으로 해시·서명 검증 후 동일 인덱스에 병합 가능.[^s14][^s23]
+Data-flow summary:
 
-### 6.3 핵심 설계 결정
+1. The application uses the SDK to `abi.encode` a payload and produce an EIP-712 signature (M9).[^s23]
+2. Depending on the issuance mode the flow branches: (a) call `attest()` directly, (b) produce only a delegated signature and let a sponsor call `attestByDelegation()`, or (c) for fully off-chain attestations, simply store the signature.[^s13][^s23]
+3. The on-chain path consults `SchemaRegistry` for the resolver and executes the `onAttest` hook (M1, M3).[^s05]
+4. The indexer (M6) collects `Attested` / `Revoked` events, decodes them against the schema definition, and stores them.[^s14]
+5. The query API (M7) exposes GraphQL externally. Off-chain attestations can be merged into the same index based on a storage (M8) URI after hash and signature verification.[^s14][^s23]
 
-**컨트랙트 레이어**
-- **UID 결정론**: `keccak256(schema || resolver || revocable)` 형태로 스키마 UID를 산출해 재등록 멱등성을 확보한다.[^s04]
-- **리졸버 격리**: 모든 외부 호출 리졸버는 체크-효과-상호작용(Checks-Effects-Interactions) 패턴을 강제하고, `onlyEAS`로 직접 호출을 차단한다.[^s05]
-- **폐기**: `revocable=false` 어테스테이션은 영구 불변; `revocable=true`는 발급자만 `revoke` 가능. 프록시를 통한 위임 폐기도 동일 서명 스킴을 재사용한다.[^s13][^s22]
+### 6.3 Key design decisions
 
-**오프체인 레이어**
-- **EIP-712 도메인**: `{name: "MYEAS", version: "1", chainId, verifyingContract}`로 분리자 고정. 체인 또는 컨트랙트 재배포 시 `version` 인상으로 리플레이 방지.[^s23]
-- **저장소 선택**: IPFS(컨텐츠 어드레스·분산)·Arweave(영구성)·내부 DB(접근 제어·삭제성) 중 사용 사례별 선택. EAS는 오프체인 어테스테이션을 URL fragment에 실을 수 있는 프라이버시 친화 패턴도 제공하므로, 개인정보성 페이로드는 해시만 온체인에 올리고 본문은 허가된 당사자에게만 전달하는 방식이 권장된다.[^s06]
-- **인덱서**: The Graph 서브그래프 또는 자체 인덱서(예: PostgreSQL + Rust/TS worker). EAS 팀은 체인별 독립 GraphQL 엔드포인트(`{chain}.easscan.org/graphql`)를 운영한다.[^s14]
+**Contract layer**
+- **Deterministic UID**: derive the schema UID as `keccak256(schema || resolver || revocable)` to guarantee idempotent re-registration.[^s04]
+- **Resolver isolation**: enforce the Checks-Effects-Interactions pattern on every external-calling resolver, and use `onlyEAS` to block direct calls.[^s05]
+- **Revocation**: `revocable=false` attestations are permanently immutable; `revocable=true` attestations can be revoked only by the issuer. Delegated revocation via a proxy reuses the same signature scheme.[^s13][^s22]
 
-**SDK 레이어**
-- 페이로드 인코딩 유틸(스키마 문자열 파싱 → ABI 타입 벡터 → `encodeAbiParameters`).
-- 서명 유틸(EIP-712 `domain`, `types`, `message` 빌더).
-- 조회 유틸(GraphQL 래퍼 + 타입 안전한 결과 파서).
-- 검증 유틸(서명 복원, 체인 상태 조회, 폐기 확인).[^s23]
+**Off-chain layer**
+- **EIP-712 domain**: fix the separator as `{name: "MYEAS", version: "1", chainId, verifyingContract}`. On chain- or contract-redeployment, bump `version` to prevent replay.[^s23]
+- **Storage choice**: select among IPFS (content-addressed and distributed), Arweave (permanent), and an internal database (access control and deletability) based on the use case. Because EAS provides a privacy-friendly pattern in which off-chain attestations can be embedded in a URL fragment, the recommendation for PII payloads is to put only a hash on-chain and deliver the body to authorised parties alone.[^s06]
+- **Indexer**: a The Graph subgraph or an in-house indexer (for example PostgreSQL with a Rust/TS worker). The EAS team operates independent GraphQL endpoints per chain (`{chain}.easscan.org/graphql`).[^s14]
 
-### 6.4 보안·운영 체크리스트
+**SDK layer**
+- Payload-encoding utilities (schema string → ABI type vector → `encodeAbiParameters`).
+- Signing utilities (EIP-712 `domain`, `types`, `message` builders).
+- Query utilities (a GraphQL wrapper and a type-safe result parser).
+- Verification utilities (signature recovery, chain-state lookup, revocation checks).[^s23]
 
-아래 항목은 자체 구현 시 최소 점검 대상이다.[^s05][^s13][^s22][^s23]
+### 6.4 Security and operations checklist
 
-- EIP-712 도메인 분리자의 4개 필드(name, version, chainId, verifyingContract) 고정과 체인·컨트랙트 리플레이 방지.
-- nonce 전략: 기본 증가형 vs 프록시형(만료시간 포함) 중 사용자 시나리오에 맞춘 선택.
-- 리졸버 재진입 방지(`ReentrancyGuard`) 및 외부 호출 가스 상한.
-- 대량 발급(multiAttest) 시 `values` 배열·이더 잔여 반환 로직의 불변식.
-- 인덱서 재편성(reorg) 대응: 블록 finality 이후 반영, L2의 경우 시퀀서 문제 고려.
-- 오프체인 서명의 시간 동기화(서명 `time` vs 검증 시계 스큐).
-- 스키마 업그레이드 정책: 기존 스키마는 불변이므로 **스키마 버전 관리**를 외부 규약(예: `v1`, `v2` suffix)으로 처리.
+The following items are the minimum inspection points for an in-house implementation.[^s05][^s13][^s22][^s23]
 
-### 6.5 단계적 구현 로드맵(제안)
+- Fix the four fields of the EIP-712 domain separator (name, version, chainId, verifyingContract) to prevent chain- and contract-level replay.
+- Nonce strategy: choose between the default incrementing nonce and the proxy variant (with expiration time) based on the user scenario.
+- Prevent re-entrancy in resolvers (`ReentrancyGuard`) and cap external-call gas.
+- Guard invariants on the `values` array and residual-ether refund logic for bulk issuance (`multiAttest`).
+- Handle indexer reorgs: reflect events only after block finality, and account for sequencer issues on L2s.
+- Synchronise off-chain signature timing (signature `time` vs. verification clock skew).
+- Schema upgrade policy: because existing schemas are immutable, handle **schema versioning** through an external convention (for example, `v1`, `v2` suffixes).
 
-1. **MVP** — M1 + M2 + 최소 M9(TS SDK), 오프체인 인덱서는 The Graph 서브그래프로 시작.
-2. **실사용 대응** — M5(위임 서명), M4 완성, 웹 익스플로러(M7 UI) 추가.
-3. **엔터프라이즈** — M3 리졸버 라이브러리(수수료, ACL, 콜백), 프라이빗 어테스테이션(M8 + 키 교환).
-4. **상호운용** — Verax·EAS와 교차 인덱싱, 공통 스키마 카탈로그 참여.[^s18]
+### 6.5 Phased implementation roadmap (proposed)
 
-이 로드맵은 EAS 자체의 기능 확장 순서와 Gitcoin·Coinbase 등 도입 사례에서 관찰되는 요구 순서에 기반한다.[^s09][^s12][^s13]
+1. **MVP** — M1 + M2 + a minimum M9 (TS SDK), with the off-chain indexer starting as a The Graph subgraph.
+2. **Production readiness** — M5 (delegated signing), complete M4, and a web explorer (an M7 UI).
+3. **Enterprise** — an M3 resolver library (fees, ACL, callbacks) and private attestations (M8 + key exchange).
+4. **Interoperability** — cross-indexing with Verax and EAS, participation in a shared schema catalogue.[^s18]
 
-## 7. 한계
+This roadmap follows the order in which EAS itself extended its functionality and the demand order observed in adoption cases such as Gitcoin and Coinbase.[^s09][^s12][^s13]
 
-본 리포트는 다음 주제를 충분히 다루지 못했다.
-- **Optimism AttestationStation의 기술 사양과 EAS 이전 과정**: 1차 자료 확보 실패로 CoinDesk 보도와 OP 공식 문서의 간접 인용에만 의존했다.[^s07][^s21]
-- **오프체인 저장소 트레이드오프(IPFS vs Arweave vs RDB)의 정량 비교**: 벤치·비용 자료를 확보하지 못해 정성적 서술에 그쳤다.
-- **ZK/사설 어테스테이션**: EAS SDK가 Merkle tree 기반 private data를 지원함을 언급했으나,[^s23] 회로 설계나 프라이버시 공격 표면의 분석은 제외했다.
-- **경제적 평가**: 어테스테이션당 가스 비용, 인덱서 운영 비용, 오프체인 저장 비용의 모델링은 별도 연구가 필요하다.
-- **규제·법률**: KYC/AML, 개인정보(GDPR·국내 개인정보보호법), VC 표준 정합성과의 법적 인터페이스는 범위 외.
+## 7. Limitations
 
-향후 확장으로는 (1) EAS·Verax·Sign Protocol의 **정량 사용 통계 비교**, (2) **실시간 인덱서 품질 측정**(지연, 정확도), (3) 자체 구현 MVP의 **감사 이슈 카탈로그**가 유의미할 것이다.
+This report could not adequately cover the following topics.
+
+- **The technical specification of Optimism's AttestationStation and the migration process to EAS**: we could not secure primary sources and relied on indirect citation of CoinDesk reporting and the official OP documentation.[^s07][^s21]
+- **A quantitative comparison of off-chain storage trade-offs (IPFS vs. Arweave vs. RDB)**: without benchmark and cost data, we could only offer qualitative description.
+- **ZK / private attestations**: although we noted that the EAS SDK supports Merkle-tree-based private data,[^s23] analysis of the circuit design or privacy attack surface was excluded.
+- **Economic evaluation**: modelling per-attestation gas cost, indexer operational cost, and off-chain storage cost requires a separate study.
+- **Regulation and law**: the legal interface with KYC/AML, personal information (GDPR, Korea's PIPA, and similar), and VC standard alignment is out of scope.
+
+Meaningful future extensions include (1) a **quantitative usage comparison** of EAS, Verax, and Sign Protocol; (2) **real-time indexer quality measurement** (latency, accuracy); and (3) an **audit-issue catalogue** for a self-implementation MVP.
 
 ## Abstract
 
-Ethereum Attestation Service(EAS)는 EVM 호환 체인 상에서 스키마 기반의 검증 가능한 주장(어테스테이션)을 발급·조회·폐기할 수 있게 하는 퍼블릭 굿 프로토콜이다.[^s01] 본 리포트는 EAS의 두 핵심 컨트랙트(`SchemaRegistry`, `EAS`)와 `Attestation` 구조체, 온체인·오프체인 발급 경로, EIP-712 기반 위임 서명, 리졸버 훅을 1차 소스 코드와 공식 문서로부터 정리한다.[^s03][^s04][^s05][^s13][^s22][^s23] 이어 Coinbase Verifications, Gitcoin Passport, Optimism RetroPGF 및 OP Stack predeploy 통합 사례를 통해 EAS가 이미 생태계 규모의 어테스테이션 레이어로 기능함을 확인하고,[^s07][^s09][^s12][^s20] Verax·Sign Protocol 등 대안과의 설계적 차이를 요약한다.[^s18][^s19][^s24] 마지막으로 동일 기능군을 자체 구현할 때 필요한 9개 모듈(스키마 레지스트리, 어테스테이션 코어, 리졸버, 오프체인 서명·검증, 위임, 인덱서, Query API, 오프체인 저장소, SDK)을 정의하고, 참조 시스템 아키텍처와 단계적 구현 로드맵, EIP-712 도메인 분리·리졸버 재진입·스키마 버전 관리 등 보안·운영 체크리스트를 제시한다. 리포트는 어테스테이션 서비스를 신원 모델에 종속시키지 않는 **중립 레이어**로 설계한 EAS의 선택이 높은 조합성과 확장성을 제공한다고 평가하는 한편, 오프체인 인덱서 품질과 리졸버 보안이 자체 구현의 승패를 가르는 지점이라고 결론 맺는다.
+Ethereum Attestation Service (EAS) is a public-good protocol that enables schema-based, verifiable claims — attestations — to be issued, looked up, and revoked on EVM-compatible chains.[^s01] This report compiles the two core contracts (`SchemaRegistry`, `EAS`), the `Attestation` struct, the on-chain and off-chain issuance paths, EIP-712-based delegated signing, and the resolver hook, drawing on primary source code and official documentation.[^s03][^s04][^s05][^s13][^s22][^s23] It then reviews Coinbase Verifications, Gitcoin Passport, Optimism RetroPGF, and the OP Stack predeploy integration to confirm that EAS already functions as an ecosystem-scale attestation layer,[^s07][^s09][^s12][^s20] and summarises the design differences with alternatives such as Verax and Sign Protocol.[^s18][^s19][^s24] Finally it defines the nine modules needed to implement an equivalent service in-house — schema registry, attestation core, resolver, off-chain signing and verification, delegation, indexer, query API, off-chain storage, and SDK — and presents a reference system architecture, a phased implementation roadmap, and a security and operations checklist covering EIP-712 domain separation, resolver re-entrancy, and schema version management. The report concludes that EAS's choice to design the attestation service as a **neutral layer** not bound to any identity model delivers high composability and extensibility, while off-chain indexer quality and resolver security are the decisive points for an in-house implementation.
 
 ## References
 
-모든 참고문헌은 `working/sources.jsonl`에서 자동 생성된다.
+All references are generated automatically from `working/sources.jsonl`.
