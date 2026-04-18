@@ -15,7 +15,7 @@ def greet(name: str) -> str:
     return f"hello, {name}"
 ```
 
-Inline math such as $E = mc^2$ and a display equation
+Inline math such as \\(E = mc^2\\) and a display equation
 
 $$\int_0^1 x^2\,dx = \tfrac{1}{3}$$
 
