@@ -7,7 +7,7 @@
 ```
 .
 ├── index.html              # 루트 인덱스 (harness render-index 가 재생성)
-├── reports/<slug>/
+├── <slug>/                 # 리포트 디렉토리는 루트에 평탄하게 놓인다
 │   ├── index.html          # 렌더된 리포트 HTML
 │   ├── meta.yaml           # 메타데이터
 │   ├── draft.md            # 원본 마크다운
@@ -16,6 +16,8 @@
 ├── .nojekyll
 └── .github/workflows/pages.yml
 ```
+
+`assets`, `index`, `reports`, `readme`, `.git`, `.github`, `.nojekyll` 은 루트에서 예약된 이름이므로 slug 로 사용할 수 없다.
 
 ## 편집 방법
 
