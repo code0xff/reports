@@ -1,0 +1,10 @@
+title: AI Agent용 신원 인증에서 EAS와 DID/VC의 비교 분석
+subtitle: 온체인 어테스테이션과 분산 식별자 스택을 중심으로 본 설계 선택지
+title_en: Comparing EAS and DID/VC for AI agent identity
+subtitle_en: Design tradeoffs across on-chain attestations and decentralized identifier stacks
+slug: ai-agent-identity-eas-vs-did
+lang: ko
+langs: [ko, en]
+date: 2026-04-20
+tags: [ai-agents, identity, eas, did, verifiable-credentials, authentication]
+status: ready

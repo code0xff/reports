@@ -1,0 +1,53 @@
+# Comparing EAS and DID/VC for AI agent identity
+
+## Abstract
+
+When designing identity for AI agents, `EAS (Ethereum Attestation Service)` and `DID (Decentralized Identifiers)` are often discussed as if they were competing substitutes. Technically, they operate at different layers. DIDs are an identifier layer: a DID is a URI that links a subject to a DID Document containing verification methods and services, and the subject can be a person, organization, thing, data model, or abstract entity.[^s01] By contrast, EAS is a generalized attestation infrastructure for making on-chain or off-chain attestations about anything.[^s05] A more accurate comparison is therefore `EAS vs the DID/VC stack`, not `EAS vs DID` in isolation.[^s01][^s03]
+
+The conclusion of this report is straightforward. If the main problem is to attach public, machine-readable claims such as roles, permissions, memberships, and reputation signals inside an EVM system, EAS is simpler and more composable.[^s06][^s07] If the main problem is persistent identifiers, key rotation, service discovery, selective disclosure, and privacy-preserving credential exchange, DID plus VC is the stronger foundation.[^s01][^s02][^s04] In practice, the most credible design for AI agents is hybrid: use DID as the root identity spine and EAS as the on-chain trust and authorization overlay.[^s05][^s07]
+
+## Introduction
+
+Identity for AI agents is not just a question of "which address is this?" At minimum, it spans four concerns. First, **identification**: does the agent have a stable identifier that survives key changes and system boundaries? Second, **authentication**: can the current actor prove that it controls the agent identity? Third, **authority**: what APIs, wallets, or protected actions is the agent allowed to use? Fourth, **reputation and credentials**: who has validated the agent and what claims have been made about it? Treating one technology as the answer to all four concerns tends to blur the architecture.[^s01][^s05]
+
+The DID model and the EAS model start from different assumptions. DID Core defines a decentralized identifier that resolves to a DID Document.[^s01] The DID Document can describe verification methods and services, which makes it a natural fit for identity, authentication, and service discovery.[^s01] EAS, in contrast, is built around schemas and attestations: who said what about whom, on-chain or off-chain.[^s05][^s06] For AI agents, that means DID behaves more like the identity backbone, while EAS behaves more like the claims and reputation layer placed on top of identity.[^s05][^s07]
+
+## What EAS provides: an attestation layer
+
+The official EAS site describes EAS as "an infrastructure public good for making attestations onchain or offchain about anything."[^s05] That definition is important because it frames EAS as a generalized attestation primitive, not as a full identifier standard. The official site and the `eas-contracts` repository both present EAS as a deliberately simple on-chain core built around two contracts: `SchemaRegistry` for registering schemas and `EAS` for creating attestations against those schemas.[^s06][^s07] This design makes EAS easy to integrate into permissioning, allowlists, memberships, KYC checks, or on-chain reputation systems.[^s07]
+
+For AI agents, two practical EAS features matter. First, the SDK supports off-chain attestations via `signOffchainAttestation()`, returning a signed object containing attestation data, a UID, and a signature.[^s09] Second, the SDK supports delegated on-chain attestations via `attestByDelegation`, allowing a relayer or sponsor to submit a transaction while preserving the original attester's intent.[^s08] Those patterns are useful in agent systems where an execution runner, a sponsor, and the logical identity of the agent are not the same actor. Still, these features expand the attestation transport model, not the scope of EAS into a portable identity standard.[^s05][^s08]
+
+## What DID and VC provide: identifiers and portable credentials
+
+DID Core is broader than many blockchain identity systems because it explicitly allows DIDs to refer to many kinds of subjects, including organizations, things, data models, and abstract entities.[^s01] That matters for AI agents: agents are often non-human software principals that need keys, endpoints, and policy bindings. DID Documents can express verification methods and services, which makes them useful for both proving control and discovering how to interact with the subject.[^s01]
+
+DID Core also separates verification relationships. For example, `authentication` is intended for proving control or signing into a system, while `capabilityInvocation` is intended for invoking cryptographic capabilities such as authorized API actions.[^s01] This distinction maps well onto agent design because "who the agent is" and "what the agent is allowed to do" are often related but not identical. DID therefore offers more structure for identity semantics than an address-plus-claims model alone.[^s01]
+
+VC 2.0 extends this foundation by providing a standard model for portable third-party credentials. It explicitly accommodates selective disclosure schemes and zero-knowledge proof based presentations.[^s03] It also warns that long-lived identifiers can create correlation risks and recommends credential designs that allow correlating identifiers to be selectively disclosed.[^s04] DID Core carries a similar message in its privacy section, recommending pairwise DIDs to reduce correlation across relationships.[^s02] Taken together, the DID/VC stack addresses privacy and portability more directly than EAS does.[^s02][^s04]
+
+## Comparison for AI agents: authentication, authority, reputation, privacy
+
+If AI agent identity is broken down into **identification, authentication, authority, and reputation**, DID and EAS occupy different strengths. For identification and authentication, DID is more foundational. It gives the agent a URI-based identifier, a DID Document, verification methods, and service descriptions.[^s01] It also provides explicit guidance for reducing correlation through pairwise DIDs and careful DID Document design.[^s02] EAS, by contrast, is excellent at saying that a subject has a role, passed a check, belongs to a set, or has been endorsed by a specific attester, but it does not by itself define a portable identifier layer.[^s05][^s07]
+
+For authority and reputation inside EVM systems, EAS is highly practical. A contract can directly consume attestations that say an agent is an approved executor, has passed KYC, belongs to an organization, or holds a certain qualification.[^s06][^s07] This makes EAS particularly attractive for agent marketplaces, reputation-gated execution environments, and policy-driven on-chain workflows.[^s07] In those settings, the low-friction schema-plus-attestation model is often simpler than building a full DID/VC verification pipeline.[^s06]
+
+Privacy and interoperability push the analysis in the other direction. DID Core and VC 2.0 both treat correlation risk as a first-class concern, and VC 2.0 explicitly supports privacy-enhancing proof styles such as selective disclosure and zero-knowledge proofs.[^s02][^s03][^s04] EAS does support off-chain attestations, but its main value proposition remains a public and composable attestation primitive.[^s05][^s09] As a result, DID/VC is the stronger choice when the system needs reusable credentials across domains, relationship-specific pseudonyms, and disclosure minimization.
+
+This is why a winner-take-all framing is misleading. EAS is best understood as a **claims / attestations / reputation** layer. DID plus VC is best understood as an **identifier / authentication / portable credentials** layer.[^s01][^s05] They overlap in some use cases, but they are not symmetrical substitutes.
+
+## Recommended architectures: EAS-only, DID/VC, and hybrid
+
+An **EAS-only** design uses an EVM address or smart wallet as the operational subject and expresses roles, permissions, and trust through attestations. This works well for purely on-chain environments because contracts can consume the data directly.[^s06][^s07] The downside is that address-centric identity does not solve portability, service discovery, or correlation management particularly well.[^s02][^s05]
+
+A **DID/VC-first** design assigns each agent a DID, publishes verification methods and services in the DID Document, and uses verifiable credentials for third-party claims.[^s01][^s03] This is the best fit when the system values portability, privacy, and cross-domain interoperability. The tradeoff is higher implementation complexity, especially if the relying parties are on-chain smart contracts rather than off-chain verifiers.[^s03]
+
+A **hybrid** design is the most convincing architecture for AI agents. Use DID as the root identifier and authentication spine, issue portable credentials as VCs when interoperability matters, and mirror public authorization or reputation states into EAS when EVM-native consumption matters.[^s01][^s05][^s07] For example, an agent can be represented as a DID subject at the identity layer, while an "approved executor" or "verified model provider" status is exposed as an EAS attestation for direct on-chain gating.[^s06] This preserves the strengths of both stacks without forcing one layer to do the other's job.[^s03][^s07]
+
+## Limitations
+
+This report does not compare individual DID methods, verifier-facing protocols such as OpenID4VP, DIDComm, or wallet UX for server-side agents. It also does not dive into EAS private data patterns or Merkle-based selective disclosure. The conclusions here should therefore be read as an architectural comparison of layers and fitness for purpose, not as a full implementation guide.[^s05]
+
+## References
+
+The main sources for this report are DID Core, VC Data Model 2.0, the official EAS site, the EAS contracts repository, and the EAS SDK README.[^s01][^s03][^s05][^s07][^s08]

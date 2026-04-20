@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Comparing EAS and DID/VC for AI agent identity — Deepsearch</title>
+<meta name="description" content="Design tradeoffs across on-chain attestations and decentralized identifier stacks">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../en/index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../en/index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>Comparing EAS and DID/VC for AI agent identity</h1>
+    <p class="subtitle">Design tradeoffs across on-chain attestations and decentralized identifier stacks</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-04-20</span>
+      <span><strong>Tags</strong> ai-agents, identity, eas, did, verifiable-credentials, authentication</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="ai-agent-identity-eas-vs-did.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>When designing identity for AI agents, <code>EAS (Ethereum Attestation Service)</code> and <code>DID (Decentralized Identifiers)</code> are often discussed as if they were competing substitutes. Technically, they operate at different layers. DIDs are an identifier layer: a DID is a URI that links a subject to a DID Document containing verification methods and services, and the subject can be a person, organization, thing, data model, or abstract entity.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> By contrast, EAS is a generalized attestation infrastructure for making on-chain or off-chain attestations about anything.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> A more accurate comparison is therefore <code>EAS vs the DID/VC stack</code>, not <code>EAS vs DID</code> in isolation.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></p>
+<p>The conclusion of this report is straightforward. If the main problem is to attach public, machine-readable claims such as roles, permissions, memberships, and reputation signals inside an EVM system, EAS is simpler and more composable.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> If the main problem is persistent identifiers, key rotation, service discovery, selective disclosure, and privacy-preserving credential exchange, DID plus VC is the stronger foundation.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> In practice, the most credible design for AI agents is hybrid: use DID as the root identity spine and EAS as the on-chain trust and authorization overlay.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+  </section>
+
+  <main class="body">
+<h1>Comparing EAS and DID/VC for AI agent identity</h1>
+<h2>Introduction</h2>
+<p>Identity for AI agents is not just a question of "which address is this?" At minimum, it spans four concerns. First, <strong>identification</strong>: does the agent have a stable identifier that survives key changes and system boundaries? Second, <strong>authentication</strong>: can the current actor prove that it controls the agent identity? Third, <strong>authority</strong>: what APIs, wallets, or protected actions is the agent allowed to use? Fourth, <strong>reputation and credentials</strong>: who has validated the agent and what claims have been made about it? Treating one technology as the answer to all four concerns tends to blur the architecture.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<p>The DID model and the EAS model start from different assumptions. DID Core defines a decentralized identifier that resolves to a DID Document.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> The DID Document can describe verification methods and services, which makes it a natural fit for identity, authentication, and service discovery.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> EAS, in contrast, is built around schemas and attestations: who said what about whom, on-chain or off-chain.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> For AI agents, that means DID behaves more like the identity backbone, while EAS behaves more like the claims and reputation layer placed on top of identity.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<h2>What EAS provides: an attestation layer</h2>
+<p>The official EAS site describes EAS as "an infrastructure public good for making attestations onchain or offchain about anything."<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> That definition is important because it frames EAS as a generalized attestation primitive, not as a full identifier standard. The official site and the <code>eas-contracts</code> repository both present EAS as a deliberately simple on-chain core built around two contracts: <code>SchemaRegistry</code> for registering schemas and <code>EAS</code> for creating attestations against those schemas.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> This design makes EAS easy to integrate into permissioning, allowlists, memberships, KYC checks, or on-chain reputation systems.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<p>For AI agents, two practical EAS features matter. First, the SDK supports off-chain attestations via <code>signOffchainAttestation()</code>, returning a signed object containing attestation data, a UID, and a signature.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> Second, the SDK supports delegated on-chain attestations via <code>attestByDelegation</code>, allowing a relayer or sponsor to submit a transaction while preserving the original attester's intent.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> Those patterns are useful in agent systems where an execution runner, a sponsor, and the logical identity of the agent are not the same actor. Still, these features expand the attestation transport model, not the scope of EAS into a portable identity standard.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></p>
+<h2>What DID and VC provide: identifiers and portable credentials</h2>
+<p>DID Core is broader than many blockchain identity systems because it explicitly allows DIDs to refer to many kinds of subjects, including organizations, things, data models, and abstract entities.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> That matters for AI agents: agents are often non-human software principals that need keys, endpoints, and policy bindings. DID Documents can express verification methods and services, which makes them useful for both proving control and discovering how to interact with the subject.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p>DID Core also separates verification relationships. For example, <code>authentication</code> is intended for proving control or signing into a system, while <code>capabilityInvocation</code> is intended for invoking cryptographic capabilities such as authorized API actions.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> This distinction maps well onto agent design because "who the agent is" and "what the agent is allowed to do" are often related but not identical. DID therefore offers more structure for identity semantics than an address-plus-claims model alone.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p>VC 2.0 extends this foundation by providing a standard model for portable third-party credentials. It explicitly accommodates selective disclosure schemes and zero-knowledge proof based presentations.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> It also warns that long-lived identifiers can create correlation risks and recommends credential designs that allow correlating identifiers to be selectively disclosed.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> DID Core carries a similar message in its privacy section, recommending pairwise DIDs to reduce correlation across relationships.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> Taken together, the DID/VC stack addresses privacy and portability more directly than EAS does.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></p>
+<h2>Comparison for AI agents: authentication, authority, reputation, privacy</h2>
+<p>If AI agent identity is broken down into <strong>identification, authentication, authority, and reputation</strong>, DID and EAS occupy different strengths. For identification and authentication, DID is more foundational. It gives the agent a URI-based identifier, a DID Document, verification methods, and service descriptions.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> It also provides explicit guidance for reducing correlation through pairwise DIDs and careful DID Document design.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> EAS, by contrast, is excellent at saying that a subject has a role, passed a check, belongs to a set, or has been endorsed by a specific attester, but it does not by itself define a portable identifier layer.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<p>For authority and reputation inside EVM systems, EAS is highly practical. A contract can directly consume attestations that say an agent is an approved executor, has passed KYC, belongs to an organization, or holds a certain qualification.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> This makes EAS particularly attractive for agent marketplaces, reputation-gated execution environments, and policy-driven on-chain workflows.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> In those settings, the low-friction schema-plus-attestation model is often simpler than building a full DID/VC verification pipeline.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></p>
+<p>Privacy and interoperability push the analysis in the other direction. DID Core and VC 2.0 both treat correlation risk as a first-class concern, and VC 2.0 explicitly supports privacy-enhancing proof styles such as selective disclosure and zero-knowledge proofs.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> EAS does support off-chain attestations, but its main value proposition remains a public and composable attestation primitive.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> As a result, DID/VC is the stronger choice when the system needs reusable credentials across domains, relationship-specific pseudonyms, and disclosure minimization.</p>
+<p>This is why a winner-take-all framing is misleading. EAS is best understood as a <strong>claims / attestations / reputation</strong> layer. DID plus VC is best understood as an <strong>identifier / authentication / portable credentials</strong> layer.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> They overlap in some use cases, but they are not symmetrical substitutes.</p>
+<h2>Recommended architectures: EAS-only, DID/VC, and hybrid</h2>
+<p>An <strong>EAS-only</strong> design uses an EVM address or smart wallet as the operational subject and expresses roles, permissions, and trust through attestations. This works well for purely on-chain environments because contracts can consume the data directly.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> The downside is that address-centric identity does not solve portability, service discovery, or correlation management particularly well.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<p>A <strong>DID/VC-first</strong> design assigns each agent a DID, publishes verification methods and services in the DID Document, and uses verifiable credentials for third-party claims.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> This is the best fit when the system values portability, privacy, and cross-domain interoperability. The tradeoff is higher implementation complexity, especially if the relying parties are on-chain smart contracts rather than off-chain verifiers.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<p>A <strong>hybrid</strong> design is the most convincing architecture for AI agents. Use DID as the root identifier and authentication spine, issue portable credentials as VCs when interoperability matters, and mirror public authorization or reputation states into EAS when EVM-native consumption matters.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> For example, an agent can be represented as a DID subject at the identity layer, while an "approved executor" or "verified model provider" status is exposed as an EAS attestation for direct on-chain gating.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> This preserves the strengths of both stacks without forcing one layer to do the other's job.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<h2>Limitations</h2>
+<p>This report does not compare individual DID methods, verifier-facing protocols such as OpenID4VP, DIDComm, or wallet UX for server-side agents. It also does not dive into EAS private data patterns or Merkle-based selective disclosure. The conclusions here should therefore be read as an architectural comparison of layers and fitness for purpose, not as a full implementation guide.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<h2>References</h2>
+<p>The main sources for this report are DID Core, VC Data Model 2.0, the official EAS site, the EAS contracts repository, and the EAS SDK README.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></p>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">W3C</span>. <a href="https://www.w3.org/TR/did-core/">Decentralized Identifiers (DIDs) v1.0</a>. <span class="venue">W3C Recommendation, 2022</span>. <span class="accessed">Accessed 2026-04-20.</span></li>
+      <li id="ref-2"><span class="authors">Ethereum Attestation Service</span>. <a href="https://attest.org/">Ethereum Attestation Service</a>. <span class="venue">attest.org, 2026</span>. <span class="accessed">Accessed 2026-04-20.</span></li>
+      <li id="ref-3"><span class="authors">Ethereum Attestation Service</span>. <a href="https://attest.org/">EAS Overview</a>. <span class="venue">attest.org, 2026</span>. <span class="accessed">Accessed 2026-04-20.</span></li>
+      <li id="ref-4"><span class="authors">ethereum-attestation-service</span>. <a href="https://github.com/ethereum-attestation-service/eas-contracts">ethereum-attestation-service/eas-contracts</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-04-20.</span></li>
+      <li id="ref-5"><span class="authors">ethereum-attestation-service</span>. <a href="https://raw.githubusercontent.com/ethereum-attestation-service/eas-sdk/master/README.md">EAS SDK Offchain Attestation Example</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-04-20.</span></li>
+      <li id="ref-6"><span class="authors">ethereum-attestation-service</span>. <a href="https://raw.githubusercontent.com/ethereum-attestation-service/eas-sdk/master/README.md">EAS SDK README</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-04-20.</span></li>
+      <li id="ref-7"><span class="authors">W3C</span>. <a href="https://www.w3.org/TR/vc-data-model-2.0/">Verifiable Credentials Data Model v2.0</a>. <span class="venue">W3C Recommendation, 2025</span>. <span class="accessed">Accessed 2026-04-20.</span></li>
+      <li id="ref-8"><span class="authors">W3C</span>. <a href="https://www.w3.org/TR/vc-data-model-2.0/">VC 2.0 Identifier-Based Correlation</a>. <span class="venue">W3C Recommendation, 2025</span>. <span class="accessed">Accessed 2026-04-20.</span></li>
+      <li id="ref-9"><span class="authors">W3C</span>. <a href="https://www.w3.org/TR/did-core/">DID Core Privacy Considerations</a>. <span class="venue">W3C Recommendation, 2022</span>. <span class="accessed">Accessed 2026-04-20.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-04-20. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
