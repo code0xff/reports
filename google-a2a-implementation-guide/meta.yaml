@@ -1,0 +1,8 @@
+title: Google A2A 상세 리서치와 구현 전략
+subtitle: Agent2Agent 프로토콜의 구조, 구현 패턴, 보안, 운영 설계까지 포함한 실전 가이드
+slug: google-a2a-implementation-guide
+lang: ko
+langs: [ko]
+date: 2026-04-21
+tags: [google, a2a, agent2agent, interoperability, agents, protocol-design]
+status: ready
