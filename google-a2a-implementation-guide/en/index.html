@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Google A2A in depth — Deepsearch</title>
+<meta name="description" content="A practical guide to the Agent2Agent protocol, implementation patterns, security, and production architecture">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>Google A2A in depth</h1>
+    <p class="subtitle">A practical guide to the Agent2Agent protocol, implementation patterns, security, and production architecture</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-04-21</span>
+      <span><strong>Tags</strong> google, a2a, agent2agent, interoperability, agents, protocol-design</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="google-a2a-implementation-guide.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p><code>A2A (Agent2Agent)</code>, announced by Google on <code>2025-04-09</code>, is an open protocol for interoperability between independent agent systems, and it was transferred to a Linux Foundation project on <code>2025-06-23</code>.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> As of <code>2026-04-21</code>, the latest official specification is <code>1.0.0</code>, and the protocol is organized around discovery (<code>Agent Card</code>), stateful work units (<code>Task</code>), outputs (<code>Artifact</code>), multimodal content parts (<code>Part</code>), and three bindings: JSON-RPC, HTTP+JSON/REST, and gRPC.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> The important point is that A2A is not "tool calling for agents." It is a protocol for independently operated agents to advertise capabilities, run long-lived work, and exchange status via streaming or push notifications.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></p>
+<p>In practice, A2A is more demanding than it first appears. A production implementation needs at least an <code>Agent Card</code>, auth declarations, a <code>Task</code> store, a task state machine, artifact persistence, SSE streaming, cancellation, observability, and API management.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> There is also an important versioning caveat: the official spec is <code>1.0.0</code>, but some official SDK READMEs still foreground <code>0.3.x</code> compatibility, so real deployments need to manage spec and runtime versions explicitly.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> The practical conclusion is that A2A is a strong candidate for a standardized external interface between collaborating agents, but successful adoption is a production-engineering problem, not a hello-world integration exercise.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+  </section>
+
+  <main class="body">
+<h1>Google A2A in depth</h1>
+<h2>1. What Google A2A is, and where it stands now</h2>
+<p>According to Google's announcement, A2A is an open protocol that allows agents built by different vendors and frameworks to exchange information securely and coordinate work.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> From the beginning, Google described A2A not as a replacement for MCP but as a complement to it. MCP is about giving agents access to tools and context, while A2A is about collaboration between agents.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<p>The governance status matters too. A2A was transferred to a Linux Foundation project on <code>2025-06-23</code>, and the official project page now shows the specification, language SDKs, samples, an inspector, and a TCK under a community-governed structure.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> That means A2A should be understood not as a Google-only document, but as a protocol on an explicit standardization path with neutral governance.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<p>There is, however, one important implementation caveat. The latest spec is <code>1.0.0</code>, but as of <code>2026-04-21</code> the public READMEs for the official Python and JavaScript SDKs still state <code>0.3</code> or <code>0.3.0</code> compatibility.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> That means it is safer to assume a transition period in which "the spec is 1.0 but parts of the runtime and samples still speak in 0.3 terms." In practice, teams should pin <code>AgentCard.protocolVersion</code>, transport compatibility, and the test-suite version together.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<h2>2. Core protocol model</h2>
+<h3>2.1 Agent Card: the starting point for discovery and contract</h3>
+<p>The first core object in A2A is the <code>Agent Card</code>. It is discovery metadata describing the agent's name, description, service URL, protocol version, capabilities, skills, and security requirements.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> As the official docs emphasize, other agents use the card to determine what the agent can do, what inputs and outputs it expects, and what authentication it requires.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></p>
+<p>In practice, the Agent Card is closer to a contract than a brochure. How you describe <code>skills</code>, <code>inputModes</code>, <code>outputModes</code>, <code>securityRequirements</code>, and transport-facing interfaces will directly affect whether clients can call the agent correctly.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> For that reason, skill descriptions should read less like marketing text and more like precise interface documentation: accepted inputs, emitted outputs, authorization requirements, and failure conditions.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></p>
+<h3>2.2 Message, Part, and Artifact: the content model</h3>
+<p>A2A does not assume that content is a single string. In the spec, a <code>Part</code> is a container for text, file bytes, file URLs, or structured JSON data, along with MIME types and metadata.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> <code>Message</code> and <code>Artifact</code> are then modeled as collections of <code>Part</code> objects.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<p>The implication is important. A2A was designed from the start not just for text chat, but for multimodal collaboration involving documents, images, structured payloads, and potentially richer media over time.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> If an implementation is built entirely around plain strings, it will probably need a redesign later when file uploads, structured outputs, or richer UI-oriented artifacts become necessary.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<h3>2.3 Task and Context: the center of stateful collaboration</h3>
+<p>The most important design difference in A2A is the <code>Task</code> model. Both Google's launch material and the latest spec describe A2A as a protocol for long-running, multi-turn interactions.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> A <code>Task</code> is not just a request-response wrapper; it represents the lifecycle of work, and an <code>Artifact</code> represents the output of that work.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<p>The spec also uses <code>contextId</code> and <code>taskId</code> to connect follow-up messages and new work items inside the same ongoing interaction.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> That is a much stronger state model than a one-shot RPC. It allows a remote research agent, for example, to ask for additional input mid-run, require more authentication, emit a partial draft first, and attach the final artifact later.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<h2>3. Transport bindings and asynchronous execution</h2>
+<p>The current spec defines three standard bindings: <code>JSON-RPC</code>, <code>HTTP+JSON/REST</code>, and <code>gRPC</code>, with the same core semantics preserved across transports.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> This is a practical design choice. HTTP-family bindings fit web-service and API-gateway environments, while gRPC can fit internal high-performance systems where strongly typed contracts are more important.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<p>The JSON-RPC binding in the latest spec runs over HTTP and uses <code>Server-Sent Events</code> for streaming.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> That means an A2A server cannot stop at synchronous replies if it wants to support long-running work. In practice, at least one of the following update paths needs to exist:</p>
+<p>1. Polling via <code>Get Task</code> 2. SSE subscription via <code>message/stream</code> or an equivalent streaming endpoint 3. Asynchronous updates through a push-notification webhook</p>
+<p>The official spec says that in blocking mode, a task can wait not only for terminal states but also until it reaches interrupted states such as <code>INPUT_REQUIRED</code> or <code>AUTH_REQUIRED</code>.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> The enterprise docs also explain that when extra credentials are required, the system should acquire them through an external OAuth-style process and then continue the task.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> A2A is therefore better understood as "an interface for advancing work until it completes or interrupts" rather than "an API that returns one final answer immediately."<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<p>That directly affects implementation scope. A demo may work with only <code>message/send</code>, but production systems are very likely to need <code>tasks/get</code>, <code>tasks/cancel</code>, streaming, push config, task history policies, and resume logic.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<h2>4. Enterprise design points</h2>
+<h3>4.1 Authentication and authorization</h3>
+<p>The enterprise guidance says that A2A does not carry identity inside the payload itself. Authentication is handled at the transport and HTTP layer.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> At the same time, the Agent Card declares supported auth schemes via its security fields, aligning A2A with established API security practice rather than inventing a new auth protocol.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<p>That design is realistic, but it puts responsibility on implementers. The server must decide who the authenticated caller is, which skills that caller may invoke, and whether downstream data access is allowed.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> The official enterprise docs explicitly recommend least privilege and skill-level access control.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> In other words, an A2A server should be treated like a real API surface with a full authorization layer, not like a thin wrapper around an LLM prompt endpoint.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<h3>4.2 Discovery strategy</h3>
+<p>The discovery docs describe three representative patterns: a well-known Agent Card URL, a centralized registry, and direct configuration.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> For public internet services or environments with strong URL conventions, the <code>/.well-known/agent-card.json</code> pattern is simple and effective.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> In larger enterprise or marketplace settings, though, registries matter more because they make it possible to search agents by skill, tag, security requirement, version, and similar metadata.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></p>
+<p>Operationally, direct configuration is fast when the number of partners is small, but once the number of agents grows it becomes difficult to maintain governance and onboarding without a registry. That does not mean a team needs a complete central catalog on day one, but it is wise to separate Agent Card validation and registration as explicit components early.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<h3>4.3 Observability, audit, and API management</h3>
+<p>The enterprise docs emphasize that because A2A is HTTP-based, it fits naturally with OpenTelemetry, standard logging, metrics, and API-management infrastructure.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> They also recommend logging <code>taskId</code>, <code>sessionId</code>, correlation IDs, and trace context.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> This is critical because failures in A2A systems rarely look like a single request error; they usually look like "somewhere in the multi-agent workflow, some task stopped progressing, and nobody knows where."<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<p>For that reason, production systems should prioritize <code>task lifecycle telemetry</code> over generic application logging. At minimum, the system should make it easy to observe transitions like <code>created -&gt; working -&gt; input_required/auth_required -&gt; completed/failed/canceled/rejected</code>, plus artifact emission events.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<h3>4.4 Extensions and compatibility</h3>
+<p>The official extensions docs explain that an A2A extension can add new data, requirements, RPC methods, or state machines.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup> They also make it clear that extensions should not casually fragment or replace the core protocol.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup> This matters because if each team starts by inventing its own required extensions, the interoperability benefit of A2A disappears quickly.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></p>
+<p>The safer strategy is to confirm first that the core protocol is insufficient, and only then add narrowly scoped metadata or formal extensions.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup> This matters especially in regulated or industry-specific environments where teams are tempted to encode policy directly into protocol shape. When extensions are unavoidable, the <code>required</code> surface should stay as small as possible.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></p>
+<h2>5. Technical implementation examples</h2>
+<p>The examples in this section are reference-style implementations reconstructed from the official Python and JavaScript SDKs and tutorials.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> The core idea is consistent across them: expose the external contract through an <code>Agent Card</code>, put domain logic in an <code>AgentExecutor</code>, and let a <code>DefaultRequestHandler</code> coordinate standard A2A methods and task storage.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup></p>
+<h3>5.1 Minimal Python server structure</h3>
+<pre><code>from a2a.types import AgentCard, AgentSkill
+from a2a.server.request_handlers import DefaultRequestHandler
+from a2a.server.tasks import InMemoryTaskStore
+from my_agent import ResearchAgentExecutor
+
+skill = AgentSkill(
+    id=&quot;research&quot;,
+    name=&quot;Research&quot;,
+    description=&quot;Accepts research requests and produces a report&quot;,
+    tags=[&quot;research&quot;, &quot;analysis&quot;],
+    inputModes=[&quot;text/plain&quot;, &quot;application/json&quot;],
+    outputModes=[&quot;text/plain&quot;, &quot;application/json&quot;]
+)
+
+card = AgentCard(
+    name=&quot;Research Agent&quot;,
+    description=&quot;An A2A-based research agent&quot;,
+    url=&quot;https://agent.example.com/a2a&quot;,
+    version=&quot;1.0.0&quot;,
+    skills=[skill],
+    defaultInputModes=[&quot;text/plain&quot;, &quot;application/json&quot;],
+    defaultOutputModes=[&quot;text/plain&quot;, &quot;application/json&quot;],
+)
+
+executor = ResearchAgentExecutor()
+task_store = InMemoryTaskStore()
+handler = DefaultRequestHandler(
+    agent_executor=executor,
+    task_store=task_store,
+)</code></pre>
+<p>The architectural point is straightforward: keep the external protocol layer separate from business logic.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> The executor interprets the request and talks to internal orchestrators or workers, while the request handler owns standard method mapping and task lifecycle management.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> If REST is required, the official REST handler can sit in front of the same core objects; if JSON-RPC or gRPC is preferred, the corresponding transport adapters can be used instead.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<h3>5.2 Task-first implementation example</h3>
+<p>It is possible to build a stateless agent that returns only direct message responses, and that is the easiest way to get started.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> But most business agents eventually involve external API calls, human approval, retrieval, or document generation. In those cases, it is better to design around Tasks from the beginning.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup></p>
+<p>For example, an agent that produces vendor-risk reports can follow this flow:</p>
+<p>1. Receive <code>message/send</code> 2. Create a Task and immediately move it to <code>working</code> 3. Run search, collection, and analysis workers 4. Emit a draft artifact 5. If more material is needed, move to <code>input_required</code> 6. Resume with the same <code>taskId</code> and <code>contextId</code> after the caller provides additional material 7. Store final PDF or JSON artifacts and move to <code>completed</code></p>
+<p>This matches the task lifecycle and multi-turn continuation model in the spec.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> It also makes retries, resume behavior, and auditability easier to manage.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<h3>5.3 TypeScript/Express edge example</h3>
+<p>The official JavaScript SDK README shows an Express-based server that combines <code>AgentExecutor</code>, <code>DefaultRequestHandler</code>, <code>InMemoryTaskStore</code>, and transport adapters for JSON-RPC, REST, and gRPC.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> In the Node.js ecosystem, that makes an architecture with "Express as the A2A edge, actual agent execution behind it" a natural fit.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<p>The recommended structure looks like this:</p>
+<pre><code>internet / partner agents
+        |
+   API gateway / WAF
+        |
+   A2A edge (Express)
+        |
+   authn/authz middleware
+        |
+   request handler + task store
+        |
+   orchestrator / worker queue
+        |
+   tools, models, databases, artifact storage</code></pre>
+<p>This lines up well with the enterprise guidance around API management, tracing, and authorization.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> It is also consistent with the SDK's explicit separation between request handlers and task stores, which strongly suggests a layered architecture rather than a monolithic agent process.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup></p>
+<h2>6. Production architecture and implementation strategy</h2>
+<h3>6.1 Recommended architecture</h3>
+<p>For production systems, it is better not to weld the A2A server directly into the LLM application. A cleaner design separates at least five layers:</p>
+<p>1. <code>A2A edge</code> 2. <code>authn/authz and policy</code> 3. <code>task orchestration</code> 4. <code>worker/tool execution</code> 5. <code>artifact and audit storage</code></p>
+<p>This architecture is the practical synthesis of the enterprise guidance around HTTP-layer auth, tracing, audit, and API management, combined with the SDK's separation of executors, request handlers, and task stores.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> It lets A2A own the external contract and state machine while keeping internal toolchains and model orchestration replaceable.</p>
+<h3>6.2 Data-model strategy</h3>
+<p>At minimum, the persistence layer should retain:</p>
+<p>1. <code>taskId</code>, <code>contextId</code>, tenant, and caller identity 2. Current state plus state-transition history 3. Request messages and a summarized history 4. Artifact metadata and a reference to the actual blob 5. Push-notification configuration 6. Trace IDs, correlation IDs, and audit events</p>
+<p>This is a direct operational interpretation of the spec's task/context/artifact model plus the enterprise observability requirements.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> In particular, whether artifact bodies live directly in a database or only as object-storage references should be treated as an explicit design decision driven by data size and compliance needs.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<h3>6.3 Security strategy</h3>
+<p>The most important security principle is that everything coming from a remote agent must be treated as untrusted input. Because Message and Artifact parts can contain text, files, URLs, and structured JSON, teams need to defend not only against prompt injection but also schema abuse, oversized payloads, malicious URLs, and content-type spoofing.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></p>
+<p>Recommended guardrails include:</p>
+<p>1. Agent Card schema validation and allowlisting 2. Media-type and size limits 3. Sandboxed URL fetching 4. Skill-level authorization boundaries 5. Signature- or registry-based trust assignment 6. Validation for extension-provided inputs</p>
+<p>Extensions deserve special attention. Because they can open new methods and states, they need the same authn and authz enforcement as core methods.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></p>
+<h3>6.4 Versioning strategy</h3>
+<p>The most realistic design issue right now is version alignment. The spec is <code>1.0.0</code>, but SDK READMEs and some samples still describe <code>0.3.x</code> compatibility.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> A safe initial policy is:</p>
+<p>1. Pin the supported <code>protocolVersion</code> explicitly 2. Automate transport-level compatibility tests 3. Cross-check Agent Card and server version values in CI 4. Publish the validated version matrix in partner-onboarding docs</p>
+<p>If this is skipped, systems that look superficially like "A2A servers" can still break on method names, field names, enum handling, or transport behavior.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<h3>6.5 Staged implementation strategy</h3>
+<p>The most realistic rollout sequence is:</p>
+<p>1. First release with <code>JSON-RPC + direct config + polling</code> 2. Add task persistence and cancellation 3. Add SSE streaming 4. Add webhook-based push notifications 5. Add registry-based discovery 6. Introduce extensions only if strictly necessary</p>
+<p>This does not reject the broader feature set in the spec. It is simply the lower-risk adoption order.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup> Trying to ship registry discovery, custom extensions, push, and a full multi-tenant policy engine all at once is more likely to create operational failure before interoperability value is realized.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></p>
+<h2>7. When to use A2A, and when not to</h2>
+<p>A2A is most compelling when two conditions are both true: the other side is a remote independent service, and the collaboration is stateful.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> Partner agents, cross-organization approval flows, long-running research, document generation, and workflows with human approval all fit well.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<p>By contrast, if the problem is only local sub-agent calls inside one process, simple function execution, or tool and resource access standardization, MCP or internal orchestration may be enough.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> The official docs explicitly describe A2A and MCP as complementary.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> The right question is therefore not "Should we use A2A because it is new?" but "Are we solving an external agent-collaboration problem, or an internal tool-connection problem?"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<h2>Conclusion</h2>
+<p>Google A2A is one of the strongest current candidates for agent interoperability. The official spec has reached <code>1.0.0</code>, and the project now has Linux Foundation governance, multiple language SDKs, samples, and testing tools.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> In particular, the combination of <code>Agent Card + Task + Artifact + multi-binding</code> models stateful collaboration far better than simple tool invocation.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<p>But implementation success depends more on system design than on protocol familiarity. Authentication and authorization need to live at the HTTP and skill-policy layer, task and artifact storage should be treated as first-class infrastructure, streaming and push should be chosen to fit operations, and version compatibility has to be tested continuously.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> The most defensible practical strategy is to start small while building the task state machine and operational layer correctly from day one.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<h2>References</h2>
+<p>This report is based on Google's A2A launch post, the Linux Foundation transfer announcement, the latest A2A specification, the Agent Discovery / Enterprise / Extensions / A2A and MCP documentation, and the official Python/JavaScript SDK and tutorial materials.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Rao Surapaneni, Miku Jha, Michael Vakoc, Todd Segal</span>. <a href="https://developers.googleblog.com/en/a2a-a-new-era-of-agent-interoperability/">Announcing the Agent2Agent Protocol (A2A)</a>. <span class="venue">Google Developers Blog, 2025</span>. <span class="accessed">Accessed 2026-04-21.</span></li>
+      <li id="ref-2"><span class="authors">The Linux Foundation</span>. <a href="https://a2a-protocol.org/latest/topics/a2a-and-mcp/">A2A and MCP</a>. <span class="venue">a2a-protocol.org, 2026</span>. <span class="accessed">Accessed 2026-04-21.</span></li>
+      <li id="ref-3"><span class="authors">Rao Surapaneni, Todd Segal, Michael Vakoc</span>. <a href="https://developers.googleblog.com/en/google-cloud-donates-a2a-to-linux-foundation/">Google Cloud donates A2A to Linux Foundation</a>. <span class="venue">Google Developers Blog, 2025</span>. <span class="accessed">Accessed 2026-04-21.</span></li>
+      <li id="ref-4"><span class="authors">a2aproject</span>. <a href="https://github.com/a2aproject">Agent2Agent (A2A) Project</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-04-21.</span></li>
+      <li id="ref-5"><span class="authors">The Linux Foundation</span>. <a href="https://a2a-protocol.org/latest/specification/">Agent2Agent (A2A) Protocol Specification</a>. <span class="venue">a2a-protocol.org, 2026</span>. <span class="accessed">Accessed 2026-04-21.</span></li>
+      <li id="ref-6"><span class="authors">a2aproject</span>. <a href="https://github.com/a2aproject/a2a-python">A2A Python SDK</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-04-21.</span></li>
+      <li id="ref-7"><span class="authors">a2aproject</span>. <a href="https://github.com/a2aproject/a2a-js">A2A JavaScript SDK</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-04-21.</span></li>
+      <li id="ref-8"><span class="authors">The Linux Foundation</span>. <a href="https://a2a-protocol.org/latest/tutorials/python/3-agent-skills-and-card/">Agent Skills &amp; Agent Card</a>. <span class="venue">a2a-protocol.org, 2026</span>. <span class="accessed">Accessed 2026-04-21.</span></li>
+      <li id="ref-9"><span class="authors">The Linux Foundation</span>. <a href="https://a2a-protocol.org/latest/topics/enterprise-ready/">Enterprise Implementation of A2A</a>. <span class="venue">a2a-protocol.org, 2026</span>. <span class="accessed">Accessed 2026-04-21.</span></li>
+      <li id="ref-10"><span class="authors">The Linux Foundation</span>. <a href="https://a2a-protocol.org/latest/sdk/python/api/a2a.server.request_handlers.rest_handler.html">a2a.server.request_handlers.rest_handler module</a>. <span class="venue">a2a-sdk documentation, 2026</span>. <span class="accessed">Accessed 2026-04-21.</span></li>
+      <li id="ref-11"><span class="authors">The Linux Foundation</span>. <a href="https://a2a-protocol.org/latest/sdk/python/api/a2a.server.request_handlers.default_request_handler.html">a2a.server.request_handlers.default_request_handler module</a>. <span class="venue">a2a-sdk documentation, 2026</span>. <span class="accessed">Accessed 2026-04-21.</span></li>
+      <li id="ref-12"><span class="authors">The Linux Foundation</span>. <a href="https://a2a-protocol.org/latest/topics/agent-discovery/">Agent Discovery</a>. <span class="venue">a2a-protocol.org, 2026</span>. <span class="accessed">Accessed 2026-04-21.</span></li>
+      <li id="ref-13"><span class="authors">The Linux Foundation</span>. <a href="https://a2a-protocol.org/latest/topics/extensions/">Extensions in A2A</a>. <span class="venue">a2a-protocol.org, 2026</span>. <span class="accessed">Accessed 2026-04-21.</span></li>
+      <li id="ref-14"><span class="authors">The Linux Foundation</span>. <a href="https://a2a-protocol.org/latest/tutorials/python/4-agent-executor/">The Agent Executor</a>. <span class="venue">a2a-protocol.org, 2026</span>. <span class="accessed">Accessed 2026-04-21.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-04-21. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
