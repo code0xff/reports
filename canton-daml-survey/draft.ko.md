@@ -1,6 +1,6 @@
 # Canton과 Daml — 빌더와 개발자 관점을 중심으로 한 상세 조사
 
-## 초록 (Abstract)
+## 초록
 
 Canton은 프라이버시 보존형 블록체인 프로토콜이며, 그 스마트 컨트랙트는 Digital Asset이 원래 설계하고 오픈소스로 공개한 순수 함수형 Haskell 계열 도메인 특화 언어인 Daml로 작성된다 [^s01][^s19][^s20][^s21]. 본 보고서는 Canton과 Daml을 두 가지 축으로 조사한다. **개발자 관점** — 애플리케이션 로직을 어떻게 작성·테스트·통합·업그레이드하는가 — 과 **빌더 관점** — 사설(private) Canton, 컨소시엄, 공개 Canton Network 중 어느 배포 형태를 선택하고, Global Synchronizer에 어떻게 온보딩하며, 비용·라이선스·거버넌스를 어떻게 다룰 것인가 — 이다 [^s03][^s28][^s30][^s31][^s37]. 대표적인 프로덕션 레퍼런스로는 Goldman Sachs의 GS DAP, Deutsche Börse / Clearstream의 D7, HKEX Synapse, Broadridge의 Distributed Ledger Repo가 있다 [^s11][^s13][^s15][^s17]. Canton Network 메인넷은 2024년에 런칭되었고 [^s02], Canton Coin(CC)이 그 네이티브 유틸리티 토큰이다 [^s06][^s07][^s08]. 다만 상당수의 정량 지표는 여전히 벤더가 직접 공개한 값이며, 동료심사 수준의 공개 분석은 Canton 프로토콜이 아니라 Daml 언어 논문에 한정된다는 한계가 있다 [^s35].
 
