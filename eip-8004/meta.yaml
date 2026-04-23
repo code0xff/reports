@@ -1,0 +1,10 @@
+title: EIP-8004 — Trustless Agents on Ethereum
+subtitle: Identity, Reputation, and Validation registries for AI-agent discovery and trust — a builder- and developer-oriented survey.
+title_ko: EIP-8004 — 이더리움의 신뢰 없이 상호작용하는 에이전트 표준
+subtitle_ko: AI 에이전트의 발견과 신뢰를 위한 Identity · Reputation · Validation 레지스트리 — 빌더와 개발자 관점의 조사.
+slug: eip-8004
+lang: en
+langs: [en, ko]
+date: 2026-04-23
+tags: [eip-8004, erc-8004, ai-agents, ethereum, trust-layer, a2a, x402]
+status: ready
