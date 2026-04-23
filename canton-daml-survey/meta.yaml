@@ -1,0 +1,10 @@
+title: Canton and Daml — detailed survey with emphasis on builder and developer perspectives
+subtitle: What Canton the protocol and Daml the language actually give a developer and a builder in 2025-era enterprise DLT.
+title_ko: Canton과 Daml — 빌더와 개발자 관점을 중심으로 한 상세 조사
+subtitle_ko: Canton 프로토콜과 Daml 언어가 2025년대 엔터프라이즈 DLT에서 개발자와 빌더에게 실제로 무엇을 제공하는가.
+slug: canton-daml-survey
+lang: en
+langs: [en, ko]
+date: 2026-04-23
+tags: [canton, daml, enterprise-dlt, tokenization, blockchain, digital-asset]
+status: ready
