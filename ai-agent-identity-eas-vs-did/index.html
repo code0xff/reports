@@ -70,8 +70,6 @@
 <p>세 번째이자 가장 현실적인 선택지는 <strong>Hybrid</strong>다. DID를 agent의 루트 식별자로 사용하고, 상호운용 가능한 자격증명은 VC로, EVM 안에서 즉시 읽혀야 하는 역할·허가·평판 정보는 EAS로 표출한다. 예를 들어 "이 agent는 특정 조직이 관리하는 DID subject"라는 장기 식별자는 DID로 유지하되, "이 agent는 현재 특정 프로토콜의 approved executor" 같은 상태성 정보는 EAS로 표현하는 방식이다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> 이 구조는 DID/VC의 식별·프라이버시 강점과 EAS의 온체인 composability를 동시에 취한다는 점에서 AI agent 시스템에 가장 적합하다.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></p>
 <h2>Limitations</h2>
 <p>본 리포트는 DID method별 차이, OpenID4VP 같은 verifier 프로토콜, DIDComm 또는 구체적 wallet UX를 비교하지 않았다. 따라서 "어떤 DID method를 선택해야 하는가", "모바일 월렛이 없는 server-side agent에 presentation flow를 어떻게 붙일 것인가" 같은 질문에는 추가 설계가 필요하다. 또한 EAS의 private data, Merkle-based selective disclosure, 각 체인별 배포 차이도 별도 심화 주제로 남는다. 이 때문에 본 리포트의 결론은 기술 계층과 아키텍처 적합성 수준의 비교로 이해해야 한다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
-<h2>References</h2>
-<p>본 리포트의 핵심 근거는 W3C DID Core, W3C VC Data Model 2.0, EAS 공식 사이트, EAS contracts 저장소, EAS SDK README다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></p>
   </main>
 
   <section class="references">

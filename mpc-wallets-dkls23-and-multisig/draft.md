@@ -113,27 +113,3 @@ institutional custody에서는 결론이 조금 더 복잡하다. 실제 설계 
 둘째, DKLs23의 수학은 공개 논문으로 검토할 수 있지만, 실제 상용 wallet 구현의 세부 프로토콜과 운영 절차는 완전히 공개되지 않는 경우가 많다.[^s06][^s17][^s20] 따라서 "DKLs23 기반"이라는 레이블만으로 end-to-end 보안 품질을 추정하는 것은 위험하다.
 
 셋째, 이 리포트는 주로 `ECDSA` 계열 지갑, EVM account model, Bitcoin multisig 문맥에 초점을 맞췄다. `BLS`, `MPC + TEE` 혼합 설계, ERC-4337 이후 smart account 생태계 전체, 그리고 특정 벤더의 closed-source 운영 통제는 별도 심화 조사가 필요하다.[^s11][^s16][^s21]
-
-## References
-
-[^s01]: Adi Shamir, *How to share a secret* (1979). https://cacm.acm.org/research/how-to-share-a-secret/
-[^s02]: Connolly, Komlo, Goldberg, Wood, *The Flexible Round-Optimized Schnorr Threshold (FROST) Protocol for Two-Round Schnorr Signatures* (RFC 9591, 2024). https://www.rfc-editor.org/rfc/rfc9591.html
-[^s03]: Yehuda Lindell, *Fast Secure Two-Party ECDSA Signing* (2017). https://eprint.iacr.org/2017/552
-[^s04]: Doerner, Kondi, Lee, shelat, *Secure Two-party Threshold ECDSA from ECDSA Assumptions* (2018). https://eprint.iacr.org/2018/499
-[^s05]: Doerner, Kondi, Lee, shelat, *Threshold ECDSA from ECDSA Assumptions: The Multiparty Case* (2019). https://eprint.iacr.org/2019/523
-[^s06]: Doerner, Kondi, Lee, shelat, *Threshold ECDSA in Three Rounds* (2023/2024). https://eprint.iacr.org/2023/765
-[^s07]: Gennaro, Jarecki, Krawczyk, Rabin, *Secure distributed key generation for discrete-log based cryptosystems* (2007). https://research.ibm.com/publications/secure-distributed-key-generation-for-discrete-log-based-cryptosystems
-[^s08]: Boneh, Partap, Rotem, *Proactive Refresh for Accountable Threshold Signatures* (2022). https://eprint.iacr.org/2022/1656
-[^s09]: ethereum.org, *Ethereum accounts*. https://ethereum.org/en/developers/docs/accounts/
-[^s10]: Safe Docs, *Smart Account Concepts*. https://docs.safe.global/advanced/smart-account-concepts
-[^s11]: Bitcoin Developer Guide, *Transactions*. https://developer.bitcoin.org/devguide/transactions.html
-[^s12]: BitGo Developer Portal, *Multisignature vs MPC*. https://developers.bitgo.com/guides/get-started/concepts/multisig-vs-mpc
-[^s13]: BitGo Developer Portal, *Multi-party computation (MPC) Wallets*. https://developers.bitgo.com/guides/concepts/mpc
-[^s14]: Dfns documentation, *Introduction to MPC*. https://docs.dfns.co/core-concepts/how-mpc-wallets-work
-[^s15]: Coinbase Developer Platform, *Embedded Wallet FAQ*. https://docs.cdp.coinbase.com/embedded-wallets/faq
-[^s16]: Web3Auth, *Multi-party Computation (MPC) wallet infrastructure for wallets and dApps*. https://web3auth.io/mpc
-[^s17]: Silence Laboratories, *dkls23*. https://github.com/silence-laboratories/dkls23
-[^s18]: BitGo Developer Portal, *BitGo Wallet Types*. https://developers.bitgo.com/docs/mpc
-[^s19]: abhi shelat, *Threshold ECDSA in Three Rounds*. https://shelat.khoury.northeastern.edu/research/2023-05-26-ecdsa-in-three/
-[^s20]: Silence Laboratories, *silent-shard-dkls23-ll*. https://github.com/silence-laboratories/silent-shard-dkls23-ll
-[^s21]: Safe Docs, *Overview - Safe Smart Account*. https://docs.safefoundation.org/smart-account/overview
