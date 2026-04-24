@@ -1,0 +1,10 @@
+title: MPC wallet의 수학적 원리, multisig와의 비교, 그리고 DKLs23
+subtitle: 비밀분산, threshold signature, DKLs23, 그리고 multisig와의 구조적 차이를 중심으로 한 빌더·보안 관점 조사.
+title_en: MPC wallets, multisig, and DKLs23 — mathematical foundations and engineering tradeoffs
+subtitle_en: A builder- and security-oriented survey of secret sharing, threshold signatures, DKLs23, and when MPC wallets should be preferred over multisig.
+slug: mpc-wallets-dkls23-and-multisig
+lang: ko
+langs: [ko, en]
+date: 2026-04-23
+tags: [mpc-wallet, multisig, threshold-signature, dkls23, ecdsa, cryptography, wallet-infrastructure]
+status: ready
