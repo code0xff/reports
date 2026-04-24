@@ -1,0 +1,10 @@
+title: Rust 라이브러리의 Java 래핑 전략과 alloy-rs의 Java Ethereum 라이브러리 활용 가능성
+subtitle: JNI, Project Panama/FFM, JNA, C ABI 설계, 그리고 alloy-rs를 Java 생태계의 Ethereum 라이브러리로 제품화할 수 있는지에 대한 빌더 중심 조사.
+title_en: Wrapping Rust libraries for Java and the case for alloy-rs as a Java Ethereum stack
+subtitle_en: A builder-oriented survey of JNI, Project Panama/FFM, JNA, C ABI design, and whether alloy-rs can realistically become a high-value Ethereum library for the Java ecosystem.
+slug: rust-to-java-wrapping-and-alloy-rs-for-ethereum
+lang: ko
+langs: [ko, en]
+date: 2026-04-24
+tags: [rust, java, jni, panama, ffm, alloy-rs, ethereum, ffi, web3j]
+status: ready

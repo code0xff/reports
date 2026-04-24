@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rust 라이브러리의 Java 래핑 전략과 alloy-rs의 Java Ethereum 라이브러리 활용 가능성 — Deepsearch</title>
+<meta name="description" content="JNI, Project Panama/FFM, JNA, C ABI 설계, 그리고 alloy-rs를 Java 생태계의 Ethereum 라이브러리로 제품화할 수 있는지에 대한 빌더 중심 조사.">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="en" href="en/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="en/index.html" hreflang="en">English</a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>Rust 라이브러리의 Java 래핑 전략과 alloy-rs의 Java Ethereum 라이브러리 활용 가능성</h1>
+    <p class="subtitle">JNI, Project Panama/FFM, JNA, C ABI 설계, 그리고 alloy-rs를 Java 생태계의 Ethereum 라이브러리로 제품화할 수 있는지에 대한 빌더 중심 조사.</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-04-24</span>
+      <span><strong>태그</strong> rust, java, jni, panama, ffm, alloy-rs, ethereum, ffi, web3j</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="rust-to-java-wrapping-and-alloy-rs-for-ethereum.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>Rust 라이브러리를 Java에서 재사용하는 방법은 여러 가지가 있지만, “Java 라이브러리처럼 보이는” 결과물을 만들려면 결국 <code>JNI</code>, <code>Project Panama/FFM</code>, <code>JNA</code> 같은 in-process 네이티브 연동 경로를 어떻게 선택하느냐가 핵심이 된다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> 현재 Oracle의 JNI 문서조차 많은 JNI 용도를 <code>FFM</code>으로 대체할 수 있으며 가능하면 FFM을 선호하라고 적고 있고, <code>JEP 454</code>는 FFM이 JDK 22에서 정식화되었음을 분명히 한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 다만 Java 생태계 전체를 보면 JDK 22+만 목표로 할 수 없는 경우가 많으므로, 실무에서는 여전히 <code>JNI</code>가 가장 넓은 호환성을 제공하고, <code>JNA</code>는 얇은 프로토타입과 저마찰 바인딩에 적합한 선택지로 남아 있다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<p>Rust 쪽에서 중요한 사실은 Java가 Rust ABI를 직접 이해하는 것이 아니라, Rust가 먼저 안정적인 <code>C ABI</code>를 제공해야 한다는 점이다. Rustonomicon은 <code>#[repr(C)]</code>가 있어야 C 표현과 호환되는 레이아웃을 보장한다고 설명하고, NUL-terminated string에는 <code>CString</code>을 써야 하며, FFI 경계에서 panic/unwind를 잘못 다루면 abort 또는 undefined behavior가 생길 수 있다고 경고한다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 따라서 실제 제품 설계의 중심은 “Rust API 전체를 그대로 노출하는 것”이 아니라, <code>extern "C"</code> 함수, opaque handle, 명시적 lifecycle, 에러 코드/메시지 변환으로 이루어진 얇은 façade를 만드는 데 있다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<p><code>alloy-rs</code>는 이 관점에서 흥미롭다. 공식 문서는 Alloy를 primitives, EIPs, providers, transports, signers, rpc types 등으로 나뉜 모듈형 Ethereum/EVM 툴킷으로 설명하고, 고성능 primitives, <code>sol!</code> 기반 contract UX, chain-agnostic type system, customizable provider architecture를 장점으로 내세운다.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> 또한 공식 트랜잭션 문서는 <code>EIP-1559</code>, <code>EIP-4844</code>, <code>EIP-7702</code>를 별도 경로로 다루고 있어 최신 Ethereum 타입 변화에 민감하게 대응하는 라이브러리라는 점을 보여 준다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> 반면 Java 쪽은 <code>web3j</code>가 여전히 가장 범용적인 SDK에 가깝고 <code>Besu</code>는 클라이언트 구현체, <code>Headlong</code>은 ABI/RLP 특화, <code>Tuweni</code>는 저수준 도구 상자였지만 GitHub 메타데이터상 <code>2026-04-24</code> 기준 <code>archived: true</code>이며 마지막 push가 <code>2023-07-21</code>이다.<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup> 따라서 공백은 “Java에 Ethereum 라이브러리가 전혀 없다”가 아니라, 현대 Ethereum 타입과 최신 EIP, 모듈형 provider/signer/rpc stack을 폭넓게 제공하는 활발한 라이브러리가 드물다는 데 있다.<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup></p>
+<p>결론부터 말하면, <code>alloy-rs</code>를 Java용 Ethereum 라이브러리로 활용하는 것은 충분히 가능하고 전략적 가치도 있다. 다만 정답은 “alloy 전체를 그대로 Java에 포팅”이 아니라, <code>primitives + ABI/EIP-712 + typed transaction + rpc types</code> 같은 계산형 코어를 먼저 감싼 뒤, 이후에 provider와 subscription 계층으로 확장하는 단계적 전략이다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> 구현 경로는 JDK 17/21 범위를 넓게 잡으려면 JNI가, JDK 22+ 전용이면 FFM/jextract가 더 매력적이며, 실제 제품 API는 Rust 친화적 타입이 아니라 Java 친화적 객체 모델이어야 한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup></p>
+  </section>
+
+  <main class="body">
+<h1>Rust 라이브러리의 Java 래핑 전략과 alloy-rs의 Java Ethereum 라이브러리 활용 가능성</h1>
+<h2>Introduction</h2>
+<p>Rust 라이브러리를 Java로 “래핑한다”는 말은 종종 두 가지 다른 문제를 섞어 놓는다. 하나는 기술적 상호운용성 문제다. 즉 Java가 네이티브 함수를 어떻게 부를 것인가. 다른 하나는 제품 설계 문제다. 즉 Java 개발자가 이 기능을 순수 Java 라이브러리처럼 사용할 수 있게 어떤 API를 제공할 것인가. 첫 번째 문제만 보면 정답은 비교적 단순하다. <code>JNI</code>, <code>FFM</code>, <code>JNA</code> 같은 메커니즘을 택하면 된다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> 그러나 두 번째 문제까지 포함하면, 어떤 ABI 표면을 내놓을지, 메모리와 에러를 어떻게 넘길지, Java 쪽 객체 모델을 어떻게 설계할지가 더 중요해진다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<p>이번 주제에서 <code>alloy-rs</code>가 중요한 이유는 Java Ethereum 생태계의 현황 때문이다. <code>web3j</code>는 여전히 범용성이 가장 높은 Java SDK이고 GitHub 메타데이터상 <code>2026-04-22</code>에도 push가 있었으므로 죽은 프로젝트라고 볼 수는 없다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> 다만 <code>web3j</code>는 현재 Java artifact가 Java 21 이상을 요구하고, 공식 강점도 JSON-RPC, wallet support, smart contract wrapper generation, ENS 쪽에 집중돼 있다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> <code>Besu</code>는 Java로 쓰인 메인넷 호환 Ethereum client이고, <code>Headlong</code>은 ABI/RLP 특화 JVM 라이브러리이며, <code>Tuweni</code>는 저수준 도구 상자였지만 현재는 archived 상태다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup> 즉 Java에는 부품은 있지만, <code>alloy-rs</code>가 보여 주는 것과 같은 현대적이고 넓은 범위의 Ethereum application stack은 상대적으로 얇다.</p>
+<p>이 리포트는 그래서 질문을 이렇게 다시 쓴다. <strong>Rust를 Java에서 부를 수 있는가</strong>가 아니라, <strong>alloy-rs를 어떤 경계에서 잘라 Java 생태계에 높은 가치를 주는 라이브러리로 만들 수 있는가</strong>다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup></p>
+<h2>1. Rust 라이브러리를 Java로 래핑하는 주요 경로</h2>
+<h3>1.1 JNI: 가장 넓은 호환성, 가장 거친 경계</h3>
+<p><code>JNI</code>는 여전히 가장 기본적인 선택지다. Oracle 문서는 JNI를 JVM 안에서 동작하는 Java 코드가 C, C++, assembly 같은 다른 언어 라이브러리와 상호운용하게 하는 표준 native programming interface로 정의한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 또한 JNI의 중요한 장점으로 underlying VM 구현에 제약을 두지 않아, 특정 플랫폼에서 여러 JVM 구현체에 걸쳐 같은 native library를 쓸 수 있다는 점을 든다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p>이 말은 실무적으로 “제일 오래된 길이면서도 제일 넓게 통한다”는 뜻이다. Java 17, 21, 22를 모두 염두에 두는 서버 환경이나, FFM을 아직 조직 표준으로 채택하지 못한 팀에서는 JNI가 가장 현실적인 선택이다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> Rust 쪽에서는 <code>jni-rs</code> 같은 crate가 이를 위한 직접적인 도구를 제공한다. <code>jni-rs</code>는 Rust에서 JVM/Android용 native Java method를 구현하고 Java 코드를 호출하며 JVM을 embed할 수도 있다고 설명한다.<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup></p>
+<p>문제는 복잡성이다. JNI 경계에서는 Java reference lifecycle, local/global references, 배열과 문자열 변환, 스레드 attach/detach, 예외 전달을 전부 수동으로 다뤄야 한다. Oracle 문서가 아예 “many uses of JNI should prefer FFM”라고 적어 둔 것도 이 경계가 본질적으로 거칠고 brittle하기 때문이다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<h3>1.2 Project Panama / FFM: JDK 22+에서 가장 현대적인 경로</h3>
+<p><code>JEP 454</code>는 <code>Foreign Function &amp; Memory API</code>를 JDK 22에서 정식화했고, 그 목표 중 하나를 JNI의 brittle한 machinery를 concise, readable, pure-Java API로 대체하는 것이라고 설명한다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 또한 이 API가 native library 호출과 foreign memory 접근을 JNI의 brittleness and danger 없이 수행하게 한다고 적고 있다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> Oracle의 최신 JNI 문서도 같은 방향을 취해, 많은 JNI 사용 사례를 FFM으로 해결할 수 있으며 applicable할 때는 FFM을 선호하라고 권고한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p>이 경로의 큰 장점은 두 가지다. 첫째, Java 코드가 네이티브 라이브러리를 부르기 위해 별도의 Java-side JNI glue 코드를 거의 쓰지 않아도 된다. 둘째, <code>Linker</code>, <code>SymbolLookup</code>, <code>FunctionDescriptor</code>, <code>MemorySegment</code> 같은 추상화가 표준화되어 있어 downcall과 upcall을 Java 안에서 직접 구성할 수 있다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<p>특히 <code>jextract</code>는 이 흐름을 한 단계 더 단순화한다. OpenJDK 가이드는 jextract가 native library의 header(<code>.h</code>)를 파싱해 FFM 기반 Java bindings를 생성한다고 설명한다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> 즉 Rust 라이브러리가 안정적인 C header를 제공한다면, Java 쪽은 hand-written JNI layer 없이도 상당 부분을 생성할 수 있다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> 다만 jextract는 현재 C header만 지원하고, 생성 결과가 플랫폼별 전처리와 C type 크기 차이의 영향을 받을 수 있으므로, 실제 배포 대상으로 삼는 OS/arch 조합을 명시적으로 관리해야 한다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<h3>1.3 JNA: 가장 가벼운 시작점</h3>
+<p><code>JNA</code>는 방향이 다르다. 공식 README는 JNA가 Java 코드만으로 native shared library에 접근하게 해 주며, 추가 JNI 코드가 필요 없다고 설명한다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> 내부적으로는 작은 JNI stub을 쓰지만, 사용자 입장에서는 Java interface로 native function과 structure를 기술하는 방식이므로 처음 들어가기 쉽다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></p>
+<p>JNA의 공식 설명에서 중요한 대목은 “significant attention has been paid to performance, correctness and ease of use take priority”라는 문장이다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> 이는 JNA가 “가장 빠른 길”이라기보다 “가장 빨리 붙일 수 있는 길”이라는 뜻에 가깝다. 그래서 구조가 단순하고 호출 빈도가 지나치게 높지 않은 라이브러리, 또는 먼저 ABI를 검증해야 하는 프로토타입 단계에서는 꽤 합리적이다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></p>
+<p>하지만 Ethereum 라이브러리 수준에서 ABI encoding, large byte array, 고빈도 primitive 변환, subscription callback까지 가면 JNA는 곧 한계를 드러낼 가능성이 높다. 이 판단은 JNA 문서가 성능보다 correctness/ease를 우선한다고 밝힌 점에 근거한 실무 해석이다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></p>
+<h3>1.4 경로 선택의 실무 기준</h3>
+<p>따라서 선택 기준은 비교적 선명하다.</p>
+<ul>
+<li>Java 17/21까지 포함한 넓은 JVM 호환성이 중요하면 <code>JNI</code></li>
+<li>JDK 22+ 전용이고 표준 Java native interop를 쓰고 싶으면 <code>FFM + jextract</code></li>
+<li>ABI가 작고 빠르게 검증해야 하면 <code>JNA</code></li>
+</ul>
+<p>핵심은 어느 경로를 택하든 Rust가 먼저 Java 친화적인 것이 아니라 <strong>C ABI 친화적인 표면</strong>을 제공해야 한다는 점이다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup></p>
+<h2>2. Rust↔Java 바인딩 설계에서 반드시 다뤄야 할 문제</h2>
+<h3>2.1 Rust API를 그대로 내보내지 말고 C ABI façade를 설계해야 한다</h3>
+<p>Rustonomicon은 C와의 상호운용에서 <code>#[repr(C)]</code>가 있어야 C 표현과 호환되는 레이아웃을 보장한다고 설명한다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 또한 C ABI와 맞춘 <code>extern "C"</code> 함수, <code>CString</code>, raw pointer, opaque struct를 명시적으로 관리해야 한다고 보여 준다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 이건 곧 “Rust crate 내부 타입을 Java에 그대로 보여 주려 하지 말라”는 뜻이다.</p>
+<p>실제로 좋은 래핑은 보통 이런 모양을 가진다.</p>
+<pre><code>typedef struct alloy_handle alloy_handle;
+typedef struct alloy_error alloy_error;
+
+alloy_handle* alloy_provider_new(const char* rpc_url, alloy_error** err);
+int alloy_get_block_number(alloy_handle* h, uint64_t* out, alloy_error** err);
+void alloy_provider_free(alloy_handle* h);
+void alloy_error_free(alloy_error* err);</code></pre>
+<p>Java는 이 C ABI를 부르고, 실제 Rust 내부에서는 <code>Provider</code>, <code>Signer</code>, <code>TransactionBuilder</code> 같은 richer type을 운용하는 식이다. 이렇게 해야 Rust 내부 구현을 크게 바꾸더라도 Java에 노출되는 ABI를 안정적으로 유지할 수 있다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup></p>
+<h3>2.2 메모리, 문자열, opaque handle</h3>
+<p>Rustonomicon은 문자열이 기본적으로 <code>\0</code> terminated가 아니므로 C 상호운용에는 <code>CString</code>을 쓰라고 설명하고, opaque struct를 FFI 타입으로 만들려면 <code>#[repr(C)]</code>를 적용해야 한다고 적는다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 이 규칙은 Java 바인딩에서도 그대로 중요하다. Java <code>String</code>을 Rust <code>String</code>으로 바로 넘기는 것이 아니라 UTF-8 바이트와 lifecycle을 C ABI 수준에서 명시해야 하기 때문이다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<p>실무적으로는 거의 항상 <strong>opaque handle + accessor function</strong> 모델이 낫다. Java가 Rust struct layout을 이해할 필요가 없고, Rust도 내부 필드나 generic parameter를 외부 ABI 약속으로 굳힐 필요가 없다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 이 원칙은 특히 <code>alloy-rs</code>처럼 내부 타입과 generic abstraction이 많은 라이브러리에서 더 중요하다.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup></p>
+<h3>2.3 panic/unwind는 FFI 바깥으로 내보내지 않는 것이 원칙이다</h3>
+<p>Rustonomicon은 FFI와 unwinding를 다룰 때, 기대하지 않은 unwind가 ABI boundary를 넘으면 panic은 abort를 일으킬 수 있고 foreign exception entering Rust는 undefined behavior가 될 수 있다고 경고한다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 또한 <code>catch_unwind</code>는 unwinding panic만 잡으며, foreign exception과의 상호작용은 undefined라고 적는다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<p>즉 Java용 Rust wrapper를 만들 때는 다음 원칙이 필요하다.</p>
+<ul>
+<li>public FFI 함수는 panic을 밖으로 보내지 않는다.</li>
+<li>내부적으로 <code>catch_unwind</code> 또는 명시적 에러 변환을 사용한다.</li>
+<li>Java에는 예외 객체가 아니라 에러 코드 + 메시지 또는 exception factory로 전달한다.</li>
+</ul>
+<p><code>cargo-c</code>가 라이브러리 설정에서 <code>-Cpanic=abort</code> 같은 rustflag를 다룰 수 있게 한 것도, FFI library packaging에서 panic 정책이 중요한 이유를 보여 준다.<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup></p>
+<h3>2.4 빌드와 배포: cbindgen, cargo-c, jextract</h3>
+<p><code>cbindgen</code>은 Rust library가 public C API를 노출할 때 C/C++ header를 생성해 주는 도구이고, 자동 생성된 header가 실제 Rust type layout/ABI 보장에 맞도록 Rust 개발자들과 협업해 왔다고 설명한다.<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup> <code>cargo-c</code>는 그 위에서 C-ABI compatible dynamic/static library, pkg-config file, header를 함께 만들고 설치하는 helper다.<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup></p>
+<p>둘을 함께 쓰면 Rust 측 산출물은 꽤 정돈된다. <code>cargo-c</code> README가 권장하듯 <code>capi.rs</code>에 C API를 두고 <code>cbindgen.toml</code>을 추가해 header를 생성하면, Rust 프로젝트를 “C 라이브러리처럼” 포장할 수 있다.<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup> 이 구조는 Java 래핑에 특히 잘 맞는다. JNI라면 hand-written header/loader에 쓰고, FFM라면 같은 header를 <code>jextract</code> 입력으로 쓸 수 있기 때문이다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup></p>
+<p>단, jextract는 플랫폼별 차이를 분명히 경고한다. 같은 header라도 OS와 C type size 차이에 따라 생성 코드가 달라질 수 있으므로, portable library가 아니라면 대상 플랫폼마다 따로 검증해야 한다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> 그래서 “Rust에서 C ABI 생성”과 “Java에서 FFM 바인딩 생성”은 자동화할 수 있지만, 완전히 무상 비용은 아니다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup></p>
+<h2>3. alloy-rs는 무엇을 제공하는가</h2>
+<p><code>alloy-rs</code>의 가장 큰 장점은 범위다. 공식 README는 Alloy가 applications to blockchains를 연결하는 스택이며, 하나의 monolith가 아니라 여러 crate로 나뉜다고 설명한다.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> 실제 목록을 보면 <code>alloy-consensus</code>, <code>alloy-contract</code>, <code>alloy-eips</code>, <code>alloy-provider</code>, <code>alloy-rpc-types</code>, <code>alloy-signer</code>, <code>alloy-transport</code>, <code>alloy-pubsub</code> 등 application 개발자가 필요로 하는 상당 부분이 분리된 모듈로 존재한다.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> <code>Cargo.toml</code>도 <code>essentials</code>, <code>full</code>, <code>provider-http</code>, <code>provider-ws</code>, <code>rpc-types</code>, <code>signer-local</code> 같은 feature 조합을 통해 필요한 레이어만 고를 수 있게 설계돼 있다.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup></p>
+<p>공식 docs는 Alloy를 “The simplest, fastest Rust toolkit to interact with any EVM chain”이라고 소개하며, 장점으로 다음 네 가지를 전면에 둔다.<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup></p>
+<ul>
+<li>optimized primitives와 빠른 ABI encoding</li>
+<li><code>sol!</code> macro 기반 contract UX</li>
+<li>chain-agnostic type system</li>
+<li>layers and fillers를 포함한 customizable provider architecture</li>
+</ul>
+<p>이 네 가지는 Java 래핑 가능성 평가에서 모두 중요하다. primitives와 ABI는 FFI로 잘라내기 좋은 계산형 코어고, chain-agnostic type system과 provider architecture는 더 넓은 제품 스택으로 이어질 잠재력을 보여 준다.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup></p>
+<p>또 하나 중요한 점은 최신 Ethereum transaction 타입 지원이다. Alloy docs의 transaction 섹션은 <code>Legacy</code>, <code>EIP-1559</code>, <code>EIP-4844</code>, <code>EIP-7702</code>를 각각 별도 경로로 다루고 있고, <code>EIP-4844</code> builder와 <code>EIP-7702</code> authorization list 같은 구체적인 API를 보여 준다.<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup> 이는 Java wrapper가 단순히 “RPC 한번 더 편하게 부르는” 수준이 아니라, 최신 transaction model과 typed data handling까지 가져올 수 있음을 의미한다.<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup></p>
+<p>동시에 그대로 가져오기 어려운 부분도 분명하다. <code>sol!</code> 같은 Rust macro 기반 UX, 풍부한 generic type, async provider model은 Java ABI 경계에 그대로 실을 수 있는 대상이 아니다.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup> 그래서 래핑 목표는 “alloy API를 1:1 재현”이 아니라 “alloy capability를 Java 친화적 API로 재배치”하는 것이어야 한다. 이 판단은 공식 소스와 FFI 제약을 함께 놓고 본 해석이다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup></p>
+<h2>4. Java Ethereum 생태계의 현재 상태와 공백</h2>
+<h3>4.1 web3j: 여전히 핵심이지만, 그것만으로 충분하진 않다</h3>
+<p><code>web3j</code>는 현재도 가장 중요한 Java Ethereum SDK다. 공식 README와 docs는 web3j를 lightweight, highly modular, reactive, type safe Java/Android library로 소개하며, JSON-RPC over HTTP and IPC, wallet support, Java smart contract wrapper generation, filters, ENS support를 핵심 기능으로 든다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> GitHub 메타데이터상 저장소는 <code>archived: false</code>이고 <code>2026-04-22T06:08:55Z</code>에 push가 있었으므로, 생태계에서 여전히 살아 있는 중심 라이브러리로 봐야 한다.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<p>다만 두 가지 제약이 있다. 첫째, 현재 Java artifact는 Java 21 이상을 요구한다.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> 이는 최신 Java를 쓰는 팀에는 문제가 아니지만, 아직 Java 17이 표준인 서버 조직에는 즉시 제약이 된다. 둘째, web3j의 강점은 RPC client, wrapper generation, wallet interaction 쪽에 분명하지만, Alloy가 보여 주는 것 같은 광범위한 typed protocol surface와 최신 Ethereum stack 전반을 하나의 모듈형 설계로 제공한다고 보긴 어렵다.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> 이 결론은 web3j를 폄하하려는 것이 아니라, 역할이 다른 라이브러리라는 뜻이다.</p>
+<h3>4.2 Besu, Headlong, Tuweni: 좋은 부품은 있지만 전체 스택은 아니다</h3>
+<p><code>Besu</code>는 Java 기반 MainNet-compatible Ethereum client다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> 중요하고 강력한 프로젝트이지만, app 개발자가 가져다 쓰는 범용 SDK라기보다 클라이언트 구현체라는 성격이 더 강하다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> 따라서 “Java에 Ethereum 라이브러리가 부족한가”라는 질문에 Besu를 직접적인 반례로 들기는 어렵다.</p>
+<p><code>Headlong</code>은 다른 위치에 있다. 공식 README는 이를 “Contract ABI and Recursive Length Prefix made easy for the JVM”이라고 설명하고, 실제로 ABI encoding/decoding과 RLP에 강점을 가진 고성능 JVM 라이브러리다.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup> 그러나 이 장점은 곧 범위의 한계이기도 하다. Headlong은 좋은 codec/ABI 부품이지만, provider, signer, rpc types, network abstraction까지 포괄하는 스택은 아니다.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></p>
+<p><code>Tuweni</code>는 한때 매우 유용한 저수준 도구 상자였다. README는 bytes, codecs, crypto, utilities를 제공하는 Java/JVM용 blockchain 라이브러리 세트라고 설명한다.<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> 다만 GitHub API 메타데이터를 보면 <code>2026-04-24</code> 기준 저장소는 <code>archived: true</code>이고 마지막 push는 <code>2023-07-21T03:00:26Z</code>다.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> 즉 여전히 참고할 가치는 있지만, 앞으로의 핵심 축으로 보기엔 위험하다.</p>
+<h3>4.3 공백은 “부재”가 아니라 “조합의 부재”다</h3>
+<p>따라서 Java 생태계의 정확한 상태는 이렇다. 범용 SDK로는 web3j가 있고, 클라이언트 구현체로는 Besu가 있으며, codec/ABI 계층에는 Headlong이 있고, 저수준 유틸 계층에는 Tuweni의 유산이 있다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup> 하지만 <strong>현대 Ethereum 타입 시스템, 최신 EIP transaction model, modular provider/signer/rpc stack을 한 프로젝트 안에서 넓게 제공하는 actively growing library</strong>는 상대적으로 드물다.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup></p>
+<p>이 지점이 바로 alloy-rs wrapper의 잠재 가치다. <code>alloy-rs</code> 저장소 메타데이터는 <code>archived: false</code>이고 <code>2026-04-23T11:48:18Z</code>에 push가 있었다.<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup> 즉 프로젝트의 폭과 활동성이 동시에 확인되는 편이다.</p>
+<h2>5. alloy-rs를 Java 라이브러리로 제품화할 가능성과 가치</h2>
+<h3>5.1 무엇부터 래핑하는가가 성패를 좌우한다</h3>
+<p><code>alloy-rs</code>를 Java에서 쓰는 가장 현실적인 첫 단계는 <code>primitives</code>, <code>ABI</code>, <code>EIP-712/typed data</code>, <code>typed transaction</code>, <code>rpc types</code> 같은 계산형 코어를 먼저 감싸는 것이다.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup> 이런 계층은 입력과 출력이 비교적 명확하고, FFI 경계에서 opaque handle 없이도 값 변환 중심으로 설계할 수 있으며, 성능 이점도 크다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup></p>
+<p>예를 들면 다음 같은 Java API가 가능하다.</p>
+<ul>
+<li><code>Address</code>, <code>B256</code>, <code>U256</code>, <code>Bytes</code> 같은 primitives</li>
+<li>Solidity ABI encode/decode</li>
+<li><code>EIP-1559</code> / <code>EIP-4844</code> / <code>EIP-7702</code> transaction builder</li>
+<li>EIP-712 typed-data digest and signing payload generation</li>
+<li>JSON-RPC request/response type codec</li>
+</ul>
+<p>이 범위만으로도 Java 팀이 직접 최신 Ethereum codec과 typed transaction 모델을 재구현할 필요가 크게 줄어든다.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup></p>
+<h3>5.2 provider와 subscription은 2차 목표가 맞다</h3>
+<p>반대로 <code>provider</code>, <code>pubsub</code>, websocket subscription, layered middleware, async signer flow는 곧장 1차 목표로 잡기 어렵다. Alloy 공식 자료만 봐도 provider/transport/pubsub 계층은 큰 비중을 차지하고 있고, 이는 곧 Rust async runtime과 네트워크 상태머신이 wrapper의 핵심이 된다는 뜻이다.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> 여기에 JNI/FFM upcall, callback, thread attachment, event delivery, Java exception mapping까지 들어오면 구현 난이도가 급격히 올라간다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup></p>
+<p>그래서 full provider wrapper는 기술적으로 불가능해서가 아니라, 1차 제품으로는 비용 대비 위험이 너무 크다. 실무적으로는 다음 순서가 더 자연스럽다.</p>
+<p>1. codec/primitives/typed transaction 2. signer façade 3. sync-like RPC helper 4. full async provider and subscription</p>
+<p>이것이 “alloy를 Java로 래핑하라”는 요구를 가장 보수적이고 제품 친화적으로 해석한 로드맵이다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup></p>
+<h3>5.3 왜 가치가 있는가</h3>
+<p>가치는 세 층위에서 나온다.</p>
+<p>첫째, <strong>프로토콜 변화 추적 비용 절감</strong>이다. Alloy 공식 문서가 최신 transaction 타입과 provider architecture를 적극적으로 다루는 것을 보면, Java wrapper는 단순 기능 추가가 아니라 Rust 생태계의 빠른 Ethereum protocol adaptation을 Java로 가져오는 통로가 될 수 있다.<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup> 이는 Java 팀이 EIP 변화가 나올 때마다 직접 타입과 codec을 다시 만드는 부담을 줄여 준다.</p>
+<p>둘째, <strong>모듈형 현대 스택 확보</strong>다. web3j는 강력하지만 범용 SDK의 전통적 구성을 가진다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> Headlong은 ABI/RLP에 강하고, Besu는 클라이언트이며, Tuweni는 archived 상태다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup> Alloy wrapper는 이들 위에 또 하나를 추가하는 것이 아니라, primitives부터 typed transaction, signer, rpc types까지 이어지는 좀 더 현대적인 application-facing stack을 Java에 제공할 수 있다.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup></p>
+<p>셋째, <strong>JVM 조직의 현실성</strong>이다. Java 서버 조직, Kotlin 백엔드, Android/서버 혼합 조직은 여전히 많다. 그런데 web3j mainline Java artifact는 Java 21 이상을 요구한다.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> 만약 JNI 기반 wrapper가 Java 17/21 양쪽을 지원하게 설계된다면, 일부 조직에는 “더 최신 Ethereum 기능을 더 보수적인 JDK baseline에서 쓸 수 있다”는 장점이 생길 수 있다. 이 부분은 공식 문서와 현재 생태계를 바탕으로 한 해석이다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<h3>5.4 무엇이 비용인가</h3>
+<p>반대편 비용도 분명하다.</p>
+<ul>
+<li>플랫폼별 native artifact 빌드와 테스트</li>
+<li>메모리 ownership과 lifecycle 관리</li>
+<li>Java/Rust 경계 디버깅</li>
+<li>panic/exception/callback 경계 안정화</li>
+<li>보안 감사 범위 확대</li>
+</ul>
+<p>특히 JNI나 FFM 어느 쪽이든 native library 로딩, ABI 안정성, 운영 환경 차이 문제는 피할 수 없다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 따라서 조직이 이미 순수 Java 배포 체인에 강하게 최적화되어 있고, 네이티브 아티팩트 운용 경험이 없다면 alloy wrapper는 좋은 기술이더라도 과한 선택일 수 있다.</p>
+<h3>5.5 권고</h3>
+<p>가장 설득력 있는 전략은 다음과 같다.</p>
+<p>1. Rust 측에 안정적인 <code>C ABI façade</code>를 설계한다. 2. <code>cbindgen + cargo-c</code>로 header와 shared library 산출물을 정리한다. 3. Java API는 Rust 타입이 아니라 Java 친화적 value object와 builder를 중심으로 설계한다. 4. JDK 17/21용 기본 backend는 <code>JNI</code>로 둔다. 5. JDK 22+용 선택 backend는 <code>FFM/jextract</code>로 둔다. 6. 1차 제품 범위는 <code>primitives + ABI + typed transaction + rpc types</code>로 제한한다.</p>
+<p>이 전략은 호환성, 성능, 구현 복잡도, 제품 가치 사이의 균형이 가장 낫다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup></p>
+<h2>Limitations</h2>
+<p>첫째, 이 리포트는 공개 저장소와 공식 문서를 기준으로 Java Ethereum 생태계를 평가했다. 따라서 상용 폐쇄형 SDK나 사내 라이브러리는 반영하지 못했다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></p>
+<p>둘째, <code>alloy-rs</code>를 Java로 래핑한 대형 공개 사례가 아직 널리 보이는 것은 아니다. 따라서 “가치가 있다”는 결론은 주로 소스 구조, 생태계 공백, FFI 현실성에 근거한 아키텍처 판단이지, 이미 대규모 채택으로 검증된 시장 결론은 아니다.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup></p>
+<p>셋째, 성능 비교는 Alloy가 공식 문서에서 제시한 수치를 인용했지만, Java wrapper를 거친 뒤 동일한 수치가 유지된다고 가정할 수는 없다. 실제 결과는 ABI 설계, marshalling, 호출 빈도, JVM 옵션에 따라 달라질 것이다.<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup></p>
+<h2>References</h2>
+<p><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>: Oracle, <em>Java Native Interface Specification: 1 - Introduction</em>. https://docs.oracle.com/en/java/javase/24/docs/specs/jni/intro.html <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>: OpenJDK, <em>JEP 454: Foreign Function &amp; Memory API</em>. https://openjdk.org/jeps/454 <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>: OpenJDK, <em>Jextract Guide</em>. https://github.com/openjdk/jextract/blob/master/doc/GUIDE.md <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>: Rust Project Developers, <em>FFI - The Rustonomicon</em>. https://doc.rust-lang.org/beta/nomicon/ffi.html <sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>: jni-rs contributors, <em>jni-rs</em>. https://github.com/jni-rs/jni-rs <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>: JNA contributors, <em>Java Native Access (JNA)</em>. https://github.com/java-native-access/jna <sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>: Mozilla, <em>cbindgen</em>. https://github.com/mozilla/cbindgen <sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>: cargo-c contributors, <em>cargo-c</em>. https://github.com/lu-zero/cargo-c <sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>: alloy-rs, <em>Alloy</em>. https://github.com/alloy-rs/alloy <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>: alloy-rs, <em>Getting Started - alloy</em>. https://alloy.rs/introduction/getting-started/ <sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>: alloy-rs, <em>Transactions - alloy</em>. https://alloy.rs/transactions/introduction/ <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>: LFDT-web3j, <em>Web3j</em>. https://github.com/LFDT-web3j/web3j <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>: web3j, <em>Web3j documentation</em>. https://docs.web3j.io/4.14.0/ <sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>: Hyperledger Besu, <em>Besu Ethereum Client</em>. https://github.com/hyperledger/besu <sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>: Apache Tuweni, <em>Tuweni: Apache Core Libraries for Java (&amp; Kotlin)</em>. https://github.com/apache/incubator-tuweni <sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>: GitHub API, <em>apache/incubator-tuweni repository metadata</em>. https://api.github.com/repos/apache/incubator-tuweni <sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>: esaulpaugh, <em>headlong</em>. https://github.com/esaulpaugh/headlong <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>: GitHub API, <em>LFDT-web3j/web3j repository metadata</em>. https://api.github.com/repos/LFDT-web3j/web3j <sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>: GitHub API, <em>alloy-rs/alloy repository metadata</em>. https://api.github.com/repos/alloy-rs/alloy <sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>: LFDT-web3j, <em>Web3j README note on Java version</em>. https://github.com/LFDT-web3j/web3j</p>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Oracle</span>. <a href="https://docs.oracle.com/en/java/javase/24/docs/specs/jni/intro.html">Java Native Interface Specification: 1 - Introduction</a>. <span class="venue">Java SE 24 &amp; JDK 24 docs, 2025</span>. <span class="accessed">접근일 2026-04-24.</span></li>
+      <li id="ref-2"><span class="authors">OpenJDK</span>. <a href="https://openjdk.org/jeps/454">JEP 454: Foreign Function &amp; Memory API</a>. <span class="venue">OpenJDK JEP, 2024</span>. <span class="accessed">접근일 2026-04-24.</span></li>
+      <li id="ref-3"><span class="authors">JNA contributors</span>. <a href="https://github.com/java-native-access/jna">Java Native Access (JNA)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-04-24.</span></li>
+      <li id="ref-4"><span class="authors">OpenJDK</span>. <a href="https://github.com/openjdk/jextract/blob/master/doc/GUIDE.md">Jextract Guide</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-04-24.</span></li>
+      <li id="ref-5"><span class="authors">Rust Project Developers</span>. <a href="https://doc.rust-lang.org/beta/nomicon/ffi.html">FFI - The Rustonomicon</a>. <span class="venue">The Rustonomicon, 2026</span>. <span class="accessed">접근일 2026-04-24.</span></li>
+      <li id="ref-6"><span class="authors">LFDT-web3j</span>. <a href="https://github.com/LFDT-web3j/web3j">Web3j</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-04-24.</span></li>
+      <li id="ref-7"><span class="authors">GitHub API</span>. <a href="https://api.github.com/repos/LFDT-web3j/web3j">LFDT-web3j/web3j repository metadata</a>. <span class="venue">GitHub API, 2026</span>. <span class="accessed">접근일 2026-04-24.</span></li>
+      <li id="ref-8"><span class="authors">web3j</span>. <a href="https://docs.web3j.io/4.14.0/">Web3j documentation</a>. <span class="venue">web3j docs, 2026</span>. <span class="accessed">접근일 2026-04-24.</span></li>
+      <li id="ref-9"><span class="authors">LFDT-web3j</span>. <a href="https://github.com/LFDT-web3j/web3j">Web3j README note on Java version</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-04-24.</span></li>
+      <li id="ref-10"><span class="authors">Hyperledger Besu</span>. <a href="https://github.com/hyperledger/besu">Besu Ethereum Client</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-04-24.</span></li>
+      <li id="ref-11"><span class="authors">Apache Tuweni</span>. <a href="https://github.com/apache/incubator-tuweni">Tuweni: Apache Core Libraries for Java (&amp; Kotlin)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-04-24.</span></li>
+      <li id="ref-12"><span class="authors">GitHub API</span>. <a href="https://api.github.com/repos/apache/incubator-tuweni">apache/incubator-tuweni repository metadata</a>. <span class="venue">GitHub API, 2026</span>. <span class="accessed">접근일 2026-04-24.</span></li>
+      <li id="ref-13"><span class="authors">esaulpaugh</span>. <a href="https://github.com/esaulpaugh/headlong">headlong</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-04-24.</span></li>
+      <li id="ref-14"><span class="authors">alloy-rs</span>. <a href="https://github.com/alloy-rs/alloy">Alloy</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-04-24.</span></li>
+      <li id="ref-15"><span class="authors">alloy-rs</span>. <a href="https://alloy.rs/introduction/getting-started/">Getting Started - alloy</a>. <span class="venue">alloy.rs docs, 2026</span>. <span class="accessed">접근일 2026-04-24.</span></li>
+      <li id="ref-16"><span class="authors">jni-rs contributors</span>. <a href="https://github.com/jni-rs/jni-rs">jni-rs</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-04-24.</span></li>
+      <li id="ref-17"><span class="authors">Mozilla</span>. <a href="https://github.com/mozilla/cbindgen">cbindgen</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-04-24.</span></li>
+      <li id="ref-18"><span class="authors">cargo-c contributors</span>. <a href="https://github.com/lu-zero/cargo-c">cargo-c</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-04-24.</span></li>
+      <li id="ref-19"><span class="authors">alloy-rs</span>. <a href="https://alloy.rs/transactions/introduction/">Transactions - alloy</a>. <span class="venue">alloy.rs docs, 2026</span>. <span class="accessed">접근일 2026-04-24.</span></li>
+      <li id="ref-20"><span class="authors">GitHub API</span>. <a href="https://api.github.com/repos/alloy-rs/alloy">alloy-rs/alloy repository metadata</a>. <span class="venue">GitHub API, 2026</span>. <span class="accessed">접근일 2026-04-24.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-04-24 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
