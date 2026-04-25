@@ -1,0 +1,10 @@
+title: Commonware SimpleX consensus algorithm: technical deep dive
+subtitle: Research report generated via the Deepsearch harness.
+title_ko: Commonware SimpleX 합의 알고리즘 기술 심층 분석
+subtitle_ko: SimpleX 논문과 Commonware 구현체의 기술적 세부사항 정리
+slug: commonware-simplex-consensus
+lang: en
+langs: [en, ko]
+date: 2026-04-25
+tags: []
+status: ready
