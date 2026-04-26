@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ethereum 및 L2 프라이버시 — 솔루션과 가장 실용적인 zk 적용 방식 — Deepsearch</title>
+<meta name="description" content="Tornado Cash 이후의 프라이버시 스택, 그리고 오늘 실제로 출하 가능한 zk 응용">
+<link rel="alternate" hreflang="en" href="../index.html">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../ko/index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="en">English</a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../ko/index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>Ethereum 및 L2 프라이버시 — 솔루션과 가장 실용적인 zk 적용 방식</h1>
+    <p class="subtitle">Tornado Cash 이후의 프라이버시 스택, 그리고 오늘 실제로 출하 가능한 zk 응용</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-04-26</span>
+      <span><strong>태그</strong> —</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="ethereum-l2-privacy-zk.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>이제 Ethereum 및 L2 프라이버시는 더 이상 "전부 가린다" 가 아니다. 2022년 8월 OFAC의 Tornado Cash 제재 <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, 2024년 11월 미 5회 순회법원의 제재 무효 판결 <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>, 2025년 3월 재무부의 SDN 제거 <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> 라는 세 사건을 거치며 살아남은 <em>프로덕션 디자인 패턴</em> 은 <strong>선택적 공개(selective disclosure)</strong> 다. 사용자는 <em>특정 술어</em> (컴플라이언스 association, 연령, 문서 소유)만 영지식으로 증명하고 나머지는 비공개로 남긴다. 2025–2026년 스택이 그 방향이다. Aztec 은 2025년 11월 Alpha 메인넷을 가동하면서 "프라이빗 스마트 컨트랙트의 완전한 실행 환경을 가진 첫 L2" 가 됐고 <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>, 그 백엔드는 폰/브라우저에서 증명 가능한 Noir + Barretenberg/CHONK 스택이다 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Railgun 은 Ethereum, BNB Chain, Polygon, Arbitrum 위에 <em>별도 검증자 셋·브리지 없이</em> 자산별 shielded 잔고를 온체인 스마트 컨트랙트만으로 제공한다 <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Buterin · Soleimani · Illum · Nadler · Schär 의 2023년 논문 <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> 에 기반한 Privacy Pools 는 2025년 3월 0xbow 가 Ethereum 메인넷에 배포해 첫 몇 주 만에 약 600만 달러 / 1,500명 이상의 사용자를 처리하면서 <sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>, <strong>association-set 증명</strong> 으로 정직한 예치자를 불법 자금에서 cryptographic 하게 분리한다. 한편 Semaphore <sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>, World ID <sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>, Anon Aadhaar <sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>, ZK-Email <sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>, zkPassport <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup> 같은 <strong>익명 credential</strong> 들이 사실상 가장 대규모로 사용되는 zk 프라이버시 프리미티브다. 무엇이 실용적으로 배포 가능한지를 좌우하는 세 힘은 (a) 규제 변동성 — 미국(5회 순회 무효 → 재무부 delisting) vs EU(AML Regulation 2024/1624: 2027년 7월부터 익명 계정·익명성 강화 코인 금지) <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>, (b) 익명 셋의 취약성 — 실증 연구 기준 Tornado Cash 출금의 5–34% 가 주소 재사용·시간 매칭으로 deposit 과 연결됨 <sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>, (c) 미완성된 프리미티브 파이프라인(folding 스킴은 2026년에도 프로덕션이 아닌 연구 단계). 따라서 2026년 빌더의 실용적 답은 단일 프로젝트가 아니라 <em>조합</em> 이다. shielded 결제는 Aztec 또는 Railgun, 컴플라이언스 인지 mixing 은 Privacy Pools, ID 는 Semaphore / World ID / Anon Aadhaar / ZK-Email / zkPassport, 그리고 <em>private cross-rollup bridging 은 여전히 연구 단계</em> <sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>.</p>
+  </section>
+
+  <main class="body">
+<h2>서론</h2>
+<p>공개 원장 위에서 프라이버시가 구조적으로 어려운 이유는 공개 원장이 유용한 이유와 같다. 모든 상태 전이가 <em>지울 수 없고, 재생 가능하며, 색인된</em> 기록이다. 2020–2022년 스택은 이를 "충분히 큰 mixer 를 만들어 멤버십을 통계적 잡음으로" 처리했다. 2025–2026년 스택은 이를 "사용자가 <em>공개하고 싶은 속성만</em> 증명하고 그 외는 노출하지 않게" 처리한다. 이 전환은 <em>선택</em> 이 아니라 <em>강제</em> 였다.</p>
+<p>2022년 8월 OFAC 의 Tornado Cash 지정은 70억 달러 이상의 자금세탁(북한 Lazarus Group 포함) 을 근거로 53개 Ethereum 주소(불변 컨트랙트 약 20개 포함) 를 SDN 리스트에 올렸고 <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, 미국인이 컨트랙트와 상호작용하는 것 자체가 제재 사안이 되어 법적 다툼이 끝나기도 전에 <em>프로덕트로서 죽었다</em> . 2024년 11월 5회 순회법원은 <em>Van Loon v. Treasury</em> 에서 불변 스마트 컨트랙트는 IEEPA 의 "재산" 이 아니며 OFAC 가 권한을 초과했다고 판시했고 <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>, 2025년 3월 재무부가 공식 delisting 했다 <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 그 시점에 디자인 공간은 이미 옮겨가 있었다. 살아남은 구성은 "Tornado Cash 2.0" 이 아니라 <strong>자기 자금에 대한 <em>주장</em> 을 자금 자체를 공개하지 않고 만들 수 있는 시스템</strong> 이다.</p>
+<p>본 보고서는 프라이버시 분류를 짚고, 2024–2026년 프로덕션 스택을 조사하며, 어떤 zk 프리미티브가 애플리케이션 레이어를 실제로 제약하는지 검토한 뒤, 출하된 zk 응용을 식별하고, 오늘 무엇을 만들거나 사용해야 하는지에 대한 구체 추천으로 마무리한다.</p>
+<h2>위협 모델과 프라이버시 분류</h2>
+<p>온체인 프라이버시 목표는 셋으로 나누는 것이 유용하다.</p>
+<p>1. <strong>결제 필드 비공개</strong> — 송신자, 수신자, 자산 종류, 금액이 체인에 보이지 않는다. shielded UTXO 시스템(Aztec <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>, Railgun <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, Tornado 부류 mixer) 의 목표. 2. <strong>익명 셋 멤버십</strong> — 온체인 산출물은 기술적으로 투명하지만 동등한 충분히 많은 산출물과 섞여, 출금을 특정 입금에 연결하기 통계적으로 어렵게 만든다. Tornado Cash 와 Privacy Pools 가 이 방식 <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 3. <strong>선택적 술어 공개</strong> — 사용자가 특정 <em>속성</em> (이 블랙리스트에 없다, 18세 이상이다, <code>@example.com</code> 메일을 받았다, X국 여권을 가졌다)을 증명하되 그 외는 공개하지 않는다. Semaphore, World ID, Anon Aadhaar, ZK-Email, zkPassport 는 술어 공개 시스템 <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<p>이들은 상호 배타적이지 않다. Privacy Pools 는 (2)+(3)을 결합한다 — shielded pool 위에 association-set 증명을 얹는다 <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 제약 조건은 다르다. shielded 시스템은 상태를 암호화해야 하고, mixing 시스템은 <em>의미 있는 epoch 동안 의미 있는 수의 동시 예치자</em> 가 필요하며, 술어 시스템은 <em>오프체인 권위</em> (DKIM 키, 여권 CA) 를 신뢰하고 그에 대해 증명해야 한다.</p>
+<p>프라이버시 시스템의 익명 셋은 <em>같은 epoch · 같은 액면</em> 의 <em>활성</em> 사용자 수로 한정되며 누적 예치자 수가 아니다. Tornado Cash 의 실증 문헌은 그 비용을 보여준다. Ethereum, BNB Smart Chain, Polygon 에 걸쳐 출금의 5.1–12.6% 가 주소 재사용 · 트랜잭션 연결 휴리스틱만으로 deposit 에 연결되며, FIFO 시간 매칭 휴리스틱을 추가하면 연결률이 추가로 15–22%p 상승해 누적 약 1/3 까지 올라간다 <sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. 암호학이 실패한 게 아니라 <em>사용자 행동이 누설</em> 했다. 이 패턴은 Tornado Cash 만의 문제가 아니며, 사용자 규율에 의존하는 모든 익명 셋 디자인에 그대로 옮겨갈 가능성이 높다.</p>
+<h2>Ethereum 및 L2 의 기존 프라이버시 솔루션</h2>
+<h3>Aztec — 프라이버시 우선 zk 롤업</h3>
+<p>오늘 Ethereum 정렬 시스템 중에서 <em>프로그래머블 shielded 상태</em> 를 출하하고 있는 유일한 프로덕션이 Aztec 이다. Ignition Chain 이 2025년 11월 가동되며 네트워크는 Alpha 단계로 진입했고, "프라이빗 스마트 컨트랙트의 완전한 실행 환경을 가진 첫 L2" 라고 공식화됐다 <sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. 디자인은 공개 실행과 프라이빗 실행을 분리한다. 프라이빗 실행은 <strong>사용자 디바이스의 PXE(Private eXecution Environment)</strong> 에서 일어나며, 키를 가진 본인만 암호화된 프라이빗 상태를 읽을 수 있다 <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. 암호 백엔드는 <strong>Barretenberg</strong> 의 <strong>CHONK</strong> (Client-side Highly Optimized ploNK) 세대로, "폰과 브라우저에서 증명하기 위해" 설계됐고 Alpha 증명 파이프라인을 구동한다 <sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. 애플리케이션 언어는 <strong>Noir</strong> 이며, Barretenberg / Halo2 / Plonky2 / Groth16 백엔드를 모두 지원하는 proving-system-agnostic 프론트엔드다 <sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. <strong>NoirJS</strong> 는 브라우저 클라이언트 사이드에서 ZK 응용을 증명하게 해준다 <sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>.</p>
+<p>Aztec 의 위치는 "스케일링용 zk 롤업" (zkSync Era, Linea, Scroll, Starknet)과 분명히 다르다. 대부분의 zk 롤업은 zero-knowledge 속성을 <em>유효성 증명의 succinctness</em> 에 사용하며 <em>데이터를 가리는 데</em> 사용하지 않는다. 그 상태는 L1 위에서 평문이다 <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. Aztec 은 이 관계를 뒤집는다 — 프라이버시가 주력이고 스케일링은 부산물이다.</p>
+<h3>Railgun — 멀티체인 프라이버시 미들웨어</h3>
+<p>Railgun 은 다른 아키텍처다. 자체 롤업 대신 <strong>Ethereum, BNB Chain, Polygon, Arbitrum 위에서 동작하는 온체인 스마트 컨트랙트 미들웨어</strong> 다 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 사용자는 ERC-20 토큰을 <em>shield</em> 하여 프라이빗 잔고에 넣고, 그 후 <code>0zk-to-0zk</code> 트랜잭션에서 송신자 · 수신자 · 토큰 종류 · 금액이 모두 비공개로 남는다. 공개되는 것은 릴레이어 주소와 도착 스마트 컨트랙트 주소뿐이다 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. "별도 L2 검증자 셋이나 취약한 브리지 없이 순수 온체인 스마트 컨트랙트 로직만" 이기 때문에 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, Railgun 은 두 큰 위험 카테고리를 회피한다. 대신 체인마다 별도의 shielded pool 을 운영해야 하고, 각 pool 은 자기만의 익명 셋을 가진다.</p>
+<h3>Privacy Pools — 컴플라이언스 인지 mixing</h3>
+<p>Privacy Pools 개념은 2023년 9월 SSRN 논문에서 Vitalik Buterin · Jacob Illum · Matthias Nadler · Fabian Schär · Ameen Soleimani 가 정식화했다 <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. 기술적 핵심은 예치자가 <em>자신의 입금이 어떤 "association set" — 일반적으로 "알려진 제재 집합에 </em>속하지 않음<em>" — 에도 속한다는 영지식 증명을 함께 게시</em> 하되, 자신의 deposit 이 <em>어떤 deposit 인지를 노출하지 않는</em> 것이다. 이로써 사용자는 신뢰된 중앙 블랙리스트가 아니라 <em>암호학적으로</em> 불법 예치자와 자신을 분리한다.</p>
+<p>Privacy Pools 는 0xbow 가 2025년 3월 Ethereum 메인넷에 출하했으며, 영지식 증명과 함께 deposit 을 스크리닝하고 트랜잭션을 실시간 모니터링하는 <strong>Association Set Provider (ASP)</strong> 를 사용한다 <sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 보도 기준 첫 몇 주 동안 약 600만 달러 / 1,500명 이상의 사용자를 처리했고, "Ethereum 재단의 Kohaku 이니셔티브의 핵심 일부" 로 자리매김했다 <sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. 컨트랙트는 오픈 소스다 <sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>.</p>
+<h3>Nocturne — 프라이빗 스마트 어카운트의 빈자리</h3>
+<p>Vitalik 이 백한 "프라이빗 어카운트" 프로젝트 Nocturne 은 스마트 어카운트와 통합되었으나 <strong>2024년 6월 5일에 사실상 종료</strong> 됐다. 팀은 "작년 초에 만든 프라이버시 프로토콜을 이미 셧다운한 후, 회사를 정리하기로 했다" 고 발표하고 출금 흐름을 self-serve 형식으로 전환했다 <sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. 명시적 단일 사유는 공개되지 않았으며, post-Tornado 규제 환경이 배경으로 인용됐다. 그 결과 <em>프라이빗 스마트 어카운트</em> 카테고리에 비어 있는 자리가 남았으며 프로덕션 규모로 이를 채운 프로젝트는 아직 없다.</p>
+<h3>"ZK rollup" ≠ "privacy zk rollup"</h3>
+<p>용어가 오해를 부른다. zkSync, Linea, Scroll, Starknet, Polygon zkEVM 은 영지식 증명을 <em>L1 으로의 상태 전이 유효성 검증</em> 에 사용하지만, 그 <em>기반 상태와 트랜잭션은 L1 위에서 평문</em> 이다 <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. 이들은 validity rollup 이며, "ZK" 는 succinctness 다. Aztec 의 hybrid public-private 모델(사용자 측에서 상태 암호화, SNARK 로 검증)은 zk-rollup 디자인 공간의 <em>부분 집합</em> 이며 디폴트가 아니다 <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<h2>중요한 zk 프리미티브 레이어</h2>
+<p>프라이버시 제품에서 증명 시스템 선택은 애플리케이션을 제약한다.</p>
+<ul>
+<li><strong>Groth16</strong> — 회로별 trusted setup, 가장 작은 증명(~192 바이트), ~3 ms 검증. 회로가 바뀌지 않는 고정 회로 프라이버시 컨트랙트(자산별 shielded transfer, 익명 credential gadget)에 널리 쓰인다 <sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>.</li>
+<li><strong>PLONK / Halo2 / Plonky2 / Plonky3</strong> — 보편 trusted setup(또는 일부 transparent), 회로 간 재사용 가능. 회로가 바뀔 수 있는 응용에 적합. Aztec 은 PLONK 계열 백엔드(Barretenberg / CHONK)를 사용 <sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>; Scroll 은 Halo2 기반 시스템 <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>.</li>
+<li><strong>STARK</strong> — transparent setup, post-quantum 친화적. 일반 실행 증명(Starknet, Stwo, zkVM)에서 우세하나 <em>Ethereum 프라이버시 프로젝트</em> 에서는 2026년 시점 거의 사용되지 않는다 <sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>.</li>
+<li><strong>해시 함수 선택이 증명 비용에 직결된다.</strong> Poseidon / Poseidon2 가 ZK-friendly 해시 성능에서 Groth16 하 우세를 보이며, SHA-256 증명은 PLONK 프레임워크 보다 Groth16 프레임워크 (rapidsnark / gnark / Arkworks) 에서 더 빠르다 <sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>. ZK-friendly 해시는 Tornado-스타일 Merkle 멤버십 증명을 클라이언트 사이드에서 가능하게 만든다.</li>
+<li><strong>Folding 스킴 (Nova / SuperNova / HyperNova)</strong> 은 prover 측 활발한 연구 방향이며, 원리적으로 장기 실행 계산(예: 한 DeFi 세션 전체)을 증명할 수 있게 해줄 수 있다. 그러나 <em>2026년 시점 어떤 프로덕션 Ethereum 프라이버시 제품도 이를 디폴트 증명 시스템으로 사용하지 않는다</em> . 2027년+ 프런티어로 취급해야 한다 _(forward-looking)_.</li>
+</ul>
+<p>이 레이어의 가장 중요한 2024–2026년 변화는 <strong>클라이언트 사이드 증명 가능성</strong> 이다. Aztec 의 CHONK 세대는 폰/브라우저 증명을 위해 설계됐고, NoirJS 는 동작하는 브라우저 증명 파이프라인을 시연하며 <sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>, Aztec Alpha 의 증명은 소비자 디바이스에서 동작한다 <sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. "사용자 프라이버시는 중앙 prover 또는 비싼 하드웨어를 필요로 한다" 라는 역사적 전제가 무너졌다.</p>
+<h2>오늘 실용적인 zk 응용</h2>
+<h3>익명 credential 과 proof-of-personhood</h3>
+<p>Ethereum 위 <em>가장 대용량으로 실용 사용되는</em> zk 프라이버시 프리미티브는 결제가 아니라 <strong>익명 credential</strong> 이다. PSE 의 Semaphore 는 "zk-SNARK 기반 Ethereum 응용을 위한 보편적 오픈소스 프라이버시 레이어" 로, 그룹 멤버십 증명과 double-signaling 방지 메커니즘을 제공한다 <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. World ID 는 Semaphore + Semaphore Merkle Tree Batcher (SMTB) 로 효율적 셋 업데이트를 구현하고, orb 인증 생체 유일성을 underlying credential 로 쓴다 <sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>. Anon Aadhaar 는 약 14억 인도 거주자가 Aadhaar ID 를 선택적 공개로 증명할 수 있게 해준다 <sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. ZK-Email 은 이메일 본문을 노출하지 않고 DKIM 서명의 유효 존재를 증명한다 <sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. zkPassport 는 ICAO 표준 ePassport 칩을 활용해 100여 개국 여권 기반 ZK 인증을 제공한다 <sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<p>이들이 실제로 <em>대규모 사용자 집단에 출하된</em> 프라이버시 스택의 일부다.</p>
+<h3>Shielded 결제와 DeFi</h3>
+<p>Aztec 과 Railgun 이 프로덕션 답이다. Aztec 은 자체 L2 위 프로그래머블 shielded 스마트 컨트랙트를 제공하며 <sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>, Railgun 은 기존 L1/L2 에 임베드된 자산별 shielded 잔고를 제공한다 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 채택 규모는 투명 DeFi 보다 훨씬 작으며, 가장 큰 마찰은 shield/unshield 가스 비용과 자산별 익명 셋 사이즈, 그리고 규제 환경이지 <em>암호학이 아니다</em> .</p>
+<h3>컴플라이언스 인지 mixing</h3>
+<p>Privacy Pools 가 2025년의 실용적 답이다. "association-set 증명" (해당 deposit 이 속성 P 를 만족하는 셋에 속함, 예: 정직 출처)과 "어떤 deposit 이 본인 것인지 노출 여부" 를 분리한다 <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 메인넷 채택은 작지만 실재한다 — 첫 몇 주에 600만 달러 / 1,500명 이상 <sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>.</p>
+<h3>브리징과 cross-rollup 메시지</h3>
+<p>shielded 가치를 한 롤업 프라이버시 도메인에서 다른 롤업으로 옮기는 <em>프라이빗 cross-rollup bridging</em> 은 <strong>2026년 시점 프로덕션으로 풀린 문제가 아니다</strong> . 이를 단순화할 shared-sequencer / based-sequencer 인프라(Espresso, Taiko 식 based 롤업) 자체가 초기이며, 한때 선두였던 Astria 는 2025년에 셧다운됐다. 아래 추천에서 <em>명시적 갭</em> 으로 표면화한다.</p>
+<h3>"실용 프라이버시(pragmatic privacy)" 가 된 제품 프레이밍</h3>
+<p>업계 보도는 2025–2026년 사이클을 명시적으로 이렇게 프레이밍한다. "Aztec 부터 Zcash 까지 2025년은 <em>실용 프라이버시(pragmatic privacy)</em> 가 뿌리내린 해였다" — 절대주의적 "전부 가린다" 디자인에서 의도적으로 멀어져, 불확실 규제 체제 아래에서 출하 가능한 선택적 공개 구성(Privacy Pools 의 association-set 증명, Aztec 의 PXE, Railgun 의 자산별 shielded 잔고)으로 이동했다 <sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>.</p>
+<h2>추천: 오늘 실제 배포 가능한 것</h2>
+<p>"현재 규제 · 적대적 조건 아래에서 <em>살아남는</em> 프라이버시를 출하한다" 는 목표를 가진 2026년 빌더에게 방어 가능한 조합은 다음과 같다.</p>
+<p>1. <strong>Shielded 결제 → Aztec(그린필드) 또는 Railgun(드롭인 미들웨어).</strong> 새로 응용을 그 프라이빗 스마트 컨트랙트 환경에 맞춰 쓸 수 있고 클라이언트 사이드 증명을 처음부터 원하면 Aztec <sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. <em>기존</em> L1 / L2 컨트랙트(Ethereum, BNB, Polygon, Arbitrum)에 별도 검증자 셋 없이 프라이버시를 얹어야 하면 Railgun <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 2. <strong>컴플라이언스 인지 mixing → Privacy Pools.</strong> 디자인이 규제자 또는 기관 사용자의 <em>제재 association set 비멤버십 증명</em> 요구를 받아들여야 한다면 사용 <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>. ASP 큐레이터를 <em>의식적으로 받아들이는 신뢰 가정</em> 으로 처리. 3. <strong>ID / 시빌 저항 / KYC 압축 → Semaphore, World ID, Anon Aadhaar, ZK-Email, zkPassport.</strong> 사용자 집단의 <em>기반 권위</em> 와 일치하는 것을 선택. 보편 zk-credential 프리미티브는 Semaphore <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>; 생체 유일성은 World ID <sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>; 인도 거주자는 Anon Aadhaar <sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>; DKIM 앵커드 조직 주장은 ZK-Email <sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>; ICAO 앵커드 국적 / 연령은 zkPassport <sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. 4. <strong>증명 스택 → 회로가 바뀌면 PLONK 계열, 고정이면 Groth16.</strong> Aztec / Noir 의 PLONK 계열이 진화하는 회로의 디폴트; Groth16 의 더 작은 증명은 안정적 · 작은 회로에 옳다 <sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>. 5. <strong>클라이언트 사이드 증명을 디폴트로.</strong> Aztec / NoirJS / Barretenberg-CHONK 궤적은 폰/브라우저 증명을 <em>2026년의 현실</em> 로 만든다 <sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. 프라이빗 입력을 디바이스 외부 prover 로 라우팅하는 디자인은 <em>불필요하게 약한</em> 프라이버시로 취급해야 한다. 6. <strong>"zk-rollup 이면 프라이버시" 라고 가정하지 말 것.</strong> "ZK rollup" 은 디폴트로 결제 프라이버시를 주지 않는다. L2 위 프라이버시가 필요하면 <em>프라이버시 우선 롤업(Aztec)에 빌드</em> 하거나 <em>제네릭 롤업 위에 프라이버시 미들웨어(Railgun)를 얹어야 한다</em> <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. 7. <strong>프라이빗 cross-rollup bridging 은 연구 단계로 취급.</strong> 2026년 기준 프로덕션 답이 없다. 미루거나 체인별 shielded 잔고로 대체.</p>
+<p><em>사용자</em> 입장에서 오늘 실제 배포 가능한 스택은 (a) L1 / L2 shielded 잔고로 Privacy Pools 또는 Railgun, (b) ID 결합 행동에 World ID / Anon Aadhaar / zkPassport, (c) 오프체인 attestation 에 ZK-Email. <em>완전 프라이빗 DeFi</em> 는 일반 사용자에게 여전히 열망 단계다 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<h2>한계와 미해결 문제</h2>
+<ul>
+<li><strong>규제 변동성.</strong> 미국 5회 순회법원의 "불변 스마트 컨트랙트는 재산이 아니다" 판결 <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 과 2025년 3월 OFAC delisting <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> 은 <em>불변이 아닌</em> mixer 를 다루지 않으며, 미래 행정부 또는 다른 부처를 구속하지도 않는다. EU AML Regulation 2024/1624 — 2024년 5월 채택, 2027년 7월 1일 발효 — 는 익명 암호자산 계정과 익명성 강화 코인을 <em>금지</em> 하고, "고위험" 프라이버시 지갑과 mixer 를 금지할지에 대한 위원회 보고를 의무화한다 <sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup>. 오늘 출하한 프라이버시 제품이 2027년에는 한 관할에선 합법, 다른 관할에선 불법일 수 있다.</li>
+<li><strong>익명 셋의 취약성은 사용자 행동 문제이지 암호학 문제가 아니다.</strong> 유효한 SNARK 가 있어도 주소 재사용, 릴레이어 실수, 시간 패턴이 Tornado 부류 시스템에서 출금의 5–34% 를 재연결할 수 있다 <sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. 사용자 규율에 의존하는 프라이버시 제품은 <em>일정 비율은 누설된다</em> 고 가정해야 한다.</li>
+<li><strong>프로덕션 감사 갭.</strong> Privacy Pools 온체인 컨트랙트의 공개된 제3자 감사는 이번 리서치에서 발견되지 않았으며, Aztec Alpha 는 자기 프레이밍상 알파다. 신생 구성은 그에 맞게 취급할 것.</li>
+<li><strong>채택 비대칭.</strong> 익명 credential 프리미티브(Semaphore / World ID / Anon Aadhaar / ZK-Email / zkPassport)는 shielded 결제 시스템(Aztec / Railgun / Privacy Pools)보다 <em>훨씬 큰</em> 사용자 집단에 출하됐다. 2026년 "Ethereum 프라이버시" 의 실제 스토리는 <em>술어 공개가 먼저, shielded 결제가 그 다음</em> 이다.</li>
+<li><strong>Folding 스킴과 재귀 증명 집계</strong> 는 2026년 Ethereum 프라이버시 제품에 대해 연구 단계다. 2027년+ 배포가 예상되지만 2026년 프로덕션 포인터는 없다 _(forward-looking)_.</li>
+<li><strong>프라이빗 cross-rollup bridging</strong> 에는 2026년 프로덕션 답이 없으며, 추천에서 갭으로 명시했다.</li>
+<li><strong>정량적 채택 시계열.</strong> Aztec / Railgun / Privacy Pools / Tornado Cash / Nocturne(종료) 전반의 비교 가능한 채택-볼륨 시계열을 본 리서치에서 조립하지 못했다. 프로젝트별 수치는 가능한 한 인용했으나, 프로젝트 간 비교는 정성적으로 취급해야 한다.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">U.S. Department of the Treasury</span>. <a href="https://home.treasury.gov/news/press-releases/jy0916">U.S. Treasury Sanctions Notorious Virtual Currency Mixer Tornado Cash (initial OFAC action, August 8, 2022)</a>. <span class="venue">Treasury.gov press release, 2022</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-2"><span class="authors">U.S. Court of Appeals for the Fifth Circuit</span>. <a href="https://www.ca5.uscourts.gov/opinions/pub/23/23-50669-CV0.pdf">Van Loon v. Department of the Treasury (5th Cir. No. 23-50669, November 26, 2024)</a>. <span class="venue">Fifth Circuit, 2024</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-3"><span class="authors">Steptoe</span>. <a href="https://www.steptoe.com/en/news-publications/international-compliance-blog/treasury-department-delists-tornado-cash-following-the-fifth-circuits-decision.html">Treasury Department Delists Tornado Cash Following the Fifth Circuit&#x27;s Decision</a>. <span class="venue">Steptoe International Compliance Blog, 2025</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-4"><span class="authors">Aztec Labs</span>. <a href="https://docs.aztec.network/">Aztec Documentation — Privacy-first zkRollup</a>. <span class="venue">docs.aztec.network, 2025</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-5"><span class="authors">RAILGUN Project</span>. <a href="https://medium.com/@Railgun_Project/the-new-architecture-for-ethereum-privacy-introducing-railgun-v3-21e111fa297e">The New Architecture for Ethereum Privacy: Introducing RAILGUN v3</a>. <span class="venue">Medium, 2024</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-6"><span class="authors">Vitalik Buterin, Jacob Illum, Matthias Nadler, Fabian Schär, Ameen Soleimani</span>. <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4563364">Blockchain Privacy and Regulatory Compliance: Towards a Practical Equilibrium</a>. <span class="venue">SSRN preprint (Sep 6, 2023), 2023</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-7"><span class="authors">0xbow</span>. <a href="https://docs.privacypools.com/">Privacy Pools Documentation (0xbow)</a>. <span class="venue">docs.privacypools.com, 2025</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-8"><span class="authors">Privacy &amp; Scaling Explorations (PSE)</span>. <a href="https://semaphore.pse.dev/">Semaphore — a zero-knowledge protocol for anonymous interactions</a>. <span class="venue">semaphore.pse.dev, 2025</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-9"><span class="authors">World (formerly Worldcoin)</span>. <a href="https://world.org/blog/world/intro-zero-knowledge-proofs-semaphore-application-world-id">Intro to Zero-Knowledge Proofs, Semaphore, and their application in World ID</a>. <span class="venue">world.org blog, 2024</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-10"><span class="authors">Anon Aadhaar contributors</span>. <a href="https://github.com/anon-aadhaar/anon-aadhaar">Anon Aadhaar — zero-knowledge protocol for proving Aadhaar identity</a>. <span class="venue">GitHub anon-aadhaar/anon-aadhaar, 2025</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-11"><span class="authors">ZK Email contributors</span>. <a href="https://docs.zk.email/architecture/zk-proofs">ZK Email — zero-knowledge proofs of DKIM signatures</a>. <span class="venue">docs.zk.email, 2024</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-12"><span class="authors">zkPass</span>. <a href="https://medium.com/zkpass/zktls-the-cornerstone-of-verifiable-internet-da8609a32754">zkTLS — The Cornerstone of Verifiable Internet (zkPassport context)</a>. <span class="venue">Medium, 2024</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-13"><span class="authors">multiple authors</span>. <a href="https://arxiv.org/abs/2510.09433">Clustering Deposit and Withdrawal Activity in Tornado Cash: A Cross-Chain Analysis</a>. <span class="venue">arXiv 2510.09433, 2025</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-14"><span class="authors">Aztec Labs</span>. <a href="https://aztec.network/blog/launching-aztec">Launching Aztec — Ignition Chain and Alpha mainnet (Nov 2025)</a>. <span class="venue">aztec.network blog, 2025</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-15"><span class="authors">Nansen Research</span>. <a href="https://research.nansen.ai/articles/aztec-a-hybrid-public-private-zk-rollup">Aztec: a Hybrid Public-Private ZK-Rollup</a>. <span class="venue">research.nansen.ai, 2024</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-16"><span class="authors">Aztec Labs</span>. <a href="https://aztec.network/blog/aztecs-core-cryptography-now-in-noir">Aztec&#x27;s Core Cryptography, Now in Noir (Barretenberg / CHONK)</a>. <span class="venue">aztec.network blog, 2025</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-17"><span class="authors">Aztec Labs</span>. <a href="https://aztec.network/blog/announcing-noirjs-privacy-preserving-zk-applications-in-your-browser">Announcing NoirJS: Privacy-Preserving ZK Applications In Your Browser</a>. <span class="venue">aztec.network blog, 2024</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-18"><span class="authors">The Block</span>. <a href="https://www.theblock.co/post/348959/0xbow-privacy-pools-new-cypherpunk-tool-inspired-research-ethereum-founder-vitalik-buterin">0xbow unveils &#x27;Privacy Pools,&#x27; a new blockchain privacy tool drawing from Vitalik Buterin&#x27;s research</a>. <span class="venue">The Block, 2025</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-19"><span class="authors">0xbow</span>. <a href="https://github.com/0xbow-io/privacy-pools-core">0xbow Privacy Pools Core (open-source contracts)</a>. <span class="venue">GitHub 0xbow-io/privacy-pools-core, 2025</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-20"><span class="authors">Nocturne Labs</span>. <a href="https://x.com/nocturne_xyz/status/1798420775739023466">Nocturne wind-down announcement (June 5, 2024)</a>. <span class="venue">x.com/nocturne_xyz, 2024</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-21"><span class="authors">multiple authors</span>. <a href="https://arxiv.org/abs/2409.01976">Benchmarking ZK-Friendly Hash Functions and SNARK Proving Systems for EVM-compatible Blockchains</a>. <span class="venue">arXiv 2409.01976, 2024</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-22"><span class="authors">L2BEAT</span>. <a href="https://l2beat.com/zk-catalog/worldcoin-semaphore">L2BEAT ZK Catalog — Worldcoin Semaphore</a>. <span class="venue">l2beat.com, 2025</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-23"><span class="authors">The Block</span>. <a href="https://www.theblock.co/post/383680/aztec-zcash-year-pragmatic-privacy-root">From Aztec to Zcash: The year &#x27;pragmatic privacy&#x27; took root</a>. <span class="venue">The Block, 2026</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-24"><span class="authors">DL News</span>. <a href="https://www.dlnews.com/articles/regulation/why-the-eu-is-about-to-outlaw-and-curb-key-crypto-features/">The EU is about to outlaw and restrict some of the most prized features in crypto</a>. <span class="venue">DL News, 2024</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-04-26 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
