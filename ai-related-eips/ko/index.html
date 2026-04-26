@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2026년 AI 관련 EIP — EIP-8126 심층 포함 서베이 — Deepsearch</title>
+<meta name="description" content="ERC-8004, ERC-7857, ERC-8183, EIP-8141, EIP-8128과 EIP-8126(AI 에이전트 검증)의 위치">
+<link rel="alternate" hreflang="en" href="../index.html">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../ko/index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="en">English</a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../ko/index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>2026년 AI 관련 EIP — EIP-8126 심층 포함 서베이</h1>
+    <p class="subtitle">ERC-8004, ERC-7857, ERC-8183, EIP-8141, EIP-8128과 EIP-8126(AI 에이전트 검증)의 위치</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-04-26</span>
+      <span><strong>태그</strong> —</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="ai-related-eips.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>2025년 중반부터 2026년 1분기 사이에 Ethereum 위에서 "AI 관련" EIP / ERC 군집이 형성됐다. 키스톤은 <strong>ERC-8004 ("Trustless Agents")</strong> — Identity, Reputation, Validation 세 개의 온체인 레지스트리 — 이며 2026년 1월 29일 메인넷에 활성화됐다 <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 본 보고서의 심층 다이브는 <strong>ERC-8126 ("AI Agent Verification")</strong> — Leigh Cronian 과 Chris Johnson 이 2026년 1월 15일 생성한 Draft Standards Track ERC, 2026년 2월 10일 기준 Draft 유지 <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> — 이다. ERC-8126 은 ERC-8004 의 한 계층 위에 자리하며 "등록된 에이전트" 를 "검증된, 위험 점수가 부여된 에이전트" 로 변환한다. 다섯 검증 카테고리 — <strong>ETV</strong> (Ethereum Token), <strong>MCV</strong> (Media Content), <strong>SCV</strong> (Solidity Code), <strong>WAV</strong> (Web Application), <strong>WV</strong> (Wallet) — 각각 0–100 점수를 산출하고, 종합 위험 점수는 적용 가능한 카테고리의 <strong>평균</strong> 이며 Low / Moderate / Elevated / High / Critical 다섯 등급으로 분류된다 <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 검증은 프라이버시 보호다. 제공자가 <strong>Private Data Verification (PDV)</strong> 를 통해 ZK 증명을 생성하고, 증거는 에이전트 지갑 보유자에게만 접근 가능하며, 옵션 온체인 레지스트리는 증명 ID 를 담은 <code>AgentVerified</code> 이벤트를 발생시키고 <code>getLatestRiskScore(agentId)</code> 를 노출한다 <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 옵션 <strong>Quantum Cryptography Verification (QCV)</strong> 는 AES-256-GCM 급 포스트 양자 암호화를 추가하고, <code>record_id</code> + <code>decryption_url</code> 검색 패턴을 제공한다 <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 명세는 <strong>EIP-155, EIP-191, EIP-712, EIP-721, EIP-3009, ERC-8004</strong> 의존성을 선언한다 <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. 주변에 <strong>ERC-7857</strong> (AI 에이전트 NFT + 비공개 메타데이터, 0G Labs, 2025-01) <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>, <strong>ERC-8183</strong> (agentic commerce, 2026-02-25 제안) <sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>, 인접 인프라 <strong>EIP-8141</strong> (Frame Transaction native AA, Hegotá H2 2026) <sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>, <strong>EIP-8128</strong> (Ethereum 으로 서명된 HTTP 요청, RFC 9421 + CAIP-10) <sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>, <strong>ERC-8211</strong> (스마트 배칭) <sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup> 가 있다. 2026년 4월 26일 기준 메인넷 도달은 ERC-8004 뿐이며 ERC-8126 을 포함한 나머지는 모두 Draft / 제안 단계다 <sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>.</p>
+  </section>
+
+  <main class="body">
+<h2>서론</h2>
+<p>"AI EIP" 라는 카테고리는 1년 전 Ethereum 에는 존재하지 않았다. 2026년 4월 시점에는 존재하며, 업계 보도는 프로토콜 변경, 신원 인접 EIP, 명시적 AI ERC 를 한 묶음으로 다룬다 <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 묶음이 느슨한 것은 사실 — 대부분이 ERC(애플리케이션 레이어) 이지 코어 변경이 아니다 — 이지만, 한 가지 <em>진짜</em> 변화를 추적한다. Ethereum 위 에이전트 시스템은 <strong>신원</strong>, <strong>검증 가능한 신뢰성</strong>, <strong>거래 가능한 자산</strong>, <strong>결제</strong>, <strong>인증된 오프체인 I/O</strong> 가 필요하며, 그 각 필요를 채울 ERC 가 출현하고 있다.</p>
+<p>전환의 시작은 ERC-8004 가 2025년 8월 발표되며 시작됐고 2026년 1분기에 가속됐다. ERC-8004 가 2026년 1월 29일 메인넷 <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>, <strong>ERC-8126 이 2026년 1월 15일 생성</strong> <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, EIP-8128 이 2026년 1월 19일 Magicians 게시 <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, ERC-8183 이 2026년 2월 25일 제안 <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Ethereum 재단의 dAI 팀은 명시적으로 Ethereum 을 "AI 에이전트와 머신 이코노미의 정산·코디네이션 레이어" 로 위치시킨다 <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>본 보고서는 두 가지를 한다. 첫째, 2026년 4월 시점의 AI EIP 군집을 — 각 EIP / ERC 가 무엇을 <em>실제로</em> 명세하며 무엇이 출하됐고 무엇이 Draft 인지 — 정리한다. 둘째, <strong>ERC-8126 을 심층적으로</strong> 본다. 에이전트가 ERC-8004 로 <em>등록</em> 된 후 자연스러운 다음 질문은 <em>이 에이전트를 신뢰해야 하나?</em> 이며, ERC-8126 이 정확히 그 질문에 답하는 명세이기 때문이다.</p>
+<h2>2025–2026년 AI EIP 군집</h2>
+<h3>ERC-8004 — Trustless Agents (키스톤)</h3>
+<p>ERC-8004 는 군집 내 모든 다른 명세가 참조하는 키스톤이다. 가벼운 온체인 레지스트리 셋 — Identity, Reputation, Validation — 을 도입하고, 애플리케이션 고유 로직은 명시적으로 오프체인에 둔다 <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Identity Registry 는 ERC-721 NFT 위에 빌드돼 에이전트의 등록 파일로 resolve 되며, 모든 에이전트가 기존 지갑 · 마켓 · 관리 도구와 즉시 호환된다 <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. Reputation Registry 는 클라이언트 서명 피드백을 고정 소수점 (<code>int128</code> + <code>valueDecimals</code> <code>uint8</code> + 옵셔널 태그) 으로 저장한다 <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Validation Registry 는 검증자 스마트 컨트랙트 훅을 노출해 신뢰 모델 — 평판, stake 기반 재실행, zkML 증명, TEE 오라클 — 을 플러그인 가능하게 한다 <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<p>저자는 Marco De Rossi (MetaMask), Davide Crapis (Ethereum Foundation), Jordan Ellis (Google), Erik Reppel (Coinbase) 이며 "ENS, EigenLayer, The Graph 를 포함한 100여 명의 업계 리더의 입력으로" 다듬어졌다 <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. 2026년 1월 29일 Ethereum 메인넷에 활성화됐고, 채택은 마이크로페이먼트와 잦은 피드백 제출이 경제적인 L2 (Base, Optimism, Arbitrum) 에 집중돼 있다 <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 한 독립 코멘터리는 ERC-8004 를 Google 의 A2A (Agent2Agent) 프로토콜의 <em>trustless on-chain 확장</em> 으로 본다 <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<h3>ERC-7857 — 비공개 메타데이터를 가진 AI 에이전트 NFT</h3>
+<p>ERC-7857 은 2025년 1월 0G Labs 가 도입했다 <sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. ERC-721 을 확장해 <strong>암호화 메타데이터, 양도 시 오라클 매개 재암호화, 동적 업데이트</strong> 를 지원한다. AI 모델, 신경망 가중치, 메모리 모듈을 토큰화하면서 학습 데이터를 비공개로 유지할 수 있다 <sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 0G 의 프레이밍은 "iNFT" — 지능형 NFT — 이며 "AI 에이전트를 NFT 로 표현해 양도성, 탈중앙성, 완전 자산 통제, 로열티" 를 제공한다 <sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 0G 자체 스택을 넘어선 cross-ecosystem 채택은 본 리서치에서 surface 되지 않았다.</p>
+<h3>ERC-8183 — agentic commerce / 프로그래머블 에스크로</h3>
+<p>ERC-8183 은 2026년 2월 25일 제안됐고 <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>, 결제 프리미티브 역할이다. AI 에이전트가 온체인 스마트 컨트랙트로 "결제를 trustlessly 관리" 하며, 모든 작업을 <em>Job</em> 으로 프로그래머블화하고 검증 후 조건부로 지급을 해제한다 <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 명세는 초기다.</p>
+<h3>EIP-8141 — Frame Transaction (인접 인프라)</h3>
+<p>EIP-8141 은 Vitalik Buterin 이 저자이며 2026년 하반기 Hegotá 업그레이드 타깃 <sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> 이다. AI EIP 가 아니지만 AI 군집이 반복 참조하는 <em>프로토콜 레이어 변경</em> 이다. <strong>frame</strong> 은 프로토콜이 직접 처리하는 일련의 별도 연산 시퀀스이며, <code>VERIFY</code> 프레임이 <em>컨트랙트 코드 없는</em> 주소를 타깃하면 EVM 은 revert 하지 않고 SECP256K1 / P256 검증을 처리하는 <em>내장 디폴트 코드</em> 를 적용한다 <sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. 기존 EOA 가 <em>주소를 바꾸지 않고</em> 스마트 어카운트 기능(소셜 복구, 지출 한도, USDC 가스 결제) 으로 마이그레이션 가능 <sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</p>
+<h3>EIP-8128 — Ethereum 으로 서명된 HTTP 요청 (인접 인프라)</h3>
+<p>EIP-8128 은 <code>jacopo-eth</code> 가 2026년 1월 19일 Ethereum Magicians 포럼에 게시했고 <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, <strong>RFC 9421 (HTTP Message Signatures)</strong> 위에 Ethereum 계정으로 임의 HTTP 요청을 인증하는 표준이다 <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. 키 식별자 형식은 <code>erc8128:&lt;chainId&gt;:&lt;address&gt;</code> 로 CAIP-10 의 <code>eip155</code> 문법을 그대로 재사용해, RFC 9421 을 구현하는 어떤 HTTP 서버도 온체인 키에 대해 검증할 수 있다 <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. 2026년 4월 26일 기준 정식 텍스트는 <em>eips.ethereum.org 에 미게시</em> 이며 Magicians 스레드 + eip.tools 카탈로그만 존재한다 <sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. EIP-8128 은 <em>기술적으로 AI EIP 가 아니다</em> (초록에 AI 언급 없음) <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> 그러나 에이전트 스택이 채택하는 이유는 단순하다 — 오프체인 에이전트가 서버 / 오라클 / 모델 API 와 통신하면서 온체인 신원 주장을 보존하려면 인증된 HTTP 가 필요하다.</p>
+<h3>ERC-8211 — 스마트 배칭 (군집 멘션)</h3>
+<p>ERC-8211 은 Biconomy 가 도입했고 "여러 블록체인 연산이 함께 실행되면서 트랜잭션 값이 실시간으로 해소되도록" 한다 <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 이차 군집원으로 처리.</p>
+<h2>ERC-8126 심층 — AI 에이전트 검증</h2>
+<p>에이전트가 ERC-8004 로 등록된 후 자연스러운 다음 질문은 — <strong>이 에이전트를 신뢰해야 하나?</strong> — 이며, ERC-8126 이 답을 주는 명세다.</p>
+<h3>상태, 저자, 의존성</h3>
+<ul>
+<li><strong>정식 제목:</strong> <em>AI Agent Verification</em> <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Magicians 스레드와 프로젝트 랜딩 페이지(<code>erc8126.ai</code>)는 더 긴 표현 <strong>"AI Agent Registration and Verification"</strong> 을 쓰지만 <sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>, <em>등록</em> 절반은 ERC-8004 가 처리하므로 정식 EIPs 페이지는 검증에만 집중한다.</li>
+<li><strong>상태 / 일자:</strong> Standards Track ERC, <strong>Draft</strong>, <strong>2026-01-15 생성</strong> <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 저자가 2026년 2월 10일 기준 Draft 임을 확인 <sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>.</li>
+<li><strong>저자:</strong> Leigh Cronian (<code>@cybercentry</code>), Chris Johnson <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>.</li>
+<li><strong>필수 의존성:</strong> EIP-155 (chain ID), EIP-191 (signed-data), EIP-712 (typed-data), EIP-721 (NFT 신원), EIP-3009 (<code>transferWithAuthorization</code>), ERC-8004 (Trustless Agents) <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</li>
+</ul>
+<h3>다섯 검증 카테고리</h3>
+<p>ERC-8126 의 핵심 디자인은 <em>에이전트 신뢰가 다차원</em> 이라는 것이다. 단일 신호로 환원하면 실패 모드가 가려진다. 명세는 다섯 검증 타입을 정의하고 알파벳 순서 (ETV → MCV → SCV → WAV → WV) 로 "명료성과 일관성을 위해" 제시한다 <sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. 각 카테고리는 0–100 위험 점수를 독립적으로 산출한다 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>:</p>
+<ul>
+<li><strong>ETV (Ethereum Token Verification)</strong> — 에이전트 메타데이터에 <code>contractAddress</code> 가 존재할 때 적용. <code>eth_getCode</code> 호출로 컨트랙트 배포 확인하고 0이 아닌 바이트코드 확인, 알려진 취약 패턴 검사, OWASP Smart Contract Security Verification Standard 권장. 0–100 위험 점수 반환 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</li>
+<li><strong>MCV (Media Content Verification)</strong> — <code>imageUrl</code> 이 있을 때 적용. AI 생성 / 합성 미디어 / 딥페이크 포렌식 분석, content provenance 와 임베디드 메타데이터 검증, 워터마크 / steganographic payload / 서명 검증, C2PA Implementation Guide 권장. 0–100 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</li>
+<li><strong>SCV (Solidity Code Verification)</strong> — <code>solidityCode</code> 가 메타데이터에 있을 때 적용. <code>eth_getCode</code> 로 배포 검증, 재진입 / 플래시론 공격 패턴 검사, OWASP SCSVS 권장. 0–100 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</li>
+<li><strong>WAV (Web Application Verification)</strong> — resolved <code>url</code> 또는 <code>endpoints</code> 사용. HTTPS 엔드포인트 도달성, SSL 인증서 유효성, 일반 보안 테스트, OWASP Web Security Testing Guide v4.2 권장. 0–100 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</li>
+<li><strong>WV (Wallet Verification)</strong> — 에이전트 지갑 주소의 트랜잭션 이력 검증, 위협 인텔리전스 데이터베이스 교차 검사. 0–100 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</li>
+</ul>
+<h3>위험 점수와 등급</h3>
+<p><strong>종합 위험 점수는 적용 가능한 카테고리 점수의 평균</strong> 이다 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 명세는 0–100 범위를 다섯 등급으로 나눈다 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>:</p>
+<p>| 등급 | 범위 | 평가 | |---|---|---| | Low Risk | 0–20 | 우려 최소 | | Moderate | 21–40 | 일부 우려, 검토 권장 | | Elevated | 41–60 | 주목할 만한 우려, 주의 권고 | | High Risk | 61–80 | 상당한 우려 감지 | | Critical | 81–100 | 심각한 우려, 상호작용 회피 |</p>
+<p>두 디자인 관찰. 첫째, 적용 카테고리의 <em>평균</em> 을 취한다는 것은 <em>세 개의 우수한 점수와 한 개의 critical 점수</em> 를 가진 에이전트가 <em>중간 어딘가</em> 에 떨어진다는 의미다 — 단일 카테고리 false positive 로부터 보호하지만 <em>진짜 단일 카테고리 red flag</em> 도 부드럽게 만든다. 명세는 <em>카테고리별 최소치</em> 를 함께 강제할지 여부를 통합자(integrator)의 결정에 맡긴다. 둘째, 카테고리는 조건부로 적용된다 — <code>solidityCode</code> 필드가 없는 에이전트는 SCV 점수가 <em>없을</em> 뿐이며, 종합 평균은 그것 없이 계산된다.</p>
+<h3>프라이버시: ZK 증명과 Private Data Verification</h3>
+<p>ERC-8126 검증은 <strong>구성상 프라이버시 보호</strong> 다. 명세는 검증 제공자가 <strong>Private Data Verification (PDV)</strong> 를 통해 영지식 증명을 생성하며, 결과는 에이전트 지갑 보유자에게만 접근 가능하다고 명시한다 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 온체인 attestation 은 증명 ID (카테고리당 하나 + 요약 하나) 와 통합 위험 점수를 운반하며, <em>기반 증거</em> — 실제 스캔 출력, WAV 의 정확한 엔드포인트 발견, WV 의 위협 인텔 교차 참조 — 는 평문으로 온체인에 가지 않는다 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. 이는 "스캔 결과를 공개 데이터베이스에 게시" 의 정반대다.</p>
+<h3>옵션 온체인 인터페이스</h3>
+<p>ERC-8126 은 "주로 검증 제공자를 위한 오프체인 표준이며, 검증 요청을 제출하거나 검증 타입을 수행하기 위해 온체인 스마트 컨트랙트 인터페이스가 <em>필요하지 않다</em>" <sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. 그러나 명세는 <em>옵션</em> 온체인 레지스트리 인터페이스를 정의하여 통합자가 검증 결과를 온체인에서 발견 가능하게 만들 수 있다 <sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>:</p>
+<pre><code>event AgentVerified(
+    uint256 indexed agentId,
+    uint8 overallRiskScore,
+    bytes32 etvProofId,
+    bytes32 mcvProofId,
+    bytes32 scvProofId,
+    bytes32 wavProofId,
+    bytes32 wvProofId,
+    bytes32 summaryProofId
+);
+
+function getLatestRiskScore(uint256 agentId) external view returns (uint8);</code></pre>
+<p>두 가지 디자인 선택이 눈에 띈다. 이벤트는 <code>agentId</code> 만 인덱싱한다 (구독자가 "이 에이전트의 검증" 으로 필터 가능). 그리고 증명 ID 는 <code>bytes32</code> 다 — 즉 <em>content-addressable</em> 참조이며 <em>증명 자체</em> 가 아니라 오프체인 ZK 증명으로 resolve 한다. View 함수는 <code>uint8</code> 종합 점수만 반환하여 의도적으로 온체인 푸트프린트를 작게 유지한다.</p>
+<h3>Quantum Cryptography Verification (QCV)</h3>
+<p>명세는 <strong>옵션</strong> 포스트 양자 모드를 제공한다. <strong>QCV</strong> 는 민감한 검증 데이터를 "AES-256-GCM 또는 동등한 포스트 양자 암호 알고리즘" 으로 양자 저항 암호화하고, 암호화 레코드의 고유 <code>record_id</code> 와 인가된 검색을 위한 <code>decryption_url</code> 을 반환한다 <sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. Security Considerations 섹션은 현행 ECDSA 서명과 elliptic-curve ZKP 가 "잠재적 양자컴퓨팅 취약성에 직면" 한다고 명시 — QCV 는 그 지평선에 대한 명세의 헷지다 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<h3>ERC-8004 통합</h3>
+<p>검증 제공자는 최종 위험 점수와 증명 ID 를 <strong>ERC-8004 의 Validation Registry 에 attestation 으로 게시</strong> 할 수 있으며, ERC-8004 의 pluggable 검증 인터페이스와 ERC-721 이식 가능 신원 모델을 활용한다 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. 군집이 추구하는 합성 패턴이다 — ERC-8004 는 <em>agentId</em> (ERC-721 NFT) 를 공급, ERC-8126 은 그 agentId 에 대한 <em>검증 attestation</em> 을 공급.</p>
+<h3>Sybil 저항</h3>
+<p>ERC-8126 은 자체 anti-Sybil 메커니즘을 명세하지 않는다. "Attack Vectors" 아래 명세는 "악의적 행위자가 ERC-8004 에 다수 에이전트를 만들 수 있다. 민팅 비용과 평판 시스템으로 완화" 라고 적는다 <sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. 즉 ERC-8126 은 의도적으로 Sybil 비용을 ERC-8004 의 신원 민팅 비용과 평판 레지스트리에 <em>위임</em> 한다 — ERC-8126 자체에는 검증당 수수료나 stake 메커니즘이 없다. ERC-8004 의 민팅 비용이 프로덕션에서 Sybil swarm 을 억제하기에 충분히 높은가는 <em>경험적 미해결 문제</em> 이며, 8126 이 다루지 않는다.</p>
+<h3>프로덕션 성숙도</h3>
+<p>명세는 "메타데이터 resolution, 검증 점수화, PDV 증명 생성을 시연하는" <strong>TypeScript / Viem Reference Implementation</strong> 을 출하한다 <sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. 2026년 4월 기준 본 리서치는 옵션 온체인 레지스트리 인터페이스에 대한 <strong>메인넷 배포 컨트랙트 주소나 제3자 보안 감사</strong> 를 surface 하지 못했다. 레퍼런스 구현은 있지만 프로덕션 배포는 없다.</p>
+<h3>정직한 rationale 읽기</h3>
+<p>ERC-8126 은 한 가지 큰 <em>주장</em> 과 한 가지 <em>암묵적 가정</em> 을 한다.</p>
+<p><strong>주장</strong>: 에이전트 신뢰는 다차원이고 선택적 공개는 협상 불가다. 따라서 검증 표준은 단일 서명 스캔 리포트가 아니라 ZK 증명에 의해 뒷받침되는 <em>카테고리별</em> 점수를 산출해야 한다.</p>
+<p><strong>암묵적 가정</strong>: <em>경쟁적인</em> 검증 제공자 생태계가 존재할 것이며, 따라서 어떤 단일 제공자도 Sybil 저항 chokepoint 가 되지 않는다. 명세 자체가 "Attack Vectors" 아래 실패 모드를 인정한다 — "제공자 결탁은 다수의 독립 제공자 사용으로 완화" <sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup> — 그러나 <em>제공자가 어떻게 Sybil 저항 경제 skin in the game 을 갖는지</em> 는 명세하지 않는다. 그것은 생태계에 맡겨졌으며, 실제 채택이 소수 제공자에게 떨어질 경우 ERC-8126 이 약속을 못 지킬 가능성이 가장 큰 지점이다.</p>
+<h2>EIP 들의 합성 방식</h2>
+<p>2026년 4월 Ethereum 위 에이전트 스택은 다섯 계층 + 인접 인프라로 그릴 수 있다.</p>
+<p>| 계층 | EIP / ERC | 상태 (2026년 4월) | |---|---|---| | 신원 | ERC-8004 Identity Registry <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> | 메인넷 (2026-01-29) <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> | | 평판 / 검증 | ERC-8004 Reputation + Validation <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>; ERC-8126 검증 (ETV/MCV/SCV/WAV/WV + ZKP + QCV) <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup> | 8004 메인넷 / 8126 Draft | | 토큰화 에이전트 자산 | ERC-7857 (iNFT, 비공개 메타데이터, 오라클 재암호화) <sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> | Draft / 0G 채택 | | 결제 / 프로그래머블 작업 | ERC-8183 (agentic commerce) <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> | 2026-02-25 제안 | | 인증된 오프체인 I/O | EIP-8128 (Signed HTTP Requests with Ethereum, RFC 9421 + CAIP-10) <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup> | Draft (정식 EIPs 사이트에 미게시) <sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup> | | <strong>인접 인프라: native AA</strong> | EIP-8141 (Frame Transaction, default code, Hegotá H2 2026) <sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> | H2 2026 타깃 | | <strong>인접 인프라: 배칭</strong> | ERC-8211 (smart batching) <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> | 군집 멘션만 |</p>
+<p>위에서 아래로 읽으면 — 에이전트는 ERC-8004 에 등록 → ERC-8126 으로 검증 (그 결과를 ERC-8004 의 Validation Registry 로 attestation 게시) → 자기 비공개 지능을 ERC-7857 iNFT 로 보유 → ERC-8183 으로 작업 수락·실행 → 모든 HTTP 트래픽을 EIP-8128 로 인증. 인프라 레이어(EIP-8141, ERC-8211) 는 그 모두의 가스 / UX 를 가능하게 만든다.</p>
+<h2>미해결 이슈와 모순</h2>
+<ul>
+<li><strong>"AI EIP" 는 다투는 용어다.</strong> 업계 보도는 프로토콜 EIP(8141), 신원 인접 EIP(8128), 명시적 AI ERC 를 한 묶음으로 다룬다 <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 묶음은 서사적으로 유용하지만 <em>공식 EIP 카테고리가 아니다</em> .</li>
+<li><strong>군집 대부분은 아직 출하되지 않았다.</strong> ERC-8004 가 2026-01-29 메인넷 <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>, ERC-7857 은 2025년 1월부터 ERC-721 확장으로 라이브이지만 0G 외 cross-ecosystem 채택은 부족 <sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. ERC-8126, ERC-8183, EIP-8141, EIP-8128, ERC-8211 은 모두 2026년 4월 시점 Draft / 제안 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</li>
+<li><strong>EIP 간 합성은 대부분 비공식이다.</strong> ERC-8126 은 ERC-8004 에 <em>명시적</em> 의존 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>; EIP-8128 + EIP-8141 은 <em>암묵적</em> 으로 서로를 함의하지만 저자가 다르고 합동 통합 문서가 없다.</li>
+<li><strong>이름 표류.</strong> ERC-8126 이 Magicians 스레드와 프로젝트 랜딩 페이지에서 "AI Agent Registration and Verification" 으로 불리지만 EIPs 정식 페이지 제목은 <strong>"AI Agent Verification"</strong> 이며 <em>등록</em> 절반은 ERC-8004 가 처리한다 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>.</li>
+<li><strong>검증 제공자 경제학은 미명세.</strong> ERC-8126 의 "다수 독립 제공자 사용" 완화책 <sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup> 은 <em>누가 제공자가 될 수 있는가</em> 에 대한 Sybil 저항 게이팅 메커니즘을 동반하지 않는다. 이는 명세가 아니라 생태계 질문이다.</li>
+</ul>
+<h2>한계</h2>
+<ul>
+<li><strong>ERC-8126 은 Draft.</strong> 메인넷 배포 컨트랙트 주소가 없으며 명세는 TypeScript / Viem 레퍼런스 구현만 출하 <sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. 본 보고서에 인용된 수치와 이벤트 시그니처는 리서치 시점 명세 기준이며 Final 전에 변동 가능.</li>
+<li><strong>공개 감사 없음.</strong> ERC-8126 (또는 옵션 온체인 레지스트리 인터페이스) 의 제3자 보안 감사는 발견되지 않았다.</li>
+<li><strong>벤더 발표 채택 수치.</strong> "2026년 ERC-8004 에이전트 130,000개 예상" 같은 장기 클레임은 <em>예상</em> 이지 <em>측정</em> 이 아니다. 인용 대신 제외했다.</li>
+<li><strong>EIP-8128 정식 텍스트가 eips.ethereum.org 에 미게시.</strong> <code>https://eips.ethereum.org/EIPS/eip-8128</code> 직접 GET 시 404. 정식 텍스트는 Magicians 스레드(s14) + eip.tools 카탈로그(s13) 가 일차 자료.</li>
+<li><strong>ERC-8211 은 군집 멘션이며 심층 다이브가 아니다.</strong> 정식 명세 텍스트는 surface 하지 못했고 뉴스 프레이밍만 있다(s18).</li>
+<li><strong>EIP 간 합성.</strong> "다섯 계층 스택" 프레이밍은 인용 명세와 제3자 explainer 의 합성이다. 어떤 정식 통합 문서도 계층들을 묶지 않는다. 표는 <em>기술적</em> 이지 <em>규범적이지 않다</em> 로 취급할 것.</li>
+<li><strong>Draft 는 빠르게 움직인다.</strong> 본 보고서에 인용된 모든 EIP / ERC 번호와 상태는 2026년 4월 26일 기준 본 리서치 범위 내에서 정확하다. 구현 결정 전에 정식 EIPs 리포지토리를 다시 확인할 것.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Decrypt</span>. <a href="https://decrypt.co/363473/proposed-ethereum-standard-ai-agents-execute-complex-defi-trades">Proposed Ethereum Standard Aims to Help AI Agents Execute Complex DeFi Trades (cluster framing)</a>. <span class="venue">Decrypt, 2026</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-2"><span class="authors">EIPs Insights</span>. <a href="https://eipsinsight.com/erc">EIPs Insights — ERC catalog (April 2026 snapshot of AI cluster)</a>. <span class="venue">eipsinsight.com, 2026</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-3"><span class="authors">Yehia Tarek</span>. <a href="https://medium.com/coinmonks/erc-8004-a-trustless-extension-of-googles-a2a-protocol-for-on-chain-agents-b474cc422c9a">ERC-8004: A Trustless Extension of Google&#x27;s A2A Protocol for On-chain Agents</a>. <span class="venue">Coinmonks (Medium), 2025</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-4"><span class="authors">CoinDesk</span>. <a href="https://www.coindesk.com/tech/2026/01/28/the-protocol-ethereum-to-roll-out-new-ai-agents-standard-soon">The Protocol: Ethereum to roll out new AI agents standard soon (ERC-8004 mainnet)</a>. <span class="venue">CoinDesk, 2026</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-5"><span class="authors">Leigh Cronian, Chris Johnson</span>. <a href="https://eips.ethereum.org/EIPS/eip-8126">ERC-8126: AI Agent Verification (canonical EIP page)</a>. <span class="venue">eips.ethereum.org, 2026</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-6"><span class="authors">jacopo-eth</span>. <a href="https://ethereum-magicians.org/t/erc-8128-signed-http-requests-with-ethereum/27515">ERC-8128: Signed HTTP Requests with Ethereum (Magicians forum thread)</a>. <span class="venue">Fellowship of Ethereum Magicians, 2026</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-7"><span class="authors">CCN</span>. <a href="https://www.ccn.com/education/crypto/erc-8183-programmable-escrow-ai-agents-ethereum-how-it-works/">ERC-8183: Programmable Escrow for AI Agents (Agentic Commerce)</a>. <span class="venue">CCN, 2026</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-8"><span class="authors">Marco De Rossi, Davide Crapis, Jordan Ellis, Erik Reppel</span>. <a href="https://eips.ethereum.org/EIPS/eip-8004">ERC-8004: Trustless Agents</a>. <span class="venue">eips.ethereum.org (canonical EIP page), 2025</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-9"><span class="authors">PayRam</span>. <a href="https://www.payram.com/blog/what-is-erc-8004-protocol">What is the ERC-8004 Protocol? The Trust Layer for the AI Agent Economy</a>. <span class="venue">PayRam blog, 2025</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-10"><span class="authors">Backpack Exchange Learn</span>. <a href="https://learn.backpack.exchange/articles/erc-8004-explained">ERC-8004 Explained: Ethereum&#x27;s AI Agent Standard Guide 2025</a>. <span class="venue">Backpack Exchange, 2025</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-11"><span class="authors">0G Labs</span>. <a href="https://0g.ai/blog/0g-introducing-erc-7857">0G Introducing ERC-7857</a>. <span class="venue">0g.ai blog, 2025</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-12"><span class="authors">Wilbert Liu, 0G Labs contributors</span>. <a href="https://eips.ethereum.org/EIPS/eip-7857">ERC-7857: AI Agents NFT with Private Metadata</a>. <span class="venue">eips.ethereum.org, 2025</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-13"><span class="authors">Vitalik Buterin, co-authors</span>. <a href="https://eips.ethereum.org/EIPS/eip-8141">EIP-8141: Frame Transaction</a>. <span class="venue">eips.ethereum.org, 2026</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-14"><span class="authors">CCN</span>. <a href="https://www.ccn.com/education/crypto/ethereum-eip8141-native-account-abstraction-frame-transactions/">Vitalik Buterin Introduces EIP-8141 to Bring Native Account Abstraction to Ethereum</a>. <span class="venue">CCN, 2026</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-15"><span class="authors">IETF</span>. <a href="https://datatracker.ietf.org/doc/html/rfc9421">RFC 9421 — HTTP Message Signatures</a>. <span class="venue">IETF / datatracker.ietf.org, 2024</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-16"><span class="authors">jacopo-eth</span>. <a href="https://eip.tools/eip/8128">ERC-8128: Signed HTTP Requests with Ethereum (eip.tools catalog page)</a>. <span class="venue">eip.tools, 2026</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-17"><span class="authors">Leigh Cronian</span>. <a href="https://ethereum-magicians.org/t/erc-8126-ai-agent-registration-and-verification/27445">ERC-8126: AI Agent Registration and Verification (Magicians thread)</a>. <span class="venue">Fellowship of Ethereum Magicians, 2026</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-18"><span class="authors">ERC-8126 contributors</span>. <a href="https://erc8126.ai/">erc8126.ai — official project landing page</a>. <span class="venue">erc8126.ai, 2026</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-19"><span class="authors">Leigh Cronian</span>. <a href="https://x.com/cybercentry/status/2025673568856818114">@cybercentry on X — ERC-8126 Draft status as of February 10, 2026</a>. <span class="venue">X (formerly Twitter), 2026</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+      <li id="ref-20"><span class="authors">Leigh Cronian, Chris Johnson</span>. <a href="https://eips.ethereum.org/EIPS/eip-8126">ERC-8126 — verification details, on-chain interface, QCV (extended extraction)</a>. <span class="venue">eips.ethereum.org, 2026</span>. <span class="accessed">접근일 2026-04-26.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-04-26 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
