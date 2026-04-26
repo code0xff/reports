@@ -18,9 +18,6 @@
 - [ ] c05: EIP-8141 ("Frame Transaction"), authored by Vitalik Buterin and targeted for the Hegotá upgrade in H2 2026, introduces a frame-based transaction type with default code so existing EOAs can use smart-account features (P256 / SECP256K1 verification, social recovery, gasless flows) without deploying contract code or relying on bundlers.
   - kind: factual
   - needs: EIP-8141 spec + secondary commentary.
-- [ ] c06: EIP-8128 ("Signed HTTP Requests with Ethereum") is a draft ERC posted to the Fellowship of Ethereum Magicians on January 19, 2026 by `jacopo-eth`, defining a standard for authenticating arbitrary HTTP requests using Ethereum accounts via RFC 9421 HTTP Message Signatures, with key id format `erc8128:<chainId>:<address>` reusing CAIP-10's `eip155` syntax.
-  - kind: factual
-  - needs: Magicians thread + eip.tools page.
 - [ ] c07: ERC-8211 ("Smart Batching"), introduced by Biconomy in 2026, lets several blockchain operations execute together while resolving transaction values in real time — an infra EIP that agentic / DeFi agent flows benefit from.
   - kind: factual
   - needs: at least one news source.

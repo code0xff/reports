@@ -6,7 +6,6 @@
 - c03 ERC-7857 spec + 0G framing (s03, s04)
 - c04 ERC-8183 (s10)
 - c05 EIP-8141 frame transaction (s11, s12)
-- c06 EIP-8128 thread + author + RFC 9421 reuse + keyid (s13, s14, s15)
 - c07 ERC-8211 mention (s18)
 - c08 ERC-8126 status + authors + creation date (s05, s07, s08)
 - c09 ERC-8126 dependencies (s05)

@@ -9,10 +9,8 @@
 - **ERC-8126 verification providers** are off-chain entities (s06); the spec deliberately accepts a "trust the verification provider" assumption while mitigating it with ZK proofs (so the user can verify the proof without trusting the provider's storage), reputation, and Quantum Cryptography Verification (QCV).
 - **ERC-7857** has been live as an ERC-721 extension since January 2025 (s03, s04) with primary champion 0G Labs; cross-ecosystem adoption beyond 0G's own stack is not surfaced in this gather.
 - **EIP-8141** is targeted for Hegotá in H2 2026 (s11, s12); upgrade timing is not yet locked in by core devs.
-- **EIP-8128** is a Draft (s13, s14); the canonical text is **not yet on eips.ethereum.org** as of April 26, 2026.
 - **ERC-8183** (s10) is a February 25, 2026 proposal; spec maturity is early.
 
 ## Source asymmetry
 - ERC-7857 / 8004 / 8126 / 8141 have canonical eips.ethereum.org pages we reached (s01, s03, s05, s11).
-- ERC-8128 does **not** — primary text is Magicians (s14) + eip.tools (s13). Quotes from EIP-8128 are therefore drawn from secondary catalogs / forum posts, not the canonical EIPs page.
 - ERC-8211 is mentioned only in news framing (s18); we have no canonical spec text. Cluster-level reference only.
