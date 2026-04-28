@@ -210,26 +210,3 @@ First, this report evaluates the Java Ethereum landscape through public reposito
 Second, there are not yet many mature public examples of large-scale Java wrappers built on `alloy-rs`. The conclusion that such a wrapper would be valuable is therefore primarily an architectural and ecosystem judgment, not proof from already mature public adoption.[^s09][^s19]
 
 Third, Alloy's performance claims are official project claims. A Java wrapper crossing a native boundary should not be assumed to preserve those numbers automatically; actual performance would depend on ABI design, marshalling strategy, call frequency, and JVM/runtime configuration.[^s10]
-
-## References
-
-[^s01]: Oracle, *Java Native Interface Specification: 1 - Introduction*. https://docs.oracle.com/en/java/javase/24/docs/specs/jni/intro.html
-[^s02]: OpenJDK, *JEP 454: Foreign Function & Memory API*. https://openjdk.org/jeps/454
-[^s03]: OpenJDK, *Jextract Guide*. https://github.com/openjdk/jextract/blob/master/doc/GUIDE.md
-[^s04]: Rust Project Developers, *FFI - The Rustonomicon*. https://doc.rust-lang.org/beta/nomicon/ffi.html
-[^s05]: jni-rs contributors, *jni-rs*. https://github.com/jni-rs/jni-rs
-[^s06]: JNA contributors, *Java Native Access (JNA)*. https://github.com/java-native-access/jna
-[^s07]: Mozilla, *cbindgen*. https://github.com/mozilla/cbindgen
-[^s08]: cargo-c contributors, *cargo-c*. https://github.com/lu-zero/cargo-c
-[^s09]: alloy-rs, *Alloy*. https://github.com/alloy-rs/alloy
-[^s10]: alloy-rs, *Getting Started - alloy*. https://alloy.rs/introduction/getting-started/
-[^s11]: alloy-rs, *Transactions - alloy*. https://alloy.rs/transactions/introduction/
-[^s12]: LFDT-web3j, *Web3j*. https://github.com/LFDT-web3j/web3j
-[^s13]: web3j, *Web3j documentation*. https://docs.web3j.io/4.14.0/
-[^s14]: Hyperledger Besu, *Besu Ethereum Client*. https://github.com/hyperledger/besu
-[^s15]: Apache Tuweni, *Tuweni: Apache Core Libraries for Java (& Kotlin)*. https://github.com/apache/incubator-tuweni
-[^s16]: GitHub API, *apache/incubator-tuweni repository metadata*. https://api.github.com/repos/apache/incubator-tuweni
-[^s17]: esaulpaugh, *headlong*. https://github.com/esaulpaugh/headlong
-[^s18]: GitHub API, *LFDT-web3j/web3j repository metadata*. https://api.github.com/repos/LFDT-web3j/web3j
-[^s19]: GitHub API, *alloy-rs/alloy repository metadata*. https://api.github.com/repos/alloy-rs/alloy
-[^s20]: LFDT-web3j, *Web3j README note on Java version*. https://github.com/LFDT-web3j/web3j

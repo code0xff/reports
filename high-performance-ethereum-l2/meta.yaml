@@ -1,0 +1,10 @@
+title: High-performance Ethereum L2: bottlenecks and architecture
+subtitle: Research report generated via the Deepsearch harness.
+title_ko: 초고성능 Ethereum L2 — 병목과 아키텍처
+subtitle_ko: 데이터 가용성, 시퀀서, 증명, 실행, 정산까지 — 무엇이 병목이고 어떤 스택이 현실적으로 가장 좋은가
+slug: high-performance-ethereum-l2
+lang: en
+langs: [en, ko]
+date: 2026-04-25
+tags: []
+status: ready

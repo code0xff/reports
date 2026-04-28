@@ -107,27 +107,3 @@ First, many operational claims in this space still come from vendor documentatio
 Second, the mathematics of DKLs23 is publicly reviewable, but the full operational details of commercial MPC wallet deployments are often not.[^s06][^s17][^s20] A product label such as "DKLs23-based" is therefore not enough to infer end-to-end security quality.
 
 Third, this report focuses mainly on `ECDSA` wallets in the Bitcoin/EVM context. `BLS`, `MPC + TEE` hybrids, the broader ERC-4337 smart-account ecosystem, and closed-source operational controls deserve separate study.[^s11][^s16][^s21]
-
-## References
-
-[^s01]: Adi Shamir, *How to share a secret* (1979). https://cacm.acm.org/research/how-to-share-a-secret/
-[^s02]: Connolly, Komlo, Goldberg, Wood, *The Flexible Round-Optimized Schnorr Threshold (FROST) Protocol for Two-Round Schnorr Signatures* (RFC 9591, 2024). https://www.rfc-editor.org/rfc/rfc9591.html
-[^s03]: Yehuda Lindell, *Fast Secure Two-Party ECDSA Signing* (2017). https://eprint.iacr.org/2017/552
-[^s04]: Doerner, Kondi, Lee, shelat, *Secure Two-party Threshold ECDSA from ECDSA Assumptions* (2018). https://eprint.iacr.org/2018/499
-[^s05]: Doerner, Kondi, Lee, shelat, *Threshold ECDSA from ECDSA Assumptions: The Multiparty Case* (2019). https://eprint.iacr.org/2019/523
-[^s06]: Doerner, Kondi, Lee, shelat, *Threshold ECDSA in Three Rounds* (2023/2024). https://eprint.iacr.org/2023/765
-[^s07]: Gennaro, Jarecki, Krawczyk, Rabin, *Secure distributed key generation for discrete-log based cryptosystems* (2007). https://research.ibm.com/publications/secure-distributed-key-generation-for-discrete-log-based-cryptosystems
-[^s08]: Boneh, Partap, Rotem, *Proactive Refresh for Accountable Threshold Signatures* (2022). https://eprint.iacr.org/2022/1656
-[^s09]: ethereum.org, *Ethereum accounts*. https://ethereum.org/en/developers/docs/accounts/
-[^s10]: Safe Docs, *Smart Account Concepts*. https://docs.safe.global/advanced/smart-account-concepts
-[^s11]: Bitcoin Developer Guide, *Transactions*. https://developer.bitcoin.org/devguide/transactions.html
-[^s12]: BitGo Developer Portal, *Multisignature vs MPC*. https://developers.bitgo.com/guides/get-started/concepts/multisig-vs-mpc
-[^s13]: BitGo Developer Portal, *Multi-party computation (MPC) Wallets*. https://developers.bitgo.com/guides/concepts/mpc
-[^s14]: Dfns documentation, *Introduction to MPC*. https://docs.dfns.co/core-concepts/how-mpc-wallets-work
-[^s15]: Coinbase Developer Platform, *Embedded Wallet FAQ*. https://docs.cdp.coinbase.com/embedded-wallets/faq
-[^s16]: Web3Auth, *Multi-party Computation (MPC) wallet infrastructure for wallets and dApps*. https://web3auth.io/mpc
-[^s17]: Silence Laboratories, *dkls23*. https://github.com/silence-laboratories/dkls23
-[^s18]: BitGo Developer Portal, *BitGo Wallet Types*. https://developers.bitgo.com/docs/mpc
-[^s19]: abhi shelat, *Threshold ECDSA in Three Rounds*. https://shelat.khoury.northeastern.edu/research/2023-05-26-ecdsa-in-three/
-[^s20]: Silence Laboratories, *silent-shard-dkls23-ll*. https://github.com/silence-laboratories/silent-shard-dkls23-ll
-[^s21]: Safe Docs, *Overview - Safe Smart Account*. https://docs.safefoundation.org/smart-account/overview

@@ -124,26 +124,3 @@ ERC-8004는 밸리데이터 인센티브를 정의하지 않는다. Composable S
 **참조 컨트랙트 감사 상태는 본 조사에서 확인되지 않았다.** `erc-8004/erc-8004-contracts` 는 공개되어 있고 CC0이며 업그레이드 가능형, 다중 체인 배포 상태다 [^s09]. 제3자 공개 감사 보고서는 본 조사에서 확인하지 못했다. 고가치 배포를 운영하는 빌더는 사용 전 독립적으로 감사 상태를 확인해야 한다.
 
 **동료심사 분석은 아직 없다.** 본 조사에 쓰인 모든 자료는 EIP 본문, 토론 포럼 게시글, 업계 해설, 벤더 블로그, 혹은 주류 암호화폐 뉴스 중 하나다 [^s01][^s06][^s13][^s14][^s15]. 작성 시점 기준 ERC-8004 신뢰 모델에 대한 피어리뷰 논문은 찾지 못했다. 메인넷 이후 3개월밖에 되지 않은 표준으로서는 일반적이지만 실질적인 인식론적 한계이며, `uncertainties.md` 에 기록되어 있다.
-
-## 7. 참고문헌
-
-자료는 `working/sources.jsonl` 에 있으며 아래에는 `id` 로 참조한다.
-
-[^s01]: Marco De Rossi, Davide Crapis, Jordan Ellis, Erik Reppel, *ERC-8004: Trustless Agents* (EIP 초안, 2025-08-13). https://eips.ethereum.org/EIPS/eip-8004
-[^s02]: BuildBear Labs, *ERC-8004: Trustless Agents with Reputation, Validation & Identity*. https://www.buildbear.io/blog/erc-8004
-[^s03]: CCN, *What Is ERC-8004? Inside Ethereum's Proposed Standard for Trustless AI Agents*. https://www.ccn.com/education/crypto/erc-8004-ai-agents-on-chain-ethereum-how-works-risks-explained/
-[^s04]: Backpack Learn, *ERC-8004 Explained: Ethereum's AI Agent Standard Guide 2025*. https://learn.backpack.exchange/articles/erc-8004-explained
-[^s05]: CoinDesk, *Ethereum's ERC-8004 aims to put identity and trust behind AI agents* (2026-01-28). https://www.coindesk.com/markets/2026/01/28/ethereum-s-erc-8004-aims-to-put-identity-and-trust-behind-ai-agents
-[^s06]: Ethereum Magicians, *ERC-8004: Trustless Agents* (토론 스레드). https://ethereum-magicians.org/t/erc-8004-trustless-agents/25098
-[^s07]: crypto.news, *Ethereum gears up for ERC-8004 rollout on mainnet this week*. https://crypto.news/ethereum-erc-8004-ai-agents-mainnet-launch-2026/
-[^s08]: BitcoinEthereumNews, *ERC-8004 Mainnet Launch: What This Agent Protocol Actually Does*. https://bitcoinethereumnews.com/tech/erc-8004-mainnet-launch-what-this-agent-protocol-actually-does/
-[^s09]: *erc-8004/erc-8004-contracts* (GitHub). https://github.com/erc-8004/erc-8004-contracts
-[^s10]: Yahoo Tech, *ERC-8004 'Agents' Standard Nears Mainnet as Ethereum Teases Rollout*. https://tech.yahoo.com/ai/articles/erc-8004-agents-standard-nears-094213453.html
-[^s11]: Google Cloud, *Announcing Agent Payments Protocol (AP2)*. https://cloud.google.com/blog/products/ai-machine-learning/announcing-agents-to-payments-ap2-protocol
-[^s12]: Coinbase Developer Platform, *Welcome to x402*. https://docs.cdp.coinbase.com/x402/welcome
-[^s13]: Composable Security, *ERC-8004: a practical explainer for trustless agents*. https://composable-security.com/blog/erc-8004-a-practical-explainer-for-trustless-agents/
-[^s14]: Wyatt Benno (ICME), *Trustless Agents — with zkML*. https://blog.icme.io/trustless-agents-with-zkml/
-[^s15]: QuillAudits, *ERC-8004: Infrastructure for Autonomous AI Agents*. https://www.quillaudits.com/blog/smart-contract/erc-8004
-[^s16]: Bankless Times, *BNB Chain Backs ERC-8004 for On-chain AI Identities* (2026-02-04). https://www.banklesstimes.com/articles/2026/02/04/bnb-chain-backs-erc-8004-for-on-chain-ai-identities/
-[^s17]: *awesome-erc8004* (GitHub). https://github.com/sudeepb02/awesome-erc8004
-[^s18]: RedStone, *ERC-8004 Gives AI Agents Identity. RedStone and Credora Power Them with Data and Risk Intelligence* (2026-02-12). https://blog.redstone.finance/2026/02/12/erc-8004-gives-ai-agents-identity-redstone-and-credora-power-them-with-data-and-risk-intelligence/

@@ -47,7 +47,3 @@ A **hybrid** design is the most convincing architecture for AI agents. Use DID a
 ## Limitations
 
 This report does not compare individual DID methods, verifier-facing protocols such as OpenID4VP, DIDComm, or wallet UX for server-side agents. It also does not dive into EAS private data patterns or Merkle-based selective disclosure. The conclusions here should therefore be read as an architectural comparison of layers and fitness for purpose, not as a full implementation guide.[^s05]
-
-## References
-
-The main sources for this report are DID Core, VC Data Model 2.0, the official EAS site, the EAS contracts repository, and the EAS SDK README.[^s01][^s03][^s05][^s07][^s08]

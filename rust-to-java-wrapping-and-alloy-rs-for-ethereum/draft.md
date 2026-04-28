@@ -210,26 +210,3 @@ Rustonomicon은 FFI와 unwinding를 다룰 때, 기대하지 않은 unwind가 AB
 둘째, `alloy-rs`를 Java로 래핑한 대형 공개 사례가 아직 널리 보이는 것은 아니다. 따라서 “가치가 있다”는 결론은 주로 소스 구조, 생태계 공백, FFI 현실성에 근거한 아키텍처 판단이지, 이미 대규모 채택으로 검증된 시장 결론은 아니다.[^s09][^s19]
 
 셋째, 성능 비교는 Alloy가 공식 문서에서 제시한 수치를 인용했지만, Java wrapper를 거친 뒤 동일한 수치가 유지된다고 가정할 수는 없다. 실제 결과는 ABI 설계, marshalling, 호출 빈도, JVM 옵션에 따라 달라질 것이다.[^s10]
-
-## References
-
-[^s01]: Oracle, *Java Native Interface Specification: 1 - Introduction*. https://docs.oracle.com/en/java/javase/24/docs/specs/jni/intro.html
-[^s02]: OpenJDK, *JEP 454: Foreign Function & Memory API*. https://openjdk.org/jeps/454
-[^s03]: OpenJDK, *Jextract Guide*. https://github.com/openjdk/jextract/blob/master/doc/GUIDE.md
-[^s04]: Rust Project Developers, *FFI - The Rustonomicon*. https://doc.rust-lang.org/beta/nomicon/ffi.html
-[^s05]: jni-rs contributors, *jni-rs*. https://github.com/jni-rs/jni-rs
-[^s06]: JNA contributors, *Java Native Access (JNA)*. https://github.com/java-native-access/jna
-[^s07]: Mozilla, *cbindgen*. https://github.com/mozilla/cbindgen
-[^s08]: cargo-c contributors, *cargo-c*. https://github.com/lu-zero/cargo-c
-[^s09]: alloy-rs, *Alloy*. https://github.com/alloy-rs/alloy
-[^s10]: alloy-rs, *Getting Started - alloy*. https://alloy.rs/introduction/getting-started/
-[^s11]: alloy-rs, *Transactions - alloy*. https://alloy.rs/transactions/introduction/
-[^s12]: LFDT-web3j, *Web3j*. https://github.com/LFDT-web3j/web3j
-[^s13]: web3j, *Web3j documentation*. https://docs.web3j.io/4.14.0/
-[^s14]: Hyperledger Besu, *Besu Ethereum Client*. https://github.com/hyperledger/besu
-[^s15]: Apache Tuweni, *Tuweni: Apache Core Libraries for Java (& Kotlin)*. https://github.com/apache/incubator-tuweni
-[^s16]: GitHub API, *apache/incubator-tuweni repository metadata*. https://api.github.com/repos/apache/incubator-tuweni
-[^s17]: esaulpaugh, *headlong*. https://github.com/esaulpaugh/headlong
-[^s18]: GitHub API, *LFDT-web3j/web3j repository metadata*. https://api.github.com/repos/LFDT-web3j/web3j
-[^s19]: GitHub API, *alloy-rs/alloy repository metadata*. https://api.github.com/repos/alloy-rs/alloy
-[^s20]: LFDT-web3j, *Web3j README note on Java version*. https://github.com/LFDT-web3j/web3j

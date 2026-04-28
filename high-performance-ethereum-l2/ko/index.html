@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>초고성능 Ethereum L2 — 병목과 아키텍처 — Deepsearch</title>
+<meta name="description" content="데이터 가용성, 시퀀서, 증명, 실행, 정산까지 — 무엇이 병목이고 어떤 스택이 현실적으로 가장 좋은가">
+<link rel="alternate" hreflang="en" href="../index.html">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../ko/index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="en">English</a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../ko/index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>초고성능 Ethereum L2 — 병목과 아키텍처</h1>
+    <p class="subtitle">데이터 가용성, 시퀀서, 증명, 실행, 정산까지 — 무엇이 병목이고 어떤 스택이 현실적으로 가장 좋은가</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-04-25</span>
+      <span><strong>태그</strong> —</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="high-performance-ethereum-l2.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>2026년 시점에서 "초고성능" Ethereum L2를 만드는 일은 어느 한 계층 때문에 막혀 있지 않다. L1 데이터 가용성(DA) 처리량, 시퀀서의 단일 스레드 EVM 실행, Merkle Patricia Trie 위에서의 상태 접근 I/O, zk 증명 생성 지연, 시퀀서 중앙화, 그리고 주문 흐름(orderflow) 경계에서의 MEV — 이 <em>스택 전체</em>가 병목이다 <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 다행히 각 계층마다 2024–2026년에 신뢰할 만한 응답이 출하됐다. DA 처리량에는 EIP-4844 블롭과 PeerDAS <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>; 실행에는 병렬 EVM 엔진들 — MegaETH는 7일 스트레스 테스트에서 지속 35,000 TPS, Monad는 800 ms 결정적 종료성에 10,000 TPS+, Reth 2.0은 약 28 메인넷 블록/초, QuarkChain은 16 코어 상용 머신에서 10.8 GGas/s <sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>; 상태 I/O에는 Verkle / 바이너리 트리와 상태 만료 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>; 증명 비용에는 Succinct / Boundless 등 prover 마켓플레이스 <sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>; UX 종료성에는 Flashbots Flashblocks(200 ms 사전 확인) <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 따라서 "오늘 실용적으로 가장 좋은" 스택은 한 프로젝트가 아니라 <strong>조합</strong>이다. Type-2 / Type-2.5 zkEVM에서 출발해 Type-1을 향하는 궤도; PeerDAS가 확장됨에 따라 Ethereum 블롭으로 DA를 게시; 병렬 EVM 실행 엔진; Flashblocks 수준 UX를 제공하는 중앙화된 시퀀서로 v1 출범하되 Espresso 또는 Taiko-스타일 based 시퀀서로의 마이그레이션 경로를 미리 정의 <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup><sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. 동시에 Vitalik Buterin이 2026년 초 "rollup-centric 로드맵" 자체를 재평가하면서, L2를 단일 주된 확장 스토리가 아니라 Ethereum과의 결합도가 다양한 <em>체인 스펙트럼</em> 으로 재정의했다는 거시 변화도 함께 짚는다 <sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>.</p>
+  </section>
+
+  <main class="body">
+<h2>서론</h2>
+<p>"고성능 Ethereum L2" 라는 표현은 한때 Visa급 처리량 + 1초 미만 사용자 체감 지연 + L1 보안 완전 상속이라는 <em>목표</em> 였고, 어떤 프로덕션도 그 목표를 동시에 만족시키지 못했다. 2026년 4월 시점에는 그 의미가 달라졌다. 병렬 EVM, 대안 DA, zk 증명이 18개월 만에 각각 1~2자리수 도약을 보였고 <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, Ethereum L1 자체도 Pectra에서 블록 용량을 두 배로 늘리고 2025년 12월 3일 Fusaka로 PeerDAS 단계 도입을 시작했다 <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. 이제 질문은 "가능한가?" 가 아니라 "이 메뉴에서 어떤 조합이 <em>오늘 방어 가능한 스택</em> 인가?" 이다.</p>
+<p>질문을 잘못 짚으면 잃는 것도 달라졌다. 2026년 초 Vitalik Buterin은 2020년의 rollup-centric 로드맵을 공개적으로 재평가하면서 "L2 탈중앙화는 기대보다 <em>훨씬 느렸다</em>" 며, L1 베이스 레이어가 그 사이 확장됐다고 지적했다. 그는 L2를 더 이상 <em>단일</em> 주류 확장 경로가 아니라 "Ethereum과의 연결 정도가 다양한 체인의 넓은 스펙트럼" 으로 재정의했다 <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 이는 L2의 종말이 아니라 "L2-by-default" 의 종말이다.</p>
+<p>본 보고서는 두 부분이다. 전반부는 계층별 병목 — DA 처리량, 실행, 상태, 증명, 시퀀싱, MEV — 을 해부한다. 후반부는 그 병목을 기준으로 아키텍처 메뉴를 읽고, 트레이드오프를 솔직히 드러낸 채 구체적 추천 스택을 제시한다.</p>
+<h2>배경: 2026년의 Ethereum L2 풍경</h2>
+<p>2020년 rollup-centric 로드맵 <sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> 은 애플리케이션 처리량을 롤업으로 모으고, 그에 맞는 점진적 L1 변경을 짝지웠다. Dencun(2024년 3월) 이 EIP-4844 블롭 트랜잭션을 출하해 롤업에 전용 데이터 레인을 줬고, calldata 시대 대비 L2 트랜잭션 비용을 약 10–100× 낮췄다 <sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Pectra(2025) 가 블록 용량을 두 배로, Fusaka(2025년 12월 3일) 가 PeerDAS(EIP-7594) 를 6/9 (target/max) 로 활성화했고, BPO 단계 포크 — BPO1: 10/15, BPO2: 14/21 (2026년 1월 7일) — 와 장기적으로 슬롯당 약 128개 블롭 수준을 향한 확장 로드맵이 이어진다 <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<p>오늘의 프로덕션 롤업은 다음과 같이 분류된다.</p>
+<ul>
+<li><strong>Optimistic 롤업</strong> — OP Stack(Base, OP Mainnet) 과 Arbitrum One. L2BEAT 기준 셋 다 Stage 1 이며 fraud-proof 시스템이 라이브이지만, 셋 다 <em>시퀀서는 여전히 중앙화</em> 되어 있다 <sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</li>
+<li><strong>Type-2 zkEVM</strong> — Linea, Scroll. 완전 EVM 호환성 + 증명 효율을 위한 미세 조정 <sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</li>
+<li><strong>Type-4 zkEVM</strong> — zkSync Era, Starknet. Solidity 트랜스파일 / Cairo 등 ZK 친화적 커스텀 바이트코드 <sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. zkSync의 문서화된 증명 생성 시간은 약 1시간, 배치 제출 후 L1 hard-finality 까지는 10–20분 <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>.</li>
+<li><strong>Type-1 zkEVM</strong> — <em>완전 동등성</em> 기준 프로덕션 롤업으로는 아직 출하되지 않았다. 2026년의 마일스톤은 "real-time" 증명 (Ethereum 12초 블록 시간보다 빠른 증명) 의 <em>시연</em> 이며, 증명 시간이 약 16분 → 16초로, 비용이 약 45× 감소했다 <sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</li>
+</ul>
+<p>L2 외부에서는 <strong>Solana, Monad(메인넷 2025-11-24), MegaETH(메인넷 2026-01-22)</strong> 가 Ethereum L2 디자인이 비교 대상으로 두는 고처리량 단일체인 레퍼런스 셋이며, 벤더 목표치는 10k–100k TPS 범위에 있다 <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<h2>병목 분류</h2>
+<h3>데이터 가용성 처리량</h3>
+<p>EIP-4844 이전, L2 사용자가 내는 가스 비용의 약 98% 는 L1 데이터 게시였다 <sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 블롭이 그 비중을 무너뜨렸지만, 블롭 수요가 블록당 상한에 다가가는 즉시 <em>블롭 자체가 다시 지배 비용 항목</em> 이 된다. L1이 그 상한을 강제하기 때문이다. PeerDAS 단계(6/9 → 10/15 → 14/21 → ~128)가 그 천장을 우회하는 경로다 <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. PeerDAS가 충분히 확장되기 전까지는 대안 DA — Celestia 약 1.33 MB/s, EigenDA 클레임 약 100 MB/s, Avail — 가 MB당 비용 면에서 의미 있게 저렴하다(Celestia는 2025년 인용 가격에서 적어도 한 롤업(Eclipse) 기준 블롭 대비 약 55× 저렴). 다만 <em>별도의, 더 작은 보안 셋</em> 을 받아들이는 대가다 <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</p>
+<h3>시퀀서 실행</h3>
+<p>바닐라 단일 스레드 EVM 메인루프는 Ethereum 동등 의미론을 유지하면서 병렬화하지 않는 모든 L2의 처리량 천장이다. Paradigm의 고성능 Rust 클라이언트 Reth는 상용 하드웨어에서 100–200 mgas/s 수준 sync rate 를 문서화하고 있으며, 1 gigagas/s 보다 한참 아래다 <sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. 그 위에 병렬 EVM 디자인들이 위치한다 (다음 섹션).</p>
+<h3>상태 성장과 상태 접근 I/O</h3>
+<p>Merkle Patricia Trie 위 키별 Merkle 증명은 I/O 바운드다. Vitalik 의 Verkle 트리 방향(벡터 커밋먼트 + Merkle 트리, EIP-7736 의 leaf-level 상태 만료) 이 정통 Ethereum 응답이며 <sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>, EIP-7864 가 Verkle의 벡터 커밋먼트가 장기적으로 양자컴퓨팅에 노출될 위험을 동기로 통합 바이너리 트리 대안을 다시 열었다 <sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. 2026년 4월 기준 어느 것도 L1 메인넷에 출하되지 않았으며, 처리량을 잡아야 하는 L2는 자체 상태 표현으로 해결할 수밖에 없다(예: MegaETH의 SALT — Small Authentication Large Trie <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>).</p>
+<h3>zk 증명 생성 지연</h3>
+<p>증명 비용은 빠르게 낮아졌다. s09 는 2024–2026 동안 16분 → 16초, 약 45× 비용 감소를 보고하고, prover 마켓플레이스 — Succinct는 2025년 2월 level-1 testnet, Boundless 는 2025Q1 시점 18개 prover 가 참여하는 public testnet — 가 백엔드를 상품화했다 <sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>. 그러나 <em>최선</em> 증명과 <em>프로덕션 종료성</em> 사이 격차는 여전히 크다. zkSync는 배치 증명에 약 1시간, L1 hard-finality 까지 추가 10–20분이 걸린다 <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. 2026년 "real-time" 마일스톤은 시연이며 모든 프로덕션 zk 롤업에 균질하게 적용되는 상태가 아니다.</p>
+<h3>시퀀서 중앙화</h3>
+<p>가장 자주 인용되지만 가장 덜 기술적인 병목이다. 모든 주요 롤업이 <em>라이브 페일오버 없는 단일 시퀀서</em> 로 운영된다. L2BEAT 는 "대부분의 L2 네트워크가 보이는 것보다 훨씬 더 중앙화돼 있으며, 많은 L2가 여전히 신뢰된 운영자, 업그레이드 키, 폐쇄적 인프라에 의존한다" 고 명시한다 <sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. Stage 1 (퍼미션리스 fraud proof) 은 시퀀서 탈중앙화를 요구하지 않는다.</p>
+<h3>MEV와 주문 흐름</h3>
+<p>시퀀서 단계에서 포착되는 MEV 는 단일 프로젝트 버그가 아니라 부류 공통 UX 리스크다. 2025–2026년의 <em>프로덕션 응답</em> 은 실용적이었다. Flashbots 의 Flashblocks 는 Base 와 Unichain 에서 약 200 ms 사전 확인을 제공해 표준 OP-Stack 2초 블록 대비 10× UX 업그레이드를 달성했고, 보다 야심찼던 SUAVE 암호화 멤풀 체인은 2025년 5월 보관(archived) 처리됐다 <sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>. 암호화 멤풀, FCFS 변형, 공유 시퀀서는 여전히 활발한 연구 라인이며 분명한 프로덕션 우승자가 없다.</p>
+<h2>아키텍처 선택</h2>
+<h3>증명 시스템: optimistic vs zk</h3>
+<p>Optimistic 롤업은 빠르게 출하 가능하고 증명 비용이 낮지만 7일 출구 윈도우(또는 그것을 우회하기 위한 신뢰 가정) 라는 비용을 치른다. zk 롤업은 거꾸로다. 초기 엔지니어링과 블록당 증명 비용이 더 크지만, 챌린지 지연 없이 암호학적 종료성을 얻는다 <sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. 2024–2026년 모멘텀은 분명히 zk 쪽이며, "2027년 Type-1" 마일스톤이 영구 연구 목표가 아니라 신뢰 가능한 시간표가 된 것이 그 신호다 (s09).</p>
+<h3>데이터 가용성: 블롭 vs 대안 DA</h3>
+<p>Ethereum 블롭(4844 → PeerDAS) 에 데이터를 게시하는 것은 <em>Ethereum 보안 셋을 그대로 상속하는 유일한 DA 옵션</em> 이다 <sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. 대안 DA 는 비용을 의미 있게 낮추지만(Celestia 는 2025년 Eclipse 인용 가격에서 블롭 대비 약 55× 저렴) 별도의 더 작은 보안 셋을 공급한다 <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. EigenDA 의 DAC 구조는 헤드라인 처리량을 위해 신뢰 가정을 받아들인다 <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. 본질적 선택은 — 블롭으로 <em>완전 보안</em> + PeerDAS 천장 안에서 살기 vs 비용/처리량 헤드룸을 위해 validium 스타일 보안 트레이드오프 수용.</p>
+<h3>시퀀서 모델: 중앙화 vs based vs shared</h3>
+<p>스펙트럼 위 세 점:</p>
+<ul>
+<li><strong>중앙화 시퀀서.</strong> 1초 이하 사전 확인, 단순한 실패 모델, 단 한 점의 라이브니스/검열 위험. 2026년 표준 관행 <sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</li>
+<li><strong>공유 시퀀서.</strong> Espresso 가 2026년 시점에 라이브로 남아 있는 이름이며 <sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup>, 한때 선두였던 Astria 는 2025년 완전히 셧다운됐다 <sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>. The Block 의 2026 전망 기준 채택은 "제한적" <sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>.</li>
+<li><strong>Based 롤업.</strong> 시퀀싱이 L1 제안자에게 위임된다(Taiko). 옵트인한 Ethereum 검증자 부분 집합이 사전 확인을 제공. Justin Drake 의 프레이밍: "수평으로 확장해야 한다. 다른 길이 없다. 1초 더 빠른 것으로는 부족하다" <sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>. 블록당 지연을 댓가로 L1 동등 검열 저항성을 얻는다.</li>
+</ul>
+<h3>실행 엔진: 병렬 EVM</h3>
+<p>2024–2026 병렬 EVM 코호트는 단일 병목 기준 <em>가장 큰 개선</em> 을 제공한다. 헤드라인 수치 _(vendor-stated)_:</p>
+<ul>
+<li>MegaETH: 7일 스트레스 테스트 동안 지속 35,000 TPS, 최대 클레임 100k TPS; 10ms 미니블록 + 1초 EVM 블록; SALT 인메모리 상태 표현; 시퀀싱/실행/검증을 분리한 노드 특화화 <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</li>
+<li>Monad: 10k+ TPS, 400 ms 블록, 800 ms 결정적 종료성. 낙관적 동시성 — 트랜잭션을 병렬 추측 실행한 후 충돌 부분만 선형 재실행 <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</li>
+<li>Reth 2.0 (2026년 4월): 초당 약 28개 Ethereum 메인넷 블록 처리 <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</li>
+<li>QuarkChain (2026년 1월 연구): 16 코어 상용 머신, 메가블록 설정에서 병렬 I/O Block-Access List 로 10.8 GGas/s <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</li>
+</ul>
+<p>이 수치들은 <em>서로 비교 가능하지 않다</em> . 체인이 다르고, 워크로드가 다르며, 카운팅 단위(단순 송금 TPS vs 현실 DeFi 믹스 vs 순 가스)가 다르다. 자기 조건 안에서의 상한으로 취급해야 한다.</p>
+<h3>사전 확인 (pre-confirmation)</h3>
+<p>사전 확인(Taiko / based-rollup 스타일, Justin Drake 가 원안 제안) 은 L1 정산을 손상시키지 않으면서 밀리초 단위 UX 종료성을 제공한다. 단, <em>콜래터럴라이즈드 제안자가 경제적으로 뒷받침</em> 할 때만 <sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>. Flashbots 의 Flashblocks 200 ms 사전 확인(Base/Unichain) 은 같은 아이디어를 <em>중앙화 시퀀서</em> 에 적용한 것이다 — 정산 모델은 그대로 둔 채 UX 만 빠르게 <sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>.</p>
+<h2>추천 스택과 트레이드오프</h2>
+<p><strong>"오늘 하나만 출하해야 한다면" 의 결론:</strong></p>
+<p>1. <strong>증명 시스템: zkEVM. v1은 Type-2 / Type-2.5, 궤도는 Type-1.</strong> Type-2(Scroll, Linea) 는 개발자 측 마이그레이션 비용이 사실상 0 이며 <sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>, 2026년 real-time 증명 마일스톤은 Type-1 을 영구 연구 목표가 아니라 <em>2027년 목표</em> 로 재정의한다 <sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. Optimistic 롤업도 출하 비용이 낮은 차선책으로 살아남지만, 7일 출구 윈도우는 단순 UX 흠이 아니라 <em>경쟁 열위</em> 가 됐다 <sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. 2. <strong>DA: 보안 경로에는 Ethereum 블롭(4844 → PeerDAS).</strong> Ethereum 보안 셋을 그대로 상속하는 유일 옵션 <sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. Celestia / EigenDA 는 <em>명시적 validium / 고처리량-저보안</em> 플레이에만 사용. 보안 동등 롤업이라면 블롭이 유일 <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. 3. <strong>실행: 병렬 EVM, 낙관적 동시성 모델.</strong> Monad-스타일 추측 실행 + 충돌 시 재실행 <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>, 또는 Reth/MegaETH-스타일로 시퀀싱과 검증을 분리하고 인메모리 상태 표현을 사용하는 구조 <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. 단일 스레드 geth/reth 대비 1~2자리수 헤드룸이 얻을 수 있는 최대 단일 병목 개선 <sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 4. <strong>시퀀서: v1 중앙화 + Flashblocks 스타일 200 ms 사전 확인 + 신뢰할 만한 탈중앙화 경로.</strong> Flashblocks 는 1초 이하 UX 의 2026년 실용 디폴트 <sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>; 마이그레이션 타깃은 Espresso(라이브) 또는 Justin Drake 스타일 based 디자인(L1과 더 결합되지만 블록당 더 느림) <sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup><sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup>. <em>조기에 미성숙한 공유 시퀀서에 묶이지 말 것</em> . 2025년 Astria 종료의 교훈은 이 카테고리가 여전히 취약하다는 것이다 <sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>. 5. <strong>상태: MegaETH-스타일 인메모리 상태 차용 + Verkle 트리를 의식한 코드 경로.</strong> 2026년 4월 기준 L1은 Verkle / 바이너리 트리를 메인넷에 출하하지 않았으며 <sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup><sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>, L2가 그 일정을 기다릴 수 없다. 처리량이 필요한 L2는 상태 접근 최적화를 <em>자기 손</em> 으로 처리해야 한다.</p>
+<p><strong>하지 말 것:</strong></p>
+<ul>
+<li>단일 스레드 geth-fork 시퀀서 출하. 단일 스레드 EVM 천장은 잘 문서화돼 있고 <sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>, 두 자리수를 가장 쉽게 잃는 곳이다.</li>
+<li><em>명시적으로 validium 트레이드오프를 선택</em> 한 게 아니라면 보안 동등 롤업을 대안 DA 처리량에 베팅 <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</li>
+<li>자기 회로(circuit) 에 대해 real-time 증명을 <em>시연</em> 한 게 아니라면, zk 롤업에 1초 이하 L1-앵커드 종료성을 약속 — 2026년 프로덕션 zk 롤업은 여전히 L1 종료성에 분 단위가 걸린다 <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>.</li>
+</ul>
+<h2>한계</h2>
+<ul>
+<li><strong>벤더 발표 처리량.</strong> 위에서 인용된 모든 병렬 EVM 수치는 프로젝트 주도 측정이며 프로젝트 고유 벤치마크다. MegaETH 35k TPS 지속, Monad 10k+ TPS, Reth 2.0 28 메인넷-블록/초, QuarkChain 10.8 GGas/s 는 워크로드, 하드웨어, 카운팅 단위가 모두 다르다 <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 독립 동료 심사 비교는 아직 없다. 자기 조건 내 상한으로 취급해야 한다.</li>
+<li><strong>PeerDAS BPO 일정은 검증자 동작에 따라 달라진다.</strong> BPO1(10/15) 과 BPO2(14/21) 는 문서화된 포크지만 <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>, 실제 전달 처리량은 각 BPO 후 검증자 측 성능에 달려 있다. 슬롯당 128 블롭 장기 목표는 <em>지평선</em> 이지 2026년 수치가 아니다.</li>
+<li><strong>Real-time zkEVM 은 2026 <em>시연</em> 이지 <em>프로덕션</em> 이 아니다.</strong> s09 의 "16분 → 16초, 45× 비용 감소" 는 2025년 말 / 2026년 초 보도 기준 마일스톤이며, 프로덕션 zk 롤업은 여전히 의미 있는 증명 지연을 갖는다(zkSync 약 1시간 증명, 10–20분 종료성) <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. <em>완전 Ethereum 동등성</em> 기준 Type-1 zkEVM 롤업은 2027년 이후 베팅이다.</li>
+<li><strong>시퀀서 탈중앙화는 미해결.</strong> L2BEAT Stage 1 은 시퀀서 탈중앙화를 요구하지 않으며, 따라서 중앙화 시퀀서 라이브니스/검열 리스크는 2026년 주요 L2 전반의 <em>부류 공통</em> 리스크다 <sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. 공유 시퀀서 채택은 여전히 제한적이고, Astria 의 2025년 종료는 이 카테고리의 취약성을 상기시킨다 <sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>.</li>
+<li><strong>로드맵 자체가 변동 중.</strong> Vitalik 의 2026년 초 재평가는 공개 발언이지 EF 의 정식 로드맵 문서가 아니며, L2 vs L1 자본 배분에 미칠 실질 영향은 아직 진행 중이다 <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 2020년 rollup-centric 세계관으로 설계된 L2 는 <em>프레이밍이 바뀌었다</em> 는 사실을 가정해야 한다.</li>
+<li><strong>DA 비용비는 시점 종속.</strong> "Celestia 가 Ethereum 블롭 대비 55× 저렴" 수치는 2025년 Eclipse 롤업 사례 보도 기준이다 <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. 비율은 블롭 basefee 와 대안 DA 용량에 따라 변동한다.</li>
+<li><strong>MEV 완화에는 프로덕션 우승자가 없다.</strong> SUAVE 는 2025년 5월 보관됐고 <sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>, 암호화 멤풀, FCFS 변형, 공유 시퀀싱은 모두 분명한 프로덕션 배포로 가리킬 만한 것이 없는 상태로 활발한 연구 라인에 머물러 있다.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">MegaETH Labs</span>. <a href="https://www.megaeth.com/research">MegaETH | The First Real-Time Blockchain (research page)</a>. <span class="venue">megaeth.com, 2026</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-2"><span class="authors">BlockEden</span>. <a href="https://blockeden.xyz/blog/2026/01/31/megaeth-mainnet-real-time-blockchain-100000-tps-vitalik-ethereum-l2/">MegaETH: The Real-Time Blockchain Revolutionizing Speed and Scalability</a>. <span class="venue">BlockEden blog, 2026</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-3"><span class="authors">Figment</span>. <a href="https://www.figment.io/insights/monad-first-look-hyperscaling-the-evm/">Monad First Look: Hyperscaling the EVM</a>. <span class="venue">figment.io, 2025</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-4"><span class="authors">Bankless</span>. <a href="https://www.bankless.com/read/whats-new-in-paradigms-reth-2-0">What&#x27;s New in Paradigm&#x27;s Reth 2.0</a>. <span class="venue">Bankless, 2026</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-5"><span class="authors">QuarkChain</span>. <a href="https://quarkchainio.medium.com/reducing-bal-size-with-10-gigagas-s-evm-throughput-in-the-presence-of-i-o-8e78597b65ad">Reducing BAL Size with 10 GigaGas/s EVM Throughput in the Presence of I/O</a>. <span class="venue">Medium, 2026</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-6"><span class="authors">BlockEden</span>. <a href="https://blockeden.xyz/blog/2026/02/24/modular-blockchain-wars-data-availability/">The 2026 Data Availability Race: Celestia, EigenDA, and Avail&#x27;s Battle for Blockchain Scalability</a>. <span class="venue">BlockEden blog, 2026</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-7"><span class="authors">The Block</span>. <a href="https://www.theblock.co/post/388285/vitalik-buterin-reevaluates-rollup-centric-roadmap-arguing-l2s-decentralized-far-slower-while-ethereum-base-layer-advanced">Vitalik Buterin reevaluates Ethereum&#x27;s rollup-centric roadmap</a>. <span class="venue">The Block, 2026</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-8"><span class="authors">Ethereum Foundation</span>. <a href="https://blog.ethereum.org/2025/11/06/fusaka-mainnet-announcement">Fusaka Mainnet Announcement</a>. <span class="venue">blog.ethereum.org, 2025</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-9"><span class="authors">Vitalik Buterin</span>. <a href="https://vitalik.eth.limo/general/2020/10/02/rollup_centric.html">A rollup-centric ethereum roadmap</a>. <span class="venue">vitalik.eth.limo, 2020</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-10"><span class="authors">Ethereum core developers</span>. <a href="https://eips.ethereum.org/EIPS/eip-4844">EIP-4844: Shard Blob Transactions</a>. <span class="venue">eips.ethereum.org, 2024</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-11"><span class="authors">dicethedev</span>. <a href="https://hackmd.io/@dicethedev/rJqDzxxZZx">EIP-4844: The Upgrade That Made L2s Actually Affordable</a>. <span class="venue">HackMD, 2024</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-12"><span class="authors">Ethereum core developers</span>. <a href="https://github.com/ethereum/EIPs/blob/master/EIPS/eip-7594.md">EIP-7594: Peer Data Availability Sampling</a>. <span class="venue">GitHub ethereum/EIPs, 2025</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-13"><span class="authors">L2BEAT</span>. <a href="https://l2beat.com/stages">L2BEAT Stages framework</a>. <span class="venue">l2beat.com, 2026</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-14"><span class="authors">BlockEden</span>. <a href="https://blockeden.xyz/blog/2026/01/16/zkevm-types-comparison-type-1-2-3-4-trade-offs-benchmarks/">The Evolution of zkEVMs: Balancing Compatibility and Performance in Ethereum Scaling</a>. <span class="venue">BlockEden blog, 2026</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-15"><span class="authors">Matter Labs</span>. <a href="https://docs.zksync.io/zksync-protocol/rollup/finality">Finality - ZKsync Docs</a>. <span class="venue">docs.zksync.io, 2025</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-16"><span class="authors">Avail blog</span>. <a href="https://blockeden.xyz/blog/2026/02/24/modular-blockchain-wars-data-availability/">Choosing a Data Availability Layer: Avail vs Celestia vs EigenDA vs Ethereum</a>. <span class="venue">blog.availproject.org, 2025</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-17"><span class="authors">Paradigm</span>. <a href="https://www.paradigm.xyz/2024/04/reth-perf">Reth&#x27;s path to 1 gigagas per second, and beyond</a>. <span class="venue">paradigm.xyz, 2024</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-18"><span class="authors">Ethereum Foundation</span>. <a href="https://ethereum.org/roadmap/verkle-trees/">Verkle trees | ethereum.org</a>. <span class="venue">ethereum.org, 2024</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-19"><span class="authors">Vitalik Buterin</span>. <a href="https://eips.ethereum.org/EIPS/eip-7736">EIP-7736: Leaf-level state expiry in verkle trees</a>. <span class="venue">eips.ethereum.org, 2024</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-20"><span class="authors">jsign</span>. <a href="https://ethereum-magicians.org/t/eip-7864-ethereum-state-using-a-unified-binary-tree/22611">EIP-7864: Ethereum state using a unified binary tree</a>. <span class="venue">Fellowship of Ethereum Magicians, 2024</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-21"><span class="authors">zkCloud</span>. <a href="https://blog.zkcloud.com/p/state-of-the-proving-infrastructure-ea5">State of the Proving Infrastructure Landscape - 2025Q1</a>. <span class="venue">zkCloud blog, 2025</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-22"><span class="authors">Flashbots</span>. <a href="https://writings.flashbots.net/flashbots-superchain">Fast, Configurable, and Verifiable Sequencing is Coming to Every OP Stack Chain</a>. <span class="venue">writings.flashbots.net, 2025</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-23"><span class="authors">Vitalik Buterin</span>. <a href="https://vitalik.eth.limo/general/2022/08/04/zkevm.html">The different types of ZK-EVMs</a>. <span class="venue">vitalik.eth.limo, 2022</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-24"><span class="authors">Espresso Systems</span>. <a href="https://hackmd.io/@EspressoSystems/EspressoSequencer">The Espresso Sequencer</a>. <span class="venue">HackMD, 2024</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-25"><span class="authors">The Block</span>. <a href="https://www.theblock.co/post/383329/2026-layer-2-outlook">2026 Layer 2 Outlook</a>. <span class="venue">The Block, 2026</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+      <li id="ref-26"><span class="authors">Taiko Labs</span>. <a href="https://taiko.mirror.xyz/26-oMGSt5gp0jMgUBR802_EkhVmV1QFDVWYC8In1oPU">10 Takeaways from the Based Rollup Summit – Cannes 2025</a>. <span class="venue">Taiko Mirror, 2025</span>. <span class="accessed">접근일 2026-04-25.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-04-25 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
