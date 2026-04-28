@@ -402,6 +402,8 @@ a.footnote-ref:hover {
 .footnotes li, .references li {
   margin-bottom: 0.6rem;
   line-height: 1.5;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .references li .venue {

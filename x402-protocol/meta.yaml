@@ -1,0 +1,10 @@
+title: "x402: HTTP-Native Payment Protocol"
+subtitle: "Architecture, Payment Schemes, and Extension System"
+title_ko: "x402: HTTP 네이티브 결제 프로토콜"
+subtitle_ko: "아키텍처, 결제 방식 및 확장 시스템"
+slug: x402-protocol
+lang: en
+langs: [en, ko]
+date: 2026-04-28
+tags: [payments, protocol, blockchain, AI-agents, HTTP, stablecoins]
+status: ready
