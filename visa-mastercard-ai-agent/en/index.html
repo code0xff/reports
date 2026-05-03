@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How Visa and Mastercard Are Building for AI-Agent Payments — Deepsearch</title>
+<meta name="description" content="Market approach and implementation comparison as of May 2026">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>How Visa and Mastercard Are Building for AI-Agent Payments</h1>
+    <p class="subtitle">Market approach and implementation comparison as of May 2026</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-05-03</span>
+      <span><strong>Tags</strong> visa, mastercard, ai-agents, payments, agentic-commerce, tokenization</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="visa-mastercard-ai-agent.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>Visa and Mastercard formally entered AI-agent payments in late April 2025, launching Visa Intelligent Commerce and Mastercard Agent Pay within one day of each other.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> As of May 2026, both are extending existing card-network trust primitives, rather than replacing card rails: tokenized credentials, authentication, spend controls, and dispute/fraud guardrails are being adapted to agent-initiated commerce.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> The key divergence is implementation emphasis. Visa pushes an ecosystem onboarding stack (<code>Trusted Agent Protocol</code>, <code>Intelligent Commerce Connect</code>, <code>Agentic Ready</code>), while Mastercard centers <code>Agentic Tokens</code> plus an <code>Acceptance Framework</code> for trusted-agent identification and merchant acceptance.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></p>
+  </section>
+
+  <main class="body">
+<h2>1) Market Shift: Agentic Commerce</h2>
+<p>Visa announced Intelligent Commerce on April 30, 2025, and Mastercard announced Agent Pay on April 29, 2025.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> Both describe a flow where AI agents discover products, decide, and execute payment on behalf of users under controlled permissions.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> Independent reporting framed the launches as a direct move toward AI-native checkout standards.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></p>
+<h2>2) Visa’s Approach: Portfolio Expansion</h2>
+<p>Visa’s strategy is staged.</p>
+<p>In April 2025, Intelligent Commerce introduced AI-ready cards, tokenized credentials, and consumer-defined controls.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> In October 2025, Visa and Cloudflare introduced Trusted Agent Protocol (TAP) to help merchants identify legitimate agents and exchange trust signals.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> In April 2026, Visa launched Intelligent Commerce Connect (ICC), positioning a single integration path via Visa Acceptance Platform for secure initiation, tokenization, authentication, and spend controls, including multi-network compatibility.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></p>
+<p>Visa also expanded Agentic Ready globally (including APAC and LATAM) in April 2026 as a structured onboarding and readiness program for issuers and ecosystem partners.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<h2>3) Mastercard’s Approach: Agent Pay + Agentic Tokens</h2>
+<p>Mastercard introduced Agent Pay with Agentic Tokens as a core credential and verification layer.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> Its launch framing explicitly ties trusted-agent registration/verification to transaction safety and consumer controls.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<p>In October 2025, Mastercard and PayPal announced plans to connect Agent Pay with wallet infrastructure and pilot Mastercard’s Agent Pay Acceptance Framework.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> In December 2025 LATAM communications, Mastercard stated that agent registration and verification are required before transactions occur on network rails.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> In January 2026 AP coverage, Mastercard announced Australia’s first authenticated agentic transactions using Agent Pay.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<h2>4) Implementation Comparison</h2>
+<p>Shared architecture: 1. Dedicated trust and authentication handling for machine-initiated transactions.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> 2. Tokenized payment credentials instead of exposing raw PAN data.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> 3. User-facing policy controls (limits/conditions) plus fraud/dispute safeguards.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<p>Differences:</p>
+<ul>
+<li>Visa foregrounds integration and interoperability (ICC as a hub/on-ramp model).<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></li>
+<li>Mastercard foregrounds network-level acceptance rules with Agentic Tokens + Acceptance Framework.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></li>
+</ul>
+<p>Inference: Visa’s narrative is ecosystem connectivity first; Mastercard’s is explicit network governance first.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<h2>5) Traction and Expansion (2025–2026)</h2>
+<p>Visa reported hundreds of secure agent-initiated transactions, 100+ partners, and 20+ directly integrated agents/enablers by December 2025.<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> It then added business integration and regional expansion announcements in April 2026.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<p>Mastercard’s trajectory shows staged expansion: launch (Apr 2025), PayPal collaboration (Oct 2025), LATAM rollout (Dec 2025), and AP authenticated transactions (Jan 2026).<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<p>However, most public metrics remain vendor-reported; third-party comparative data on approval, fraud, and chargebacks is still limited. _(vendor-stated)_ <sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<h2>6) Risks and Practical Priorities</h2>
+<p>The core unresolved challenge is intent and liability alignment: proving who authorized what, under which constraints, and how disputes are adjudicated when an agent misbehaves. Visa’s TAP and Agentic Ready target trust signaling/readiness controls,<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> while Mastercard’s Acceptance Framework and Agentic Tokens target transaction-time trusted-agent enforcement.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<p>Practical priorities:</p>
+<ul>
+<li>Issuers: map agent permission policies to card risk engines.</li>
+<li>Merchants/PSPs: implement agent identification, allow/deny policy, and audit/dispute evidence capture.</li>
+<li>Agent builders: design for tokenized credentials, explicit user controls, and transaction transparency by default.</li>
+</ul>
+<p>These priorities follow directly from the control surfaces both networks are promoting. _(inference)_ <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Visa</span>. <a href="https://usa.visa.com/about-visa/newsroom/press-releases.release.21361.html">Find and Buy with AI: Visa Unveils New Era of Commerce</a>. <span class="venue">Visa Newsroom, 2025</span>. <span class="accessed">Accessed 2026-05-03.</span></li>
+      <li id="ref-2"><span class="authors">Mastercard</span>. <a href="https://www.mastercard.com/us/en/news-and-trends/press/2025/april/mastercard-unveils-agent-pay-pioneering-agentic-payments-technology-to-power-commerce-in-the-age-of-ai.html">Mastercard unveils Agent Pay, pioneering agentic payments technology to power commerce in the age of AI</a>. <span class="venue">Mastercard Newsroom, 2025</span>. <span class="accessed">Accessed 2026-05-03.</span></li>
+      <li id="ref-3"><span class="authors">Mary Ann Azevedo</span>. <a href="https://techcrunch.com/2025/04/30/visa-and-mastercard-unveil-ai-powered-shopping/">Visa and Mastercard unveil AI-powered shopping</a>. <span class="venue">TechCrunch, 2025</span>. <span class="accessed">Accessed 2026-05-03.</span></li>
+      <li id="ref-4"><span class="authors">Visa</span>. <a href="https://corporate.visa.com/en/sites/visa-perspectives/newsroom/visa-unveils-trusted-agent-protocol-for-ai-commerce.html">Visa Introduces Trusted Agent Protocol: An Ecosystem-Led Framework for AI Commerce</a>. <span class="venue">Visa Perspectives, 2025</span>. <span class="accessed">Accessed 2026-05-03.</span></li>
+      <li id="ref-5"><span class="authors">Kelly Tyko</span>. <a href="https://www.axios.com/2025/10/14/visa-ai-shopping-agent-protocol-bot">Exclusive: Visa preps for AI holiday shoppers, agentic commerce</a>. <span class="venue">Axios, 2025</span>. <span class="accessed">Accessed 2026-05-03.</span></li>
+      <li id="ref-6"><span class="authors">Visa</span>. <a href="https://usa.visa.com/about-visa/newsroom/press-releases.releaseId.22276.html">Visa Opens the Door to AI-Driven Shopping for Businesses Worldwide</a>. <span class="venue">Visa Newsroom, 2026</span>. <span class="accessed">Accessed 2026-05-03.</span></li>
+      <li id="ref-7"><span class="authors">Visa</span>. <a href="https://usa.visa.com/about-visa/newsroom/press-releases.releaseId.22341.html">Visa Announces Global Expansion of Agentic Ready Program</a>. <span class="venue">Visa Newsroom, 2026</span>. <span class="accessed">Accessed 2026-05-03.</span></li>
+      <li id="ref-8"><span class="authors">Mastercard, PayPal</span>. <a href="https://www.mastercard.com/global/en/news-and-trends/press/2025/october/Mastercard-and-PayPal-join-forces.html">Mastercard and PayPal join forces to accelerate secure global agentic commerce</a>. <span class="venue">Mastercard Global Press, 2025</span>. <span class="accessed">Accessed 2026-05-03.</span></li>
+      <li id="ref-9"><span class="authors">Mastercard</span>. <a href="https://www.mastercard.com/news/latin-america/en/newsroom/press-releases/pr-en/2025/december/mastercard-unveils-agent-pay-in-latin-america-and-the-caribbean/">Mastercard unveils Agent Pay in Latin America and the Caribbean</a>. <span class="venue">Mastercard Newsroom (LATAM), 2025</span>. <span class="accessed">Accessed 2026-05-03.</span></li>
+      <li id="ref-10"><span class="authors">Mastercard</span>. <a href="https://www.mastercard.com/news/ap/en/newsroom/press-releases/en/2026/mastercard-accelerates-ai-powered-commerce-with-australia-s-first-authenticated-agentic-transactions-using-agent-pay/">Mastercard accelerates AI-powered commerce with Australia’s first authenticated agentic transactions using Agent Pay</a>. <span class="venue">Mastercard Newsroom (AP), 2026</span>. <span class="accessed">Accessed 2026-05-03.</span></li>
+      <li id="ref-11"><span class="authors">Visa</span>. <a href="https://usa.visa.com/about-visa/newsroom/press-releases.releaseId.21961.html">Visa and Partners Complete Secure AI Transactions, Setting the Stage for Mainstream Adoption in 2026</a>. <span class="venue">Visa Newsroom, 2025</span>. <span class="accessed">Accessed 2026-05-03.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-05-03. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

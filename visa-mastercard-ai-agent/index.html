@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Visa, Mastercard의 AI Agent 결제 시장 접근 방식 및 구현 — Deepsearch</title>
+<meta name="description" content="Research report generated via the Deepsearch harness.">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="en" href="en/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="en/index.html" hreflang="en">English</a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>Visa, Mastercard의 AI Agent 결제 시장 접근 방식 및 구현</h1>
+    <p class="subtitle">Research report generated via the Deepsearch harness.</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-05-03</span>
+      <span><strong>태그</strong> visa, mastercard, ai-agents, payments, agentic-commerce, tokenization</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="visa-mastercard-ai-agent.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>Visa와 Mastercard는 2025년 4월 각각 <code>Visa Intelligent Commerce</code>와 <code>Mastercard Agent Pay</code>를 발표하며, AI 에이전트가 사용자 대신 결제까지 수행하는 시장을 본격적으로 겨냥했다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 2026년 5월 현재 두 회사의 공통 전략은 기존 카드 네트워크를 대체하는 것이 아니라, 네트워크가 이미 보유한 토큰화·인증·분쟁/사기관리 역량을 에이전트 상거래로 확장하는 데 있다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> 차이는 구현 중심축에서 나타난다. Visa는 <code>Intelligent Commerce Connect</code>, <code>Agentic Ready</code>, <code>Trusted Agent Protocol</code>로 생태계 온보딩과 상호운용 레이어를 강조하고,<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> Mastercard는 <code>Agentic Tokens</code>와 <code>Acceptance Framework</code>를 통해 네트워크 내 신뢰된 에이전트 결제 식별·수용을 전면에 둔다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></p>
+  </section>
+
+  <main class="body">
+<h2>1) 시장 배경: 에이전틱 커머스 전환</h2>
+<p>Visa는 2025년 4월 30일 Intelligent Commerce를 발표했고,<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> Mastercard는 하루 앞선 4월 29일 Agent Pay를 발표했다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 두 발표 모두 "AI 에이전트가 탐색, 선택, 결제 수행"을 핵심 시나리오로 제시한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 독립 보도도 이를 동일하게 해석하며, 양사의 행보를 AI 쇼핑 결제 표준 경쟁의 시작으로 봤다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></p>
+<h2>2) Visa 접근법: 포트폴리오형 확장</h2>
+<p>Visa의 접근은 단일 제품보다 연속된 포트폴리오 확장에 가깝다.</p>
+<p>2025년 4월 Intelligent Commerce 출범 시점에 Visa는 토큰화 기반 <code>AI-Ready Cards</code>, 소비자 한도/조건 통제, 실시간 신호 기반 통제 구조를 제시했다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 이후 2025년 10월에는 Visa와 Cloudflare가 <code>Trusted Agent Protocol(TAP)</code>을 공개해 에이전트-머천트 신뢰 검증 프레임을 별도로 제시했다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 2026년 4월에는 <code>Intelligent Commerce Connect(ICC)</code>를 출시해 Visa Acceptance Platform 단일 통합으로 결제개시·토큰화·인증·지출통제를 제공하고, 비자 외 카드 네트워크 API까지 연계하는 온램프 모델을 발표했다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></p>
+<p>같은 달(2026년 4월 29일) Visa는 <code>Agentic Ready</code>를 유럽에서 APAC/LATAM으로 확장하며, 발급사·파트너가 실거래형 통제환경에서 등록/토큰화/인증/승인 흐름을 검증하도록 프로그램화했다.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> 이 구조는 "표준 제시 + 파트너 준비도 관리"를 병행하는 방식이다.</p>
+<h2>3) Mastercard 접근법: Agent Pay + Agentic Tokens</h2>
+<p>Mastercard는 Agent Pay를 "에이전트 결제 프로그램"으로 정의하면서, <code>Agentic Tokens</code>를 핵심 자격증명 계층으로 제시했다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 또한 신뢰된 에이전트의 등록/검증을 결제 이전 단계의 필수 조건으로 두고, 소비자 통제·인증·사기방지·분쟁지원을 포함한 end-to-end 보안 서사를 함께 제시했다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<p>2025년 10월 PayPal과의 파트너십 발표에서는 Agent Pay를 대형 지갑 생태계에 결합하고, PayPal이 <code>Mastercard Agent Pay Acceptance Framework</code>를 파일럿한다고 밝혔다.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> 같은 해 12월 LATAM 발표에서는 해당 프레임워크가 거래 전 <code>agent registration and verification</code>을 요구한다고 명시했다.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> 2026년 1월 APAC 발표에서는 호주 내 인증된 agentic 거래 사례를 공개하며 지역 확장을 공식화했다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<h2>4) 구현 아키텍처 비교</h2>
+<p>두 회사의 공통점은 명확하다. 1) 사용자 대신 행동하는 에이전트에 대해 별도 신뢰/인증 계층을 둔다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> 2) 원시 카드정보 대신 토큰화 자격증명을 중심에 둔다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> 3) 소비자 통제(한도/조건/권한)와 분쟁 가능성 대응을 설계에 포함한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<p>차이점도 분명하다.</p>
+<ul>
+<li>Visa: <code>ICC</code>를 통해 수용(acceptance) 측 통합 마찰을 줄이는 허브형 메시지(단일 통합, 다중 네트워크/토큰볼트 호환)를 강하게 낸다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></li>
+<li>Mastercard: <code>Agentic Tokens</code>와 <code>Acceptance Framework</code>로 네트워크 내부의 거래 식별·검증·수용 규율을 명시적으로 내세운다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></li>
+</ul>
+<p>즉, Visa는 생태계 연결성과 온보딩 경로를, Mastercard는 네트워크 레벨 통제 프레임을 상대적으로 전면에 배치하고 있다. _(해석)_ <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<h2>5) 트랙션과 확장 현황 (2025~2026)</h2>
+<p>Visa는 2025년 12월 기준으로 수백 건의 secure agent-initiated transaction, 100+ 파트너, 20+ 직접 통합 에이전트/인에이블러를 공개했다.<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> 2026년 4월에는 비즈니스 온램프(ICC)와 지역 확장(Agentic Ready)을 연달아 발표했다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<p>Mastercard는 2025년 4월 출시 후, 2025년 10월 PayPal 연계, 2025년 12월 LATAM, 2026년 1월 APAC 사례를 발표하며 지역·파트너 확장형 로드맵을 제시하고 있다.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<p>다만 공개된 수치는 벤더 발표 중심이며, 승인율·사기율·차지백 등 핵심 운영 KPI의 제3자 검증 비교는 제한적이다. _(vendor-stated)_ <sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<h2>6) 리스크와 실행 시사점</h2>
+<p>핵심 리스크는 "누가 어떤 의도로 결제를 실행했는지"를 기술·운영·법적 관점에서 일치시키는 문제다. Visa는 TAP과 Agentic Ready로 신뢰 신호 교환 및 준비도 검증을 제시하고,<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> Mastercard는 Acceptance Framework와 Agentic Token 기반 인증 흐름으로 대응한다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<p>실행 우선순위는 다음과 같다.</p>
+<ul>
+<li>발급사/은행: 에이전트 권한 정책(한도/카테고리/시간/사용자 인증)을 카드 리스크 정책과 결합.</li>
+<li>머천트/PSP: 에이전트 식별, 허용 정책, 감사로그/분쟁증적 수집을 체크아웃 경로에 내장.</li>
+<li>에이전트 빌더: 토큰화 자격증명 사용, 사용자 통제 UI, 거래 가시성(누가/언제/무엇을 결제했는지) 확보.</li>
+</ul>
+<p>위 3가지는 양사 프로그램의 공통 요구사항에서 직접 도출된다. _(해석)_ <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<h2>7) 결론</h2>
+<p>2026년 5월 시점에서 Visa와 Mastercard의 AI 에이전트 결제 전략은 "카드 네트워크 신뢰 모델의 에이전트 확장"이라는 공통 축 위에 있다. Visa는 연계 허브·준비도 프로그램 중심으로 외연을 넓히고,<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> Mastercard는 Agentic Token/Acceptance Framework 중심으로 네트워크 통제를 구조화한다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> 최종 승부는 기술 우위 단독이 아니라, 발급사·가맹점·에이전트 플랫폼이 실제로 낮은 마찰로 연결되는 운영 표준 경쟁에서 갈릴 가능성이 높다. _(early signal)_ <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Visa</span>. <a href="https://usa.visa.com/about-visa/newsroom/press-releases.release.21361.html">Find and Buy with AI: Visa Unveils New Era of Commerce</a>. <span class="venue">Visa Newsroom, 2025</span>. <span class="accessed">접근일 2026-05-03.</span></li>
+      <li id="ref-2"><span class="authors">Mastercard</span>. <a href="https://www.mastercard.com/us/en/news-and-trends/press/2025/april/mastercard-unveils-agent-pay-pioneering-agentic-payments-technology-to-power-commerce-in-the-age-of-ai.html">Mastercard unveils Agent Pay, pioneering agentic payments technology to power commerce in the age of AI</a>. <span class="venue">Mastercard Newsroom, 2025</span>. <span class="accessed">접근일 2026-05-03.</span></li>
+      <li id="ref-3"><span class="authors">Mary Ann Azevedo</span>. <a href="https://techcrunch.com/2025/04/30/visa-and-mastercard-unveil-ai-powered-shopping/">Visa and Mastercard unveil AI-powered shopping</a>. <span class="venue">TechCrunch, 2025</span>. <span class="accessed">접근일 2026-05-03.</span></li>
+      <li id="ref-4"><span class="authors">Visa</span>. <a href="https://corporate.visa.com/en/sites/visa-perspectives/newsroom/visa-unveils-trusted-agent-protocol-for-ai-commerce.html">Visa Introduces Trusted Agent Protocol: An Ecosystem-Led Framework for AI Commerce</a>. <span class="venue">Visa Perspectives, 2025</span>. <span class="accessed">접근일 2026-05-03.</span></li>
+      <li id="ref-5"><span class="authors">Kelly Tyko</span>. <a href="https://www.axios.com/2025/10/14/visa-ai-shopping-agent-protocol-bot">Exclusive: Visa preps for AI holiday shoppers, agentic commerce</a>. <span class="venue">Axios, 2025</span>. <span class="accessed">접근일 2026-05-03.</span></li>
+      <li id="ref-6"><span class="authors">Visa</span>. <a href="https://usa.visa.com/about-visa/newsroom/press-releases.releaseId.22276.html">Visa Opens the Door to AI-Driven Shopping for Businesses Worldwide</a>. <span class="venue">Visa Newsroom, 2026</span>. <span class="accessed">접근일 2026-05-03.</span></li>
+      <li id="ref-7"><span class="authors">Visa</span>. <a href="https://usa.visa.com/about-visa/newsroom/press-releases.releaseId.22341.html">Visa Announces Global Expansion of Agentic Ready Program</a>. <span class="venue">Visa Newsroom, 2026</span>. <span class="accessed">접근일 2026-05-03.</span></li>
+      <li id="ref-8"><span class="authors">Mastercard, PayPal</span>. <a href="https://www.mastercard.com/global/en/news-and-trends/press/2025/october/Mastercard-and-PayPal-join-forces.html">Mastercard and PayPal join forces to accelerate secure global agentic commerce</a>. <span class="venue">Mastercard Global Press, 2025</span>. <span class="accessed">접근일 2026-05-03.</span></li>
+      <li id="ref-9"><span class="authors">Mastercard</span>. <a href="https://www.mastercard.com/news/latin-america/en/newsroom/press-releases/pr-en/2025/december/mastercard-unveils-agent-pay-in-latin-america-and-the-caribbean/">Mastercard unveils Agent Pay in Latin America and the Caribbean</a>. <span class="venue">Mastercard Newsroom (LATAM), 2025</span>. <span class="accessed">접근일 2026-05-03.</span></li>
+      <li id="ref-10"><span class="authors">Mastercard</span>. <a href="https://www.mastercard.com/news/ap/en/newsroom/press-releases/en/2026/mastercard-accelerates-ai-powered-commerce-with-australia-s-first-authenticated-agentic-transactions-using-agent-pay/">Mastercard accelerates AI-powered commerce with Australia’s first authenticated agentic transactions using Agent Pay</a>. <span class="venue">Mastercard Newsroom (AP), 2026</span>. <span class="accessed">접근일 2026-05-03.</span></li>
+      <li id="ref-11"><span class="authors">Visa</span>. <a href="https://usa.visa.com/about-visa/newsroom/press-releases.releaseId.21961.html">Visa and Partners Complete Secure AI Transactions, Setting the Stage for Mainstream Adoption in 2026</a>. <span class="venue">Visa Newsroom, 2025</span>. <span class="accessed">접근일 2026-05-03.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-05-03 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
