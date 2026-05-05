@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bitcoin Lightning Network의 기술 구조와 AI Agent 결제 — Deepsearch</title>
+<meta name="description" content="Research report generated via the Deepsearch harness.">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="en" href="en/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="en/index.html" hreflang="en">English</a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>Bitcoin Lightning Network의 기술 구조와 AI Agent 결제</h1>
+    <p class="subtitle">Research report generated via the Deepsearch harness.</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-05-05</span>
+      <span><strong>태그</strong> bitcoin, lightning-network, layer2, micropayments, ai-agents, l402, nwc</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="bitcoin-lightning-network-ai-agent.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>Bitcoin Lightning Network(LN)는 Bitcoin L1의 보안을 정산 앵커로 사용하면서, 오프체인 채널 상태 업데이트로 고빈도 소액결제를 처리하는 레이어 2 네트워크다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 기술 코어는 채널 관리(BOLT #2), 커밋먼트/HTLC 트랜잭션 포맷(BOLT #3), 온니언 라우팅(BOLT #4), 인보이스 인코딩(BOLT #11), 그리고 최근의 Offers(BOLT #12)로 구성된다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> AI Agent 결제 관점에서 LN의 핵심 가치는 HTTP 402 기반 L402, 원격 지갑 위임(NIP-47), LNURL UX 계층 같은 인터페이스를 통해 기계-대-기계 과금을 자동화할 수 있다는 점이다.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></p>
+  </section>
+
+  <main class="body">
+<h2>1) Lightning Network 개요와 설계 목표</h2>
+<p>LN는 양방향 결제채널 네트워크로, 대부분의 결제는 오프체인에서 처리하고 필요 시에만 온체인 정산으로 되돌아가는 구조를 택한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 이 설계는 Bitcoin의 보안모델을 유지하면서 처리량/지연/수수료 한계를 완화하려는 접근이다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<h2>2) 프로토콜 코어: 채널, HTLC, 라우팅, 정산</h2>
+<p>채널은 funding transaction으로 시작되고, 이후 참여자 간 커밋먼트 상태를 반복 업데이트한다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> 결제 전달은 HTLC를 사용해 조건부 원자성을 확보하며, 다중 홉에서는 온니언 라우팅으로 중간 노드가 최소 정보만 갖도록 설계한다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<p>결제 수신 인터페이스는 전통적으로 BOLT11 인보이스가 중심이었고,<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> BOLT12 Offers는 재사용 가능한 결제 요청 모델을 도입해 정적 결제 UX를 개선하는 방향으로 발전 중이다.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<h2>3) 운영 레이어: 유동성, 신뢰성, 수수료, 워치타워</h2>
+<p>실운영에서 결제 성공률은 경로의 실제 유동성, 노드 가용성, 수수료 설정에 크게 영향받는다.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> 즉, 프로토콜 스펙만 구현해도 곧바로 높은 SLA가 보장되지는 않는다. _(해석)_ <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></p>
+<p>워치타워는 사용자가 오프라인일 때 상대방의 부정 상태 방송 리스크를 완화하는 보조 계층으로 사용된다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> 이는 LN 보안모델의 실무적 운영 비용(추가 인프라/신뢰 설정)을 보여준다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<h2>4) 기능 확장: AMP, Offers, splicing/PTLC 방향성</h2>
+<p>AMP는 단일 경로 용량 제약을 완화하기 위해 결제를 분할 전송하는 방식으로, 큰 결제를 성공시키는 데 유용하다.<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> BOLT12 Offers는 결제 요청 생성/재사용성을 높여 상호작용 부담을 줄이는 기능적 진화다.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<p>splicing과 PTLC 계열은 채널 유연성·프라이버시 개선에 중요한 방향으로 논의/구현되고 있지만, 구현체와 운영 환경 간 성숙도 편차가 남아 있다. _(early signal)_ <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<h2>5) AI Agent 결제 인터페이스: LNURL, NWC, L402</h2>
+<p>AI Agent 결제에서 자주 쓰이는 패턴은 다음 세 가지다.</p>
+<p>1. LNURL: 사용자/서비스 친화적인 URL 기반 결제·인출 UX 확장.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> 2. Nostr Wallet Connect(NIP-47): 앱/에이전트가 원격 지갑 권한으로 결제를 위임 실행.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> 3. L402: HTTP 402 + invoice + macaroon으로 API 접근제어와 결제를 결합.<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup></p>
+<p>L402는 특히 “API 호출 단위 과금”과 잘 맞아 agentic workflow에서 결제 트리거를 코드 경로에 자연스럽게 삽입할 수 있다.<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup> Lightning Labs는 최근 에이전트 사용사례를 전면에 내세워 이를 강화하고 있다. _(vendor-stated)_ <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup></p>
+<h2>6) AI Agent 결제 아키텍처(권장 통제)</h2>
+<p>실서비스에서 AI Agent에 LN 결제를 붙일 때 핵심 통제는 다음이다.</p>
+<ul>
+<li>권한 범위 제한: 지출 한도, 허용 도메인/수신자, 만료시간.</li>
+<li>결제 요청 검증: invoice amount/expiry/description 해시 검증.</li>
+<li>재시도 안전성: idempotency 키 기반 중복결제 차단.</li>
+<li>감사추적: 요청-응답-결제 preimage/토큰 매핑 로그 보관.</li>
+</ul>
+<p>이 통제들은 NIP-47 위임 모델과 L402 인증 결제모델을 함께 쓸 때 특히 중요하다. _(해석)_ <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup></p>
+<h2>7) 한계와 리스크</h2>
+<p>LN는 성장했지만, 네트워크 토폴로지와 경제 인센티브 관점에서 일부 라우팅 허브 집중과 신뢰성 편차 리스크가 지속적으로 지적된다.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup> 또한 온체인 수수료 급등 구간에서는 채널 재조정/정산 비용이 상향되어 운영비가 커질 수 있다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<p>AI Agent 결제 확장에서도 표준 성숙도와 상호운용성은 아직 진화 중이며, L402·NWC·LNURL 조합은 강력하지만 구현 책임이 서비스 운영자에게 남는다. _(early signal)_ <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></p>
+<h2>8) 구현 체크리스트(요약)</h2>
+<p>1. 지갑 모델 결정: custodial vs self-custodial, 그리고 에이전트 권한 분리 정책 수립.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> 2. 결제 게이트웨이: L402/Aperture 기반의 표준 402 플로우 우선 채택.<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup> 3. 유동성 운영: AMP 활성화, 채널 리밸런싱 정책, 실패 재시도 전략 마련.<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> 4. 보안 운영: 워치타워, 로그 감사, 키 순환, 비정상 결제 탐지 규칙 구성.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup></p>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Joseph Poon, Thaddeus Dryja</span>. <a href="https://lightning.network/lightning-network-paper.pdf">The Bitcoin Lightning Network</a>. <span class="venue">lightning.network, 2016</span>. <span class="accessed">접근일 2026-05-05.</span></li>
+      <li id="ref-2"><span class="authors">Lightning Developers</span>. <a href="https://github.com/lightning/bolts">BOLT: Basis of Lightning Technology</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-05-05.</span></li>
+      <li id="ref-3"><span class="authors">Lightning Developers</span>. <a href="https://github.com/lightning/bolts/blob/master/02-peer-protocol.md">BOLT #2: Peer Protocol for Channel Management</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-05-05.</span></li>
+      <li id="ref-4"><span class="authors">Lightning Developers</span>. <a href="https://github.com/lightning/bolts/blob/master/03-transactions.md">BOLT #3: Bitcoin Transaction and Script Formats</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-05-05.</span></li>
+      <li id="ref-5"><span class="authors">Lightning Developers</span>. <a href="https://github.com/lightning/bolts/blob/master/04-onion-routing.md">BOLT #4: Onion Routing Protocol</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-05-05.</span></li>
+      <li id="ref-6"><span class="authors">Lightning Developers</span>. <a href="https://github.com/lightning/bolts/blob/master/11-payment-encoding.md">BOLT #11: Invoice Protocol for Lightning Payments</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-05-05.</span></li>
+      <li id="ref-7"><span class="authors">Lightning Developers</span>. <a href="https://github.com/lightning/bolts/blob/master/12-offer-encoding.md">BOLT #12: Offers Protocol for Lightning Payments</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-05-05.</span></li>
+      <li id="ref-8"><span class="authors">Lin Wang, Amit Kumar, Christian S. Chan</span>. <a href="https://arxiv.org/abs/2006.14358">An empirical study of availability and reliability properties of the Bitcoin Lightning Network</a>. <span class="venue">arXiv, 2020</span>. <span class="accessed">접근일 2026-05-05.</span></li>
+      <li id="ref-9"><span class="authors">Bruno Schaub, et al.</span>. <a href="https://arxiv.org/abs/2312.16496">Rational Economic Behaviours in the Bitcoin Lightning Network</a>. <span class="venue">arXiv, 2023</span>. <span class="accessed">접근일 2026-05-05.</span></li>
+      <li id="ref-10"><span class="authors">Lightning Labs</span>. <a href="https://docs.lightning.engineering/the-lightning-network/payment-channels/watchtowers">Watchtowers</a>. <span class="venue">Lightning Builder&#x27;s Guide, 2026</span>. <span class="accessed">접근일 2026-05-05.</span></li>
+      <li id="ref-11"><span class="authors">Lightning Labs</span>. <a href="https://docs.lightning.engineering/lightning-network-tools/lnd/amp">Atomic Multi-path Payments (AMP)</a>. <span class="venue">Lightning Builder&#x27;s Guide, 2026</span>. <span class="accessed">접근일 2026-05-05.</span></li>
+      <li id="ref-12"><span class="authors">LNURL Contributors</span>. <a href="https://github.com/lnurl/luds">lnurl/luds: lnurl specifications</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-05-05.</span></li>
+      <li id="ref-13"><span class="authors">Nostr Contributors</span>. <a href="https://github.com/nostr-protocol/nips/blob/master/47.md">NIP-47: Nostr Wallet Connect</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-05-05.</span></li>
+      <li id="ref-14"><span class="authors">Alby</span>. <a href="https://guides.getalby.com/developer-guide/developer-guide/nostr-wallet-connect-api">Nostr Wallet Connect API</a>. <span class="venue">Alby Developer Guide, 2026</span>. <span class="accessed">접근일 2026-05-05.</span></li>
+      <li id="ref-15"><span class="authors">Lightning Labs</span>. <a href="https://github.com/lightninglabs/L402">lightninglabs/L402: lsat protocol specification</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-05-05.</span></li>
+      <li id="ref-16"><span class="authors">Lightning Labs</span>. <a href="https://docs.lightning.engineering/the-lightning-network/l402">L402: Lightning HTTP 402 Protocol</a>. <span class="venue">Lightning Builder&#x27;s Guide, 2026</span>. <span class="accessed">접근일 2026-05-05.</span></li>
+      <li id="ref-17"><span class="authors">Lightning Labs</span>. <a href="https://github.com/lightninglabs/aperture">lightninglabs/aperture</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-05-05.</span></li>
+      <li id="ref-18"><span class="authors">A. Y. Shtof, et al.</span>. <a href="https://arxiv.org/abs/2512.20641">Topology and Network Dynamics of the Lightning Network: A Comprehensive Analysis</a>. <span class="venue">arXiv, 2025</span>. <span class="accessed">접근일 2026-05-05.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-05-05 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
