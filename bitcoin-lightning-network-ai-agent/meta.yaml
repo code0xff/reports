@@ -1,10 +1,10 @@
-title: Bitcoin Lightning Network의 기술 구조와 AI Agent 결제
-subtitle: Research report generated via the Deepsearch harness.
-title_en: Bitcoin Lightning Network Architecture and AI-Agent Payments
-subtitle_en: Technical structure, operational mechanics, and machine-payment patterns
+title: Bitcoin Lightning Network와 AI Agent 결제
+subtitle: 프로토콜 아키텍처, 네트워크 현황, L402·x402·NWC 비교, 보안 아키텍처 및 생태계 분석 (2026)
+title_en: Bitcoin Lightning Network and AI Agent Payments
+subtitle_en: Protocol architecture, network topology, L402/x402/NWC comparison, security, and ecosystem analysis (2026)
 slug: bitcoin-lightning-network-ai-agent
 lang: ko
 langs: [ko, en]
 date: 2026-05-05
-tags: [bitcoin, lightning-network, layer2, micropayments, ai-agents, l402, nwc]
+tags: [bitcoin, lightning-network, layer2, micropayments, ai-agents, l402, nwc, x402]
 status: ready
