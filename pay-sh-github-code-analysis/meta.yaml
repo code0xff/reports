@@ -1,0 +1,10 @@
+title: A Code-Level Reading of solana-foundation/pay
+subtitle: Inside the GitHub repo behind pay.sh — the Solana × Google Cloud stablecoin payment CLI for AI agents.
+title_ko: solana-foundation/pay 코드 레벨 분석
+subtitle_ko: pay.sh를 떠받치는 GitHub 저장소 들여다보기 — AI 에이전트를 위한 Solana × Google Cloud 스테이블코인 결제 CLI.
+slug: pay-sh-github-code-analysis
+lang: en
+langs: [en, ko]
+date: 2026-05-08
+tags: [pay.sh, solana, x402, mpp, ai-agents, mcp, stablecoin, rust, cli]
+status: ready
