@@ -1,0 +1,10 @@
+title: MPP Session 동작 메커니즘과 구현 상세 분석
+subtitle: TempoStreamChannel 에스크로, EIP-712 바우처, 오프체인 마이크로결제 채널의 완전 분석
+title_en: MPP Session Mechanism and Implementation Deep Dive
+subtitle_en: TempoStreamChannel Escrow, EIP-712 Vouchers, and Off-Chain Micropayment Channels
+slug: mpp-session-mechanism
+lang: ko
+langs: [ko, en]
+date: 2026-05-11
+tags: [MPP, session, payment-channels, EIP-712, vouchers, Tempo, HTTP402, micropayments, AI-agents, IETF]
+status: ready
