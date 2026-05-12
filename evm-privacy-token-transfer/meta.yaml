@@ -1,0 +1,10 @@
+title: EVM 기반 프라이버시 토큰 전송 방법 분석 및 실용적 구현 가이드
+subtitle: 스텔스 주소·Railgun·Aztec·FHE — 기술 비교와 실서비스 선택 기준
+title_en: EVM Privacy Token Transfer Methods and Practical Implementation Guide
+subtitle_en: Stealth Addresses, Railgun, Aztec, and FHE — Technical Comparison and Selection Framework
+slug: evm-privacy-token-transfer
+lang: ko
+langs: [ko, en]
+date: 2026-05-12
+tags: [EVM, Ethereum, privacy, stealth-address, Railgun, Aztec, FHE, zk-SNARK, ERC-5564, ERC-7984, compliance]
+status: ready
