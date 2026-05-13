@@ -1,0 +1,11 @@
+# Uncertainties — Mastercard Agent Pay
+
+These items are sourced enough to discuss but remain epistemically shaky and should be qualified in the draft.
+
+- **Volume and adoption.** Mastercard has publicly confirmed only "first agentic transactions" on the network as of Q3 2025 (s17) and a single Europe-first end-to-end pilot with Santander on 2 Mar 2026 (s11). No transaction-count, dollar-volume, or merchant-count figures have been disclosed. Treat any "production-scale" framing as _vendor-stated_.
+- **Liability and chargeback rules.** No public Mastercard rule text defines how agent-initiated transactions are treated under the existing chargeback regime. Analyst coverage notes the gap (s10). Statements about liability should be _interpretive_, not factual.
+- **PSD2 / SCA posture.** The European Commission's PSD3/PSR proposals (s16) post-date the regime under which agentic flows are being piloted. Whether agent transactions qualify as Merchant-Initiated (MIT, SCA-exempt) or require a fresh consumer SCA step is currently being worked out in industry working groups (s18) rather than codified.
+- **OpenAI relationship.** Mastercard mentions OpenAI as part of the broader ecosystem (s01, executive narratives) but the operational link from a ChatGPT shopping intent to a Mastercard-rail payment runs through Stripe's Shared Payment Token + agentic network tokens (s05, s14, s15). Direct Mastercard ↔ OpenAI integration is not public; describe accurately.
+- **ScamGuard-for-agents specifics.** Mastercard's Scam Protect / Decision Intelligence stack is well-documented in general, but its concrete behaviour for an agent-initiated transaction is described at a high level only (s02, s08). Treat as _early signal_.
+- **Verifiable Intent vs AP2 vs ACP vs Visa Intelligent Commerce.** Standards are still moving. The FIDO Payments TWG (s18) is the most plausible convergence venue, but interoperability is currently a stated intent, not a shipped baseline.
+- **Agent Toolkit scope.** The public Mastercard MCP server (s03, s04) is a documentation / service-discovery surface; it does not itself execute payments. The payment execution path is the Agent Pay Acceptance Framework (s09, s12) on the issuer/acquirer side. Avoid implying the MCP server "is" Agent Pay.

@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mastercard Agent Pay: 접근법, 기술 구현, 그리고 Agent Pay 런칭 — Deepsearch</title>
+<meta name="description" content="2025년 4월 프레임워크 발표부터 Santander와의 유럽 최초 AI 에이전트 실거래까지 — 기술과 생태계의 심층 분석.">
+<link rel="alternate" hreflang="en" href="../index.html">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../ko/index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="en">English</a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../ko/index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>Mastercard Agent Pay: 접근법, 기술 구현, 그리고 Agent Pay 런칭</h1>
+    <p class="subtitle">2025년 4월 프레임워크 발표부터 Santander와의 유럽 최초 AI 에이전트 실거래까지 — 기술과 생태계의 심층 분석.</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-05-13</span>
+      <span><strong>태그</strong> —</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="mastercard-agent-pay.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>Mastercard는 2025년 4월 <strong>Agent Pay</strong>를 발표했다. AI 에이전트가 사용자를 대신해 카드 결제를 개시하고 완료할 수 있도록 기존의 토큰화·인증·사기 방지 인프라를 확장하는 "에이전트 결제(agentic payments)" 프로그램으로, Microsoft Copilot, IBM watsonx Orchestrate, OpenAI ChatGPT(Stripe 경유), PayPal 등에서 동작하는 AI 에이전트가 대상이다 <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 핵심 자격증명은 <strong>Mastercard Agentic Token</strong>으로, Click-to-Pay / MDES와 동일한 네트워크 토큰화 레일 위에 발급되지만 등록된 특정 에이전트, 세션, 가맹점, 그리고 사용자의 의도(intent)에 암호학적으로 묶인다 <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 그 위에 Mastercard는 "Know Your Agent"라 부르는 에이전트 등록·검증 프로세스 <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, Model Context Protocol(MCP) 서버로 동작하는 개발자용 <strong>Agent Toolkit</strong> <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>, 발급사·매입사용 <strong>Agent Pay Acceptance Framework</strong> <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>, 그리고 FIDO Alliance Payments Technical Working Group(TWG)에서의 검증 가능한 자격증명 표준 기여 <sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>를 쌓아 올린다. 2025년 3분기에 첫 에이전틱 거래가 Mastercard 네트워크에서 클리어됐고 <sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>, 2026년 3월 2일에는 Banco Santander와 함께 규제된 은행 시스템 위에서 유럽 최초의 종단 간 AI 에이전트 결제를 실행했다 <sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 결과적으로 Mastercard의 접근은 다층적이고 파트너십 기반이며, Visa Intelligent Commerce, Stripe·OpenAI의 Agentic Commerce Protocol(ACP), Google의 Agent Payments Protocol(AP2)과 영역이 겹치지만 위치 잡기는 다르다 <sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. 단, 차지백(chargeback) 책임 소재, PSD2/SCA 적용, 그리고 발표된 아키텍처 중 어느 부분이 실제로 프로덕션 상태인지에 대해서는 여전히 열린 질문이 많다.</p>
+  </section>
+
+  <main class="body">
+<h1>Mastercard Agent Pay: 접근법, 기술 구현, 그리고 Agent Pay 런칭</h1>
+<h2>서론</h2>
+<p>오랫동안 "체크아웃"은 사람이 가맹점 화면의 버튼을 누르는 행위였다. 에이전트 커머스는 이 전제를 뒤집는다. Microsoft Copilot, ChatGPT, 기업용 조달 봇 같은 LLM 기반 에이전트가 사용자를 대신해 상품을 탐색하고 장바구니를 구성하며 결제를 트리거한다. 결제 시점에 사용자가 직접 있지 않을 수도 있다 <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 그 결과 2025년 한 해 동안 주요 카드 네트워크와 PSP는 모두 자신의 입장을 공개해야 했다. Mastercard의 Agent Pay, Visa의 Intelligent Commerce, Stripe·OpenAI의 Agentic Commerce Protocol, Google의 Agent Payments Protocol이 그것이다 <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<p>이 보고서는 Mastercard의 접근에 집중한다. 공식 발표 흐름(2025년 4월 프레임워크 런칭 → 9월 제품화 → 10월 PayPal 확장 → 2026년 3월 Santander 실거래)을 짚은 뒤, 핵심 기술 프리미티브(Agentic Token, Agent Toolkit MCP 서버, Agent Pay Acceptance Framework, Know-Your-Agent 및 Payment Passkey 인증 스택)를 들여다본다. 마지막으로 Visa, Stripe/OpenAI, Google과의 경쟁 구도와 책임·규제 측면의 미해결 이슈를 정리한다.</p>
+<h2>배경: 에이전트 커머스와 결제 스택</h2>
+<p>카드 네트워크 관점에서의 에이전트 커머스는 AI 에이전트가 소비자의 위임을 받아 의도를 해석하고 가맹점과 협상하며 결제를 트리거하는 형태를 말한다. 소비자의 신원, 자격증명, 인가는 여전히 발급사에 고정된다 _(해석적 — Mastercard, Visa, Stripe, Google이 사용하는 정의가 사실상 일치)_ <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 기술적 중심은 새로운 결제 수단이 아니라, 기존 EMVCo 네트워크 토큰 레일(Mastercard의 MDES, Visa의 VTS)에 메타데이터를 덧붙여 에이전트 개시 트래픽을 식별·통제하는 방식이다 <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p>2025년 말까지 카드 네트워크, 대형 PSP, 그리고 적어도 한 곳의 하이퍼스케일러가 각자 스택을 공개했다.</p>
+<ul>
+<li><strong>Mastercard Agent Pay</strong> — Agentic Token + Agent Toolkit MCP + Agent Pay Acceptance Framework <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</li>
+<li><strong>Visa Intelligent Commerce</strong> — Visa Agent API와 검증된 AI 에이전트에 한정된 토큰화 결제 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</li>
+<li><strong>Stripe / OpenAI Agentic Commerce Protocol (ACP)</strong> — Stripe가 발급하는 Shared Payment Token(SPT)과 OpenAI와 공동 관리되는 Apache-2.0 프로토콜; 첫 소비처는 ChatGPT의 Instant Checkout <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</li>
+<li><strong>Google Agent Payments Protocol (AP2)</strong> — 결제 수단에 비의존적인 프로토콜로, 서명된 Intent / Cart / Payment Mandate로 신뢰를 구성. 2025년 9월 17일 60여 개 파트너(Mastercard, PayPal, American Express, Coinbase, Etsy 등)와 함께 발표 <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</li>
+</ul>
+<p>이들은 서로 크게 겹친다. Mastercard는 Stripe의 "agentic network token" 발급 경로에도, Google의 AP2 기여자 리스트에도 포함된다 <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. 다만 각자가 강조하는 신뢰의 정박점이 다르다 — 네트워크 토큰(Mastercard/Visa), PSP 발급 결제 프리미티브(Stripe), 개방형 만데이트(Mandate) 프로토콜(Google).</p>
+<h2>Mastercard의 전략과 발표</h2>
+<h3>2025년 4월 — 프레임워크 런칭</h3>
+<p>2025년 4월 29일, Mastercard는 Agent Pay를 "상거래의 다음 프런티어"로 소개했다 <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 발표문에는 Microsoft(Azure OpenAI Service 및 Copilot Studio 통합), IBM(watsonx Orchestrate B2B 사용 사례), Braintree, Checkout.com(가맹점 토큰화) 네 곳의 주요 파트너가 함께 이름을 올렸으며, 모바일 비접촉 결제·시큐어 카드-온-파일·Mastercard Payment Passkeys를 지탱해 온 동일한 토큰화 기술 위에 새 자격증명 "Mastercard Agentic Token"을 얹는다고 명시했다 <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 최고제품책임자 Jorn Lambert는 "The launch of Mastercard Agent Pay marks our initial steps in redefining commerce in the AI era, including new merchant interfaces to distinguish trusted agents from bad actors."라고 말했다 <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h3>2025년 9월 — 제품화</h3>
+<p>2025년 9월 10일에는 제품화 단계가 이어졌다 <sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<ul>
+<li><strong>Agent Toolkit</strong> — Mastercard Developers에서 MCP 서버를 제공해 Claude·Cursor·GitHub Copilot 같은 IDE/에이전트 프레임워크가 Mastercard API를 탐색 가능하게 함 <sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</li>
+<li><strong>Agent Sign-Up</strong> — AI 지원 Mastercard 제품에 접근하려는 에이전트를 위한 등록 메커니즘 <sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</li>
+<li><strong>Insight Tokens</strong> — "에이전트가 Mastercard의 권한 부여된 인사이트에 안전하고 통제된 방식으로 접근·활용할 수 있는 길" <sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</li>
+<li><strong>Agentic Consulting Services</strong> — 발급사, 매입사, 가맹점, AI 인에이블러를 위한 어드바이저리 <sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</li>
+<li>파트너 풀 확대: Stripe, Google, Ant International의 Antom, PayOS, Citi, U.S. Bank, SAP Concur, FIDO Alliance Payments Working Group <sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</li>
+</ul>
+<h3>2025년 10월 — PayPal</h3>
+<p>2025년 10월 27일, Mastercard와 PayPal은 Agent Pay를 PayPal 지갑에 통합하고, PayPal이 Mastercard Agent Pay Acceptance Framework의 파일럿에 들어간다고 발표했다 <sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. PayPal은 "common agentic protocols"(ACP와 AP2를 가리킴)와의 상호운용성을 명시적으로 약속했다 <sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+<h3>2025년 3분기 실적 — 첫 거래</h3>
+<p>2025년 10월 30일 실적 발표에서 CEO Michael Miebach는 "Our first agentic transaction took place on our network this quarter."라고 말했다 <sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. U.S. Bank와 Citibank 카드 소지자가 우선 활성화됐고, 11월에 미국 잔여 발급사로 확장한 뒤 2026년 초 글로벌 롤아웃이 예고됐다 <sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</p>
+<h3>2026년 3월 — Santander와 함께한 유럽 최초의 실거래</h3>
+<p>2026년 3월 2일, Banco Santander와 Mastercard는 "유럽 최초의 종단 간 AI 에이전트 결제"를 Santander의 실 결제 인프라 위에서 성사시켰다고 발표했다. 거래는 Mastercard Agent Pay를 중심에 두고 PayOS, Microsoft Azure OpenAI Service / Copilot Studio와 함께 오케스트레이션됐다 <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup> _(early signal — 규제된 은행 환경에서의 파일럿이며 상용 롤아웃은 아니다)_.</p>
+<p>위 일련의 발표를 통해 Mastercard 전략의 공통점이 드러난다. 단일 SDK가 아니라, 자격증명을 위한 네트워크 토큰, 사람 쪽 인증을 위한 신원/생체, 수용을 위한 가맹점·발급사 측 인에이블먼트, 그리고 상호운용을 위한 표준 기구(FIDO, AP2)까지 네 층을 동시에 쌓는다 <sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>.</p>
+<h2>기술 구현</h2>
+<h3>Agentic Token</h3>
+<p>Mastercard Agentic Token은 기능적으로 EMVCo 스타일의 네트워크 토큰이다. 소비자의 펀딩 PAN이 에이전트나 가맹점에 노출되지 않으며, 인가 시점에 네트워크가 최신 발급 PAN으로 매핑한다. 새로운 부분은 토큰에 묶인 메타데이터 — 에이전트 ID, 세션, 가맹점 제약, 소비자 의도/동의 — 다 <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p>Stripe의 개발자 문서는 자사의 Shared Payment Token 제품을 위해 Mastercard 또는 Visa로부터 직접 "agentic network token"을 프로비저닝하면서 레일 수준 동작을 이렇게 설명한다. "agentic network tokens are network-issued, secure digital credentials that allow authorized AI agents to initiate payments on a customer's behalf without exposing underlying card details … payment networks automatically map the agentic network token to the latest FPAN when sending authorization requests to the issuers." <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> 즉, 인가 메시지 포맷이 새로 생긴 것이 아니라 기존 토큰 매핑 경로를 재사용하되, 스코프와 동의(consent) 메타데이터가 새 동작의 자리라는 뜻이다 <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p>Mastercard 최고디지털책임자 Pablo Fourez는 Checkout.com과의 토론에서 다음을 명시했다. 토큰을 받으려면 에이전트가 KYC 스타일의 "Know Your Agent" 프로세스로 등록돼야 하며, 사용자의 의도 데이터(그의 예: "Adidas shoes, size 10, €80")가 토큰과 함께 거래를 따라간다 <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. 이 의도 페이로드가 FIDO의 검증 가능한 자격증명 작업, 그리고 Google AP2의 만데이트 모델과 연결되는 접합점이다 <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>.</p>
+<h3>Agent Toolkit과 MCP 서버</h3>
+<p>공개된 개발자 산출물은 GitHub의 Agent Toolkit이다. MIT 라이선스로 공개돼 있고, npm 패키지 <code>@mastercard/developers-mcp</code>로 배포된다 <sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Node 18+ 환경의 TypeScript/JavaScript MCP 서버이며, <code>get-services-list</code>, <code>get-documentation</code>, <code>get-documentation-section-content</code>, <code>get-documentation-page</code>, <code>get-api-operation-list</code>, <code>get-api-operation-details</code>와 OAuth 1.0a / 2.0 / Open Finance 통합 가이드용 도구를 노출한다. stdio로 Claude Desktop, Cursor, VS Code에 연결하며 각 클라이언트별 JSON 설정 예제가 명시돼 있다 <sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. 단, 이 서버 자체는 서비스 탐색·문서 표면이지 결제를 수행하지 않는다. 결제 수행 경로는 발급사·매입사 측의 Agent Pay Acceptance Framework에 있다 <sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<h3>Agent Pay Acceptance Framework</h3>
+<p>Acceptance Framework은 Agent Pay의 가맹점·발급사 쪽이다. (a) 에이전트 등록과 검증, (b) 네트워크의 에이전트 개시 거래 식별·플래깅, (c) 발급사·매입사의 처리 방식을 규정한다 <sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. PayPal과의 통합(2025년 10월)이 가장 구체적인 공개 사례로, PayPal은 "Mastercard Agent Pay Acceptance Framework"를 가맹점·에이전트와 함께 파일럿한다고 명시했다 <sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. Mastercard는 또한 가맹점이 상품 속성 메타데이터(사이즈, 항공 운임 클래스, 환불 조건 등)를 노출해 에이전트가 더 나은 결정을 내릴 수 있게 하는 "에이전트 친화" 가맹점 표면도 제시한다 <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>.</p>
+<h3>신원·인증과 검증 가능한 의도</h3>
+<p>에이전트가 한 축이라면 카드 소지자가 다른 한 축이다. Mastercard는 FIDO 인증 위에 만들어진 <strong>생체 기반 Payment Passkey</strong>와 Agentic Token을 짝지운다. EMVCo의 Payment Passkeys 흐름과도 정렬된다 <sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Pablo Fourez는 이 아키텍처를 "intent and consent data를 결제 토큰에 묶는" 구조로 설명하며, 추적성과 책임성이 종단 간 보장된다고 본다 <sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</p>
+<p>표준 계층도 같은 방향으로 움직인다. FIDO Alliance는 2026년 4월 28일 두 개의 새 기술 워킹 그룹(Agentic Authentication, Payments)을 발표했다. Payments TWG는 Mastercard와 Visa 멤버가 공동 의장이며, Mastercard는 Google AP2의 만데이트 모델과 상호운용을 목표로 하는 "Verifiable Intent" 프레임워크를 기여한다 <sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. 목표는 "amount, merchant and item category" 같은 핵심 사실을 입증할 수 있고 "cryptographically verifiable proof that the shopper approved the transaction"을 제공하는 검증 가능한 자격증명 표준이다 <sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>.</p>
+<h3>사기 방지, ScamGuard, 신뢰 스택</h3>
+<p>에이전트 채널에는 별도의 사기 통제가 필요하다. Mastercard는 기존의 Scam Protect / Decision Intelligence 스택을 Agent Pay Acceptance Framework에 접목한다. 프레임워크는 "에이전트가 Mastercard 네트워크에서 거래하기 전에 등록·검증"하는 단계로 시작하며, 각 에이전트는 고유하게 식별돼 "agentic token — 동적이고 암호학적으로 안전한 자격증명"으로 거래를 개시한다 <sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 공개 자료는 추상 수준이고, 에이전트 개시 트래픽의 스코어링 모델 세부는 비공개다 _(vendor-stated — Uncertainties 참조)_ <sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</p>
+<h2>생태계와 사용 사례</h2>
+<ul>
+<li><strong>Microsoft Copilot / Azure AI Foundry.</strong> 2025년 4월 발표에서 Microsoft가 핵심 AI 파트너로 명명됐고, Azure OpenAI Service와 Copilot Studio에 결제 레일이 통합됐다 <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 2026년 3월 Santander 파일럿도 동일한 Azure OpenAI + Copilot Studio + PayOS 스택 위에서 진행됐다 <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>.</li>
+<li><strong>IBM watsonx Orchestrate.</strong> 같은 발표문에서 IBM과 watsonx Orchestrate가 B2B 통합의 주축으로 지목됐다. 기업 사용자의 조달 흐름 자동화가 목표다 <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</li>
+<li><strong>OpenAI / ChatGPT.</strong> Mastercard와 ChatGPT의 연결은 간접적이다. OpenAI의 Instant Checkout은 Stripe의 ACP와 SPT 위에 만들어졌고, Stripe는 그 흐름에서 Mastercard 또는 Visa로부터 "agentic network token"을 명시적으로 발급받는다 <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. 따라서 ChatGPT가 Stripe 지원 가맹점에서 개시한 결제는 최종적으로 Mastercard의 Agentic Token 레일로 정산될 수 있지만, 소비자가 닿는 계약 표면은 ChatGPT + Stripe이지 Mastercard 직결이 아니다 <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> _(unverified — 카드 네트워크 경로의 정확한 매핑은 단일 출처)_.</li>
+<li><strong>PayPal.</strong> 지갑 수준 통합으로, PayPal에 저장된 Mastercard 카드들이 에이전틱 흐름에서 사용 가능해진다. ACP·AP2와의 상호운용도 발표에 포함됐다 <sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</li>
+<li><strong>발급사 파일럿.</strong> U.S. Bank와 Citibank가 미국 최초로 활성화됐고, 2025년 11월에 미국 잔여 발급사로 확장하며 2026년 초 글로벌 롤아웃이 계획됐다 <sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</li>
+<li><strong>매입사·가맹점 파일럿.</strong> Braintree, Checkout.com(2025년 4월)과 Stripe, Antom, PayOS, SAP Concur(2025년 9월)이 매입사·가맹점 측에 있고 <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>, Santander 파일럿이 EU 규제 은행 환경에서 발급사 측 경로를 입증했다 <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>.</li>
+</ul>
+<h2>위험, 컴플라이언스, 미해결 질문</h2>
+<h3>책임과 차지백</h3>
+<p>에이전트 개시 거래에 대한 카드 네트워크 규정은 아직 공개 문서로 코드화돼 있지 않다 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Mastercard가 들려주는 신뢰 서사(Know Your Agent + 생체 Payment Passkey + 의도 결합 토큰)는 미래 규정을 쓸 토대로 제시되지만, 실제 차지백 사유 코드, 분쟁 경로, 가맹점-발급사 책임 이동 규칙은 산업의 열린 질문이다 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> _(해석적 — 공개된 네트워크 룰 텍스트 부재)_.</p>
+<h3>EU의 PSD2 / SCA</h3>
+<p>EU와 영국에서는 PSD2 / Strong Customer Authentication이 대부분의 카드 소지자 개시 전자 결제에 대해 인증 단계를 요구하지만, 가맹점 개시 거래(MIT)는 SCA 적용 범위 밖이다 <sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>. 에이전트 개시 결제가 (a) 카드 소지자 개시(따라서 Payment Passkey step-up 등 SCA 필요)로 다뤄질지, (b) 사전 만데이트 기반의 가맹점 개시로 다뤄질지는 FIDO Payments TWG, Mastercard, Visa가 적극적으로 풀고 있는 문제다 <sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. 유럽위원회의 PSD3 / Payment Services Regulation 제안이 이 경계 자체를 다시 정의할 가능성도 있다 <sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>.</p>
+<h3>반대 증거: 공격자 측면</h3>
+<p>"신뢰받는 에이전트" 서사에는 반대 신호가 있다. Visa가 직접 공개한 위협 환경 보고서에 따르면, 2026년 초까지 직전 6개월간 악성 봇 개시 거래가 25% 증가했고, 미국에서는 40% 증가했다. 같은 기간 다크웹 커뮤니티에서 "AI Agent"를 언급한 게시물은 직전 6개월 대비 450% 이상 늘었다 <sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. 이 증가세는 Mastercard의 Agent Pay 전면 롤아웃보다 앞서 있으며 Know-Your-Agent 게이트에 압력으로 작용한다. 등록 단계는 필요조건이지만, 합법적으로 등록된 에이전트의 신원이 침해되면 충분조건이 될 수 없다. 사기와는 구분되는 두 번째 미해결 이슈는 "AI 실수" 책임이다. 에이전트가 잘못된 사이즈, 잘못된 날짜, 잘못된 환불 등급을 사들였을 때 현재의 차지백 체계에는 적합한 사유 코드가 없다 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> _(interpretive — 분석가 관찰이며 코드화된 규정은 아니다)_.</p>
+<h3>경쟁 구도 비교</h3>
+<p>Mastercard 포지션을 다른 세 곳과 구분하는 세 가지가 있다.</p>
+<p>1. <strong>자격증명이 네트워크 토큰이다.</strong> Visa Intelligent Commerce도 동일한 토큰화 중심 접근이다 <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Stripe ACP는 한 층 위에서 SPT를 발급한 뒤, 필요 시 그 아래에서 Mastercard 또는 Visa의 agentic network token으로 해결한다 <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Google AP2는 한 층 더 위에서 결제 수단에 비의존적으로 동작하며, 실제 카드 네트워크 호출은 하위에 위임한다 <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. 2. <strong>신원의 닻이 카드 소지자의 은행에 있다.</strong> Mastercard와 Visa 모두 발급사의 Payment Passkey/생체 스택을 인증 정박점으로 삼는다 <sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. ACP와 AP2는 에이전트–가맹점–네트워크 호출을 기본 단위로 두고, 신원은 지갑이나 PSP에 맡긴다 <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 3. <strong>단순한 프로토콜이 아니라 Acceptance Framework이다.</strong> Mastercard는 발급사·매입사가 운영 기준으로 삼는 Acceptance Framework, 개발자를 위한 MCP Toolkit, 그리고 컨설팅까지 함께 묶어 출시한다 <sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. Stripe/OpenAI는 프로토콜 <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, Google은 프로토콜 <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>을 출시한다. Visa는 유사한 acceptance 언어의 API 플랫폼을 내놓지만 공개 자료의 가맹점 측 디테일은 상대적으로 덜 처방적이다 <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>네 진영은 의도상 상호운용 가능하다 — Mastercard는 AP2 기여자 리스트에 있고 <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>, Stripe의 agentic network token을 떠받친다 <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> — 다만 상업적 무게중심이 다르다.</p>
+<h2>한계</h2>
+<p>이 보고서는 Mastercard, Visa, Stripe, Google이 직접 공개한 자료와 산업 트레이드 프레스에 크게 의존한다. 다음 사항은 공개 데이터로는 확인 불가하며, 본문에 _(vendor-stated)_ / _(early signal)_ / _(unverified — single source)_ 등으로 표시했거나 <code>working/uncertainties.md</code>에 기록했다.</p>
+<ul>
+<li>에이전트 개시 거래의 차지백 처리, 분쟁 사유 코드, 책임 배분에 대한 Mastercard 네트워크 룰 텍스트가 공개돼 있지 않다.</li>
+<li>공개된 Mastercard MCP 서버(Agent Toolkit)는 문서·서비스 탐색 표면이며, 결제 실행 경로는 발급사·매입사 내부 통합에 있다.</li>
+<li>Agent Pay의 거래량·채택 지표는 "첫 거래" 발생과 Santander 유럽 최초 파일럿을 넘어 공개되지 않았다.</li>
+<li>Mastercard ↔ OpenAI 연결은 운영적으로는 Stripe의 ACP + agentic network token을 통해 이뤄진다. 벤더 자료의 "Mastercard가 OpenAI와 협력"이라는 표현은 생태계 수준에서만 정확하다.</li>
+<li>표준 수렴(FIDO Payments TWG, AP2, ACP, Verifiable Intent)은 현 시점에서는 의지 표명이며 출시된 베이스라인은 아니다.</li>
+</ul>
+<p>이러한 한계는 명시적으로 남겨, 2025년 4분기 / 2026년 회계연도 공시 이후의 후속 보고서가 early-signal 항목들을 측정된 결과로 교체할 수 있게 한다.</p>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://www.pymnts.com/mastercard/2025/mastercard-debuts-agent-pay-to-promote-agentic-commerce-future/">Mastercard Debuts Agent Pay for &#x27;Agentic Commerce Future&#x27;</a>. <span class="venue">PYMNTS, 2025</span>. <span class="accessed">접근일 2026-05-13.</span></li>
+      <li id="ref-2"><span class="authors">Visa</span>. <a href="https://corporate.visa.com/en/products/intelligent-commerce.html">Enabling AI agents to buy securely and seamlessly — Visa Intelligent Commerce</a>. <span class="venue">Visa Corporate, 2025</span>. <span class="accessed">접근일 2026-05-13.</span></li>
+      <li id="ref-3"><span class="authors">Stripe</span>. <a href="https://stripe.com/newsroom/news/stripe-openai-instant-checkout">Stripe powers Instant Checkout in ChatGPT and releases Agentic Commerce Protocol codeveloped with OpenAI</a>. <span class="venue">Stripe Newsroom, 2025</span>. <span class="accessed">접근일 2026-05-13.</span></li>
+      <li id="ref-4"><span class="authors">Google Cloud</span>. <a href="https://cloud.google.com/blog/products/ai-machine-learning/announcing-agents-to-payments-ap2-protocol">Announcing Agent Payments Protocol (AP2)</a>. <span class="venue">Google Cloud Blog, 2025</span>. <span class="accessed">접근일 2026-05-13.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://www.paymentsdive.com/news/visa-mastercard-race-agentic-ai-commerce-payments/750428/">Visa, Mastercard race to agentic AI commerce</a>. <span class="venue">Payments Dive, 2025</span>. <span class="accessed">접근일 2026-05-13.</span></li>
+      <li id="ref-6"><span class="authors">OpenAI, Stripe</span>. <a href="https://github.com/agentic-commerce-protocol/agentic-commerce-protocol">agentic-commerce-protocol — open standard maintained by OpenAI and Stripe</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">접근일 2026-05-13.</span></li>
+      <li id="ref-7"><span class="authors">Stripe</span>. <a href="https://stripe.com/blog/supporting-additional-payment-methods-for-agentic-commerce">Supporting additional payment methods for agentic commerce</a>. <span class="venue">Stripe Blog, 2025</span>. <span class="accessed">접근일 2026-05-13.</span></li>
+      <li id="ref-8"><span class="authors">Pablo Fourez, Rory O&#x27;Neill</span>. <a href="https://www.checkout.com/blog/mastercard-checkout-discuss-agentic-commerce-agent-pay">Mastercard x Checkout: A discussion on agentic commerce</a>. <span class="venue">Checkout.com Blog, 2025</span>. <span class="accessed">접근일 2026-05-13.</span></li>
+      <li id="ref-9"><span class="authors">—</span>. <a href="https://investor.mastercard.com/investor-news/investor-news-details/2025/Mastercard-Unveils-New-Tools-and-Collaborations-to-Power-Smarter-Safer-Agentic-Commerce/default.aspx">Mastercard Unveils New Tools and Collaborations to Power Smarter, Safer Agentic Commerce</a>. <span class="venue">Mastercard Investor Relations, 2025</span>. <span class="accessed">접근일 2026-05-13.</span></li>
+      <li id="ref-10"><span class="authors">Google</span>. <a href="https://github.com/google-agentic-commerce/AP2">google-agentic-commerce/AP2</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">접근일 2026-05-13.</span></li>
+      <li id="ref-11"><span class="authors">Mastercard</span>. <a href="https://github.com/Mastercard/developers-agent-toolkit">Mastercard/developers-agent-toolkit</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">접근일 2026-05-13.</span></li>
+      <li id="ref-12"><span class="authors">Mastercard</span>. <a href="https://github.com/Mastercard/developers-agent-toolkit/blob/main/modelcontextprotocol/README.md">developers-agent-toolkit / modelcontextprotocol / README</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">접근일 2026-05-13.</span></li>
+      <li id="ref-13"><span class="authors">—</span>. <a href="https://newsroom.paypal-corp.com/2025-10-27-Mastercard-and-PayPal-Join-Forces-To-Accelerate-Secure-Global-Agentic-Commerce">Mastercard and PayPal Join Forces To Accelerate Secure Global Agentic Commerce</a>. <span class="venue">PayPal Newsroom, 2025</span>. <span class="accessed">접근일 2026-05-13.</span></li>
+      <li id="ref-14"><span class="authors">—</span>. <a href="https://www.digitalcommerce360.com/2025/10/31/mastercard-agentic-commerce-is-here/">Mastercard: &#x27;Agentic commerce is here&#x27;</a>. <span class="venue">Digital Commerce 360, 2025</span>. <span class="accessed">접근일 2026-05-13.</span></li>
+      <li id="ref-15"><span class="authors">—</span>. <a href="https://www.mastercard.com/news/europe/en/newsroom/press-releases/en/2026/santander-and-mastercard-complete-europe-s-first-live-end-to-end-payment-executed-by-an-ai-agent/">Santander and Mastercard complete Europe&#x27;s first live end-to-end payment executed by an AI agent</a>. <span class="venue">Mastercard Newsroom (Europe), 2026</span>. <span class="accessed">접근일 2026-05-13.</span> <span class="unverified">[접근 제한]</span></li>
+      <li id="ref-16"><span class="authors">Pablo Fourez</span>. <a href="https://www.bankinfosecurity.com/mastercard-on-agentic-payments-how-ai-agents-tokenization-authentication-will-a-29800">Mastercard on Agentic Payments: How AI Agents, Tokenization, and Authentication Will Redefine Digital Commerce</a>. <span class="venue">BankInfoSecurity, 2025</span>. <span class="accessed">접근일 2026-05-13.</span></li>
+      <li id="ref-17"><span class="authors">FIDO Alliance</span>. <a href="https://fidoalliance.org/fido-alliance-to-develop-standards-for-trusted-ai-agent-interactions/">FIDO Alliance to Develop Standards for Trusted AI Agent Interactions</a>. <span class="venue">FIDO Alliance, 2026</span>. <span class="accessed">접근일 2026-05-13.</span></li>
+      <li id="ref-18"><span class="authors">Pablo Fourez, Rory O&#x27;Neill</span>. <a href="https://www.checkout.com/blog/mastercard-checkout-discuss-agentic-commerce-agent-pay">Mastercard x Checkout: agent token scope and merchant binding (excerpt)</a>. <span class="venue">Checkout.com Blog, 2025</span>. <span class="accessed">접근일 2026-05-13.</span></li>
+      <li id="ref-19"><span class="authors">Stripe</span>. <a href="https://stripe.com/guides/strong-customer-authentication">Strong Customer Authentication — implementation guide</a>. <span class="venue">Stripe Guides, 2025</span>. <span class="accessed">접근일 2026-05-13.</span></li>
+      <li id="ref-20"><span class="authors">Visa</span>. <a href="https://corporate.visa.com/en/sites/visa-perspectives/security-trust/the-threats-landscape-of-agentic-commerce.html">Agentic Commerce: Threats and Risks</a>. <span class="venue">Visa Perspectives, 2025</span>. <span class="accessed">접근일 2026-05-13.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-05-13 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
