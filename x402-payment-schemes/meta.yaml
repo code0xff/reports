@@ -1,0 +1,10 @@
+title: 'x402 Payment Schemes: Types, Characteristics, and Implementation'
+subtitle: 'A survey of exact, upto, batch-settlement, and the proposed deferred scheme across EVM and non-EVM networks.'
+title_ko: 'x402 결제 스킴: 종류, 특징, 그리고 구현'
+subtitle_ko: 'exact, upto, batch-settlement, 그리고 제안 단계의 deferred 스킴을 EVM 및 비-EVM 네트워크 전반에서 정리한다.'
+slug: x402-payment-schemes
+lang: en
+langs: [en, ko]
+date: 2026-05-13
+tags: [x402, payments, http, stablecoins, ai-agents]
+status: ready
