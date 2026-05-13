@@ -1,0 +1,10 @@
+title: 'Visa Intelligent Commerce: Technical Foundations and Payment Implementation'
+subtitle: 'Architecture, the Trusted Agent Protocol wire format, and the concrete developer surface for agentic commerce on Visa.'
+title_ko: 'Visa Intelligent Commerce: 기술적 기반과 결제 구현'
+subtitle_ko: '아키텍처, Trusted Agent Protocol 와이어 포맷, 그리고 Visa 위에서 에이전트 커머스를 구현하는 구체적 개발자 표면.'
+slug: visa-intelligent-commerce
+lang: en
+langs: [en, ko]
+date: 2026-05-13
+tags: [visa, intelligent-commerce, ai-agents, payments, trusted-agent-protocol, mcp]
+status: ready

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Visa Intelligent Commerce: Technical Foundations and Payment Implementation — Deepsearch</title>
+<meta name="description" content="Architecture, the Trusted Agent Protocol wire format, and the concrete developer surface for agentic commerce on Visa.">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="ko" href="ko/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>Visa Intelligent Commerce: Technical Foundations and Payment Implementation</h1>
+    <p class="subtitle">Architecture, the Trusted Agent Protocol wire format, and the concrete developer surface for agentic commerce on Visa.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-05-13</span>
+      <span><strong>Tags</strong> visa, intelligent-commerce, ai-agents, payments, trusted-agent-protocol, mcp</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="visa-intelligent-commerce.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>Visa Intelligent Commerce (VIC) is Visa's agentic-commerce platform: a four-part service surface (Tokenization, Authentication/Passkey, Payment Instructions, Signals) plus an acceptance-side aggregator (Intelligent Commerce Connect) that brokers Visa and non-Visa card payments through one integration on the Visa Acceptance Platform. It rides on the Trusted Agent Protocol (TAP), an open spec that signs an agent's identity into HTTP request headers using RFC 9421 HTTP Message Signatures: agent-recognition signatures use Ed25519 (some container objects use PS256), public keys resolve via JWKS at <code>mcp.visa.com/.well-known/jwks</code>, signatures bind <code>@authority</code>/<code>@path</code>, and replay is bounded by an 8-minute window plus a nonce. Each TAP request carries three signal elements — Agent Intent, Consumer Recognition, Payment Information. Implementation is concrete today: Visa publishes a <code>visa/mcp</code> Node/TypeScript toolkit (<code>@visa/token-manager</code>, <code>@visa/mcp-client</code>, <code>@visa/api-client</code>) using X-Pay tokens and Message Level Encryption (not OAuth), and AWS ships a Bedrock AgentCore reference integration with isolated micro-VM runtime, identity/gateway/memory/observability components, and a mandatory human confirmation step before settlement. Adoption is still pilot-scale (hundreds of real transactions, partners including Skyfire/Nekuda/PayOS/Ramp), but Intelligent Commerce Connect accepts initiations from multiple protocol families (TAP, MPP, ACP, UCP), and the Agentic Ready program is now operational in the UK, EU, and as of April 29 2026 in Asia Pacific and Latin America. TAP's contribution is best understood as <em>actor verification</em> — orthogonal to mandate-centric frameworks like Google's AP2 — and independent analysis cautions that it must be paired with behavioral risk tooling to catch onboarded-but-misbehaving agents.</p>
+  </section>
+
+  <main class="body">
+<h2>Introduction</h2>
+<p>Visa Intelligent Commerce (VIC) is Visa's platform for letting AI agents transact on consumers' and businesses' behalf using Visa's payment infrastructure — agent-issued tokens, passkey-anchored authentication, payment instruction APIs, and a directory-backed protocol that lets merchants verify the agent on the wire.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> VIC launched in April 2025 and Visa is positioning it for mainstream consumer use targeted at the 2026 holiday season, with the Agentic Ready program already operational in the UK, Europe and (as of April 29, 2026) Asia Pacific and Latin America.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> As of mid-2026, the entire system is still pilot-scale — measured in hundreds of live agent-initiated transactions rather than mass-market volume.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></p>
+<p>The remainder of this report covers (1) the platform's four service areas; (2) the Trusted Agent Protocol (TAP) wire format that VIC and partner protocols ride on; (3) the concrete developer surface (Visa Developer APIs, the <code>visa/mcp</code> toolkit, and AWS's Bedrock AgentCore reference architecture); and (4) the broader ecosystem and how VIC fits among AP2, ACP, and HTTP-payment protocols like x402.</p>
+<h2>Background</h2>
+<p>Visa's network rates — 4.8B credentials, 150M+ merchant locations, 300B+ transactions per year — are the reason a "let agents pay too" play has economic gravity in the first place.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> But conventional card credentials bind to a human cardholder, not to a software agent acting on that cardholder's behalf; this is the gap VIC is built to close, by issuing <strong>agent-bound tokens</strong> and accompanying them with a protocol that proves an HTTP request actually came from a trusted agent and not from a generic bot.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> Independent commentary describes this as repositioning the network's trust model around the <em>actor</em>, complementary to but distinct from protocols that focus on the payment mandate itself.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<h2>Architecture — the VIC platform</h2>
+<p>The Visa Developer overview decomposes VIC into four integrated service areas:<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<p>1. <strong>Tokenization.</strong> VIC provisions a "new pass-through payment token, specific to agents," for use at Visa-accepting merchants. The token is bound to the agent, "can only be used in context of the agent making purchases on the user's behalf," and is provisioned through the Visa Token Service.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 2. <strong>Authentication.</strong> Cardholder step-up plus Passkey setup: VIC stores a Visa Payment Passkey that future Payment Instructions are authenticated against. The reference integration uses FIDO device binding to create the passkey at enrollment.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> 3. <strong>Payment Instructions.</strong> APIs to enroll the agent's token, submit a user instruction, retrieve credentials needed to fulfil that instruction at a merchant, and submit the outcome back to Visa.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 4. <strong>Signals.</strong> A back-channel for commerce data that feeds dispute resolution and post-purchase protection records.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<p>The operational lifecycle the docs walk through is: agent onboarding → user account creation with card provisioning and step-up verification → passkey establishment → user authorization of a specific purchase instruction → agent retrieval of payment credentials (validated against the authenticated instruction) → merchant payment completion via guest checkout or key entry → VisaNet enforcement of network-level controls → commerce signal submission for dispute resolution.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<p><strong>Visa Intelligent Commerce Connect</strong> is the acceptance-side counterpart. It is a network-, scheme-, and token-vault-agnostic layer on top of the Visa Acceptance Platform that brokers Visa and non-Visa card payments initiated by agents through a single integration.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> Visa describes Connect as accepting payments initiated via "Trusted Agent Protocol, Machine Payments Protocol (MPP), Agentic Commerce Protocol (ACP), and Universal Commerce Protocol (UCP)."<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> The initial pilot partners listed at announcement include Aldar, AWS, Diddo, Highnote, Mesh, Payabli and Sumvin.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> Connect also handles "AI-ready" catalog normalization so merchant inventories can be discovered by agent platforms.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<h2>Trusted Agent Protocol (TAP)</h2>
+<p>TAP is the wire-level piece. It is "an open specification that signs an AI agent's identity into HTTP request headers" so any merchant can answer cryptographically whether a request came from a trusted agent.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup></p>
+<p><strong>HTTP message signatures.</strong> The specification page documents two header fields used to carry the signature: <code>Signature-Input</code> (which contains created/expires timestamps, key identifier, algorithm, nonce, and a tag) and <code>Signature</code> (the signature value itself).<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> The agent recognition signature uses <strong>Ed25519</strong>, and certain container objects (consumer and payment data) are signed with <strong>PS256</strong>.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> This is the RFC 9421 HTTP Message Signatures shape used by emerging Web Bot Auth designs.<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup></p>
+<p><strong>Key directory.</strong> Visa publishes a JWKS at the well-known endpoint <code>https://mcp.visa.com/.well-known/jwks</code>, and merchants resolve agent public keys by key ID from this set.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></p>
+<p><strong>Request binding and replay protection.</strong> The signature covers, at minimum, the <code>@authority</code> and <code>@path</code> HTTP message components, so any modification of authority or path invalidates the signature; together with merchant-specific, purpose-bound, time-limited semantics this is what keeps a captured signature from being reused on a different site or page.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> A nonce blocks replay within an 8-minute created/expires window — "if the nonce received matches a recorded nonce, the message should be blocked."<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></p>
+<p><strong>Three signal elements.</strong> Per request, TAP transports:<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></p>
+<ul>
+<li><strong>Agent Intent</strong> — an attestation that the agent is a Visa trusted agent and what it intends to do (browse, fetch product details, purchase a specific item).</li>
+<li><strong>Consumer Recognition</strong> — verifiable consumer data (merchant account tokens, device identifiers for repeat customers, country/postal code parameters), so the merchant can treat the visitor as a known account when applicable.</li>
+<li><strong>Payment Information</strong> — flexible carriage of payment data: hashed credentials for key-entry verification, API/protocol-based token passing, or an IOU posture for deferred settlement.</li>
+</ul>
+<p>The spec is open and is hosted on GitHub at <code>visa/trusted-agent-protocol</code>.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup></p>
+<h2>Implementation — building against VIC</h2>
+<p>Visa publishes an MCP-first integration toolkit at <code>visa/mcp</code> (mirrored as <code>visa/ai</code>), which gives developers three Node/TypeScript packages plus reference apps:<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></p>
+<ul>
+<li><strong><code>@visa/token-manager</code></strong> — generates JWE tokens for MCP authentication.</li>
+<li><strong><code>@visa/mcp-client</code></strong> — MCP client with automatic auth wiring.</li>
+<li><strong><code>@visa/api-client</code></strong> — REST client supporting <strong>X-Pay token-based authentication</strong> plus <strong>Message Level Encryption (MLE)</strong>. Importantly, the API surface uses X-Pay rather than OAuth, and traffic is MLE-encrypted in addition to TLS.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></li>
+</ul>
+<p>The repository also ships a Documentation MCP Server at <code>https://sandbox.mcp.visa.com/mcp/doc</code> exposing a <code>get-docs</code> tool so the agent can pull structured API schemas at build/runtime. The <code>vic-agent/</code> demo (LangGraph-powered) walks through VTS card tokenization, FIDO device binding, Visa Payment Passkey creation, and VIC enrollment in a single workflow.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></p>
+<p><strong>Reference cloud architecture (AWS).</strong> AWS published a joint reference integration that hosts VIC tooling on <strong>Amazon Bedrock AgentCore</strong>.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> The architecture leans on five AgentCore building blocks: <strong>Runtime</strong> (serverless host for agents and MCP servers, with micro-VM sandboxes that isolate payment credentials and PII), <strong>Identity</strong> (inbound auth via Amplify, outbound auth to Visa endpoints), <strong>Gateway</strong> (governed, auditable access to MCP servers and external tools), <strong>Memory</strong> (short-term conversational state, future long-term preferences), and <strong>Observability</strong> (OpenTelemetry-based audit trace of every reasoning step, tool call, MCP invocation, and auth flow).<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> At payment time the agent calls a <code>request_purchase_confirmation</code> tool (which surfaces an explicit human confirmation) and only then triggers <code>confirm_purchase</code>, which invokes VIC APIs to retrieve credentials, authenticate against the user's passkey, and complete the transaction.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<p><strong>End-to-end implementation outline.</strong> Putting the pieces together, a minimal agent → VIC → merchant flow looks like:</p>
+<p>1. Enroll the agent and onboard the user — VTS tokenization, step-up verification, FIDO device binding, Passkey creation.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> 2. When the user issues an instruction (e.g., "book this flight under $400"), submit it as a Payment Instruction so VIC has an authenticated record bound to the passkey.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 3. The agent walks the merchant. For merchants that participate in TAP, every request the agent sends carries <code>Signature-Input</code> + <code>Signature</code> headers; the merchant verifies against the JWKS at <code>mcp.visa.com/.well-known/jwks</code> and reads the three signal elements off the request.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> 4. At checkout, the agent calls VIC's Payment Instructions API to retrieve the credentials needed (and, on the AWS reference architecture, requires explicit user confirmation first).<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> If the merchant is on Intelligent Commerce Connect, the same flow works for non-Visa networks via the same integration.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> 5. After purchase, the agent posts the outcome and any Signals back to VIC for dispute and reconciliation records.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<h2>Adoption and discussion</h2>
+<p>Adoption to date is pilot-scale. Visa reported "hundreds of controlled, real-world agent-initiated transactions" with named pilot partners Skyfire, Nekuda, PayOS and Ramp; the company says over 100 global partners and 30+ in the VIC sandbox, with 20+ agents integrated directly.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> Use cases tested span Skyfire/Consumer Reports product purchases, Nekuda enabling Gensmo purchases from Fabrique, PayOS's B2B/online shopping with BeyondStyle/Jomashop, and Ramp B2B bill payments with cashback capture.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> The Agentic Ready program, originally UK/EU, expanded on April 29, 2026 to Asia Pacific and Latin America with 85+ additional partners coming online.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<p>In competitive context, independent analysis frames TAP as fundamentally about <em>actor verification</em> — proving "this HTTP request is from a legitimate Visa-onboarded agent" — and contrasts it with Google's AP2, an open, payment-agnostic mandate framework that lets agents transact across cards, bank transfers, or stablecoins, and with OpenAI/Stripe Instant Checkout, which is a conversational checkout UX rather than an actor-verification protocol.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> These are complementary, not strictly competing — Intelligent Commerce Connect explicitly states it will accept payments initiated through TAP, MPP, ACP and UCP, so the same merchant can absorb agent traffic from multiple protocol families on one integration.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> The same independent analysis warns that cryptographic actor verification alone is not enough: it has to be paired with behavioral and risk infrastructure to detect a <em>legitimately onboarded</em> agent that has gone off-script.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<p>For implementers, the practical takeaway is straightforward: if you are building an agent that needs to pay, target VIC's Payment Instructions + Tokenization APIs via the <code>visa/mcp</code> toolkit (or the Bedrock AgentCore reference if you are on AWS); if you are building a merchant, target Intelligent Commerce Connect on the Visa Acceptance Platform and verify inbound TAP signatures against the well-known JWKS; in both cases, plan for X-Pay + MLE rather than OAuth, and plan a human-confirmation step before each settled transaction.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<h2>Limitations</h2>
+<ul>
+<li>Production scale is pilot-level; "hundreds of transactions" is the largest verifiable count and "mainstream adoption by 2026 holiday season" is a vendor projection, not a measured outcome.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></li>
+<li>Visa's well-known JWKS endpoint and the precise <code>alg</code>/key-rotation policy are documented as today's contract but not pinned by an external standards body; integrators should treat the URL and algorithm list as configurable.</li>
+<li>The exact authorization-time rule set VisaNet applies to agent-bound tokens (which agents can spend, under what limits) is described qualitatively in product copy; the public docs do not enumerate the controls.</li>
+<li>The AWS reference integration's tool names (<code>request_purchase_confirmation</code>, <code>confirm_purchase</code>) are sourced to AWS's blog only and were not independently re-verified against Visa's own developer documentation.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://corporate.visa.com/en/products/intelligent-commerce.html">Visa Intelligent Commerce — product overview</a>. <span class="accessed">Accessed 2026-05-13.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://developer.visa.com/capabilities/visa-intelligent-commerce/overview">Visa Intelligent Commerce — developer overview</a>. <span class="accessed">Accessed 2026-05-13.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://investor.visa.com/news/news-details/2025/Visa-and-Partners-Complete-Secure-AI-Transactions-Setting-the-Stage-for-Mainstream-Adoption-in-2026/default.aspx">Visa and Partners Complete Secure AI Transactions</a>. <span class="accessed">Accessed 2026-05-13.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://investor.visa.com/news/news-details/2026/Visa-Announces-Global-Expansion-of-Agentic-Ready-Program/default.aspx">Visa Announces Global Expansion of Agentic Ready Program</a>. <span class="accessed">Accessed 2026-05-13.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://aws.amazon.com/blogs/machine-learning/introducing-visa-intelligent-commerce-on-aws-enabling-agentic-commerce-with-amazon-bedrock-agentcore/">Introducing Visa Intelligent Commerce on AWS</a>. <span class="accessed">Accessed 2026-05-13.</span></li>
+      <li id="ref-6"><span class="authors">—</span>. <a href="https://investor.visa.com/news/news-details/2025/Visa-Introduces-Trusted-Agent-Protocol-An-Ecosystem-Led-Framework-for-AI-Commerce/default.aspx">Visa Introduces Trusted Agent Protocol</a>. <span class="accessed">Accessed 2026-05-13.</span></li>
+      <li id="ref-7"><span class="authors">—</span>. <a href="https://oscilar.com/blog/visatap">Visa&#x27;s Trusted Agent Protocol (TAP) and the Future of Agentic Commerce — Oscilar</a>. <span class="accessed">Accessed 2026-05-13.</span></li>
+      <li id="ref-8"><span class="authors">—</span>. <a href="https://github.com/visa/mcp">visa/mcp — Integration toolkit for Visa Intelligent Commerce via MCP</a>. <span class="accessed">Accessed 2026-05-13.</span></li>
+      <li id="ref-9"><span class="authors">—</span>. <a href="https://corporate.visa.com/en/products/intelligent-commerce-connect.html">Visa Intelligent Commerce Connect — product page</a>. <span class="accessed">Accessed 2026-05-13.</span></li>
+      <li id="ref-10"><span class="authors">—</span>. <a href="https://investor.visa.com/news/news-details/2026/Visa-Opens-the-Door-to-AI-Driven-Shopping-for-Businesses-Worldwide/default.aspx">Visa Opens the Door to AI-Driven Shopping for Businesses Worldwide</a>. <span class="accessed">Accessed 2026-05-13.</span></li>
+      <li id="ref-11"><span class="authors">—</span>. <a href="https://samboboev.medium.com/deep-dive-the-role-of-visas-trusted-agent-protocol-in-agentic-commerce-2a78e61efce7">Deep Dive: The Role of Visa&#x27;s Trusted Agent Protocol in Agentic Commerce</a>. <span class="accessed">Accessed 2026-05-13.</span></li>
+      <li id="ref-12"><span class="authors">—</span>. <a href="https://developer.visa.com/capabilities/trusted-agent-protocol/trusted-agent-protocol-specifications">Visa Trusted Agent Protocol — specifications</a>. <span class="accessed">Accessed 2026-05-13.</span></li>
+      <li id="ref-13"><span class="authors">—</span>. <a href="https://developer.visa.com/capabilities/trusted-agent-protocol/overview">Visa Trusted Agent Protocol — overview</a>. <span class="accessed">Accessed 2026-05-13.</span></li>
+      <li id="ref-14"><span class="authors">—</span>. <a href="https://github.com/visa/trusted-agent-protocol">visa/trusted-agent-protocol GitHub repo</a>. <span class="accessed">Accessed 2026-05-13.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-05-13. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
