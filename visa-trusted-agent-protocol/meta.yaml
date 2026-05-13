@@ -1,0 +1,10 @@
+title: "VISA Trusted Agent Protocol: How AI Agents Get Paid Through Visa"
+subtitle: "A deep technical reading of TAP — agent recognition, consumer recognition, and payment containers — and how it fits with Visa Intelligent Commerce and the wider agentic commerce stack."
+title_ko: "VISA 신뢰형 에이전트 프로토콜(TAP): AI 에이전트가 비자 결제를 처리하는 방식"
+subtitle_ko: "TAP의 에이전트 인식, 소비자 인식, 결제 컨테이너 구조를 기술적으로 해부하고 Visa Intelligent Commerce 및 에이전틱 커머스 생태계와의 연결을 분석한다."
+slug: visa-trusted-agent-protocol
+lang: en
+langs: [en, ko]
+date: 2026-05-13
+tags: [visa, agentic-commerce, ai-agents, payments, http-message-signatures, rfc-9421]
+status: ready
