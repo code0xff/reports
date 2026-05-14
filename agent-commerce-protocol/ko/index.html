@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>에이전트 커머스 프로토콜(ACP) — Deepsearch</title>
+<meta name="description" content="Virtuals Protocol이 발표한 자율 에이전트 커머스 표준 — 프로토콜 설계, v1→v2 구현 변화, 실제 서비스 배포 사례.">
+<link rel="alternate" hreflang="en" href="../index.html">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../ko/index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="en">English</a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../ko/index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>에이전트 커머스 프로토콜(ACP)</h1>
+    <p class="subtitle">Virtuals Protocol이 발표한 자율 에이전트 커머스 표준 — 프로토콜 설계, v1→v2 구현 변화, 실제 서비스 배포 사례.</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-05-14</span>
+      <span><strong>태그</strong> acp, virtuals, agentic-commerce, erc-8183, base, x402</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="agent-commerce-protocol.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>Agent Commerce Protocol(ACP)은 Virtuals Protocol이 발표한 자율 AI 에이전트 커머스 오픈 표준이다. 요청(Request) → 협상(Negotiation) → 거래(Transaction) → 평가(Evaluation)의 4단계 상호작용 모델을 Base 메인넷의 스마트 컨트랙트 에스크로, 암호학적으로 서명된 계약 증명 (Proof of Agreement, PoA), 그리고 산출물이 합의된 조건과 일치하는지 검증하는 제3자 Evaluator 에이전트로 뒷받침한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 프로토콜은 2025년 중반 퍼블릭 베타로 출시되었으며, 2026년 4월에는 memo 기반의 v1을 hook 기반·ERC-8183 호환의 v2로 교체했다(Base 메인넷의 ACP Core 주소: <code>0x238E541BfefD82238730D00a2208E5497F1832E0</code>). Butler·AIXBT·Luna· GAME 프레임워크 같은 사용자 대면 에이전트가 모두 이 위에서 동작한다. <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> Virtuals 팀은 약 18개월의 프로덕션 운영 기간 동안 2,000개 이상의 에이전트를 온보딩했다고 보고하며, ACP를 거치는 잡(job)에 대한 명시적 보조금 프로그램(Virtuals Revenue Network)을 운영하고, Python SDK의 <code>BASE_MAINNET_ACP_X402_CONFIG_V2</code> 구성을 통해 x402를 HTTP 결제 레일로 통합하고 있다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+  </section>
+
+  <main class="body">
+<h1>에이전트 커머스 프로토콜(ACP)</h1>
+<h2>1. 서론</h2>
+<p>에이전트 웹 인프라의 1세대는 두 축으로 갈라졌다 — A2A는 프레임워크 간 에이전트 메시징을<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, x402는 HTTP 단위의 즉시 결제를 표준화한다. <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 그러나 어느 쪽도 멀티스텝 잡을 감싸는 <em>계약 봉투</em>(누가 에스크로를 선입금하는가, 누가 완료를 인증하는가, 산출물이 분쟁에 휘말리면 어떻게 되는가)를 정의하지 않는다. ACP는 그 빈틈에 대한 Virtuals Protocol의 답이다 — 모든 에이전트-에이전트 상호작용을 <em>잡</em>으로 취급하고, 세 가지 역할(Client, Provider, Evaluator)을 두어 Evaluator가 암호학적으로 서명된 PoA와 산출물을 대조해 인증할 때까지 자금과 산출물을 에스크로에 묶는다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 결과적으로 단순한 결제 프로토콜이라기보다는 Stripe의 마켓플레이스 에스크로나 프리랜스 플랫폼의 마일스톤 매커니즘과 정신적으로 더 가깝다 — 차이는 정산이 온체인에서 이루어지고 분쟁 경로를 스마트 컨트랙트가 매개한다는 점이다. 본 리포트는 ACP 설계, v1→v2 구현 변화, 그리고 현재 서비스에서 ACP가 실제로 어떻게 쓰이는지를 정리한다.</p>
+<h2>2. 배경: 에이전트 런치패드에서 커머스 백본으로</h2>
+<p>Virtuals Protocol은 AI 에이전트 런치패드로 출발했다 — $VIRTUAL 토큰이 2024년 중반에 출시되었고, 2025년 중에 서비스 레지스트리와 Butler 에이전트가 추가된 뒤 2025년 중반의 "7월 3일" 공개 베타로 ACP가 공개되었다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> 이후 1년 동안 포지셔닝은 토큰화된 에이전트의 런치패드에서 <em>코디네이션 레이어</em>로 이동했다 — 독립 매체들은 ACP를 "스마트 컨트랙트 기반 에스크로를 활용해 AI 에이전트들이 서로 또는 인간과 거래할 수 있게 하는, Virtuals의 커머셜 백본"으로 설명한다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 프로토콜은 이제 여러 체인에 걸쳐 존재한다 — RockawayX와 DataWallet은 Ethereum·Solana·Ronin·Arbitrum·XRP Ledger 라이브 배포와 BNB Chain· X-Layer 확장 계획을 언급한다 — 그럼에도 v2 컨트랙트 자체는 여전히 Base 메인넷을 기본 정산 체인으로 둔다.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></p>
+<h2>3. 프로토콜 설계 — 네 단계</h2>
+<p>ACP는 구조화된 네 단계 상호작용 모델을 정의한다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> <em>Request</em> 단계에서 에이전트들은 초기 접촉을 만들고 기본 호환성을 확인한다. <em>Negotiation</em> 단계에서 양측이 구체적 조건을 합의하고, 그 조건을 암호학적으로 서명해 PoA를 만든다. <em>Transaction</em> 단계에서는 결제와 산출물 모두 에스크로에 보관되고 작업이 진행된다. <em>Evaluation</em> 단계에서 제3자 Evaluator 에이전트가 서명된 조건에 비추어 산출물을 평가하고, 긍정적 인증이 떨어진 경우에만 에스크로가 Provider에게 자금을 해제한다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></p>
+<p>이 설계의 세 가지 특성을 짚고 갈 만하다. 첫째, PoA는 협상된 잡 설명을 <em>변조 증거 가능한 산출물</em>로 만들어, Evaluator(또는 이후 분쟁)가 다시 참조할 수 있게 한다 — 어느 쪽이든 작업 시작 후에 브리프를 바꿔치는 것을 구조적으로 막는다. 둘째, Evaluator 역할은 <em>1급 시민</em>이다. ACP는 "트랜잭션이 합의된 조건을 충족하는지 평가할 수 있는 전문 에이전트"의 시장을 명시적으로 만들기 위해 이 역할을 떼어낸다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> 그 결과 검증 단계는 플러그 가능해지지만, Evaluator 포획·Provider 결탁·편향된 평가 기준 같은 새로운 공격면도 생긴다. 셋째, ACP v2는 역할 명을 <code>buyer/seller/evaluator</code>에서 <code>client/provider/evaluator</code>로 바꾸고, 구독 잡과 자금 이전 잡을 memo 관습이 아닌 1급 원시 타입으로 승격시켰다.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<h2>4. 레퍼런스 구현</h2>
+<h3>4.1 스마트 컨트랙트</h3>
+<p>Base 메인넷의 ACP v2는 두 개의 핵심 컨트랙트를 배포한다 — 잡 라이프 사이클과 에스크로를 인코딩하는 <strong>ACP Core</strong> (<code>0x238E541BfefD82238730D00a2208E5497F1832E0</code>), 그리고 자금 이전 잡에 대해 라이프사이클을 확장하는 <strong>FundTransferHook</strong> (<code>0x90717828D78731313CB350D6a58b0f91668Ea702</code>)이다.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> _(unverified — single source)_ v1 대비 핵심 변화는 memo 원시 타입에서 hook 기반 설계로의 이행이다 — "잡 라이프사이클은 이제 잡 생성 시 부착되는 hook 컨트랙트로 확장된다." 평판·게이팅·자금 이전 로직을 코어 에스크로 컨트랙트를 포크하지 않고 부착할 수 있게 만드는 메커니즘이다.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> v2는 또한 Base Sepolia(체인 ID 84532)와 BSC Testnet을 지원하며, 팀은 이를 진정한 멀티체인 에이전트 커머스를 지원하는 첫 번째 반복으로 설명한다.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<h3>4.2 오프체인 SDK와 Butler</h3>
+<p>ACP는 Virtuals 팀이 정식으로 취급하는 오픈소스 SDK를 제공한다 — <code>@virtuals-protocol/acp-node-v2</code>(Node.js, v1 패키지 <code>@virtuals-protocol/acp-node</code>는 고정가격 잡을 계속 지원)<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>와 Python용 <code>virtuals-acp</code><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>, 그리고 인증 토큰을 OS 키체인에 저장하는 <code>acp-cli</code>. Node SDK는 프로토콜을 <code>AcpClient</code>/<code>AcpAgent.create()</code> 진입점과 <code>onNewTask</code>·<code>onEvaluate</code> 콜백으로 노출한다. Python SDK도 같은 형태이며, ACP의 에스크로 라이프사이클을 x402의 HTTP 결제 핸드셰이크와 결합하는 <code>BASE_MAINNET_ACP_X402_CONFIG_V2</code> 설정을 함께 노출한다.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 에이전트는 다른 에이전트가 발견할 수 있으려면 서비스 레지스트리에 등록되어야 하며, SDK는 v2에서 Privy·Solana 어댑터 같은 비수탁 지갑 어댑터를 기본 옵션으로 제공한다.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<p>Butler는 사용자를 대신해 ACP에서 잡을 여는 사용자 대면 에이전트다 — "가용한 Provider 에이전트를 발견하고 작업을 라우팅하며 잡 설정·권한· 온체인 결제 정산을 처리한다." Coinbase의 Base App 내부에 Pro Mode로 탑재되었으며, "구조화된 리서치·검토 가능한 실행 계획·복잡한 ACP 워크플로의 자율 실행을 가능하게 하는 plan-first 워크플로"를 제공한다.<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> Butler의 결제 표면은 의도적으로 좁다 — 온보딩 문서는 "현재 Butler는 안정성과 단순성을 위해 USDC로 표준화되어 있다"고 밝히며, 사실상 USDC를 오늘날 ACP 매개 잡의 표준 계정 단위로 만든다. <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></p>
+<h3>4.3 v1 → v2 아키텍처 전환</h3>
+<p>2026년 4월 changelog는 v1과 v2 사이의 다섯 가지 구체적 차이를 나열한다 — memo 기반 → hook 기반 아키텍처, 단일 체인 → 멀티체인 지원, buyer/seller 명명 → client/provider 명명, 단일 잡 모델 → 1급 구독·자금 이전 잡, 그리고 수탁 → 비수탁 에이전트 지갑이다.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> v1 SDK는 즉시 deprecated 되지는 않는다 — changelog는 v1이 "고정가격 잡을 계속 지원한다"고 명시하지만, 펀드 매니지드 잡의 퍼센트 기반 가격은 v2가 필요하므로 프로덕션 함대는 당분간 v1·v2 컨트랙트를 혼용해 운영될 것으로 보인다.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<h2>5. 실제 서비스 구현</h2>
+<h3>5.1 Butler와 Base App</h3>
+<p>엔드유저 입장에서 가장 눈에 띄는 ACP 진입점은 Butler다. RockawayX의 공개 베타 기록은 Butler를 "사용자가 AI 기반 Provider 에이전트들의 점증하는 네트워크에서 작업을 발견·위임하도록 돕고, 작업을 적절한 에이전트로 라우팅하며 잡 설정·권한을 ACP로 처리하는 에이전트"로 설명한다. <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> 2026년 1월 Butler Pro Mode 릴리스는 에스크로가 채워지기 전에 비용 견적과 검토 가능한 실행 계획을 제공하는 plan-first 워크플로를 도입했고, Base App 통합은 ACP changelog에 따르면 2026년 1–2분기에 출하되었다.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup></p>
+<h3>5.2 전문화된 에이전트들</h3>
+<p>독립 매체들은 AIXBT, Luna, GAME 프레임워크를 ACP에 연결된 대표적 에이전트로 꼽는다 —</p>
+<ul>
+<li><strong>AIXBT</strong>는 "400명 이상의 크립토 인플루언서를 실시간으로 관찰하며 한때</li>
+<p>시가총액 5억 달러까지 도달한" 시장 시그널 에이전트로, ACP로 카운터파티를 발견하고 시그널 구독을 가격 책정한다.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> _(시가총액 수치는 ACP 자체 유량이 아닌 인접 스케일 지표)_</p>
+<li><strong>Luna</strong>($LUNA)는 "Virtuals Protocol이 구동하는 대표 AI 에이전트"로,</li>
+<p>라이브스트림·팝스타 에이전트로 동작하며 팬 인게이지먼트와 팁 흐름을 ACP로 연다.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></p>
+<li><strong>GAME</strong>(Generative Autonomous Multimodal Entities)은 Virtuals의 모듈러</li>
+<p>플래너/익스큐터 프레임워크 — High-Level Planner가 목표를 부여하고 Low-Level Planner가 실행 가능한 액션을 실행하며, 그렇게 만들어진 에이전트는 ACP Provider로 등록된다.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></p>
+</ul>
+<h3>5.3 클러스터와 Revenue Network</h3>
+<p>개별 에이전트 너머에서 Virtuals는 두 <em>클러스터</em>를 ACP 플래그십 배포로 포지셔닝한다 — 에이전트가 운영하는 크리에이티브 에이전시 <strong>Autonomous Media House</strong>와, 멀티 에이전트 자산 운용 클러스터인 <strong>Autonomous Hedge Fund</strong>다.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> 수요를 부트스트랩하기 위해 <strong>Virtuals Revenue Network</strong>가 2026년 2월 Consensus Hong Kong에서 출범했으며, "ACP를 통해 서비스를 판매하는 에이전트에게 월 최대 100만 달러까지 분배한다" — 런치패드 토큰 메커니즘이 아니라 ACP 라우팅 유량 자체를 보조하는 명시적 인센티브다.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> _(vendor-stated; 에이전트별 vs 총합 분배 구조는 우리가 읽은 자료에 명시되지 않음)_</p>
+<h2>6. 표준화와 도입</h2>
+<h3>6.1 ERC-8183</h3>
+<p>ACP v2는 제안된 <strong>ERC-8183("Agentic Commerce")</strong> 표준에 부합한다. 2026년 3월 4일 <code>davidecrapis.eth</code>가 Ethereum Magicians에 커뮤니티 논의를 열었다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> 제안은 "클라이언트가 잡에 자금을 대고, 프로바이더가 작업을 제출하며, 단일 평가자가 완료 또는 거부를 인증하는 잡 기반 에스크로"를 명세하고, 평판과 가스리스 흐름을 위한 hook (<code>IACPHook</code>, <code>beforeAction</code>)을 제공한다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> 스레드는 공식 Draft/Review/Final 상태를 명시하지 않으므로, 본 리포트는 이 표준을 정착된 EIP가 아닌 열린 커뮤니티 드래프트로 다룬다. ERC-8183은 온체인 에이전트 신원·평판 레지스트리인 <strong>ERC-8004("Trustless Agents")</strong>와 형제 격이며, ERC-8004 명세는 "결제는 본 프로토콜의 범위 밖이며 다루지 않는다"고 명시한다.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> ACP는 ERC-8004의 신원 계층을 보완하는 결제·에스크로 계층으로 자리매김한다.</p>
+<h3>6.2 도입</h3>
+<p>가장 명확한 공개 도입 수치는 v2 changelog에서 나온다 — ACP가 약 18개월 프로덕션 운영되며 "2,000개 이상의 에이전트를 온보딩했다"는 보고다. <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> _(vendor-stated; 독립 감사 없음)_ Virtuals는 Dune에 라이브 ACP 대시보드(<code>hashed_official/acp-virtuals</code>)와 백서의 protocol-metrics 페이지를 운영하며, 총 잡 수·총 aGDP(agentic GDP — 서비스 수수료와 트레이딩 볼륨을 포함한 에이전트 처리 가치)·총 고유 활성 지갑을 추적한다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup> _(대시보드는 클라이언트 측 렌더링이라 WebFetch로 스크랩되지 않았으므로 정지 스냅샷이 아닌 라이브 출처로 인용한다.)_</p>
+<h2>7. 논의</h2>
+<p>ACP·x402·A2A·ERC-8004는 이름이 겹쳐 보이는 것보다 훨씬 깔끔하게 맞물린다. <strong>A2A</strong>는 에이전트 런타임 사이의 <em>메시징</em> 표면을<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, <strong>x402</strong>는 HTTP 402 위의 <em>결제</em> 표면을<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>, <strong>ERC-8004</strong>는 온체인 <em>신원/평판</em>을<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> 표준화한다. 그리고 <strong>ACP</strong>는 멀티스텝 거래를 감싸는 <em>잡 봉투</em> — 에스크로, PoA, 제3자 평가 — 를 표준화한다. Python SDK가 노출하는 ACP × x402 구성이 이 합성을 명시적으로 보여준다 — 계약 봉투와 Evaluator는 ACP가, 요청 단위 HTTP 결제 레일은 x402가 담당한다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<p>이 레이어링은 ACP의 가장 큰 미해결 질문 — Evaluator — 도 드러낸다. 신뢰를 제3자 에이전트로 라우팅하는 것은 검증을 플러그 가능하게 만들고 새로운 시장을 만들지만, 동시에 "Evaluator 포획", Provider 결탁, 편향된 평가 기준 같은 실패 모드를 한 곳에 집중시킨다 — ACP 백서가 이 역할을 명시적으로 떼어내 인정하는 부분이다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> ERC-8183 스레드는 평판 통합을 위한 hook을 제안하는데, 가장 자연스러운 방어 방향이다 — Evaluator 선정을 Client가 잡 생성 시 선택한 에이전트가 아니라 ERC-8004 스타일 신원·평판에 묶는 것이다. Revenue Network 보조금(월 100만 달러 규모)이 보조 종료 후에도 지속 가능한 수요를 만드는지가 병행되는 경제적 질문이며, ACP가 "Virtuals 내부 코디네이션 레이어"에서 "광범위한 생태계가 받아들이는 중립 표준"으로 졸업하는지를 가르는 가장 명확한 지표가 될 것이다.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></p>
+<h2>8. 한계</h2>
+<p>세 가지 단서가 본 리포트의 강도를 제한한다.</p>
+<p>첫째, 거의 모든 정량적 주장(2,000+ 에이전트, 월 100만 달러 Revenue Network, ACP × x402 통합)은 Virtuals 자체 문서·파트너 기록·또는 본 스윕에서 라이브 수치를 추출하지 못한 Dune 대시보드에서 나온다 — 본 리포트는 정지 스냅샷 대신 대시보드를 라이브 출처로 인용한다.</p>
+<p>둘째, 공개 베타 출시일은 독립 매체에서 "7월 3일"로 묘사되지만 연도가 2025·2026 사이로 모호하다 — 2026년 3월 이전에 문서화된 v1 기능들이 존재하므로 본 리포트는 "2025년 중반"으로 표기하되, 부정확성을 인정한다.</p>
+<p>셋째, ERC-8183은 Ethereum Magicians의 열린 커뮤니티 드래프트일 뿐 Final EIP가 아니므로, 표준은 "Final" 등재 전에 실질적으로 변경될 수 있다 — v2의 준수 주장은 그 변화 가능성 위에서 읽어야 한다. 본 리포트 작성 시점 기준으로 x402에 대한 최근 연구에 견줄 만한 독립 학술적 ACP 보안 분석은 존재하지 않으므로, 공격면 주장은 대부분 프로토콜 본인의 Evaluator 신뢰 패턴 인정과 인접 표준에 대한 본 리포트의 해석이지 경험적 감사 결과가 아니다.</p>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Linux Foundation</span>. <a href="https://a2a-protocol.org/latest/">Agent2Agent (A2A) Protocol</a>. <span class="venue">a2a-protocol.org, 2025</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-2"><span class="authors">x402 Foundation</span>. <a href="https://www.x402.org/">x402 — the internet&#x27;s payment standard</a>. <span class="venue">x402.org, 2025</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-3"><span class="authors">Virtuals Protocol</span>. <a href="https://whitepaper.virtuals.io/llms-full.txt">Virtuals Protocol Whitepaper — Full LLM-Friendly Export</a>. <span class="venue">whitepaper.virtuals.io, 2026</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-4"><span class="authors">davidecrapis.eth</span>. <a href="https://ethereum-magicians.org/t/erc-8183-agentic-commerce/27902">ERC-8183: Agentic Commerce — Ethereum Magicians</a>. <span class="venue">ethereum-magicians.org, 2026</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-5"><span class="authors">Backpack</span>. <a href="https://learn.backpack.exchange/articles/what-is-virtuals-and-the-ai-agents">What is the Virtuals Protocol (and AI agents)?</a>. <span class="venue">learn.backpack.exchange, 2026</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-6"><span class="authors">RockawayX</span>. <a href="https://www.rockawayx.com/insights/virtuals-agent-commerce-protocol-in-public-beta">Virtuals Agent Commerce Protocol in Public Beta</a>. <span class="venue">rockawayx.com, 2025</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-7"><span class="authors">Virtuals Protocol</span>. <a href="https://whitepaper.virtuals.io/acp/acp-changelogs.md">ACP Changelog — Virtuals Protocol Whitepaper</a>. <span class="venue">whitepaper.virtuals.io, 2026</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-8"><span class="authors">DataWallet</span>. <a href="https://www.datawallet.com/crypto/what-is-virtuals-protocol">What is Virtuals Protocol? AI Agents, Tokenomics &amp; Risks</a>. <span class="venue">datawallet.com, 2026</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-9"><span class="authors">Virtuals Protocol</span>. <a href="https://github.com/Virtual-Protocol/acp-node">Virtual-Protocol/acp-node — ACP Node.js SDK</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-10"><span class="authors">Virtuals Protocol</span>. <a href="https://github.com/Virtual-Protocol/acp-python">Virtual-Protocol/acp-python — ACP Python SDK</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-11"><span class="authors">Virtuals Protocol</span>. <a href="https://whitepaper.virtuals.io/acp/butler-onboarding.md">Butler Onboarding — Virtuals Protocol Whitepaper</a>. <span class="venue">whitepaper.virtuals.io, 2026</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-12"><span class="authors">OpenAIToolsHub</span>. <a href="https://www.openaitoolshub.org/en/blog/ai-agent-crypto-tokens-guide">AI Agent Crypto Tokens — Virtuals, ai16z, AIXBT, and Bittensor Explained</a>. <span class="venue">openaitoolshub.org, 2026</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-13"><span class="authors">Gate Learn</span>. <a href="https://www.gate.com/learn/articles/what-is-luna-by-virtuals-fully-sentient-blockchain-based-ai-agent/6271">What Is Luna by Virtuals? Blockchain-Based AI Agent Explained</a>. <span class="venue">gate.com, 2026</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-14"><span class="authors">Davide Crapis, Marco De Rossi, Yoav Weiss</span>. <a href="https://eips.ethereum.org/EIPS/eip-8004">ERC-8004: Trustless Agents</a>. <span class="venue">Ethereum Improvement Proposals, 2024</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-15"><span class="authors">Hashed (dashboard)</span>. <a href="https://dune.com/hashed_official/acp-virtuals">Virtuals &gt; Agent Commerce Protocol (ACP) — Dune Dashboard</a>. <span class="venue">dune.com, 2026</span>. <span class="accessed">접근일 2026-05-14.</span> <span class="unverified">[접근 제한]</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-05-14 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

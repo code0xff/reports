@@ -1,0 +1,10 @@
+title: Agent Commerce Protocol (ACP)
+subtitle: Virtuals Protocol's open standard for autonomous agent commerce — protocol design, v1→v2 implementation, and real-service deployments.
+title_ko: 에이전트 커머스 프로토콜(ACP)
+subtitle_ko: Virtuals Protocol이 발표한 자율 에이전트 커머스 표준 — 프로토콜 설계, v1→v2 구현 변화, 실제 서비스 배포 사례.
+slug: agent-commerce-protocol
+lang: en
+langs: [en, ko]
+date: 2026-05-14
+tags: [acp, virtuals, agentic-commerce, erc-8183, base, x402]
+status: ready
