@@ -1,0 +1,10 @@
+title: "Google Universal Commerce Protocol (UCP) and Agent Payment Implementation"
+subtitle: "Architecture, capability/handler model, and the AP2 payment layer for building agentic commerce on UCP."
+title_ko: "Google Universal Commerce Protocol(UCP)과 에이전트 결제 구현"
+subtitle_ko: "아키텍처, capability·handler 모델, 그리고 UCP 위에서 에이전트 커머스를 구현하는 AP2 결제 레이어."
+slug: google-ucp-agent-payments
+lang: en
+langs: [en, ko]
+date: 2026-05-14
+tags: [google, ucp, ap2, agent-payments, mcp, a2a, agentic-commerce]
+status: ready

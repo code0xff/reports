@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Google Universal Commerce Protocol (UCP) and Agent Payment Implementation — Deepsearch</title>
+<meta name="description" content="Architecture, capability/handler model, and the AP2 payment layer for building agentic commerce on UCP.">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="ko" href="ko/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>Google Universal Commerce Protocol (UCP) and Agent Payment Implementation</h1>
+    <p class="subtitle">Architecture, capability/handler model, and the AP2 payment layer for building agentic commerce on UCP.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-05-14</span>
+      <span><strong>Tags</strong> google, ucp, ap2, agent-payments, mcp, a2a, agentic-commerce</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="google-ucp-agent-payments.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>Google's Universal Commerce Protocol (UCP) is an Apache-2.0 open standard, launched at NRF in January 2026 and co-developed with Shopify, Etsy, Wayfair, Target and Walmart, that standardises the <em>whole</em> agentic-commerce lifecycle — discovery, checkout, order management, and post-purchase — rather than just the payment leg. Architecturally it ships four capabilities (Checkout, Identity Linking, Order, Payment Token Exchange), an extension mechanism with decentralized reverse-domain naming, a <code>/.well-known/ucp</code> discovery manifest, and multiple transport bindings (REST, JSON-RPC, MCP, A2A). On the payments side UCP separates <em>instruments</em> from <em>handlers</em> and treats Google's Agent Payments Protocol (AP2) as a specialized payment layer that plugs into UCP: AP2's double-signature flow has the merchant issue a signed CartMandate (price lock, 10-minute expiration) at checkout, the user sign a PaymentMandate that references it, and both signatures are verified before fulfillment, with production deployments using SD-JWT-VC verifiable credentials. A concrete agent build uses Google ADK plus the <code>ap2</code> and <code>ucp-sdk</code> packages, exposes five UCP/AP2 tools (<code>discover_theaters</code>, <code>search_movies</code>, <code>get_movie_detail</code>, <code>create_checkout</code>, <code>complete_purchase</code>), and wraps the purchase step with <code>require_confirmation=True</code> for explicit human consent. Merchants integrate via Native Checkout (deep API integration inside Google's AI surfaces) or Embedded Checkout (iframe handoff), require a <code>native_commerce: true</code> attribute in Merchant Center and a Google Pay-token-capable PSP at launch, and retain Merchant-of-Record status throughout. UCP is endorsed by 30+ organisations including Stripe, PayPal, Mastercard, Visa, Klarna, Adyen and a long list of major retailers, and is positioned as complementary to OpenAI's ACP (more checkout-centric, interface-agnostic) and to Visa's Trusted Agent Protocol (which sits one layer below as actor verification on the HTTP edge).</p>
+  </section>
+
+  <main class="body">
+<h2>Introduction</h2>
+<p>Google's <strong>Universal Commerce Protocol (UCP)</strong> is an open, Apache-2.0-licensed standard for <em>agentic commerce</em> — the use case where an AI agent, not a human browser, walks a merchant's site, fills a cart, and pays.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> UCP spans the entire shopping lifecycle (discovery → checkout → order management → post-purchase) rather than focusing narrowly on the payment leg, and it is co-developed with five large retailers (Shopify, Etsy, Wayfair, Target, Walmart) and endorsed by 30+ payments, retail, and tech organisations.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> It launched publicly at NRF in January 2026, with Google's own "Business Agent" feature going live on January 12, 2026.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<p>This report covers (1) where UCP sits relative to AP2, A2A, and MCP; (2) the capability/extension/manifest architecture; (3) the payment-handler model and how AP2 plugs in as the payment layer; (4) a concrete implementation path on the agent side (Google ADK + <code>ap2</code> + <code>ucp-sdk</code>) and the merchant side (Native vs Embedded Checkout); and (5) how UCP compares with adjacent protocols like OpenAI's ACP and Visa's Trusted Agent Protocol.</p>
+<h2>Background — what UCP is replacing</h2>
+<p>Earlier "agentic commerce" attempts had to pick one slice of the journey — payment (AP2), agent-to-agent messaging (A2A), tool calling (MCP) — and leave the rest to bespoke integrations. UCP's pitch is that the shopping journey is itself a protocol surface, and that the same kinds of fragmentation that drove TCP/IP-style layered standards apply here too.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> Google states explicitly that UCP is <strong>interoperable</strong> with the adjacent standards, not a replacement: "UCP is fully compatible with protocols such as AP2, A2A, and MCP".<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> In particular the FAQ frames AP2 as a <em>layer inside</em> UCP: "We use UCP to orchestrate the broader purchase lifecycle, while AP2 can be used as a specialized payment layer within UCP."<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<h2>Architecture — capabilities, extensions, discovery, transport</h2>
+<p>UCP standardizes commerce as a small set of <strong>capabilities</strong>, each defined by a JSON schema. The initial release ships four:<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<ul>
+<li><strong>Checkout</strong> — cart sessions, dynamic pricing, tax computation.</li>
+<li><strong>Identity Linking</strong> — OAuth 2.0-based account linking so the agent can act under a verified user identity without credential sharing.</li>
+<li><strong>Order</strong> — webhook-based updates for order lifecycle events (status, tracking, returns).</li>
+<li><strong>Payment Token Exchange</strong> — protocols for PSPs and credential providers to exchange payment tokens securely.</li>
+</ul>
+<p>Capabilities can be augmented through <strong>extensions</strong> — e.g., a discount extension adds promotional-code support to base checkout, a fulfillment extension adds shipping options.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> Shopify Engineering describes the extension model as deliberately decentralized: "merchants define custom extensions using reverse-domain naming without central approval", and the merchant and agent each publish a capability profile; the merchant "computes their intersection at request time" so both sides only operate on a feature set they both support.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<p><strong>Discovery.</strong> Businesses publish a manifest at the well-known path <code>/.well-known/ucp</code>. Each manifest entry lists service definitions (with version and spec URL), available capabilities (with schemas and extension relationships), and payment handler configurations.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> Agents resolve this dynamically — no hardcoded integration per merchant.</p>
+<p><strong>Transport bindings.</strong> A single capability can be exposed over multiple transports: classic <strong>REST APIs</strong> (with OpenAPI schemas), <strong>JSON-RPC</strong>, the <strong>Model Context Protocol (MCP)</strong> for AI-agent tooling, and <strong>Agent2Agent (A2A)</strong> for direct agent-to-agent communication. Merchants pick the transport(s) matching their platform.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> The Google merchant guide formalises the choice between <strong>Native Checkout</strong> (deep API integration that lets checkout complete <em>inside</em> AI Mode/Gemini) and <strong>Embedded Checkout</strong> (an iframe handoff for merchants needing bespoke flows).<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></p>
+<h2>Payments — instruments, handlers, and AP2 inside UCP</h2>
+<p>UCP's payment architecture separates two things that usually get conflated:<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></p>
+<ul>
+<li>a <strong>payment instrument</strong> is what a consumer carries (a card, a wallet credential, a buy-now-pay-later account);</li>
+<li>a <strong>payment handler</strong> is the <em>provider integration</em> — the code path that knows how to take an instrument and complete a charge.</li>
+</ul>
+<p>Merchants advertise which handlers they accept, the agent picks one, and each handler publishes its own schema for configuration and instrument data. Reference handlers in the spec include <strong>Shop Pay</strong>, <strong>Google Pay</strong>, and a <strong>mock handler</strong> for testing; PayPal support has been announced as on the roadmap.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> Critically the FAQ notes that merchants do not need a Google Pay API integration on their own properties — they only need a PSP that can process Google Pay-formatted tokens.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<p><strong>AP2 inside UCP.</strong> The Google codelab "Secure Agent Commerce with AP2 and UCP" walks an agent (built with the Google ADK) through booking movie tickets across multiple merchants, and shows the precise place where AP2 plugs in.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> The flow uses a double-signature mandate model:<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<p>1. <strong>CartMandate</strong> — when the agent calls UCP's <code>create_checkout</code>, the merchant returns a session embedding a <strong>merchant-signed</strong> mandate carrying the cart ID, total, merchant authorization signature ("price lock"), and a <strong>10-minute expiration window</strong>. 2. <strong>PaymentMandate</strong> — the agent creates a <strong>user-signed</strong> mandate that references the CartMandate ID, carries payment-method metadata, and acts as the user's spending consent. 3. <strong>Verification</strong> — at settlement the merchant verifies both signatures before fulfilling: the merchant signature proves the price is authentic and unchanged, the user signature proves consent. Neither side can move money unilaterally.</p>
+<p>The codelab is explicit that the mandate cryptography it uses (SHA-256 hashes plus mock signatures) is for the tutorial only; production AP2 mandates are signed as <strong>SD-JWT-VC verifiable credentials</strong>, and a real wallet SDK replaces the chat-based confirmation step.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<h2>Implementation — building an agent against UCP + AP2</h2>
+<p>The codelab pins down a concrete agent stack. Required Python packages are <code>google-adk</code> (the agent framework), <code>google-genai</code> (Gemini access), <code>fastapi</code> + <code>uvicorn</code> (the merchant-side servers in the demo), and the protocol SDKs <code>ap2</code> and <code>ucp-sdk</code> (both from GitHub).<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> The agent itself exposes five tools, each wrapping one UCP or AP2 operation:<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<table><thead><tr><th>Tool</th><th>Protocol action</th><th>Purpose</th></tr></thead><tbody><tr><td><code>discover_theaters</code></td><td>UCP discovery</td><td>Fetch <code>/.well-known/ucp</code> and read each merchant's capability list</td></tr><tr><td><code>search_movies</code></td><td>UCP MCP call</td><td>JSON-RPC catalogue search across merchants</td></tr><tr><td><code>get_movie_detail</code></td><td>UCP MCP call</td><td>Pull detailed showtimes from a chosen merchant</td></tr><tr><td><code>create_checkout</code></td><td>UCP MCP call</td><td>Open a checkout session and receive a CartMandate</td></tr><tr><td><code>complete_purchase</code></td><td>AP2 flow</td><td>Create a PaymentMandate, sign it, submit both mandates</td></tr></tbody></table>
+<p>The purchase step is wrapped with <code>require_confirmation=True</code>, which pauses the agent and surfaces an explicit user-confirmation UI before any mandate is signed and submitted.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> In production the codelab notes that UCP discovery would resolve through a registry rather than hardcoded localhost URLs, merchants would host live MCP endpoints, mandate signatures would use SD-JWT-VC, and an official wallet SDK would mediate user consent.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<p><strong>Merchant-side integration.</strong> A merchant has two integration paths.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> <strong>Native Checkout</strong> lets checkout complete entirely within AI Mode or Gemini using direct UCP/AP2 calls — this maximises the agentic experience and is the path Google recommends for full agentic features. <strong>Embedded Checkout</strong> routes the user into a merchant-controlled iframe and is offered for merchants who need highly bespoke branding or complex flows. At launch eligibility requires three things: a Merchant Center account with up-to-date feeds, the <code>native_commerce: true</code> attribute set on eligible products, and a PSP that processes Google Pay tokens.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> UCP-powered checkout is initially US-only.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> In both paths the merchant remains the <strong>Merchant of Record</strong>, retaining customer data, business rules, and the direct storefront relationship.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></p>
+<h2>Adoption and comparison</h2>
+<p>UCP's endorsement footprint is what tells you it is meant to be the industry-level layer rather than a Google-internal protocol: 30+ endorsers including <strong>Stripe, PayPal, Mastercard, Visa, Klarna, Adyen</strong> on the payments side, and major retailers like <strong>Best Buy, Macy's, The Home Depot, Flipkart, Zalando, Kroger, Sephora, Ulta</strong>.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> The Business Agent rollout went live January 12, 2026 with Lowe's, Michael's, and Reebok among the first retailers using branded chat on Google Search.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></p>
+<p><strong>Vs OpenAI ACP.</strong> OpenAI's Agentic Commerce Protocol is "checkout-centric"; UCP covers more of the lifecycle (post-purchase, loyalty, returns) but launches inside Google's surfaces (Search AI Mode, Gemini App, Google Shopping).<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> ACP is positioned as interface-agnostic. The Checkout.com analysis frames the two as complementary moments — ACP captures demand inside AI assistants, UCP converts shoppers already engaging with Google's discovery surfaces — and explicitly recommends merchants "prepare to support both".<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<p><strong>Vs Visa Trusted Agent Protocol.</strong> TAP and UCP solve different problems. TAP cryptographically authenticates <em>the agent actor</em> in HTTP request headers so merchants know "is this a legitimate agent" at the network edge; UCP standardises <em>the merchant interface</em> the agent talks to once it has been recognised, and AP2 sits inside UCP to carry the consent and price mandates. They are orthogonal, and Visa's own Intelligent Commerce Connect explicitly enumerates UCP among the protocols it accepts.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<p>For implementers the practical takeaway is: build the <em>agent</em> on Google ADK + <code>ap2</code> + <code>ucp-sdk</code>, route discovery through <code>/.well-known/ucp</code>, surface a <code>require_confirmation</code> gate before any PaymentMandate is signed, and verify both mandates server-side before fulfillment.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> Build the <em>merchant</em> on top of Merchant Center, advertise the handlers you accept (Google Pay token-capable PSP at minimum), and pick Native vs Embedded based on how much agentic surface you want.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<h2>Limitations</h2>
+<ul>
+<li>AP2 is described here through Google's UCP codelab walkthrough; the AP2 spec repository itself was not directly read, so SD-JWT-VC profile details (claims set, key binding) are summarised second-hand.</li>
+<li>UCP launched in January 2026 and the launch is US-only; international rollout timing and the full list of GA-shipping payment handlers come from vendor copy, not from independent verification.</li>
+<li>The merchant-side capability intersection mechanism described in the Shopify Engineering write-up was not cross-checked against a wire-level example in the spec; it is single-sourced from a co-developer.</li>
+<li>The independent comparative pieces (Checkout.com, ALM Corp, MetaRouter) are industry analysis, not peer-reviewed work; no peer-reviewed sources exist yet for this very recent standard.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://ucp.dev/">Universal Commerce Protocol — homepage</a>. <span class="accessed">Accessed 2026-05-14.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://github.com/universal-commerce-protocol/ucp">universal-commerce-protocol/ucp — GitHub spec repository</a>. <span class="accessed">Accessed 2026-05-14.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://blog.google/products/ads-commerce/agentic-commerce-ai-tools-protocol-retailers-platforms/">New tech and tools for retailers to succeed in an agentic shopping era — Google Blog</a>. <span class="accessed">Accessed 2026-05-14.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://almcorp.com/blog/google-universal-commerce-protocol-ucp-explained/">Google Universal Commerce Protocol (UCP): Merchant Setup, Agentic Checkout &amp; PPC Guide 2026 — ALM Corp</a>. <span class="accessed">Accessed 2026-05-14.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://shopify.engineering/ucp">Building the Universal Commerce Protocol (2026) — Shopify Engineering</a>. <span class="accessed">Accessed 2026-05-14.</span></li>
+      <li id="ref-6"><span class="authors">—</span>. <a href="https://developers.google.com/merchant/ucp">Google Universal Commerce Protocol (UCP) Guide</a>. <span class="accessed">Accessed 2026-05-14.</span></li>
+      <li id="ref-7"><span class="authors">—</span>. <a href="https://developers.google.com/merchant/ucp/faq">UCP FAQ — Google for Developers</a>. <span class="accessed">Accessed 2026-05-14.</span></li>
+      <li id="ref-8"><span class="authors">—</span>. <a href="https://developers.googleblog.com/under-the-hood-universal-commerce-protocol-ucp/">Under the Hood: Universal Commerce Protocol (UCP) — Google Developers Blog</a>. <span class="accessed">Accessed 2026-05-14.</span></li>
+      <li id="ref-9"><span class="authors">—</span>. <a href="https://www.checkout.com/blog/openai-acp-google-ucp-difference">OpenAI&#x27;s ACP and Google&#x27;s UCP: What&#x27;s the Difference — Checkout.com</a>. <span class="accessed">Accessed 2026-05-14.</span></li>
+      <li id="ref-10"><span class="authors">—</span>. <a href="https://codelabs.developers.google.com/next26/adk-agent-commerce">Secure Agent Commerce with AP2 and UCP — Google Codelabs</a>. <span class="accessed">Accessed 2026-05-14.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-05-14. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

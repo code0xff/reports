@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Google Universal Commerce Protocol(UCP)과 에이전트 결제 구현 — Deepsearch</title>
+<meta name="description" content="아키텍처, capability·handler 모델, 그리고 UCP 위에서 에이전트 커머스를 구현하는 AP2 결제 레이어.">
+<link rel="alternate" hreflang="en" href="../index.html">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../ko/index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="en">English</a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../ko/index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>Google Universal Commerce Protocol(UCP)과 에이전트 결제 구현</h1>
+    <p class="subtitle">아키텍처, capability·handler 모델, 그리고 UCP 위에서 에이전트 커머스를 구현하는 AP2 결제 레이어.</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-05-14</span>
+      <span><strong>태그</strong> google, ucp, ap2, agent-payments, mcp, a2a, agentic-commerce</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="google-ucp-agent-payments.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>Google의 Universal Commerce Protocol(UCP)은 Shopify·Etsy·Wayfair·Target·Walmart와 공동 개발하여 2026년 1월 NRF에서 출시된 Apache 2.0 개방형 표준이며, 결제 단계만이 아니라 발견·체크아웃·주문 관리·사후 지원에 이르는 <em>에이전트 커머스 라이프사이클 전체</em> 를 표준화한다. 아키텍처적으로 네 가지 capability(Checkout, Identity Linking, Order, Payment Token Exchange), 분권화된 reverse-domain 네이밍 기반 extension, <code>/.well-known/ucp</code> discovery 매니페스트, 그리고 다중 트랜스포트 바인딩(REST, JSON-RPC, MCP, A2A)을 출시한다. 결제 측에서는 <em>instrument</em> 와 <em>handler</em> 를 분리하고, Google의 Agent Payments Protocol(AP2)을 UCP에 결합되는 전문화된 결제 레이어로 다룬다. AP2의 이중 서명 흐름은 머천트가 체크아웃 시점에 서명된 CartMandate(가격 락, 10분 만료)를 발급하고, 사용자가 이를 참조하는 PaymentMandate에 서명하며, 이행 전에 두 서명이 모두 검증된다 — 프로덕션 배포는 SD-JWT-VC verifiable credential을 사용한다. 구체적 에이전트 빌드는 Google ADK + <code>ap2</code> + <code>ucp-sdk</code>를 사용하고, 다섯 개 UCP/AP2 툴(<code>discover_theaters</code>, <code>search_movies</code>, <code>get_movie_detail</code>, <code>create_checkout</code>, <code>complete_purchase</code>)을 노출하며, 구매 단계를 <code>require_confirmation=True</code>로 래핑해 명시적 사용자 동의를 강제한다. 머천트는 Native Checkout(Google AI 표면 내부 깊은 API 통합) 또는 Embedded Checkout(iframe 핸드오프)으로 통합하고, 출시 시점에 Merchant Center의 <code>native_commerce: true</code> 속성과 Google Pay 토큰 처리 PSP를 갖춰야 하며 전 과정 동안 Merchant of Record 지위를 유지한다. UCP는 Stripe·PayPal·Mastercard·Visa·Klarna·Adyen 등 30개 이상 조직과 주요 리테일러 다수가 보증하며, OpenAI ACP(체크아웃 중심, 인터페이스 비종속)와 Visa Trusted Agent Protocol(HTTP 엣지의 행위자 검증)과는 경쟁이 아닌 보완 관계로 자리매김된다.</p>
+  </section>
+
+  <main class="body">
+<h2>서론</h2>
+<p>Google의 <strong>Universal Commerce Protocol(UCP)</strong> 은 <em>에이전트 커머스</em> — 사람이 아니라 AI 에이전트가 머천트 사이트를 탐색하고 장바구니를 채우고 결제하는 유스케이스 — 를 위한 Apache 2.0 라이선스 개방형 표준이다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> UCP는 결제 단계만이 아니라 발견 → 결제 → 주문 관리 → 사후 지원에 이르는 전체 쇼핑 라이프사이클을 다루며, 다섯 개 대형 리테일러(Shopify, Etsy, Wayfair, Target, Walmart)가 공동 개발하고 결제·리테일·테크 30개 이상 조직이 보증한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> 2026년 1월 NRF에서 공식 출시되었고 Google의 자체 "Business Agent" 기능은 2026년 1월 12일부터 라이브 상태다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<p>본 보고서는 (1) UCP가 AP2/A2A/MCP와 어디서 만나는지, (2) capability·extension·manifest 아키텍처, (3) 결제 핸들러 모델과 결제 레이어로서의 AP2 통합, (4) 에이전트 측 구현 경로(Google ADK + <code>ap2</code> + <code>ucp-sdk</code>)와 머천트 측 통합(Native vs Embedded Checkout), (5) OpenAI ACP·Visa TAP 같은 인접 프로토콜과의 비교를 다룬다.</p>
+<h2>배경 — UCP가 대체하려는 것</h2>
+<p>이전의 "에이전트 커머스" 시도는 결제(AP2), 에이전트 간 메시징(A2A), 도구 호출(MCP) 중 한 조각만 표준화하고 나머지는 맞춤 통합에 맡겼다. UCP의 주장은 쇼핑 여정 자체가 프로토콜 표면이라는 것이며, TCP/IP 식 레이어드 표준화를 끌어온 동기와 같은 종류의 단편화가 여기에도 적용된다고 본다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> Google은 UCP가 인접 표준의 <strong>대체재가 아니라 호환재</strong> 라고 명시한다 — "UCP is fully compatible with protocols such as AP2, A2A, and MCP".<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> 특히 FAQ는 AP2를 UCP <strong>내부의 레이어</strong>로 규정한다: "UCP가 더 넓은 구매 라이프사이클을 오케스트레이션하고, AP2는 UCP 내부의 전문화된 결제 레이어로 사용된다."<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<h2>아키텍처 — capability, extension, discovery, transport</h2>
+<p>UCP는 커머스를 소수의 <strong>capability(능력)</strong> 집합으로 표준화하며 각 capability는 JSON 스키마로 정의된다. 초기 출시 4종은 다음과 같다:<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<ul>
+<li><strong>Checkout</strong> — 장바구니 세션, 동적 가격, 세금 계산.</li>
+<li><strong>Identity Linking</strong> — OAuth 2.0 기반 계정 연결로 자격증명 공유 없이 에이전트가 인증된 사용자 신원으로 동작.</li>
+<li><strong>Order</strong> — 주문 라이프사이클 이벤트(상태, 트래킹, 반품)에 대한 웹훅 기반 업데이트.</li>
+<li><strong>Payment Token Exchange</strong> — PSP·자격증명 제공자 사이의 결제 토큰 교환 프로토콜.</li>
+</ul>
+<p>capability는 <strong>extension(확장)</strong> 으로 보강된다 — 예컨대 discount extension은 베이스 checkout에 프로모션 코드를 더하고, fulfillment extension은 배송 옵션을 더한다.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> Shopify Engineering은 extension 모델이 의도적으로 분권화되어 있다고 설명한다: "머천트는 reverse-domain 네이밍으로 중앙 승인 없이 커스텀 extension을 정의"하며 머천트와 에이전트가 각각 capability 프로필을 발행해 머천트가 "요청 시점에 두 프로필의 교집합을 계산"하므로 양측이 공통 지원 기능 집합에서만 동작한다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<p><strong>Discovery.</strong> 비즈니스는 well-known 경로 <code>/.well-known/ucp</code> 에 매니페스트를 게시한다. 각 매니페스트 항목은 서비스 정의(버전·스펙 URL), 사용 가능한 capability(스키마·extension 관계 포함), 그리고 결제 핸들러 구성을 담는다.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> 에이전트는 머천트별 하드코딩 통합 없이 이를 동적으로 해석한다.</p>
+<p><strong>Transport binding.</strong> 한 capability는 여러 트랜스포트로 노출될 수 있다: 전통적인 <strong>REST API</strong>(OpenAPI 스키마 포함), <strong>JSON-RPC</strong>, AI 에이전트 도구화를 위한 <strong>Model Context Protocol(MCP)</strong>, 그리고 직접 에이전트 간 통신을 위한 <strong>Agent2Agent(A2A)</strong>. 머천트는 자기 플랫폼에 맞는 트랜스포트를 고른다.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> Google 머천트 가이드는 추가로 <strong>Native Checkout</strong>(AI Mode/Gemini <em>내부</em> 에서 체크아웃을 완결하는 깊은 API 통합)과 <strong>Embedded Checkout</strong>(맞춤 흐름이 필요한 머천트를 위한 iframe 핸드오프) 사이의 선택을 정식화한다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></p>
+<h2>결제 — 도구(instrument), 핸들러(handler), 그리고 UCP 안의 AP2</h2>
+<p>UCP의 결제 아키텍처는 보통 뒤섞이는 두 개를 분리한다:<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></p>
+<ul>
+<li><strong>결제 도구(instrument)</strong> 는 소비자가 가진 것(카드, 지갑 자격증명, BNPL 계정);</li>
+<li><strong>결제 핸들러(handler)</strong> 는 <em>제공자 통합</em> — 도구를 받아서 결제를 완료할 줄 아는 코드 경로.</li>
+</ul>
+<p>머천트는 자기가 받는 핸들러를 광고하고, 에이전트가 그중 하나를 선택하며, 각 핸들러는 구성·도구 데이터에 대한 자체 스키마를 발행한다. 스펙의 레퍼런스 핸들러는 <strong>Shop Pay</strong>, <strong>Google Pay</strong>, 테스트용 <strong>mock handler</strong> 이며 <strong>PayPal</strong> 지원은 로드맵에 공표되었다.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> 결정적으로 FAQ는 머천트가 자기 자산에 Google Pay API를 직접 통합할 필요가 없으며 Google Pay 형식 토큰을 처리할 수 있는 PSP만 있으면 된다고 명시한다.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<p><strong>UCP 안의 AP2.</strong> Google 코드랩 "Secure Agent Commerce with AP2 and UCP"는 Google ADK로 만든 에이전트가 여러 머천트를 가로질러 영화 티켓을 예약하는 시나리오를 보여주고, AP2가 들어가는 정확한 위치를 노출한다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> 흐름은 이중 서명 mandate 모델을 쓴다:<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<p>1. <strong>CartMandate</strong> — 에이전트가 UCP의 <code>create_checkout</code>을 호출하면 머천트는 카트 ID, 총액, 머천트 인가 서명("가격 락"), <strong>10분 만료 윈도</strong> 를 담은 <strong>머천트 서명</strong> mandate를 임베드한 세션을 돌려준다. 2. <strong>PaymentMandate</strong> — 에이전트는 CartMandate ID를 참조하고 결제 수단 메타데이터를 담은 <strong>사용자 서명</strong> mandate를 생성한다. 사용자 지출 동의의 역할을 한다. 3. <strong>검증</strong> — 정산 시점에 머천트는 두 서명을 검증한 뒤에야 이행한다. 머천트 서명은 가격이 진정하고 변조되지 않았음을, 사용자 서명은 동의가 있었음을 증명한다. 어느 한쪽이 일방적으로 자금을 움직일 수 없다.</p>
+<p>코드랩은 자기가 쓰는 mandate 암호화(SHA-256 해시 + mock 서명)는 튜토리얼 한정이며 프로덕션 AP2 mandate는 <strong>SD-JWT-VC verifiable credential</strong> 로 서명되고 실제 지갑 SDK가 채팅 기반 확인을 대체한다고 명시한다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<h2>구현 — UCP + AP2 위에서 에이전트 빌드하기</h2>
+<p>코드랩은 구체적인 에이전트 스택을 박아둔다. 필수 파이썬 패키지는 <code>google-adk</code>(에이전트 프레임워크), <code>google-genai</code>(Gemini), 데모의 머천트 서버용 <code>fastapi</code> + <code>uvicorn</code>, 그리고 GitHub에서 가져오는 프로토콜 SDK <code>ap2</code>와 <code>ucp-sdk</code>다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> 에이전트 자체는 UCP/AP2 연산 하나씩을 래핑하는 다섯 개 툴을 노출한다:<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<table><thead><tr><th>툴</th><th>프로토콜 액션</th><th>목적</th></tr></thead><tbody><tr><td><code>discover_theaters</code></td><td>UCP discovery</td><td><code>/.well-known/ucp</code>를 조회해 각 머천트의 capability를 읽음</td></tr><tr><td><code>search_movies</code></td><td>UCP MCP call</td><td>여러 머천트에 걸친 JSON-RPC 카탈로그 검색</td></tr><tr><td><code>get_movie_detail</code></td><td>UCP MCP call</td><td>선택한 머천트로부터 상세 상영시간 조회</td></tr><tr><td><code>create_checkout</code></td><td>UCP MCP call</td><td>체크아웃 세션 개시, CartMandate 수령</td></tr><tr><td><code>complete_purchase</code></td><td>AP2 flow</td><td>PaymentMandate 생성·서명·두 mandate 제출</td></tr></tbody></table>
+<p>구매 단계는 <code>require_confirmation=True</code>로 래핑되어, mandate 서명·제출 전에 명시적 사용자 확인 UI를 띄우고 에이전트를 일시정지시킨다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> 프로덕션에서는 UCP discovery가 하드코딩된 localhost URL이 아니라 레지스트리를 통해 해석되고, 머천트는 라이브 MCP 엔드포인트를 호스팅하며, mandate 서명은 SD-JWT-VC로 바뀌고, 공식 지갑 SDK가 사용자 동의를 매개한다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<p><strong>머천트 측 통합.</strong> 머천트는 두 가지 통합 경로가 있다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> <strong>Native Checkout</strong> 은 UCP/AP2를 직접 호출해 AI Mode 또는 Gemini <em>내부</em> 에서 체크아웃을 끝낸다 — 에이전트 경험을 극대화하며 Google이 전체 에이전트 기능을 위해 권장하는 경로다. <strong>Embedded Checkout</strong> 은 머천트가 통제하는 iframe으로 사용자를 라우팅하며 특수 브랜딩이나 복잡한 흐름이 필요한 머천트에게 제공된다. 출시 시점 적격성은 세 가지를 요구한다: 최신 피드를 갖춘 Merchant Center 계정, 적격 상품에 <code>native_commerce: true</code> 속성, 그리고 Google Pay 토큰을 처리할 수 있는 PSP.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> UCP-powered checkout은 초기에 미국 한정이다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> 두 경로 모두에서 머천트는 <strong>Merchant of Record</strong> 로 남아 고객 데이터·비즈니스 규칙·직접 스토어프론트 관계를 유지한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></p>
+<h2>채택 현황과 비교</h2>
+<p>UCP의 후원 폭은 이것이 Google 사내 프로토콜이 아니라 산업 레벨 레이어를 노린다는 신호다: 30개 이상 후원자가 결제 측에는 <strong>Stripe, PayPal, Mastercard, Visa, Klarna, Adyen</strong> 을, 리테일 측에는 <strong>Best Buy, Macy's, The Home Depot, Flipkart, Zalando, Kroger, Sephora, Ulta</strong> 같은 주요 사업자를 포함한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> Business Agent 롤아웃은 2026년 1월 12일에 라이브가 되었고 Lowe's, Michael's, Reebok이 Google Search에서 브랜디드 채팅을 처음 사용한 리테일러로 거론된다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></p>
+<p><strong>OpenAI ACP와의 비교.</strong> OpenAI의 Agentic Commerce Protocol은 "체크아웃 중심"이다. UCP는 사후 지원·로열티·반품을 포함해 라이프사이클을 더 넓게 커버하지만 Google의 표면(Search AI Mode, Gemini App, Google Shopping) 안에서 먼저 출시되었다.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> ACP는 인터페이스 비종속으로 포지셔닝된다. Checkout.com의 분석은 두 가지를 보완 관계로 본다 — ACP는 AI 어시스턴트 내부에서 새로운 수요를 잡고, UCP는 이미 Google 발견 표면에서 활동 중인 고-의도 쇼퍼를 전환한다 — 그리고 머천트들에게 "둘 다 지원할 준비를 하라"고 명시적으로 권장한다.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<p><strong>Visa Trusted Agent Protocol과의 비교.</strong> TAP와 UCP는 다른 문제를 푼다. TAP는 머천트가 "이게 정당한 에이전트인가"를 네트워크 엣지에서 답할 수 있도록 HTTP 요청 헤더에서 <em>에이전트 행위자</em> 를 암호학적으로 인증한다. UCP는 그 에이전트가 인식된 <em>이후</em> 에이전트가 대화하는 머천트 인터페이스를 표준화하고, AP2는 그 안에서 동의·가격 mandate를 운반한다. 둘은 직교하며, Visa 자체 Intelligent Commerce Connect는 UCP를 수용 가능한 프로토콜 중 하나로 명시한다.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<p>구현자 관점에서 실용적 결론은 다음과 같다: <em>에이전트</em> 는 Google ADK + <code>ap2</code> + <code>ucp-sdk</code> 위에 빌드하고, discovery는 <code>/.well-known/ucp</code>로 라우팅하고, PaymentMandate가 서명되기 전에 <code>require_confirmation</code> 게이트를 띄우고, 이행 전에 서버 측에서 두 mandate를 모두 검증한다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> <em>머천트</em> 는 Merchant Center 위에 빌드하고, 받는 핸들러를 광고하고(최소한 Google Pay 토큰을 처리하는 PSP), 원하는 에이전트 표면 규모에 따라 Native vs Embedded를 선택한다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<h2>한계</h2>
+<ul>
+<li>AP2는 본 보고서에서 Google UCP 코드랩의 시연을 통해 기술되었다. AP2 스펙 저장소 자체는 직접 조회되지 않았으므로 SD-JWT-VC 프로파일 세부(claims set, key binding)는 간접 요약이다.</li>
+<li>UCP는 2026년 1월에 출시되었고 초기 가용성은 미국 한정이다. 글로벌 롤아웃 일정과 GA 시점 모든 결제 핸들러의 전체 목록은 벤더 카피이며 독립 검증되지 않았다.</li>
+<li>Shopify Engineering이 기술한 "요청 시점 capability 프로필 교집합" 메커니즘은 스펙의 와이어 레벨 예시로 교차 검증되지 않았다. 공동 개발자라는 점에서 1차이지만 단일 출처다.</li>
+<li>독립 비교 분석(Checkout.com, ALM Corp, MetaRouter)은 산업 분석이며 동료 심사 작업이 아니다. 이 표준이 너무 최신이라 동료 심사 자료는 아직 존재하지 않는다.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://ucp.dev/">Universal Commerce Protocol — homepage</a>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://github.com/universal-commerce-protocol/ucp">universal-commerce-protocol/ucp — GitHub spec repository</a>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://blog.google/products/ads-commerce/agentic-commerce-ai-tools-protocol-retailers-platforms/">New tech and tools for retailers to succeed in an agentic shopping era — Google Blog</a>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://almcorp.com/blog/google-universal-commerce-protocol-ucp-explained/">Google Universal Commerce Protocol (UCP): Merchant Setup, Agentic Checkout &amp; PPC Guide 2026 — ALM Corp</a>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://shopify.engineering/ucp">Building the Universal Commerce Protocol (2026) — Shopify Engineering</a>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-6"><span class="authors">—</span>. <a href="https://developers.google.com/merchant/ucp">Google Universal Commerce Protocol (UCP) Guide</a>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-7"><span class="authors">—</span>. <a href="https://developers.google.com/merchant/ucp/faq">UCP FAQ — Google for Developers</a>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-8"><span class="authors">—</span>. <a href="https://developers.googleblog.com/under-the-hood-universal-commerce-protocol-ucp/">Under the Hood: Universal Commerce Protocol (UCP) — Google Developers Blog</a>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-9"><span class="authors">—</span>. <a href="https://www.checkout.com/blog/openai-acp-google-ucp-difference">OpenAI&#x27;s ACP and Google&#x27;s UCP: What&#x27;s the Difference — Checkout.com</a>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-10"><span class="authors">—</span>. <a href="https://codelabs.developers.google.com/next26/adk-agent-commerce">Secure Agent Commerce with AP2 and UCP — Google Codelabs</a>. <span class="accessed">접근일 2026-05-14.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-05-14 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
