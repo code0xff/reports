@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ether.fi — Deepsearch</title>
+<meta name="description" content="Ether.fi 톺아보기 — 프로토콜 메커니즘, 네이티브 리스테이킹 아키텍처, 제품군(eETH / weETH / eBTC / Liquid / Cash), ETHFI 경제.">
+<link rel="alternate" hreflang="en" href="../index.html">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../ko/index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="en">English</a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../ko/index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>Ether.fi</h1>
+    <p class="subtitle">Ether.fi 톺아보기 — 프로토콜 메커니즘, 네이티브 리스테이킹 아키텍처, 제품군(eETH / weETH / eBTC / Liquid / Cash), ETHFI 경제.</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-05-14</span>
+      <span><strong>태그</strong> ether-fi, liquid-restaking, eigenlayer, eETH, weETH, ETHFI, scroll, cash</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="ether-fi.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>Ether.fi는 비수탁(non-custodial) 이더리움 리퀴드 리스테이킹 프로토콜로, ETH 예치분을 다른 LST를 감싸는 방식이 아니라 EigenLayer의 EigenPod로 직접 <em>네이티브 리스테이킹</em>하여 리베이싱 토큰 <strong>eETH</strong>(그리고 DeFi용 비리베이싱 래퍼 <strong>weETH</strong>)를 발행한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 32 ETH 검증자 하나마다 출금 세이프(withdrawal safe)와 두 개의 NFT를 발행한다 — 양도 가능한 <strong>T-NFT(30 ETH)</strong>와 슬래싱 보험의 디덕터블 역할을 하는 영혼결박(soulbound) <strong>B-NFT(2 ETH)</strong>. 스테이커와 노드 운영자는 경매로 매칭되며, 검증자 키는 IPFS에 암호화되어 저장되어 스테이커가 실제 서명 재료를 그대로 보유한다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> LRT 베이스 위에는 자동 전략 볼트 <strong>Liquid</strong>, 크로스체인 비트코인 LRT <strong>eBTC</strong>, 그리고 카드 소지자 1인당 별도의 Gnosis Safe를 Scroll에 배포하는 Visa 신용카드 <strong>Cash</strong>가 얹혀 있어 사용자가 스테이블코인을 직접 지불하거나 ETH 담보로 USDC를 빌려 사용할 수 있다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> DefiLlama 기준 2026-05-14에 TVL은 <strong>51억 5,900만 달러</strong>, 연환산 수수료 <strong>1억 9,897만 달러</strong>, 연환산 수익 <strong>4,857만 달러</strong>이고, 거버넌스 토큰 <strong>ETHFI</strong>는 고정 공급 10억 개 중 약 83.6%가 유통 중이며 베스팅이 2027년까지 이어진다.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> 보안 면에서는 형식 검증에 크게 의존하며, 공개 audits 디렉터리에는 2023~2026년 사이 29개의 감사 보고서가 등록되어 있고 최근 14개는 모두 Certora가 진행했다.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+  </section>
+
+  <main class="body">
+<h1>Ether.fi</h1>
+<h2>1. 서론</h2>
+<p>리퀴드 리스테이킹은 두 선행 카테고리 사이에 위치한다. LST(stETH·rETH) 는 평범한 ETH 스테이킹에 대한 영수증 토큰을, EigenLayer 같은 리스테이킹 프로토콜은 스테이크된 자본을 다른 서비스 보안에 재사용하는 능력을 제공한다. LRT는 둘을 결합한 — 리스테이크된 ETH의 양도 가능한 영수증이다. Ether.fi는 LRT 중 TVL 1위이며<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, 구조적으로 두 가지 차별점을 가진다 — 다른 LST를 감싸는 방식이 아니라 EigenPod 위에서 자체 검증자로 <strong>네이티브 리스테이킹</strong>을 수행하고<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>, T-NFT/B-NFT 패턴을 통해 검증자 키를 사용자가 소유한 출금 세이프에 유지한다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> — 수탁형 리스테이킹의 정반대 신뢰 모델이다.</p>
+<p>본 리포트는 2026-05-14 기준으로 프로토콜 메커니즘, 스마트 컨트랙트 표면, 네 가지 사용자 대면 제품(eETH/weETH, eBTC, Liquid, Cash), ETHFI 토코노믹스, 그리고 보안·도입 현황을 정리한다.</p>
+<h2>2. 프로토콜 설계</h2>
+<h3>2.1 32-ETH 솔로 스테이커 경로</h3>
+<p>솔로 스테이커가 32 ETH를 예치하면, ether.fi는 "출금 세이프와 두 개의 NFT(T-NFT, B-NFT)"를 발행한다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> T-NFT는 30 ETH를 나타내며 양도 가능하고, B-NFT는 2 ETH를 나타내며 영혼결박이며 "2 ETH를 되찾는 유일한 방법은 검증자가 종료되거나 완전 출금되는 것이다."<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> B-NFT는 단순한 회계 트릭이 아니다 — "슬래싱 이벤트 발생 시 슬래싱 보험의 디덕터블을 공급하고, 검증자 노드의 성능을 모니터링할 책임을 나타낸다"고 명시되며, 이 책임에 대한 보상으로 T-NFT보다 약 50% 높은 수익률을 받는다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 스테이킹 보상은 스테이커 90%, 노드 운영자 5%, 프로토콜 5%로 분배된다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<h3>2.2 노드 운영자 경매와 IPFS 암호화 키</h3>
+<p>운영자는 검증자를 직접 고르지 않고 경매에 입찰한다. "노드 운영자는 검증자 노드를 할당받기 위해 입찰을 제출한다. 신뢰된 노드 운영자는 형식적 입찰만으로 가용 상태를 표시할 수 있고, 신뢰되지 않은 노드 운영자는 경매 메커니즘에 참여해 낙찰가에 따라 검증자를 할당받는다." <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 매칭은 스테이커가 검증자 키를 그대로 보유하도록 설계되어 있다 — "스테이커는 자신의 검증자 키를 생성하고, 낙찰된 노드 운영자의 공개키로부터 유도한 공유 비밀로 이를 암호화한다. 노드 운영자는 공개키를 IPFS에 저장하고, 스테이커는 암호화된 검증자 키를 IPFS에 저장하며 그 해시를 온체인에 업로드한다."<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></p>
+<h3>2.3 퍼미션리스 eETH 발행과 LRT 레이어</h3>
+<p>ether.fi의 퍼미션리스 측면은 LiquidityPool이다 — 누구나 ETH를 예치하고 eETH를 받을 수 있으며, 이는 "사용자가 ETH를 스테이킹해 보상을 적립하고 자동으로 EigenLayer에 리스테이킹할 수 있게 하는 리퀴드 리스테이킹 토큰"이다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> eETH는 리베이싱 토큰이고, <strong>weETH는 eETH의 비리베이싱 래핑 버전으로 DeFi 생태계 전반에 사용할 수 있다.</strong><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 실제로 두 토큰이 공존하는 이유는 리베이싱이 일부 DeFi 통합(담보 회계, AMM 수식)을 깨뜨리는 반면 wrap된 잔액은 그렇지 않기 때문이다. weETH와 eBTC 모두 "LayerZero를 통해 여러 체인에 걸쳐 사용 가능" 하다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<h2>3. EigenLayer 네이티브 리스테이킹</h2>
+<p>EigenLayer는 이더리움에 리스테이킹 원시 타입을 도입한 프로토콜이다. <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> Ether.fi의 설계 선택은 <em>새로</em> 들어오는 ETH 예치분을 다른 LST를 통하지 않고 자체 EigenPod 기반 검증자로 직접 라우팅하는 것이다. ether.fi 문서는 이 이점을 운영적 관점으로 설명한다 — "EigenLayer에 네이티브 리스테이킹되는 ETH 양에는 제한이 없다. 제한은 LST를 EigenLayer에 리스테이킹하려는 LST에만 존재한다."<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> _(point-in-time — EigenLayer 거버넌스에 의해 상한 정책은 바뀔 수 있음)_ 사용자 이용성 관점에서는 "ether.fi에서 eETH로 스테이킹하면 ETH가 자동으로 리스테이킹되고 보상이 적립되며, 사용자는 동시에 다른 DeFi 프로토콜에서 eETH를 사용할 수 있다. 다른 리퀴드 스테이킹 프로토콜에는 이런 기능이 없다"고 주장한다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> _(vendor-stated; "어느 프로토콜도 없다"는 표현은 ether.fi 측 마케팅 어조)_</p>
+<p>이 설계 — 자체 검증자, 자체 EigenPod, 자체 LRT — 는 ether.fi가 "LST 캡 없음"을 주장할 수 있게 하고, LST 위에 LST를 쌓는 리스테이커 대비 LRT TVL 1위 자리를 가져간 핵심 이유다.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<h2>4. 제품군</h2>
+<h3>4.1 eETH와 weETH</h3>
+<p>eETH는 리베이싱 LRT, weETH는 그 비리베이싱 래퍼다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 문서는 eETH를 "퍼미션리스, 쉬운 복잡도"의 진입점으로, weETH를 DeFi에 가장 자주 꽂는 래퍼로 다룬다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> Liquid 볼트가 발행하는 <code>weETHs</code>, <code>weETHk</code> 같은 래핑 변형은 LRT 베이스 위에 추가 수익을 적립한다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<h3>4.2 eBTC — 비트코인 리스테이킹</h3>
+<p>eBTC는 ether.fi의 비트코인 LRT다. "weETHs, weETHk 또는 eBTC를 발행" 할 수 있으며 최소 예치 단위는 0.01이다. eBTC의 보상은 "Lombard, Babylon, Eigenlayer, Karak, Symbiotic, Etherfi, Veda 포인트와 7일 후행 평균으로 표현되는 APY"를 함께 누적한다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 이 토큰은 LayerZero OFT 패턴으로 멀티체인 지원된다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<h3>4.3 Liquid 볼트</h3>
+<p>Liquid는 ether.fi의 전략 볼트 레이어다. <code>weETHs</code>, <code>weETHk</code> 같은 볼트 토큰은 자동화된 수익 전략 내부의 포지션을 나타내며, eETH나 eBTC와 동일한 dapp 화면에서 발행·환매가 가능하다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 홈페이지는 Liquid를 Stake·Cash와 함께 세 개의 최상위 제품 카테고리로 묶는다. <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></p>
+<h3>4.4 Cash — Scroll 위의 Visa 신용카드</h3>
+<p>Cash는 LRT 수익과 일상 지출 사이의 루프를 닫는 사용자 대면 프론트 엔드다. CoinDesk의 출시 기사가 아키텍처를 분명하게 정리한다 — "ether.fi 의 접근은 각 카드 소지자에 대해 Scroll 위에 별도의 자가수탁 지갑을 배포하는 것이다. 사용자가 결제하면 ether.fi가 카드 소지자의 Scroll 기반 지갑에서 차감을 트리거한다. 그 온체인 트랜잭션이 1초 안에 계정의 결제 자격을 검증하고, Visa가 가맹점에 그 결과를 확정한다."<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> 제품은 두 모드로 출시되었다. <em>Direct Pay</em>는 지원 스테이블코인 잔액을 사용한다 — "현재는 USDC, USDT, LiquidUSD만 Direct Pay 모드에 적격이다." <sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> <em>Borrow Mode</em>는 ETH 담보로 USDC를 빌린다 — "카드는 ETH 담보로 USDC를 빌려 가맹점에 지불한다. ETH(그리고 그 상방)을 유지하고 과세 대상인 매각을 피한다. 대출은 이후 스테이킹 수익으로 상환할 수 있다." <sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> 캐시백은 모든 거래에 3%, 카드는 Visa 발급이며, 카드 소지자별 지갑은 Scroll 위의 Gnosis Safe다.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<h2>5. 토코노믹스 — ETHFI</h2>
+<p>ETHFI 거버넌스 토큰은 <strong>2024년 3월 16일</strong>에 발표되었으며 고정 총공급 10억 개와 "추가 발행 계획 없음"을 명시한다.<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> 시즌 1 에어드롭은 "총공급의 6%를 분배하며, 첫 분배 단계는 3월 18일에 시작"되었고 청구 기간은 90일이었다.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> 스테이크홀더별 할당은 <strong>투자자 33.74%, 재단/트레저리 21.62%, 코어 컨트리뷰터 21.47%, 사용자 에어드롭 19.27%, 파트너십·유동성 3.90%</strong>이다.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup> 2026-05-14 Tokenomist 기준 <strong>유통 공급 835,965,183 토큰(83.60% 언락)</strong>, 베스팅은 2027년까지 이어진다.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup> _(할당별 cliff/리니어 일정은 텍스트로 노출되지 않음)_</p>
+<p>ETHFI의 명시된 역할은 거버넌스다 — "ETHFI는 커뮤니티 멤버에게 프로토콜 에 직접 기여하고 ether.fi 생태계의 성장에 영향을 줄 수 있는 메커니즘을 제공한다."<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> 보조금 프로그램, 프로토콜 파라미터, 수수료 구조, 트레저리 관리가 그 대상이다. 출시 글은 또한 <strong>"ETHFI는 가치 적립 형태로 운영될 것이며, ETHFI를 보유함으로써 StakeRank를 개선할 수 있다"</strong>고 밝히지만,<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> 출시 시점에서 명시적 fee-switch는 약속하지 않는다.</p>
+<h2>6. 보안 자세</h2>
+<p>etherfi-protocol/smart-contracts 레포지토리는 공개 audits 디렉터리에 <strong>2023-02-25부터 2026-03-05까지 29개의 보고서</strong>를 게시한다. <sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> 초기에는 CertiK(2023-02), Omniscia(2023-05), Nethermind(2023-07), Solidified(2023-10), Hats Finance(2023-12), Zellic(2024-01, 2024-03), Decurity(2024-04), Halborn(2024-06, 2024-08), Paladin (2024-09)로 다양한 회사가 섞여 있다.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> 2024년 10월 이후로는 <strong>Certora의 형식 검증</strong>이 압도적인 비중을 차지하며, EETH share inflation, withdrawal fee, v2.49 instant-withdrawal merge, EigenLayer Slashing, Cumulative Merkle Distributor, V3.Prelude 리팩터(2회), Pectra 기능 업그레이드, weETH withdrawal adapter, Safe Key Generation·Consolidation Role·Restaker bug-fix, Liquid-Refer·KING· Cross Pod Approval, 2026-01-29의 코어 컨트랙트 재감사, 그리고 가장 최근의 Priority Queue 컴포넌트(2026-03-05)까지 14개의 보고서를 냈다. <sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> DeFi 프로토콜로서는 이례적으로 정식 검증 비중이 높지만, 그만큼 검증 책임을 단일 파트너에 집중시키는 자세이기도 하므로 그 자체를 짚어둘 만하다.</p>
+<h2>7. 도입과 시장 위치</h2>
+<p>DefiLlama 기준 ether.fi의 TVL은 2026-05-14에 <strong>51억 5,900만 달러</strong>다 — <strong>이더리움 49억 7,400만 달러</strong>, <strong>OP 메인넷 1억 8,410만 달러</strong>, Scroll 약 18만 7천 달러, 연환산 수수료 <strong>1억 9,897만 달러</strong>, 연환산 수익 <strong>4,857만 달러</strong>.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> _(point-in-time)_ ETHFI는 <strong>0.45달러</strong>에 거래되며 유통 시가총액은 <strong>3억 7,398만 달러</strong>, 완전 희석 가치는 약 4억 4,783만 달러다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup> 펀딩 측면에서 DefiLlama는 <strong>2023년 2월 28일 시드 530만 달러</strong>, <strong>2024년 2월 28일 시리즈 A 2,700만 달러</strong> 를 기록한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p>전략적 프레임은 Cash 카드를 LRT 공급망의 소비자 입구로 다루는 것이다. CoinDesk의 보도는 이 카드를 "암호자산을 담보로 유지하면서 법정통화를 지출"하는 수단으로 묘사하고<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>, ether.fi 홈페이지는 같은 루프를 "Save, Grow, Spend. Do more with your crypto"라는 슬로건으로 광고한다. <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> 소비자 측면 — Cash, Liquid, 그리고 누적 시즌 로열티 보상 — 이 경제적으로 자립할 수 있는지는 TVL 같은 단일 지표로는 답하기 어려운 공개 질문이다.</p>
+<h2>8. 논의</h2>
+<p>피어 LRT 설계와 ether.fi를 구분 짓는 세 가지 구조적 차이를 함께 짚어볼 만하다. 첫째, <strong>네이티브 리스테이킹</strong> — ether.fi의 기반 ETH는 자체 EigenLayer EigenPod로 직접 리스테이크되며, 다른 LST를 감싸 그 LST의 EigenLayer 캡 제약을 물려받지 않는다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> 둘째, <strong>키 커스터디</strong> — T-NFT/B-NFT 패턴과 IPFS 암호화 키 핸드오프는 검증자 키를 스테이커가 소유하게 두고, 슬래싱 보험은 본드를 잡힌 운영자가 부담하게 한다(두 역할을 단일 수탁 기관으로 합치지 않는다).<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> 셋째, <strong>제품 폭</strong> — eETH/weETH + eBTC + Liquid + Cash는 베이스 LRT 수익에서 자동 전략 볼트를 거쳐 실세계 결제 표면까지 수직 통합된 깔때기를 만든다. <sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<p>미해결 질문 대부분은 이 선택들의 하방에 위치한다. Pectra의 EigenLayer 슬래싱 원시 타입이 이제 범위에 들어왔고(Certora가 2025-04-12에 검토했고 2025년 9·10월 Pectra 기능 업그레이드의 일부로 다시 검토했다)<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>, 이는 B-NFT 슬래싱 보험의 경제성을 이전 EigenLayer 파라미터보다 훨씬 더 활발한 슬래싱 표면에 직접 노출시킨다. Certora가 감사에서 차지하는 중심적 역할은 <em>파트너 리스크</em> 측면도 만들어낸다 — 단일 감사사의 검토 주기는 신호가 강하지만 그만큼 사각지대를 동기화시킬 수도 있다. Cash 카드 분배는 Scroll, Visa, 그리고 Direct Pay 스테이블코인 집합(현재 USDC, USDT, LiquidUSD)에 의존하며, 이들은 LRT 컨트랙트 아키텍처 자체로는 완화할 수 없는 상대방 위험 표면을 함께 만든다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<h2>9. 한계</h2>
+<p>TVL, 수수료, 수익, ETHFI 시가총액 수치는 2026-05-14 DefiLlama·Tokenomist 스냅샷이며 이동한다. ETHFI 할당별 베스팅 일정(트랜치별 cliff와 리니어 구간)은 Tokenomist 페이지의 평문 형태로 노출되어 있지 않으므로, 본 리포트는 트랜치 단위 주장 대신 총합 상태와 "2027년까지 베스팅" 표현을 인용한다.</p>
+<p>ether.fi GitBook 익스포트는 사용자 표면에 풍부하지만, 가장 깊은 배관 — 특히 출금 큐와 LiquidityPool 내부의 오라클·회계 흐름 — 은 상대적으로 얇다. 공개 레포의 감사 보고서 제목들(s06)은 Certora가 커버한 표면적을 보여주는 가장 구체적인 공개 대용물이지만, 서술형 사양과는 다르다.</p>
+<p>마지막으로, 본 리포트 작성 시점 기준으로 ether.fi에 대한 독립 학술 보안 분석은 존재하지 않는다. 보안 주장은 공개 audits 디렉터리와 Certora 개별 보고서 제목에 의존하며, 외부의 경험적 재현에 기대지 않는다.</p>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">DefiLlama</span>. <a href="https://defillama.com/protocol/ether.fi">Ether.fi — DefiLlama protocol page</a>. <span class="venue">defillama.com, 2026</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-2"><span class="authors">ether.fi</span>. <a href="https://etherfi.gitbook.io/etherfi/llms-full.txt">Ether.fi Documentation — Full LLM-Friendly Export</a>. <span class="venue">etherfi.gitbook.io, 2026</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-3"><span class="authors">EigenLayer</span>. <a href="https://www.eigenlayer.xyz/">EigenLayer — Restaking protocol</a>. <span class="venue">eigenlayer.xyz, 2024</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-4"><span class="authors">ether.fi</span>. <a href="https://etherfi.gitbook.io/etherfi/ether.fi-whitepaper/ether.fi-staking">ether.fi Staking — Whitepaper</a>. <span class="venue">etherfi.gitbook.io, 2024</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-5"><span class="authors">ether.fi</span>. <a href="https://medium.com/etherfi/introducing-ether-fi-4346d6243d01">Introducing ether.fi — A new kind of liquid staking protocol</a>. <span class="venue">Medium, 2023</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-6"><span class="authors">ether.fi</span>. <a href="https://etherfi.gitbook.io/etherfi/node-operators/node-operators-guide">Node operators guide — ether.fi</a>. <span class="venue">etherfi.gitbook.io, 2024</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-7"><span class="authors">Gate Learn</span>. <a href="https://www.gate.com/learn/articles/etherfi/614">What is Ether.fi? ETH Staking Protocol Explained</a>. <span class="venue">gate.com, 2024</span>. <span class="accessed">접근일 2026-05-14.</span> <span class="unverified">[접근 제한]</span></li>
+      <li id="ref-8"><span class="authors">ether.fi</span>. <a href="https://www.ether.fi/">ether.fi — Stake, Earn, Spend. Do more with your crypto</a>. <span class="venue">ether.fi, 2026</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-9"><span class="authors">CoinDesk</span>. <a href="https://www.coindesk.com/tech/2024/09/09/etherfi-to-launch-visa-cash-card-on-scroll-network">Ether.Fi to Launch Visa &#x27;Cash&#x27; Card on Scroll Network</a>. <span class="venue">coindesk.com, 2024</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-10"><span class="authors">ether.fi</span>. <a href="https://www.ether.fi/cash">ether.fi Cash — The DeFi-Native Crypto Credit Card</a>. <span class="venue">ether.fi, 2026</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-11"><span class="authors">ether.fi</span>. <a href="https://etherfi.medium.com/announcing-ethfi-the-ether-fi-governance-token-8cae7327763a">Announcing ETHFI: The ether.fi Governance Token</a>. <span class="venue">Medium, 2024</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-12"><span class="authors">Bitrue</span>. <a href="https://support.bitrue.com/hc/en-001/articles/30028827386009-Everything-You-Need-to-Know-About-Ether-Fi-Airdrop-ETHFI-Season-1-2">Everything You Need to Know About Ether.Fi Airdrop (ETHFI) Season 1 &amp; 2</a>. <span class="venue">support.bitrue.com, 2024</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-13"><span class="authors">Tokenomist</span>. <a href="https://tokenomist.ai/ether-fi">Ether.fi (ETHFI) — Tokenomics, Supply &amp; Release Schedule</a>. <span class="venue">tokenomist.ai, 2026</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+      <li id="ref-14"><span class="authors">ether.fi</span>. <a href="https://github.com/etherfi-protocol/smart-contracts/tree/master/audits">etherfi-protocol/smart-contracts — audits directory</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-05-14.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-05-14 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

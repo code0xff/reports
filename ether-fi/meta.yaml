@@ -1,0 +1,10 @@
+title: Ether.fi
+subtitle: Inside Ether.fi — protocol mechanics, native restaking architecture, products (eETH / weETH / eBTC / Liquid / Cash), and the ETHFI economy.
+title_ko: Ether.fi
+subtitle_ko: Ether.fi 톺아보기 — 프로토콜 메커니즘, 네이티브 리스테이킹 아키텍처, 제품군(eETH / weETH / eBTC / Liquid / Cash), ETHFI 경제.
+slug: ether-fi
+lang: en
+langs: [en, ko]
+date: 2026-05-14
+tags: [ether-fi, liquid-restaking, eigenlayer, eETH, weETH, ETHFI, scroll, cash]
+status: ready
