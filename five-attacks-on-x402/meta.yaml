@@ -1,0 +1,10 @@
+title: Five Attacks on x402 Agentic Payment Protocol
+subtitle: A read of Li, Wang, and Wang (arXiv 2605.11781) on cross-layer attacks against the x402 agentic payment protocol.
+title_ko: x402 에이전트 결제 프로토콜에 대한 다섯 가지 공격
+subtitle_ko: Li, Wang, Wang (arXiv 2605.11781) 논문에 근거한 x402 프로토콜의 HTTP–체인 경계 공격 분석.
+slug: five-attacks-on-x402
+lang: en
+langs: [en, ko]
+date: 2026-05-14
+tags: [x402, agentic-payments, eip-3009, permit2, http-402, security]
+status: ready
