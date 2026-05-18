@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>프라이버시 L2: 기술적 기반과 구현체 (2026 서베이) — Deepsearch</title>
+<meta name="description" content="Aztec, Polygon Miden, Railgun — 이더리움 L2 위에서 기밀 전송을 구현하는 세 가지 아키텍처.">
+<link rel="alternate" hreflang="en" href="../index.html">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../ko/index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="en">English</a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../ko/index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>프라이버시 L2: 기술적 기반과 구현체 (2026 서베이)</h1>
+    <p class="subtitle">Aztec, Polygon Miden, Railgun — 이더리움 L2 위에서 기밀 전송을 구현하는 세 가지 아키텍처.</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-05-18</span>
+      <span><strong>태그</strong> privacy, l2, aztec, miden, railgun, zk-rollup, shielded-pool, ethereum</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="privacy-l2-implementations.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>2026년 시점 "프라이버시가 있는 L2"는 하나의 아키텍처가 아니라 세 가지로 갈린다. <strong>Aztec Network</strong> 는 프라이버시 네이티브 zkRollup이며 컨트랙트 레이어(Noir, <code>aztec.nr</code>)에서 비공개 상태와 공개 상태를 합성 가능하게 다루고, 자산을 노트로 모델링하며 Note Tree와 Nullifier Tree를 이더리움에 게시하고, 비공개 실행은 클라이언트 측 Private Execution Environment(PXE)에서, 공개 실행은 시퀀서의 Aztec VM에서 돌린다. Alpha Network는 2026-03-31에 가동되었으나 공개 disclose 된 치명적 proving system 취약점 아래 있으며 v5(2026-07)에서 수정될 예정이다. 2026년 채택 신호로는 $61M 커뮤니티 TGE와 Noir 1.0 pre-release가 있다. <strong>Polygon Miden</strong> 은 STARK 기반 실행 계층으로 액터 모델 계정과 UTXO 스타일 노트 시스템을 함께 가진다. 노트는 공개(전체 내용 온체인) 또는 비공개(해시만 온체인) 중에서 선택할 수 있고, 각 노트는 소비 조건을 강제하는 스크립트를 들고 다니며, 증명은 클라이언트에서 생성되어 배치·블록으로 재귀 집계된 뒤 이더리움에 정산된다 — 체인 전체를 불투명하게 만들지 않고 객체 단위 프라이버시를 제공한다. <strong>Railgun</strong> 은 이더리움 메인넷과 Arbitrum, Polygon 등 L2에 배포된 차폐 풀 스마트 컨트랙트 시스템이며 shield/unshield 정액 0.25% 수수료와 차폐 잔액으로 가스를 내는 선택적 릴레이어 모드(가스 ~10% 프리미엄)를 가진다. 2026년에는 차폐 자금이 블랙리스트 주소에서 유래하지 않았음을 신원 공개 없이 증명하는 Private Proof of Innocence(PPOI)를 출시했다. 세 가지는 같은 트레이드오프 곡선의 다른 점들이다 — 더 깊은 프라이버시와 별도 실행 계층(Aztec), 일반 실행 계층 내부의 객체 단위 프라이버시(Miden), 기존 투명 L2 위에 추가된 차폐 풀 프라이버시(Railgun). 구현자는 실제로 가려야 할 대상(컨트랙트 호출 / 선택적 흐름 / 토큰 이동만)과 유동성이 이미 있는 위치에 따라 선택해야 한다.</p>
+  </section>
+
+  <main class="body">
+<h2>서론</h2>
+<p>"프라이버시가 있는 L2"라는 표현은 모호하다. 오늘날 거의 모든 이더리움 L2는 어딘가에 zero-knowledge proof를 쓰지만, 그 증명은 거의 항상 연산을 <strong>숨기는</strong> 용도가 아니라 <strong>확장(scale)</strong> 하는 용도다. Linea, Scroll, Taiko 같은 평범한 zkEVM은 EVM 상태 전이 배치가 올바르다는 것을 증명하지만, 그 전이의 입력과 출력은 그대로 L1에 평문으로 게시한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 본 보고서가 다루는 것은 더 좁은 범주, 즉 <strong>기밀 전송(confidential transfer)</strong> 을 실제로 제공하는 L2들이다 — 설계상 거래 금액, 발신자, 수신자, 심지어 호출되는 컨트랙트까지 제3자에게 가려지도록 만든 프로토콜.</p>
+<p>2026년 현재 이 좁은 범주는 의미 있게 서로 다른 세 가지 아키텍처로 나뉜다:</p>
+<p>1. <strong>프라이버시 네이티브 실행 계층</strong> — 프라이버시가 체인 자체의 속성이며 비공개 상태, 비공개 컨트랙트, 클라이언트 측 proving이 모두 내장. 대표는 <strong>Aztec Network</strong>.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> 2. <strong>선택적 비공개 상태를 가진 실행 계층</strong> — 계정·노트·잔액을 객체 단위로 공개/비공개 선택할 수 있고, 비공개 상태 전이는 클라이언트가 직접 증명을 생성. 대표는 <strong>Polygon Miden</strong>.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 3. <strong>기존 L2 위에 배포된 차폐 풀(shielded pool) 스마트 컨트랙트</strong> — 평소엔 투명한 L2 위에 자산을 차폐·해제하는 컨트랙트 셋을 얹어 프라이버시를 추가. 대표는 이더리움 메인넷과 <strong>Arbitrum</strong>, <strong>Polygon</strong> 위에서 동작하는 <strong>Railgun</strong>.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<p>이후 본문은 세 아키텍처를 차례로 짚고 구현체를 명명한 뒤, 통합 담당자를 위한 비교 치트시트로 마무리한다.</p>
+<h2>배경 — 표준 zkEVM이 부족한 이유</h2>
+<p>표준 zkEVM(Linea, Scroll, Taiko, Polygon zkEVM, zkSync Era)은 ZK proof로 EVM 바이트코드 실행을 압축·검증한다. 그러나 그 프라이버시 이야기는 구조적이다 — L2 블록 데이터를 가져오는 제3자는 여전히 calldata, 스토리지 차이, 계정 간에 흐른 값을 본다. 업계 비교는 이를 다음과 같이 정리한다: "그들의 프라이버시 측면은 거래 기밀성이 아니라 확장성을 위한 zero-knowledge proof 메커니즘에 관련된 것"이다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 기밀 전송을 얻으려면 실행 모델 자체를 바꾸거나(Aztec, Miden) 차폐 풀 컨트랙트를 위에 얹어야(Railgun) 한다.</p>
+<p>특히 Aztec이 기대고 있는 깊은 아키텍처 논거는 "EVM의 투명하고 쿼리 가능한 상태는 보안을 손상시키지 않고서는 프라이버시를 사실상 불가능하게 만든다"는 것이다 — 프라이버시는 컨트랙트 레이어에 <em>설계되어야</em> 하지 위에 덧붙이는 것이 아니다.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></p>
+<h2>Aztec Network — 프라이버시 네이티브 zkRollup</h2>
+<p>Aztec은 본 조사의 가장 공격적인 설계점이다. 컨트랙트 레이어가 비공개·공개 상태를 두 개의 분리된 세계가 아니라 <strong>합성 가능한 두 측면</strong> 으로 다루는 L2다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<p><strong>자산 모델.</strong> Aztec은 자산을 잔액이 아니라 <strong>노트(note)</strong> 로 표현한다. 노트는 소유권과 값을 기록하는 UTXO 모양의 객체다. 전송은 입력 노트를 소비하고 새 출력 노트를 만든다. ZK 증명은 입력 값과 출력 값이 같다는 것(고전적 "join-split")만 보여줄 뿐 어느 쪽도 노출하지 않는다. 소비된 노트는 <strong>Nullifier Tree</strong> 에, 한 번이라도 만들어진 모든 노트는 <strong>Note Tree</strong> 에 기록되며, 두 트리의 Merkle root는 정산을 위해 이더리움 L1에 게시된다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<p><strong>실행 분리.</strong> 거래는 두 실행 환경 사이에서 분할된다:<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></p>
+<ul>
+<li><strong>Private Execution Environment(PXE)</strong> 는 사용자 브라우저 안에서 <strong>클라이언트 측</strong> 으로 동작한다. 키를 보관하고, 암호화된 노트를 관리하고, 비공개 컨트랙트 함수를 실행하며 ZK 증명을 발산한다. 시퀀서는 비공개 입력을 결코 보지 못한다.</li>
+<li><strong>Aztec Virtual Machine(AVM)</strong> 은 시퀀서에서 동작하며 공개 컨트랙트 함수를 실행한다. 시퀀서가 재실행·증언하므로 공개 함수는 검증자 "training wheels"의 보호를 받고, 비공개 동작은 같은 컨트랙트 안에서 공개 로직과 합성될 수 있다.</li>
+</ul>
+<p><strong>개발자 표면.</strong> 스마트 컨트랙트는 ZK 프로그래밍을 위한 Rust-like 오픈소스 언어 <strong>Noir</strong> 로 작성되며 <code>private</code>·<code>public</code> 함수 한정자와 PXE/AVM 사이를 매개하는 컨트랙트 프레임워크(<code>aztec.nr</code>)를 사용한다.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> Noir 1.0은 2026년 2월 pre-release로 공개되었다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<p><strong>2026년 네트워크 상태.</strong> Aztec은 2026년 2월 커뮤니티 우선 토큰 세일로 16,700명 이상에게서 $61M을 모았다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> <strong>Alpha Network</strong> 는 2026년 3월 31일 자에 프라이빗 스마트 컨트랙트를 가진 프라이버시 네이티브 L2로 가동되었다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> 다만 2026년 3월 17일에 팀은 <strong>proving system의 치명적 취약점</strong> 을 공개 disclose 했다 — 악용 시 프로토콜의 심각한 중단과 사용자 자금 도난으로 이어질 수 있다. 수정은 <strong>2026년 7월로 예정된 v5 릴리스</strong> 에 묶여 있다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> _(초기 신호 — 단일 산업 출처. 현재의 모든 보안 보증은 v5 출시를 조건으로 한다.)_</p>
+<h2>Polygon Miden — 비공개 노트를 가진 실행 계층</h2>
+<p>Miden은 다른 설계 경로를 택한다 — <em>체인 전체</em> 를 비공개로 만들기보다, 액터 모델 실행 계층 안에서 프라이버시를 <strong>객체 단위 선택지</strong> 로 둔다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<p><strong>계정·노트 모델.</strong> 각 계정은 독립적 상태 기계(액터)이고 <strong>노트</strong> 는 액터 간에 자산이나 데이터를 옮기는 비동기 메시지다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> 노트는 <strong>Merkle Mountain Range</strong> 에, 계정은 <strong>Sparse Merkle Tree</strong> 에, <strong>nullifier</strong> 는 또 다른 SMT에 저장된다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> 각 노트는 인라인 <strong>스크립트</strong> 를 들고 다닌다. 스크립트는 노트가 어떤 조건 아래 소비될 수 있는지를 정의하며, 거래의 일부로 실행되고 그 결과가 증명에 포함된다.<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup></p>
+<p><strong>공개 vs 비공개 노트.</strong> 노트는 두 가지 종류로 나뉜다:<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<ul>
+<li><strong>공개 노트</strong> 는 전체 내용을 온체인에 기록한다.</li>
+<li><strong>비공개 노트</strong> 는 해시만 기록한다 — 실제 내용은 보유자가 오프체인에 보관한다.</li>
+</ul>
+<p>이것이 핵심 노브다 — 같은 네트워크가 프로토콜 분기 없이 투명 결제와 차폐 결제 둘 다를 지원한다. 계정도 마찬가지로 공개·비공개·암호화 변종을 가질 수 있다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<p><strong>Proving 모델.</strong> Miden은 <strong>STARK 기반</strong> 이며 <strong>클라이언트 측 proving</strong> 을 지원한다. 사용자는 자기 상태 전이에 대한 증명을 로컬에서 직접 생성하며 "상태를 네트워크에 공개할 필요가 없다."<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 거래는 그 뒤 <strong>재귀적으로 집계</strong> 되어 배치가 되고 배치는 블록이 되며 최종 블록 증명이 이더리움에 게시된다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> 마케팅 페이지는 추가로 <strong>post-quantum</strong> 암호화와 <strong>recursive proof</strong> 파이프라인을 표방한다.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></p>
+<p>실용적 결론: 한 애플리케이션이 감사 가능해야 하는 흐름(가격 발견, 거버넌스)은 공개로, 그렇지 않아야 하는 흐름(급여, 트레저리, 개별 주문)은 비공개로 같은 체인 같은 증명 시스템 안에서 운영할 수 있다.</p>
+<h2>Railgun — 기존 L2 위의 차폐 풀 스마트 컨트랙트</h2>
+<p>Railgun은 자체 체인을 운영하지 않는다. 이더리움 메인넷, <strong>Arbitrum</strong>, <strong>Polygon</strong> 등 여러 체인에 협조 동작하는 <strong>스마트 컨트랙트 셋</strong> 을 배포해 ERC-20의 차폐 풀을 유지한다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> 사용자는 입금("shield")하고, 풀 안에서 ZK 증명으로 거래하고, 출금("unshield")한다. 각 체인의 스마트 컨트랙트가 차폐 풀 불변량을 강제한다. L2 운영자 입장에서는 그냥 또 하나의 배포된 애플리케이션일 뿐이다.</p>
+<p><strong>수수료 모델.</strong> Railgun의 2026년 수수료 구조는 shield/unshield 거래에 대해 <strong>0.25% 정액</strong> 이며, 사용자가 차폐 잔액으로 가스를 내고 싶으면 <strong>릴레이어 수수료</strong> (보통 현재 가스가의 약 10% 프리미엄)가 더해진다.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup> 차폐 ↔ 차폐 내부 전송은 각 체인의 베이스 가스에 프로토콜 경제가 추가된다.</p>
+<p><strong>Private Proof of Innocence(PPOI).</strong> Railgun의 2026년 시그니처 기능인 PPOI는 사용자가 "신원이나 거래 이력을 드러내지 않고 자기 자금이 블랙리스트 주소에서 유래하지 않았음을 암호학적으로 증명"하게 한다.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup> 컴플라이언스 각도다 — 기관이 차폐 풀을 쓰면서도 제재 활동과 무관함을 입증할 능력을 잃지 않게 하려는 시도다.</p>
+<p><strong>트레이드오프.</strong> Aztec과 비교해 Railgun은 이미 유동성이 있는 L1/L2 위에 그대로 살아가므로 온보딩이 빠르지만, <em>컨트랙트 호출 자체</em> 는 숨기지 못한다 — 오직 풀 내부 토큰 전송만 가린다. Aztec은 자체 L2이므로 둘 다 숨길 수 있지만 그 대가로 자체 브리지·시퀀서·생태계가 필요하다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<h2>비교와 구현 가이드</h2>
+<table><thead><tr><th>축</th><th>Aztec</th><th>Miden</th><th>Railgun</th></tr></thead><tbody><tr><td>스택 내 위치</td><td>단독 프라이버시 L2</td><td>객체 단위 프라이버시를 가진 단독 실행 L2</td><td>기존 L2 위의 차폐 풀 스마트 컨트랙트</td></tr><tr><td>무엇이 가려지나</td><td>금액·발신자·수신자·컨트랙트 호출</td><td>노트 내용과 계정 상태, 객체 단위 선택</td><td>차폐 풀 내 토큰 전송 세부</td></tr><tr><td>증명 시스템</td><td>zkSNARK (Noir 회로 + PXE)</td><td>STARK (재귀적, 클라이언트 옵션)</td><td>zkSNARK (컨트랙트 내 verifier)</td></tr><tr><td>상태 모델</td><td>노트 + Nullifier Tree, 비공개/공개 이중 상태</td><td>액터 계정 + UTXO 스타일 노트, 공개/비공개 노트</td><td>풀 컨트랙트 안의 차폐 UTXO</td></tr><tr><td>증명 위치</td><td>PXE를 통한 클라이언트 측</td><td>선택적 클라이언트 측, 아니면 운영자</td><td>사용자 spend는 클라이언트 측</td></tr><tr><td>개발자 언어</td><td>Noir (<code>aztec.nr</code>)</td><td>Miden Assembly(MASM 계열)</td><td>Solidity 호출자 + Railgun SDK</td></tr><tr><td>컴플라이언스 자세</td><td>기본 비공개, 자체 제재 스토리 없음</td><td>객체 단위 선택이 둘 다 지원</td><td>비연관 증명 PPOI 제공</td></tr><tr><td>라이브 상태(2026-05)</td><td>2026-03-31부터 Alpha Network 가동, 그러나 v5(2026-07)까지 알려진 proving system 취약점 보유</td><td>Miden 코드베이스를 통한 공개 테스트넷·라이브 배포</td><td>이더리움·Arbitrum·Polygon 등 EVM에서 라이브</td></tr></tbody></table>
+<p><strong>구현 가이드.</strong> 애플리케이션이 실제로 무엇을 숨겨야 하는지에 따라 선택한다:</p>
+<ul>
+<li><em>애플리케이션 자체</em> 가 비공개여야 한다면 — 비공개 주문장, 기밀 대출 포지션, 정체성과 결합되지만 연결 불가능한 인터랙션 — 세 가지 중 컨트랙트 호출까지 가리는 것은 프라이버시 네이티브 모델(Aztec)뿐이다. 대신 (a) 자체 브리지를 가진 별도 체인과 (b) v5가 출시될 때까지의 현 보안 단서를 받아들여야 한다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></li>
+<li>시스템 대부분은 투명하되 일부 흐름(급여, 트레저리, B2B 정산)에만 <em>선택적 프라이버시</em> 가 필요하다면, <strong>Miden의 노트 단위 공개/비공개 선택</strong> 이 정확히 그 모양으로 맵핑된다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup></li>
+<li>이미 투명한 L2 위에 살고 있고 요구사항이 <em>기밀 토큰 이동만</em> 이라면, <strong>Railgun의 차폐 풀 컨트랙트</strong> 가 가장 적은 통합 비용이며 컴플라이언스가 범위 안에 있다면 PPOI를 제공한다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></li>
+</ul>
+<p>수수료 면에서, 2026년 초 제3자 비교는 Aztec 내부 비공개 전송이 $0.10 미만(L1에서의 브리지는 $5–$15), Railgun이 0.25% 정액 + L2 가스라고 보고한다 — Miden의 경제는 구체적 배치와 prover에 따라 달라진다.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></p>
+<h2>한계</h2>
+<ul>
+<li>세 구현체 모두 2026년에 움직이는 표적이다. 특히 Aztec은 현재 공개적으로 disclose 된 proving system의 치명적 취약점 아래에서 운영되고 있으며, 보안 서사는 v5 이후 달라질 것이다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></li>
+<li>본 보고서의 Miden 아키텍처 디테일은 제3자 deep dive(Obscura)와 HackMD 분석에 기댄다. 프로젝트 자체 홈페이지는 조회 시점에 마케팅 수준 정보만 공개했다. 충실히 출처가 있되 보고서 범위 안에서는 아직 백서로 앵커링되지 않았다.</li>
+<li>비-이더리움-L2 프라이버시 체인(Penumbra, Namada, Aleo, Zcash)은 업계 글에서 L2와 함께 언급되곤 하지만 L1 또는 앱체인이므로 본 보고서 범위에서 제외했다.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup></li>
+<li>수수료 수치는 시점 수치이며 2026년 단일 제3자 비교에서 가져왔다. proving 비용 개선과 L2 가스 동학에 따라 움직일 것이다.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://blog.thirdweb.com/polygon-zkevm-vs-zksync-era-vs-linea-vs-scroll-vs-taiko/">zkEVM comparison — Polygon zkEVM vs zkSync Era vs Linea vs Scroll vs Taiko — thirdweb</a>. <span class="accessed">접근일 2026-05-18.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://aztec.network/blog/fully-confidential-ethereum-transactions-aztec-networks-privacy-architecture">Fully Confidential Ethereum Transactions — Aztec Network</a>. <span class="accessed">접근일 2026-05-18.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://aztec.network/">Aztec Network — homepage</a>. <span class="accessed">접근일 2026-05-18.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://medium.com/@obscura_network/polygon-miden-deep-dive-bringing-privacy-to-ethereum-28c1c4b3fab8">Polygon Miden Deep Dive — Obscura</a>. <span class="accessed">접근일 2026-05-18.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://polygon.technology/blog/polygon-miden-alpha-testnet-v-2-live">Polygon Miden Alpha Testnet v2 — Polygon Blog</a>. <span class="accessed">접근일 2026-05-18.</span></li>
+      <li id="ref-6"><span class="authors">—</span>. <a href="https://medium.com/@Railgun_Project/decentralized-layer-1-vs-centralized-layer-2-a-comparison-between-railgun-and-aztec-privacy-8f7a3a2a0c4b">Railgun vs Aztec — Railgun Project</a>. <span class="accessed">접근일 2026-05-18.</span></li>
+      <li id="ref-7"><span class="authors">—</span>. <a href="https://chainscorelabs.com/comparisons/privacy-mixers-vs-shielded-pools/privacy-protocol-selection/railgun-vs-aztec-network-evm-privacy-sdk-vs-zk-rollup">Railgun vs Aztec — Chainscore Labs</a>. <span class="accessed">접근일 2026-05-18.</span></li>
+      <li id="ref-8"><span class="authors">—</span>. <a href="https://www.bankless.com/read/getting-to-know-aztecs-privacy-first-ethereum-l2">Getting to Know Aztec&#x27;s Privacy-First Ethereum L2 — Bankless</a>. <span class="accessed">접근일 2026-05-18.</span></li>
+      <li id="ref-9"><span class="authors">—</span>. <a href="https://thedefiant.io/news/blockchains/aztec-launches-alpha-network-ethereum-s-first-l2-for-private-smart-contracts">Aztec Launches Alpha Network — The Defiant</a>. <span class="accessed">접근일 2026-05-18.</span></li>
+      <li id="ref-10"><span class="authors">—</span>. <a href="https://blockeden.xyz/blog/2026/03/13/aztec-network-tge-noir-language-privacy-l2-mainnet/">Aztec Network&#x27;s $61M Community TGE and Noir 1.0 — BlockEden</a>. <span class="accessed">접근일 2026-05-18.</span></li>
+      <li id="ref-11"><span class="authors">—</span>. <a href="https://hackmd.io/@rishotics/SJkmOpCbR">Technical Analysis of Transactions in Miden — HackMD</a>. <span class="accessed">접근일 2026-05-18.</span></li>
+      <li id="ref-12"><span class="authors">—</span>. <a href="https://miden.xyz/">Miden — homepage</a>. <span class="accessed">접근일 2026-05-18.</span></li>
+      <li id="ref-13"><span class="authors">—</span>. <a href="https://baltex.io/blog/ecosystem/aztec-vs-railgun-privacy-fees-2026-comparison">Aztec vs Railgun: 2026 DeFi Privacy and Fees Comparison — Baltex</a>. <span class="accessed">접근일 2026-05-18.</span></li>
+      <li id="ref-14"><span class="authors">—</span>. <a href="https://www.theblock.co/post/383680/aztec-zcash-year-pragmatic-privacy-root">From Aztec to Zcash: the year pragmatic privacy took root — The Block</a>. <span class="accessed">접근일 2026-05-18.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-05-18 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

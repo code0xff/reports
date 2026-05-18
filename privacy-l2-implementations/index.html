@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Privacy-Enabled L2s: Technical Foundations and Implementations (2026 Survey) — Deepsearch</title>
+<meta name="description" content="Aztec, Polygon Miden, and Railgun — three architectures for confidential transfers on Ethereum L2s.">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="ko" href="ko/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>Privacy-Enabled L2s: Technical Foundations and Implementations (2026 Survey)</h1>
+    <p class="subtitle">Aztec, Polygon Miden, and Railgun — three architectures for confidential transfers on Ethereum L2s.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-05-18</span>
+      <span><strong>Tags</strong> privacy, l2, aztec, miden, railgun, zk-rollup, shielded-pool, ethereum</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="privacy-l2-implementations.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>In 2026, "privacy-enabled L2" splits into three architectures rather than one. <strong>Aztec Network</strong> is a privacy-native zkRollup whose contract layer (Noir, <code>aztec.nr</code>) treats private and public state as composable, models assets as notes with a Note Tree and Nullifier Tree posted to Ethereum, runs private execution client-side in a Private Execution Environment (PXE), and runs public execution on sequencers in the Aztec VM; its Alpha Network went live on 31 March 2026 but operates under a publicly disclosed critical proving-system vulnerability slated for fix in v5 (July 2026), with a $61M community TGE and Noir 1.0 pre-release as 2026's adoption signal. <strong>Polygon Miden</strong> is a STARK-based execution layer with an actor-model account system and a UTXO-style note system; notes can be public (full content on-chain) or private (only the hash on-chain), each carries a script enforcing consumption conditions, and proofs are generated client-side and recursively aggregated into batches and blocks before settling on Ethereum, giving per-object privacy without forcing the whole chain to be opaque. <strong>Railgun</strong> is a shielded-pool smart-contract system deployed on Ethereum mainnet plus L2s including Arbitrum and Polygon, charges a flat 0.25% shield/unshield fee with an optional relayer-paid gas mode at ~10% gas premium, and shipped Private Proof of Innocence (PPOI) in 2026 as a way to prove shielded funds did not originate from blacklisted addresses without revealing identity. The three sit at different points on the same trade-off curve: deeper privacy and a separate execution layer (Aztec), per-object privacy inside a normal execution layer (Miden), and shielded-pool privacy added on top of existing transparent L2s (Railgun). Implementers should choose by what actually needs to be private (contract calls, selective flows, or only token movement) and by where their liquidity already lives.</p>
+  </section>
+
+  <main class="body">
+<h2>Introduction</h2>
+<p>"Privacy-enabled L2" is an ambiguous label. Almost every Ethereum L2 today uses zero-knowledge proofs <em>somewhere</em>, but the proofs almost always exist to <strong>scale</strong> computation, not to <strong>conceal</strong> it: a vanilla zkEVM like Linea, Scroll, or Taiko verifies that a batch of EVM transitions is correct, while still posting the inputs and outputs of those transitions in cleartext to L1.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> What this report cares about is the narrower class of L2s that deliver <em>confidential transfers</em> — protocols where transaction amounts, senders, receivers, or even contract calls are hidden from third parties by design.</p>
+<p>In 2026, that narrow class consists of three meaningfully different architectures:</p>
+<p>1. <strong>Privacy-native execution layers</strong> — privacy is a property of the chain itself, with private state, private contracts, and client-side proving baked in. The exemplar is <strong>Aztec Network</strong>.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> 2. <strong>Execution layers with optional private state</strong> — accounts, notes, and balances can be public or private per-object, and clients generate their own proofs for private state transitions. The exemplar is <strong>Polygon Miden</strong>.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 3. <strong>Shielded-pool smart-contract systems deployed on existing L2s</strong> — privacy is added on top of an otherwise transparent L2 via a deployed contract set that shields and unshields assets. The exemplar is <strong>Railgun</strong>, which runs on Ethereum mainnet and on Arbitrum and Polygon.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<p>The rest of the report walks each of the three architectures, names the implementations, and ends with a comparative cheat sheet for integrators choosing among them.</p>
+<h2>Background — why standard zkEVMs are not enough</h2>
+<p>Standard zkEVMs (Linea, Scroll, Taiko, Polygon zkEVM, zkSync Era) use ZK proofs to compress and verify execution of EVM bytecode. Their privacy story is structural: a third party that fetches the L2 block data still sees the calldata, the storage diffs, and the values that flowed between accounts. As one industry comparison summarises, "their privacy aspects relate to inherent zero-knowledge proof mechanisms used for scalability rather than transaction confidentiality features."<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> To get confidential transfers you have to either change the execution model (Aztec, Miden) or layer a shielded-pool contract on top (Railgun).</p>
+<p>The deeper architectural argument that Aztec, in particular, leans on is that "the EVM's transparent, queryable state makes privacy essentially impossible without compromising security" — privacy has to be designed into the contract layer, not bolted on.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></p>
+<h2>Aztec Network — privacy-native zkRollup</h2>
+<p>Aztec is the most aggressive design point in the survey: an L2 whose contract layer treats private and public state as composable, not as two separate worlds.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<p><strong>Asset model.</strong> Aztec represents assets as <strong>notes</strong> rather than balances. A note is a UTXO-shaped object that records ownership and value. A transfer consumes input notes and emits new output notes; the ZK proof shows that input value equals output value (the classic "join-split") without revealing either side. Spent notes are recorded in a <strong>Nullifier Tree</strong>; all notes ever created are recorded in a <strong>Note Tree</strong>; Merkle roots from both trees are posted to Ethereum L1 for settlement.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<p><strong>Execution split.</strong> Transactions are split between two execution environments:<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></p>
+<ul>
+<li>The <strong>Private Execution Environment (PXE)</strong> runs <strong>client-side</strong> in the user's browser. It holds keys, manages encrypted notes, executes private contract functions, and emits the ZK proof. The sequencer never sees the private inputs.</li>
+<li>The <strong>Aztec Virtual Machine (AVM)</strong> runs on sequencers and executes public contract functions. Sequencers re-execute and attest, public functions get validator "training wheels", and private actions can compose with public logic in the same contract.</li>
+</ul>
+<p><strong>Developer surface.</strong> Smart contracts are written in <strong>Noir</strong>, an open-source Rust-like language for ZK programming, with <code>private</code> and <code>public</code> function modifiers and a contract framework (<code>aztec.nr</code>) that mediates between PXE and AVM.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> Noir 1.0 was released as a pre-release in February 2026.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<p><strong>Network state in 2026.</strong> Aztec ran a community-first token sale in February 2026 raising $61M from 16,700+ participants.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> The <strong>Alpha Network</strong> launched on 31 March 2026 as a privacy-native L2 with private smart contracts.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> However, on 17 March 2026 the team disclosed a <strong>critical vulnerability in the proving system</strong> that could lead to severe protocol disruption and theft of user funds; the fix is packaged into the <strong>v5 release planned for July 2026</strong>.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> _(early signal — single industry source; users should treat any current security guarantee as conditional on v5 shipping.)_</p>
+<h2>Polygon Miden — execution layer with private notes</h2>
+<p>Miden takes a different design route: rather than making the <em>whole chain</em> private, it makes privacy a <strong>per-object choice</strong> inside an actor-model execution layer.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<p><strong>Account and note model.</strong> Each account is an independent state machine (an actor), and <strong>notes</strong> are the asynchronous messages between actors that move assets or data.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> Notes are stored in <strong>Merkle Mountain Ranges</strong>, accounts in <strong>Sparse Merkle Trees</strong>, and <strong>nullifiers</strong> in their own Sparse Merkle Tree.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> Each note carries an inline <strong>script</strong> that defines the conditions under which the note can be consumed; the script is executed as part of the transaction and the result is included in the proof.<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup></p>
+<p><strong>Public vs private notes.</strong> Notes come in two flavours:<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<ul>
+<li><strong>Public notes</strong> record their full content on-chain.</li>
+<li><strong>Private notes</strong> record only the hash; the actual content is held off-chain by the holder.</li>
+</ul>
+<p>This is the key knob: the same network supports transparent payments and shielded payments without forking the protocol. Accounts can likewise be public, private, or encrypted variants.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<p><strong>Proving model.</strong> Miden is <strong>STARK-based</strong> and supports <strong>client-side proving</strong>: users locally generate proofs for their own state transitions, "without having to disclose the state to the network."<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> Transactions are then <strong>recursively aggregated</strong> into batches and the batches into blocks, with the final block proof posted to Ethereum.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> The marketing page additionally claims <strong>post-quantum</strong> crypto and a <strong>recursive proof</strong> pipeline.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></p>
+<p>The pragmatic consequence: an application can run public flows for things that should be auditable (price discovery, governance) and private flows for things that should not (payroll, treasury, individual orders), inside the same chain and the same proof system.</p>
+<h2>Railgun — shielded-pool smart contracts on existing L2s</h2>
+<p>Railgun does not run its own chain. It deploys a coordinated <strong>set of smart contracts</strong> on multiple chains — Ethereum mainnet, <strong>Arbitrum</strong>, <strong>Polygon</strong>, and others — that maintains a shielded pool of ERC-20s.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> Users deposit ("shield"), transact entirely inside the pool using ZK proofs, and withdraw ("unshield"), and the smart contracts on each chain enforce the shielded-pool invariants. From the L2 operator's perspective, this is just another deployed application.</p>
+<p><strong>Fee model.</strong> Railgun's 2026 fee structure is a flat <strong>0.25% fee for shielding and unshielding transactions</strong>, plus optional <strong>relayer fees</strong> (commonly a ~10% premium over current gas prices) if users want to pay gas out of their shielded balance.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup> Internal shielded-to-shielded transfers carry whichever chain's base gas applies, plus the protocol economics.</p>
+<p><strong>Private Proof of Innocence (PPOI).</strong> Railgun's 2026 signature feature is PPOI, which lets a user "cryptographically prove their funds don't originate from blacklisted addresses without revealing identity or transaction history."<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup> This is the compliance angle: it tries to give institutions a way to use a shielded pool without losing the ability to demonstrate non-association with sanctioned activity.</p>
+<p><strong>Trade-offs.</strong> Compared with Aztec, Railgun keeps liquidity on the same L1/L2s where it already lives and so onboards faster, but it cannot hide <em>contract calls themselves</em> — only token transfers within the pool. Aztec, by being an L2 in its own right, can hide both, but pays for that by needing its own bridges, sequencers, and ecosystem.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<h2>Comparison and implementation guidance</h2>
+<table><thead><tr><th>Axis</th><th>Aztec</th><th>Miden</th><th>Railgun</th></tr></thead><tbody><tr><td>Position in stack</td><td>Standalone privacy L2</td><td>Standalone execution L2 with per-object privacy</td><td>Shielded-pool smart contracts on existing L2s</td></tr><tr><td>What is hidden</td><td>Amounts, senders, receivers, contract calls</td><td>Note contents and account state, per-object choice</td><td>Token transfer details within the shielded pool</td></tr><tr><td>Proof system</td><td>zkSNARKs (Noir circuits + PXE)</td><td>STARKs (recursive, client-side option)</td><td>zkSNARKs (in-contract verifier)</td></tr><tr><td>State model</td><td>Notes + Nullifier Tree, dual private/public state</td><td>Actor accounts + UTXO-style notes, public/private notes</td><td>Shielded UTXOs inside the pool contracts</td></tr><tr><td>Proving location</td><td>Client-side via PXE</td><td>Optional client-side; otherwise operator</td><td>Client-side for the user's spend</td></tr><tr><td>Developer language</td><td>Noir (<code>aztec.nr</code>)</td><td>Miden Assembly (MASM-family)</td><td>Solidity callers + Railgun SDK</td></tr><tr><td>Compliance posture</td><td>Private by default; no native sanctions story</td><td>Per-object choice supports both</td><td>PPOI for non-association proofs</td></tr><tr><td>Live status (May 2026)</td><td>Alpha Network live since 31 March 2026, but under known critical proving-system vuln until v5 (July 2026)</td><td>Public testnets and live deployments via Miden code base</td><td>Live on Ethereum, Arbitrum, Polygon and other EVMs</td></tr></tbody></table>
+<p><strong>Implementation guidance.</strong> Choose based on what the application actually needs to hide:</p>
+<ul>
+<li>If the <em>application itself</em> must be private — private order books, confidential lending positions, identity-bound but unlinkable interactions — the privacy-native model (Aztec) is the only one of the three that hides contract calls in addition to transfers, but accepts (a) a separate chain with its own bridges and (b) a current security caveat until v5 ships.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></li>
+<li>If the application is mostly transparent but needs <em>selective privacy</em> for some flows (payroll, treasury, B2B settlements) inside an otherwise auditable system, <strong>Miden's per-note public/private choice</strong> maps directly to that shape.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup></li>
+<li>If the application already lives on a transparent L2 and the requirement is <em>confidential token movement only</em>, <strong>Railgun's shielded-pool contracts</strong> are the lowest-integration path and offer PPOI when compliance is in scope.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></li>
+</ul>
+<p>Fee-wise, in early 2026 a third-party comparison reports Aztec internal private transfers under $0.10 (vs $5–$15 to bridge in from L1), and Railgun's flat 0.25% plus L2 gas; Miden's economics depend on the specific deployment and the prover.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></p>
+<h2>Limitations</h2>
+<ul>
+<li>All three implementations are moving targets in 2026. Aztec, in particular, currently runs under a publicly disclosed critical proving-system vulnerability; the security narrative will look different after v5.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></li>
+<li>The Miden architectural detail in this report leans on a third-party deep dive (Obscura) plus a HackMD analysis; the project's own homepage at fetch time disclosed only marketing-level detail. Treated as well-sourced but not yet whitepaper-anchored in this report.</li>
+<li>The report excludes non-Ethereum-L2 privacy chains (Penumbra, Namada, Aleo, Zcash), which are sometimes referenced in industry coverage alongside L2s but are L1s or app-chains and therefore out of scope.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup></li>
+<li>Fee numbers are point-in-time and come from a single 2026 third-party comparison; they will move with proving-cost improvements and L2 gas dynamics.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://blog.thirdweb.com/polygon-zkevm-vs-zksync-era-vs-linea-vs-scroll-vs-taiko/">zkEVM comparison — Polygon zkEVM vs zkSync Era vs Linea vs Scroll vs Taiko — thirdweb</a>. <span class="accessed">Accessed 2026-05-18.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://aztec.network/blog/fully-confidential-ethereum-transactions-aztec-networks-privacy-architecture">Fully Confidential Ethereum Transactions — Aztec Network</a>. <span class="accessed">Accessed 2026-05-18.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://aztec.network/">Aztec Network — homepage</a>. <span class="accessed">Accessed 2026-05-18.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://medium.com/@obscura_network/polygon-miden-deep-dive-bringing-privacy-to-ethereum-28c1c4b3fab8">Polygon Miden Deep Dive — Obscura</a>. <span class="accessed">Accessed 2026-05-18.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://polygon.technology/blog/polygon-miden-alpha-testnet-v-2-live">Polygon Miden Alpha Testnet v2 — Polygon Blog</a>. <span class="accessed">Accessed 2026-05-18.</span></li>
+      <li id="ref-6"><span class="authors">—</span>. <a href="https://medium.com/@Railgun_Project/decentralized-layer-1-vs-centralized-layer-2-a-comparison-between-railgun-and-aztec-privacy-8f7a3a2a0c4b">Railgun vs Aztec — Railgun Project</a>. <span class="accessed">Accessed 2026-05-18.</span></li>
+      <li id="ref-7"><span class="authors">—</span>. <a href="https://chainscorelabs.com/comparisons/privacy-mixers-vs-shielded-pools/privacy-protocol-selection/railgun-vs-aztec-network-evm-privacy-sdk-vs-zk-rollup">Railgun vs Aztec — Chainscore Labs</a>. <span class="accessed">Accessed 2026-05-18.</span></li>
+      <li id="ref-8"><span class="authors">—</span>. <a href="https://www.bankless.com/read/getting-to-know-aztecs-privacy-first-ethereum-l2">Getting to Know Aztec&#x27;s Privacy-First Ethereum L2 — Bankless</a>. <span class="accessed">Accessed 2026-05-18.</span></li>
+      <li id="ref-9"><span class="authors">—</span>. <a href="https://thedefiant.io/news/blockchains/aztec-launches-alpha-network-ethereum-s-first-l2-for-private-smart-contracts">Aztec Launches Alpha Network — The Defiant</a>. <span class="accessed">Accessed 2026-05-18.</span></li>
+      <li id="ref-10"><span class="authors">—</span>. <a href="https://blockeden.xyz/blog/2026/03/13/aztec-network-tge-noir-language-privacy-l2-mainnet/">Aztec Network&#x27;s $61M Community TGE and Noir 1.0 — BlockEden</a>. <span class="accessed">Accessed 2026-05-18.</span></li>
+      <li id="ref-11"><span class="authors">—</span>. <a href="https://hackmd.io/@rishotics/SJkmOpCbR">Technical Analysis of Transactions in Miden — HackMD</a>. <span class="accessed">Accessed 2026-05-18.</span></li>
+      <li id="ref-12"><span class="authors">—</span>. <a href="https://miden.xyz/">Miden — homepage</a>. <span class="accessed">Accessed 2026-05-18.</span></li>
+      <li id="ref-13"><span class="authors">—</span>. <a href="https://baltex.io/blog/ecosystem/aztec-vs-railgun-privacy-fees-2026-comparison">Aztec vs Railgun: 2026 DeFi Privacy and Fees Comparison — Baltex</a>. <span class="accessed">Accessed 2026-05-18.</span></li>
+      <li id="ref-14"><span class="authors">—</span>. <a href="https://www.theblock.co/post/383680/aztec-zcash-year-pragmatic-privacy-root">From Aztec to Zcash: the year pragmatic privacy took root — The Block</a>. <span class="accessed">Accessed 2026-05-18.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-05-18. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

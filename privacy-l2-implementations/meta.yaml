@@ -1,0 +1,10 @@
+title: "Privacy-Enabled L2s: Technical Foundations and Implementations (2026 Survey)"
+subtitle: "Aztec, Polygon Miden, and Railgun — three architectures for confidential transfers on Ethereum L2s."
+title_ko: "프라이버시 L2: 기술적 기반과 구현체 (2026 서베이)"
+subtitle_ko: "Aztec, Polygon Miden, Railgun — 이더리움 L2 위에서 기밀 전송을 구현하는 세 가지 아키텍처."
+slug: privacy-l2-implementations
+lang: en
+langs: [en, ko]
+date: 2026-05-18
+tags: [privacy, l2, aztec, miden, railgun, zk-rollup, shielded-pool, ethereum]
+status: ready
