@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>스마트 계정 인프라 심층 비교 — Safe, ZeroDev, Biconomy, Privy, Crossmint, Coinbase AgentKit — Deepsearch</title>
+<meta name="description" content="여섯 스마트 계정/지갑 인프라의 아키텍처, 코드 구조, 기능 차이를 1차 소스로 추적한다">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="en" href="en/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="en/index.html" hreflang="en">English</a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>스마트 계정 인프라 심층 비교 — Safe, ZeroDev, Biconomy, Privy, Crossmint, Coinbase AgentKit</h1>
+    <p class="subtitle">여섯 스마트 계정/지갑 인프라의 아키텍처, 코드 구조, 기능 차이를 1차 소스로 추적한다</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-05-19</span>
+      <span><strong>태그</strong> smart-account, account-abstraction, erc-4337, erc-7579, eip-7702, safe, zerodev, biconomy, privy, crossmint, coinbase-agentkit</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="smart-account-providers-deep-dive.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>본 보고서는 2025–2026년 시점의 여섯 대표 스마트 계정/지갑 인프라(Safe, ZeroDev, Biconomy, Privy, Crossmint, Coinbase AgentKit)를 1차 소스로 추적한다. 같은 단어("스마트 계정")가 가리키는 범위는 제공자마다 명백하게 다르다 — Safe·ZeroDev·Biconomy는 ERC-4337<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> + ERC-7579<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 컨트랙트 진영, Privy<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>·Crossmint<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>는 호스팅 키 인프라와 정책 엔진을 묶은 풀스택, Coinbase AgentKit<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>은 그 위에 다양한 지갑/AI 프레임워크 어댑터를 얹는다. 본 보고서는 (a) 아키텍처, (b) 표준 채택, (c) 모듈·플러그인, (d) 키 관리, (e) 가스/페이마스터, (f) 에이전트·세션 지원의 여섯 축으로 비교한 뒤, Safe7579 Adapter, ZeroDev Kernel v3 Permissions, Biconomy SmartSessions, Privy의 SSS+TEE, Crossmint dual-key+TEE, Coinbase Spend Permissions의 구현 패턴을 코드 인용과 함께 정리한다.</p>
+  </section>
+
+  <main class="body">
+<h1>스마트 계정 인프라 심층 비교 — Safe, ZeroDev, Biconomy, Privy, Crossmint, Coinbase AgentKit</h1>
+<h2>1. 서론 — 왜 인프라를 따로 봐야 하는가</h2>
+<p>"스마트 계정"은 EOA가 아닌 모든 컨트랙트 지갑을 포함하는 단어다. 하지만 같은 단어를 들고 시장에서 경쟁하는 회사들의 정체성은 서로 매우 다르다 — Safe는 "오랫동안 검증된 다중 서명 컨트랙트 지갑이 4337/7579를 어댑터로 받아들이는 모델"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>, ZeroDev는 "ERC-4337 + 7579 + 가스 최적화의 모듈러 스마트 계정"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>, Biconomy는 "스마트 계정의 운영체제"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>, Privy는 "TEE 기반 self-custodial 키 인프라 + 서버 지갑"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, Crossmint는 "온체인 스마트 컨트랙트 위에 카드/스테이블코인 결제 레일을 동시에 묶은 풀스택"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>, Coinbase AgentKit은 "프레임워크와 지갑 모두에 agnostic한 에이전트 행위 인프라"<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>다. 그래서 어떤 축을 보느냐에 따라 동일한 비교가 다른 결론에 도달한다.</p>
+<p>본 보고서는 여섯 개의 비교 축을 미리 박아두고 진행한다.</p>
+<ul>
+<li><strong>(a) 아키텍처</strong> — 컨트랙트 지갑 자체 vs 키 인프라 vs 풀스택 SaaS 중 어디에 무게가 실리는가.</li>
+<li><strong>(b) 표준 채택</strong> — ERC-4337 / ERC-7579 / EIP-7702 / ERC-7710·7715 / ERC-7484·7739 중 무엇을 따르는가.</li>
+<li><strong>(c) 모듈 · 플러그인</strong> — 누구의 모듈 생태계 위에 서는가 (자체 / Rhinestone / 자체 정책 엔진).</li>
+<li><strong>(d) 키 관리</strong> — EOA + 컨트랙트 / MPC / SSS+TEE / dual-key+TEE / 사용자 디바이스 중 어디에 키가 있는가.</li>
+<li><strong>(e) 가스 / 페이마스터</strong> — ERC-4337 Paymaster를 그대로 쓰는가 자체 정산을 제공하는가.</li>
+<li><strong>(f) 에이전트 · 세션</strong> — 세션 키, 권한 위임, 정책 엔진을 어떤 형태로 노출하는가.</li>
+</ul>
+<h2>2. 배경 — 공통 표준 스택</h2>
+<h3>2.1 ERC-4337</h3>
+<p>ERC-4337은 "Account abstraction without consensus-layer protocol changes, instead relying on higher-layer infrastructure"라는 문장으로 시작하는 표준으로, EntryPoint 컨트랙트와 alt-mempool 위에 UserOperation을 흘려보낸다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. 본 보고서의 여섯 제공자는 모두 ERC-4337을 직간접적으로 지원한다.</p>
+<h3>2.2 ERC-7579 — 모듈러 인터페이스</h3>
+<p>ERC-7579는 모듈러 스마트 계정과 모듈의 <strong>최소 인터페이스</strong>를 정의한다 — "This proposal outlines the minimally required interfaces and behavior for modular smart accounts and modules to ensure interoperability across implementations"<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 네 가지 모듈 타입(validator, executor, fallback, hook)과 <code>installModule(uint256 moduleTypeId, address module, bytes calldata initData)</code>이 핵심 ABI다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 채택 진영은 Safe(어댑터 경유), ZeroDev Kernel, Biconomy Nexus, Rhinestone, OpenZeppelin Contracts modular account preset 등으로<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>, 본 보고서의 컨트랙트-중심 제공자 셋(Safe·ZeroDev·Biconomy)이 이 진영에 속한다.</p>
+<h3>2.3 EIP-7702 — EOA가 코드를 위임받는다</h3>
+<p>EIP-7702는 EOA가 자기 주소에 컨트랙트 코드를 일시적으로 위임받을 수 있게 하는 새 트랜잭션 타입(0x04)이다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. Safe는 별도 페이지로 7702를 "EOA에 코드와 스토리지를 부여하는 어카운트 추상화의 한 단계"라고 설명한다<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. Biconomy Nexus는 "EIP-7702 (Ethereum account abstraction roadmap compatibility)"를 명시적으로 받아들이고<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>, ZeroDev는 별도 <code>7702.zerodev.app</code> 도메인으로 예제 사이트를 유지한다<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</p>
+<h3>2.4 ERC-7484 · 7739 · SmartSessions</h3>
+<p>Biconomy Nexus는 ERC-7579, ERC-4337 외에도 ERC-7739(nested EIP-712 ergonomics), ERC-7562(EIP-4337 검증 규칙), ERC-7484(모듈 보안 레지스트리) 다섯 표준을 동시에 따른다고 명시한다<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. 세션 키는 별도 모듈인 <code>erc7579/smartsessions</code>에서 표준화된다 — "SmartSession is an advanced module for ERC-7579 compatible smart accounts, enabling granular control over session keys"<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>.</p>
+<h2>3. Provider Deep Dive</h2>
+<h3>3.1 Safe — 검증된 코어 + 어댑터로 4337/7579/7702를 받아들이는 모델</h3>
+<p>Safe Smart Account는 다중 서명 컨트랙트 지갑으로 가장 오래 운영되어 온 표준 중 하나다. 핵심 설계 원칙은 <strong>"코어를 건드리지 않는다"</strong>다. Safe는 ERC-4337을 코어에 박지 않고 <strong>Safe4337Module</strong>을 통해 외부 모듈로 받아들인다 — "Safe ERC-4337 compatibility is provided via Safe Modules and the Fallback Handler"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 모듈은 (1) Safe Module로서 4337 호환 실행을 가능하게 하고, (2) Fallback Handler로서 EntryPoint가 호출하는 <code>validateUserOp</code> 같은 함수를 받아낸다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 이 모듈은 Safe v1.4.1 이상에서 옵션으로 활성화된다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>ERC-7579는 같은 방식으로 <strong>Safe7579 Adapter</strong>가 처리한다. Adapter는 Rhinestone과 Safe가 공동 개발한 컨트랙트로, Safe Module이자 Fallback Handler 두 역할을 동시에 맡는다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 통과되는 능력은 Rhinestone 진영의 14개 감사 완료 모듈 — dead man switch, flash-loan, social recovery 등 — 이 Safe 코어를 건드리지 않은 채 곧장 쓸 수 있게 된다는 점이다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. <code>safe-modules</code> 리포는 4337 모듈, Allowance 모듈, Passkey 모듈, Recovery 모듈을 함께 호스팅한다<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>. 라이선스는 LGPL-3.0<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>.</p>
+<p>EIP-7702에 대해서 Safe는 "EIP-7702는 EOA가 코드와 스토리지를 갖게 하는 한 단계"라고만 명시하고<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>, 실제 통합은 7702 페이지에서 별도로 추적한다. 7702와 4337의 합쳐진 흐름이 Safe Smart EOA의 핵심 사용 사례다.</p>
+<p>핵심 한 줄: <strong>Safe = "코어는 그대로, 능력은 모듈로 / 어댑터로 추가한다."</strong> 이 설계는 이 보고서가 다루는 다른 제공자들의 모듈 선택 자유도를 가장 직접적으로 보장하는 형태다.</p>
+<h3>3.2 ZeroDev — Kernel v3 + Composable Permissions</h3>
+<p>ZeroDev의 핵심 제품은 컨트랙트 자체인 <strong>Kernel</strong>이다. 리포 한 줄 소개는 "Kernel is a smart contract account that is: Compatible with ERC-4337, Modular (supports ERC-7579 plugins), Highly gas-efficient"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. ZeroDev는 Kernel v3 출시 발표에서 자기 자신을 "First modular account for EntryPoint 0.7, First audited account for ERC-7579, First account with composable permissions"라고 표현했다<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup> _(vendor-stated)_. Pimlico의 비교 페이지도 같은 진영의 다른 1차 자료로서 "Kernel은 가장 널리 쓰이는 모듈러 스마트 계정"이라고 평한다<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>.</p>
+<p>ZeroDev Kernel v3의 권한 모델은 <strong>세션 키를 "permissions system"으로 일반화한 것</strong>이다 — "In EntryPoint 0.7 (Kernel v3), session keys have been upgraded into a more powerful permissions system"<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>. ZeroDev가 권한을 표현하는 추상은 세 개의 객체다 — "Who (what key) can perform the action? When (under what condition) can the action be performed? What is the action anyways?"<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>. 즉,</p>
+<ul>
+<li><strong>Signer (Who)</strong> — ECDSA / WebAuthn / Multisig 등 키 타입과 알고리즘을 지정한다.</li>
+<li><strong>Policy (When)</strong> — 한도, 컨트랙트 화이트리스트, 시간 윈도우 등 조건을 지정한다.</li>
+<li><strong>Action (What)</strong> — 호출할 실행 함수를 지정한다.</li>
+</ul>
+<p>권한은 N개의 정책(최대 254개)과 1개의 시너로 조합 가능하다는 것이 launch spec에 명시되어 있다<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>. UserOperation을 받으면 Kernel은 (1) 모든 정책을 통과시키고 (2) 시너가 userOpHash에 대해 서명했는지 확인한 뒤 실행으로 넘어간다<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>. 이 분리 덕에 같은 키가 한도가 다른 두 권한을 동시에 들 수 있고, 그 결과 에이전트 결제·자동화·소셜 복구가 한 인터페이스에서 표현된다.</p>
+<h3>3.3 Biconomy — Nexus + SmartSessions</h3>
+<p>Biconomy는 자기 새 스마트 계정을 <strong>Nexus</strong>라고 부르고, 이를 "스마트 계정을 위한 운영체제"로 포지셔닝한다 — "Nexus is a minimal &amp; non-opinionated implementation"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. Nexus는 ERC-7579, ERC-4337, ERC-7739, ERC-7562, ERC-7484 다섯 표준을 동시에 따른다고 자체 문서에 명시한다<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. 코어 구성은 (1) Minimal Proxy 코어 계정, (2) Validation 모듈(ECDSA/passkey/custom), (3) Execution 모듈(batch/automation/cross-chain), (4) Fallback Handler의 4분할이다<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. 라이선스는 MIT<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup>.</p>
+<p>Biconomy의 세션 키는 별도 모듈인 <strong>SmartSessions</strong>로 처리된다. SmartSessions는 Rhinestone과 Biconomy가 공동 저작한 ERC-7579 모듈로, 세 종류의 정책으로 권한을 표현한다 — UserOperation 검증 정책, action별 정책, ERC-1271 서명 검증 정책<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. SmartSessions의 설치 흐름은 (1) SmartSession 컨트랙트를 배포 (2) 스마트 계정에 모듈 설치 (3) 세션을 정책과 함께 설정 (4) 세션 키로 동작을 수행하는 4단계로 표준화되어 있다<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. 즉 ZeroDev Permissions의 signer/policy/action 추상과 거의 동형의 추상이 다른 진영에도 동일하게 존재한다.</p>
+<p>Nexus는 추가로 "Enable Mode"로 모듈을 트랜잭션 중에 즉시 활성화하는 패턴과, "Resource Locking" 타임락으로 모듈 즉시 제거를 막아 체인 추상화의 더블 스펜드 방지를 만든다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<h3>3.4 Privy — Embedded + Server Wallets, SSS + TEE 기반 자기 보관</h3>
+<p>Privy는 컨트랙트 자체보다는 <strong>키 인프라와 정책 엔진</strong>에 무게를 둔다. 제품 표면은 두 갈래로 나뉜다 — embedded wallets(앱에 박혀 사용자 상호작용을 처리)와 server wallets(API로 백엔드가 자율적으로 처리)다<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>. "high-performance self-custodial wallets that work on any chain"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>이라는 한 줄이 정체성을 요약한다.</p>
+<p>핵심 보안 아키텍처는 <strong>SSS(Shamir's Secret Sharing) + TEE(AWS Nitro Enclaves)</strong> 조합이다. Privy 공식 보안 페이지의 한 줄은 "Keys are only stored as encrypted shares distributed across separate security boundaries"<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>. 키는 2-of-2 SSS로 (1) Enclave 샤드(TEE 키로 암호화) (2) Auth 샤드(Privy가 사용자 자격증명으로 잠금)로 쪼개진다. 두 샤드 모두 TEE 내부에서만 잠시 결합해 서명을 만들고, 즉시 다시 흩어진다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. 이는 "self-custodial을 유지하면서 단일 인프라 제공자에게 키 보안을 의존하지 않는다"는 명시적 목표를 갖는다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<p>에이전트 시나리오는 별도 페이지에서 두 모델로 정리된다 — (1) 에이전트가 제어하고 개발자가 소유한 지갑, (2) 사용자가 소유하고 에이전트를 시너로 추가한 지갑<sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup>. 어느 쪽이든 정책이 1급 시민이다 — "Policies are critical as they define the boundaries within which your agents can operate"<sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup>. 정책 표현은 전송 한도, 컨트랙트 화이트리스트, 수취인 제한, 시간 기반 제어, 행위별 규칙이다<sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup>.</p>
+<p>핵심 한 줄: <strong>Privy = "TEE 안에서만 결합되는 키 + 정책 엔진을 SaaS로 제공한다."</strong> 컨트랙트 진영(Safe/ZeroDev/Biconomy)과 직접 경쟁이라기보다는 그 아래에 키 인프라를 공급하는 위치에 가깝다 — 실제로 Coinbase AgentKit은 Privy를 자기 WalletProvider 중 하나로 받는다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<h3>3.5 Crossmint — Smart-contract Wallets + Dual-Key + Card/USDC Rails</h3>
+<p>Crossmint는 <strong>스마트 컨트랙트 지갑 + 카드 발급 + 스테이블코인 결제 + AI 에이전트 도구</strong>를 하나의 API로 묶는 풀스택을 표방한다 — "Give agents fiat and stablecoin wallets, and issue virtual cards via Visa Intelligent Platform"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 50개 이상의 블록체인을 단일 API로 추상화한다는 점이 wallet-infrastructure 페이지의 자체 포지셔닝이다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p>키 모델은 <strong>dual-key + TEE</strong>다. 두 개의 키가 한 스마트 컨트랙트 지갑 안에서 분리되어 동작한다 — Owner Key는 사용자 측에 남아서 "halt the agent, withdraw … or modify permissions"라는 마스터 오버라이드 역할을 하고<sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup>, Agent Key는 TEE 안에서만 매일의 거래를 서명한다<sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup>. 이 분리 덕에 Crossmint는 같은 지갑이 x402 stablecoin payment와 Visa/Mastercard 카드 결제를 동시에 운용한다는 시나리오를 광고한다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<p>또 다른 설계 특징은 <strong>컨트랙트 기반이라 시너를 교체할 수 있다</strong>는 점이다 — "Crossmint wallets are based on open-source smart contracts, replacing fragile single-key setups with resilient, onchain security"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. 이는 vendor lock-in 회피를 명시적 자산으로 내세우는 포지셔닝이다. 컴플라이언스는 SOC 2 Type II 인증이 wallet-infrastructure 페이지에 명시되어 있고<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>, MiCA CASP 인가는 Crossmint 자체 비교 페이지에서 확인된다 _(vendor-stated)_<sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup>.</p>
+<h3>3.6 Coinbase AgentKit — 프레임워크/지갑 agnostic 행위 인프라</h3>
+<p>Coinbase AgentKit은 컨트랙트가 아니라 <strong>AI 에이전트가 온체인에서 행위하기 위한 통합 SDK</strong>다. 공식 정의는 "AgentKit is a framework for easily enabling AI agents to take actions onchain. It is designed to be framework-agnostic, so you can use it with any AI framework, and wallet-agnostic, so you can use it with any wallet"<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup>. 이 두 줄이 핵심이다 — 프레임워크와 지갑 모두에 잠금이 없다고 선언한다.</p>
+<p>AgentKit은 두 종류의 플러그인을 받는다.</p>
+<ul>
+<li><strong>WalletProvider</strong> — <code>CdpEvmWalletProvider</code>, <code>CdpSmartWalletProvider</code>, <code>ViemWalletProvider</code>, <strong><code>PrivyWalletProvider</code></strong>, <strong><code>ZeroDevWalletProvider</code></strong>, <code>CdpV2SolanaWalletProvider</code>, <code>SolanaKeypairWalletProvider</code> 등이 제공된다<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup>. 즉 Privy와 ZeroDev 같은 다른 제공자가 곧장 backend로 들어올 수 있다.</li>
+<li><strong>ActionProvider</strong> — 50+ 액션(TypeScript), 30+ 액션(Python). Compound, Uniswap, OpenSea, Across, Jupiter, Morpho, Superfluid 등 40+ 프로토콜과 묶여 있다<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup><sup class="footnote-ref"><a href="#ref-32" id="cite-32">[32]</a></sup>.</li>
+</ul>
+<p>라이선스는 Apache-2.0이고, 약관은 Coinbase Developer Platform Terms of Service에 종속된다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 프레임워크 통합은 LangChain, Vercel AI SDK, MCP, OpenAI Agents SDK, Eliza, Strands Agents, AutoGen으로 명시되어 있다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p>Coinbase의 같은 진영에는 두 가지 보완 인프라가 함께 있다.</p>
+<ul>
+<li><strong>CDP Wallets / Smart Accounts</strong> — 사용자가 EOA와 함께 또는 별도로 smart account를 받을 수 있고, EOA가 그 smart contract wallet의 시너 역할을 한다<sup class="footnote-ref"><a href="#ref-33" id="cite-33">[33]</a></sup>. 가스 후원·트랜잭션 배칭·spend permission을 모두 사용 가능<sup class="footnote-ref"><a href="#ref-33" id="cite-33">[33]</a></sup>.</li>
+<li><strong>Spend Permissions</strong> — 별도 컨트랙트(<code>SpendPermissionManager</code>)로, "Spend Permissions enable apps to spend native and ERC-20 tokens on behalf of users"라는 한 줄로 정체성을 요약한다<sup class="footnote-ref"><a href="#ref-34" id="cite-34">[34]</a></sup>. SpendPermissionManager는 Coinbase Smart Wallet의 owner로 추가되어 정해진 한도 안에서 사용자 자금을 옮길 권한을 갖는다<sup class="footnote-ref"><a href="#ref-34" id="cite-34">[34]</a></sup>. 흥미로운 설계 결정은 <strong>ERC-4337 EntryPoint를 사용하지 않는다</strong>는 것 — 그렇게 해서 Paymaster가 사용자의 토큰을 가스로 소진하는 시나리오를 막는다<sup class="footnote-ref"><a href="#ref-34" id="cite-34">[34]</a></sup>.</li>
+<li><strong>Agentic Wallets</strong> — Coinbase는 자신이 "AI 에이전트를 위해 설계된 최초의 지갑 인프라"라고 자기 포지셔닝한다<sup class="footnote-ref"><a href="#ref-35" id="cite-35">[35]</a></sup> _(vendor-stated)_.</li>
+</ul>
+<p>핵심 한 줄: <strong>Coinbase AgentKit = "지갑 / 정책 / 액션을 모듈로 받고, AI 프레임워크와 묶어 에이전트의 행위 레이어를 만든다."</strong></p>
+<h2>4. Comparison — 기능 매트릭스</h2>
+<table><thead><tr><th>축</th><th>Safe</th><th>ZeroDev</th><th>Biconomy</th><th>Privy</th><th>Crossmint</th><th>Coinbase AgentKit</th></tr></thead><tbody><tr><td>핵심 자산</td><td>Smart Account 컨트랙트 + 모듈</td><td>Kernel 컨트랙트 + Permissions</td><td>Nexus 컨트랙트 + Modules</td><td>TEE 키 인프라 + 정책 SaaS</td><td>Smart-contract 지갑 + 카드/USDC 풀스택</td><td>Action / Wallet adapter SDK</td></tr><tr><td>ERC-4337</td><td>✓ via <code>Safe4337Module</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></td><td>✓ via Kernel(EP 0.7)<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup></td><td>✓ via Nexus<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup></td><td>✓ smart-wallet 통합 옵션<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup></td><td>✓ 컨트랙트 지갑 기반<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></td><td>✓ 다양한 WalletProvider 경유<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup></td></tr><tr><td>ERC-7579</td><td>✓ via <code>Safe7579 Adapter</code><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></td><td>✓ Kernel v3<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup></td><td>✓ Nexus<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup></td><td>— (외부 SC 지갑에 위임)</td><td>명시되지 않음 (자체 컨트랙트)</td><td>— (지갑 어댑터에 의존)</td></tr><tr><td>EIP-7702</td><td>✓ docs 제공<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup></td><td>✓ 7702.zerodev.app 예제 사이트<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup></td><td>✓ Nexus 명시<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup></td><td>—</td><td>— (스마트 컨트랙트 모델)</td><td>— (WalletProvider별)</td></tr><tr><td>Custody 모델</td><td>컨트랙트 다중서명 + 모듈</td><td>컨트랙트 + Permissions</td><td>컨트랙트 + Modules</td><td>SSS 2-of-2 + TEE<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></td><td>Dual-key + TEE<sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup><sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup></td><td>WalletProvider별 위임</td></tr><tr><td>Paymaster / Gas</td><td>별도 4337 인프라 사용</td><td>자체 정산 + ERC-4337 Paymaster<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></td><td>Nexus Paymaster<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup></td><td>Embedded 가스 후원<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup></td><td>가스 후원 + Visa 결제 동시<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td><td>WalletProvider별</td></tr><tr><td>세션 / 권한</td><td>Safe7579 Adapter 위의 모듈 (e.g. SmartSessions)<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></td><td>Composable Permissions (signer/policy/action)<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup><sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup></td><td>SmartSessions 모듈<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup></td><td>Policies (한도/화이트리스트/시간)<sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup></td><td>Owner/Agent Key + 한도/머천트 화이트리스트<sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup></td><td>WalletProvider별 + Spend Permissions<sup class="footnote-ref"><a href="#ref-34" id="cite-34">[34]</a></sup><sup class="footnote-ref"><a href="#ref-33" id="cite-33">[33]</a></sup></td></tr><tr><td>다중 체인</td><td>Safe 자체가 멀티체인</td><td>15+ EVM 체인</td><td>EVM 위주</td><td>"any chain"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, 솔라나 포함</td><td>40+ 체인<sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup>, 50+ 위주<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></td><td>EVM + Solana<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup></td></tr><tr><td>라이선스</td><td>LGPL-3.0<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup></td><td>MIT<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></td><td>MIT<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup></td><td>사용 약관(SaaS)</td><td>사용 약관(SaaS) + 오픈소스 컨트랙트<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></td><td>Apache-2.0<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></td></tr></tbody></table>
+<p>여섯 제공자 중 ERC-7579를 직접 채택한 것은 Safe(어댑터 경유), ZeroDev(Kernel), Biconomy(Nexus) 셋이고<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>, 나머지 셋(Privy, Crossmint, Coinbase)은 7579를 직접 채택하지 않거나 어댑터/외부 컨트랙트로 위임한다 _(interpretive)_<sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup>.</p>
+<h2>5. 구현 패턴 — 코드 레벨 톺아보기</h2>
+<h3>5.1 Safe — Module + Fallback Handler 더블 등록</h3>
+<p>Safe는 코어를 변경하지 않기 때문에, 4337/7579의 진입점 함수를 받기 위한 <strong>Fallback Handler</strong>가 핵심이다. Safe4337Module은 두 가지 인터페이스를 동시에 만족한다.</p>
+<p>1. <strong>Safe Module로서</strong> — 모듈이 Safe 계정에 등록되어, 트랜잭션 실행에 참여할 수 있게 된다. 2. <strong>Fallback Handler로서</strong> — Safe가 기본으로 가지지 않은 <code>validateUserOp(...)</code> 같은 함수를 외부에서 호출했을 때 받아낸다.</p>
+<p>EntryPoint가 <code>validateUserOp</code>를 호출하면 Safe Proxy가 fallback handler에 위임하고, handler는 Safe 소유자의 서명을 검증한다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 검증이 끝나면 EntryPoint가 다시 <code>executeUserOp</code>를 호출해 사용자 콜데이터를 실행한다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 7579 어댑터도 동일한 더블 등록 패턴을 쓴다 — Safe7579 Adapter는 Module + Fallback Handler로 동시에 등록되어 Safe 코어를 건드리지 않고 7579 모듈을 받아들인다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>이 패턴의 매력은 <strong>검증된 Safe 코어가 6년 넘게 운영된 그 상태로 유지된다</strong>는 것이다 — 새 능력은 어댑터/모듈 형태로만 추가된다.</p>
+<h3>5.2 ZeroDev Kernel — <code>installModule(1, sessionKeyValidator, initData)</code></h3>
+<p>Kernel v3은 ERC-7579 위에서 세션 키를 일반화된 Permissions로 표현한다<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>. 표준 7579 ABI를 그대로 쓴다:</p>
+<pre><code>function installModule(uint256 moduleTypeId, address module, bytes calldata initData) external</code></pre>
+<p>여기서 <code>moduleTypeId = 1</code>은 validator 슬롯이다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 세션 키 모듈을 validator로 설치하면, 그 모듈은 (1) UserOperation에 포함된 서명이 세션 키의 것인지 (2) 호출 selector·value·만료 등이 인코딩된 policy 안에 있는지를 검증하고 결과를 EntryPoint에 돌려준다<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>. ZeroDev의 Permissions 모델에서는 이 한 모듈 안에 N개의 정책(최대 254개)과 1개의 시너가 합쳐져 있다고 명시되어 있다<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>. 즉 같은 세션 키가 "USDC 100달러까지 자동 결제 + 화이트리스트된 머천트만 + 24시간 안에"라는 식의 합성 권한을 동시에 들 수 있다.</p>
+<h3>5.3 Biconomy Nexus + SmartSessions — Enable Mode와 정책 분리</h3>
+<p>Biconomy SmartSessions의 설치 흐름은 정확히 같은 7579 ABI를 따른다. 표준화된 4단계는 (1) SmartSession 컨트랙트 배포 (2) 스마트 계정에 모듈 설치 (3) 정책과 함께 세션 구성 (4) 세션 키로 동작 수행이다<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. 정책은 세 종류로 분리된다 — UserOperation 검증 정책, action별 정책, ERC-1271 서명 검증 정책<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. Nexus는 추가로 <strong>Enable Mode</strong>로 모듈을 트랜잭션 한가운데에서 활성화하는 패턴과, <strong>Resource Locking</strong> 타임락으로 모듈 즉시 제거를 방지해 체인 추상화 시 더블 스펜드를 막는다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. 라이선스는 MIT<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup>.</p>
+<p>ZeroDev Permissions와 SmartSessions는 결과적으로 같은 추상(signer/policy/action)이지만, ZeroDev가 한 모듈 안에서 합성을 다루는 반면 SmartSessions는 정책 종류별로 모듈을 분리하는 식의 단위 차이가 있다 _(interpretive)_<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>.</p>
+<h3>5.4 Privy — Authorization Key + SSS + TEE 결합</h3>
+<p>Privy의 서버 지갑은 백엔드가 보유한 <strong>authorization key</strong>로 API를 인증한다 — 사용자 디바이스가 아닌 백엔드가 책임 주체다<sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup>. 그 위에서 정책 엔진이 전송 한도·컨트랙트 화이트리스트·수취인 제한·시간 기반 제어를 강제한다<sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup>.</p>
+<p>서명 자체는 항상 TEE 안에서 일어난다. Privy의 키 보관 흐름은 (1) 키를 SSS로 2-of-2 분할 (2) Enclave 샤드는 TEE 키로 암호화, Auth 샤드는 사용자 자격증명으로 잠금 (3) 서명이 필요하면 두 샤드를 TEE 안에서만 잠시 결합 (4) 즉시 다시 분산이라는 4단계다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. 결과적으로 키의 완전 형태는 "특정 인증된 동작이 진행되는 짧은 순간"에만 메모리 안에 존재한다<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>.</p>
+<p>흥미롭게도 Coinbase AgentKit의 <code>PrivyWalletProvider</code>는 이 인프라를 그대로 받아 AgentKit 사용자에게는 EOA-like 인터페이스로 노출한다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 즉 Privy의 키 인프라는 다른 진영의 컨트랙트 모델과 자연스럽게 합쳐진다.</p>
+<h3>5.5 Crossmint — Dual-Key + TEE</h3>
+<p>Crossmint의 스마트 컨트랙트 지갑은 두 키가 같은 컨트랙트의 owner로 들어 있는 구조다. <strong>Owner Key</strong>는 사용자 측에 남아 "the owner can use it to halt the agent, withdraw"라는 마스터 오버라이드를 담당한다<sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup>. <strong>Agent Key</strong>는 TEE 안에서만 운영되어 매일의 트랜잭션을 서명한다<sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup>. 컨트랙트 가드는 스토리지에 박힌 정책(머천트 화이트리스트·한도)을 강제한다.</p>
+<p>이 dual-key 모델은 사용자가 키를 잃어버려도 owner key로 복구할 수 있게 만들고, agent key가 탈취되어도 owner key가 더 강한 권한으로 즉시 정지를 걸 수 있게 만든다는 점에서, "단일 키 + 단일 서명"의 EOA 모델과 정반대 방향의 설계다. Crossmint 자체 비교 글은 이 모델을 "Single-Key Setup에 대비된 resilient 설계"로 표현한다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<h3>5.6 Coinbase — WalletProvider + Spend Permissions</h3>
+<p>Coinbase AgentKit의 코어 추상은 <code>WalletProvider</code>와 <code>ActionProvider</code>이다<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup>. 새 액션을 추가하려는 개발자는 <code>ActionProvider</code>를 상속하고 <code>@CreateAction</code> 데코레이터로 함수를 등록한다<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup>. 이렇게 등록된 액션은 LangChain·OpenAI Agents SDK·Vercel AI SDK 등의 함수 호출 도구로 노출된다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p><code>SpendPermissionManager</code>는 별도 컨트랙트로 동작하는 더 단순한 권한 모델이다. 한 줄 정의는 "Spend Permissions enable apps to spend native and ERC-20 tokens on behalf of users"<sup class="footnote-ref"><a href="#ref-34" id="cite-34">[34]</a></sup>. 핵심 구현 디테일은 (1) SpendPermissionManager가 사용자 Smart Wallet의 owner로 추가된다 (2) spender(앱)는 manager에 <code>spend(...)</code>를 호출한다 (3) manager가 한도 안인지 검증하고 사용자 계정에서 토큰을 옮긴다는 순서다<sup class="footnote-ref"><a href="#ref-34" id="cite-34">[34]</a></sup>. ERC-4337 EntryPoint를 거치지 않는 의도적 설계는 paymaster가 사용자 토큰을 가스로 소진하는 시나리오를 차단하기 위함이다<sup class="footnote-ref"><a href="#ref-34" id="cite-34">[34]</a></sup>. 라이선스는 MIT<sup class="footnote-ref"><a href="#ref-34" id="cite-34">[34]</a></sup>.</p>
+<p>CDP Smart Wallet은 그 위에서 "EOA가 smart contract wallet의 시너 역할을 한다"는 모델로 동작한다 — 사용자는 옵션으로 EOA + smart account를 함께 받고, 가스 후원·트랜잭션 배칭·spend permission이 추가 옵션으로 켜진다<sup class="footnote-ref"><a href="#ref-33" id="cite-33">[33]</a></sup>.</p>
+<h2>6. 논의 — 트레이드오프와 선택 기준</h2>
+<h3>6.1 모듈러 컨트랙트 vs 풀스택 SaaS</h3>
+<p>여섯 제공자는 두 가지 큰 진영으로 갈린다.</p>
+<ul>
+<li><strong>모듈러 컨트랙트 진영(Safe, ZeroDev, Biconomy)</strong> — ERC-4337/7579 위에서 모듈 호환성을 핵심 자산으로 삼는다. 같은 SmartSessions 모듈을 세 제공자의 계정 어디에 설치해도 동작한다는 점이 가장 큰 마케팅 포인트다 _(interpretive)_<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. 단점은 호스팅 키 관리·정책 SaaS·카드 발급 같은 운영 기능을 직접 만들어야 한다는 것이다.</li>
+<li><strong>풀스택 SaaS 진영(Privy, Crossmint, Coinbase CDP)</strong> — 키 관리부터 정책 엔진, 가스, 컴플라이언스, 카드 발급까지 한 API로 묶는다. 빠른 적용에 절대적으로 유리하지만, 컨트랙트가 그들의 소유라는 점에서 vendor lock-in 위험을 분석가들이 자주 지적한다 _(interpretive)_<sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup>.</li>
+</ul>
+<p>이 분기는 깔끔하지 않다. Coinbase AgentKit은 풀스택 진영에 속하지만 동시에 <code>ZeroDevWalletProvider</code>와 <code>PrivyWalletProvider</code>를 받아들여 다른 진영을 흡수한다<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup>. Crossmint는 SaaS이지만 컨트랙트는 오픈소스라고 명시한다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Safe는 모듈러 컨트랙트이지만 Safe{Core} SaaS도 운영한다.</p>
+<h3>6.2 세션 키 추상의 수렴</h3>
+<p>흥미로운 관찰은 <strong>여섯 제공자 모두가 거의 같은 추상에 도달했다</strong>는 것이다. ZeroDev Permissions의 signer/policy/action<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>, SmartSessions의 (UserOp policy / action policy / signature policy)<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>, Privy Policies의 (전송 한도 / 컨트랙트 화이트리스트 / 수취인 제한 / 시간 윈도우 / 행위별 규칙)<sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup>, Crossmint의 (owner key + agent key + 머천트 화이트리스트 + 한도)<sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup>, Coinbase Spend Permissions의 (spender + recipient + amount + recurring period)<sup class="footnote-ref"><a href="#ref-34" id="cite-34">[34]</a></sup>는 표현 방식만 다른 같은 추상이다.</p>
+<p>이 수렴은 7579 모듈 생태계가 만든 사실상의 표준일 가능성이 크다 — Rhinestone과 Biconomy가 공동 저작한 SmartSessions가 표준 후보로 자리잡고<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>, ZeroDev가 거의 같은 추상을 자체 Permissions로 갖고 있고<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>, 풀스택 SaaS들이 동일한 정책 객체를 자기 SDK로 노출하는 셈이다.</p>
+<h3>6.3 키 모델의 분기</h3>
+<p>키 모델은 오히려 분기가 크다.</p>
+<ul>
+<li><strong>EOA + 컨트랙트(Safe, ZeroDev, Biconomy)</strong> — 사용자 EOA가 컨트랙트 지갑의 owner/시너이고, EIP-7702가 활성화되면서 EOA 자체가 컨트랙트 코드를 받아들일 수도 있다<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>.</li>
+<li><strong>SSS + TEE(Privy)</strong> — 키를 분할하고 TEE 안에서만 결합<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</li>
+<li><strong>Dual-Key + TEE(Crossmint)</strong> — 두 키가 같은 컨트랙트의 owner로 들어가고, 한쪽은 TEE 안에서만 동작<sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup><sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup>.</li>
+<li><strong>WalletProvider 위임(Coinbase AgentKit)</strong> — CDP / Privy / ZeroDev / Viem 중 어느 모델이든 흡수<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup>.</li>
+</ul>
+<p>따라서 "스마트 계정"이 보안 모델까지 결정하지 않는다는 점이 본 비교의 가장 분명한 결론이다. 같은 7579 모듈을 설치해도 그 아래의 키가 EOA·SSS·TEE 어느 모델에 있느냐에 따라 위협 모델이 완전히 달라진다.</p>
+<h3>6.4 어떤 적합도가 어디로 가는가</h3>
+<p>(interpretive) 일반화하기 어려운 영역이지만 다음 정도는 자료로 받쳐진다.</p>
+<ul>
+<li><strong>dApp 임베디드 사용자 온보딩</strong> — Privy의 embedded wallet이 가장 잘 어울리는 위치 (passkey/소셜 로그인 + 자동 가스 후원)<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>.</li>
+<li><strong>에이전트가 카드와 USDC를 동시에 쓰는 결제</strong> — Crossmint가 가장 명시적으로 한 SDK로 묶는다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup>.</li>
+<li><strong>온체인 자동화·트레이딩 자율 에이전트</strong> — Coinbase AgentKit의 액션 생태계가 가장 넓다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-32" id="cite-32">[32]</a></sup>.</li>
+<li><strong>모듈 자유도와 자체 호스팅</strong> — Safe + 7579 모듈 진영이 가장 직접적이다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</li>
+<li><strong>모듈러 + 가스 효율 + 빠른 출시</strong> — Kernel v3과 Nexus가 직접 경쟁한다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>.</li>
+</ul>
+<h2>7. 한계</h2>
+<ul>
+<li>본 비교는 2026년 5월 19일 시점의 1차 소스를 기준으로 한다. 6개 제공자 모두 빠르게 변하고 있어 일부 버전 정보(EntryPoint 0.7/0.8, Kernel v3.x, Nexus v1.2)는 단기간에 갱신될 가능성이 크다.</li>
+<li>ZeroDev의 권한 모델 세부와 Biconomy의 일부 SmartSessions 페이지는 JS 렌더링·접근 제한으로 직접 fetch가 어려운 구간이 있었다 — 4th-party 글과 GitHub 리포 README로 보완했다.</li>
+<li>Crossmint MiCA CASP 인가는 자체 비교 페이지에서 확인했으며 규제 당국의 공식 등록부로는 본 보고서에서 교차 검증하지 않았다.</li>
+<li>Privy·Crossmint·Coinbase Agentic Wallets 같은 클로즈드 / 부분 공개 코드는 1차 README 또는 공식 docs 수준까지만 다뤘다.</li>
+<li>본 비교는 "스마트 계정 인프라" 6곳에 한정되었고, Turnkey, Dynamic, Alchemy Modular Account, OpenZeppelin Contracts modular account preset 같은 인접 진영은 비교 대상에 포함되지 않았다.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Safe</span>. <a href="https://docs.safe.global/advanced/erc-4337/4337-safe">Safe and ERC-4337 — Safe Docs</a>. <span class="venue">docs.safe.global, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-2"><span class="authors">Safe</span>. <a href="https://docs.safe.global/advanced/erc-7579/7579-safe">Safe and ERC-7579 — Safe Docs</a>. <span class="venue">docs.safe.global, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-3"><span class="authors">ZeroDev</span>. <a href="https://github.com/zerodevapp/kernel">zerodevapp/kernel — ERC-4337 / ERC-7579 modular smart account</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-4"><span class="authors">Biconomy</span>. <a href="https://blog.biconomy.io/nexus-the-operating-system-for-smart-accounts/">Nexus: The Operating System for Smart Accounts</a>. <span class="venue">Biconomy Blog, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-5"><span class="authors">Privy</span>. <a href="https://www.privy.io/wallets">Embedded Wallets — Privy</a>. <span class="venue">privy.io, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-6"><span class="authors">Privy</span>. <a href="https://privy.io/blog/how-privy-embedded-wallets-work">How Privy embedded wallets work</a>. <span class="venue">privy.io, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-7"><span class="authors">Crossmint</span>. <a href="https://www.crossmint.com/solutions/agentic-payments">AI Agent Payments Infrastructure — Crossmint</a>. <span class="venue">crossmint.com, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-8"><span class="authors">Crossmint</span>. <a href="https://www.crossmint.com/products/wallet-infrastructure">Crossmint Wallet Infrastructure</a>. <span class="venue">crossmint.com, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-9"><span class="authors">Coinbase</span>. <a href="https://github.com/coinbase/agentkit">coinbase/agentkit — Every AI Agent deserves a wallet</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-10"><span class="authors">Vitalik Buterin, Yoav Weiss, Dror Tirosh, Shahaf Nacson, Alex Forshtat, Kristof Gazso, Tjaden Hess</span>. <a href="https://eips.ethereum.org/EIPS/eip-4337">ERC-4337: Account Abstraction Using Alt Mempool</a>. <span class="venue">Ethereum EIPs, 2021</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-11"><span class="authors">Konrad Kopp, zeroknots, Taek Lee, Fil Makarov, Elim Poon, Yoav Weiss, Biaoshi, Tomo Chien</span>. <a href="https://eips.ethereum.org/EIPS/eip-7579">ERC-7579: Minimal Modular Smart Accounts</a>. <span class="venue">Ethereum EIPs, 2024</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-12"><span class="authors">Eco</span>. <a href="https://eco.com/support/en/articles/11890018-erc-7579-the-complete-guide-to-modular-smart-accounts">ERC-7579: The Complete Guide to Modular Smart Accounts</a>. <span class="venue">eco.com, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-13"><span class="authors">Vitalik Buterin, Sam Wilson, Ansgar Dietrichs, Matt Garnett</span>. <a href="https://eips.ethereum.org/EIPS/eip-7702">EIP-7702: Set Code for EOAs</a>. <span class="venue">Ethereum EIPs, 2024</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-14"><span class="authors">Safe</span>. <a href="https://docs.safe.global/advanced/eip-7702/overview">What is EIP-7702? — Safe Docs</a>. <span class="venue">docs.safe.global, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-15"><span class="authors">Biconomy</span>. <a href="https://docs.biconomy.io/new/learn-about-biconomy/nexus">Biconomy Nexus — The Ultimate Smart Account Solution</a>. <span class="venue">docs.biconomy.io, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-16"><span class="authors">ZeroDev</span>. <a href="https://x.com/zerodev_app/status/1778783417368527087">ZeroDev: Kernel v3 launch announcement</a>. <span class="venue">X (Twitter), 2024</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-17"><span class="authors">Biconomy</span>. <a href="https://www.biconomy.io/post/erc-7579-pioneering-a-unified-standard-for-modular-smart-accounts">ERC-7579: Pioneering a Unified Standard for Modular Smart Accounts</a>. <span class="venue">biconomy.io, 2024</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-18"><span class="authors">Rhinestone, Biconomy</span>. <a href="https://github.com/erc7579/smartsessions">erc7579/smartsessions — session-key module for ERC-7579 accounts</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-19"><span class="authors">Safe</span>. <a href="https://github.com/safe-global/safe-modules">safe-global/safe-modules — collection of Safe extension modules</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-20"><span class="authors">Pimlico</span>. <a href="https://docs.pimlico.io/guides/how-to/accounts/comparison">Difference between various Smart Account types — Pimlico Docs</a>. <span class="venue">docs.pimlico.io, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-21"><span class="authors">ZeroDev</span>. <a href="https://docs.zerodev.app/sdk/advanced/session-keys">Session Keys — ZeroDev</a>. <span class="venue">docs.zerodev.app, 2025</span>. <span class="accessed">접근일 2026-05-19.</span> <span class="unverified">[접근 제한]</span></li>
+      <li id="ref-22"><span class="authors">ZeroDev</span>. <a href="https://docs.zerodev.app/sdk/permissions/intro">Permissions (Session Keys) — ZeroDev</a>. <span class="venue">docs.zerodev.app, 2025</span>. <span class="accessed">접근일 2026-05-19.</span> <span class="unverified">[접근 제한]</span></li>
+      <li id="ref-23"><span class="authors">PolicyLayer</span>. <a href="https://policylayer.com/glossary/zerodev">ZeroDev — PolicyLayer Glossary</a>. <span class="venue">policylayer.com, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-24"><span class="authors">Biconomy</span>. <a href="https://github.com/bcnmy/nexus">bcnmy/nexus — Biconomy ERC-7579 modular smart account</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-25"><span class="authors">Privy</span>. <a href="https://docs.privy.io/wallets/overview">Privy Wallets Overview</a>. <span class="venue">docs.privy.io, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-26"><span class="authors">Privy</span>. <a href="https://docs.privy.io/security/wallet-infrastructure/architecture">Privy Security Architecture</a>. <span class="venue">docs.privy.io, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-27"><span class="authors">Privy</span>. <a href="https://docs.privy.io/recipes/agent-integrations/agentic-wallets">Agentic wallets — Privy Docs</a>. <span class="venue">docs.privy.io, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-28"><span class="authors">Crossmint</span>. <a href="https://www.crossmint.com/learn/ai-agent-wallet-architecture">The AI Agent Wallet Problem: Why Your Architecture Needs Dual Keys</a>. <span class="venue">crossmint.com, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-29"><span class="authors">Crossmint</span>. <a href="https://www.crossmint.com/learn/embedded-agent-wallets">Embedded Agent Wallets: Secure Agentic Payments Infrastructure</a>. <span class="venue">crossmint.com, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-30"><span class="authors">Crossmint</span>. <a href="https://www.crossmint.com/learn/agent-wallets-compared">Agent Wallets Compared: Crossmint, Privy, Turnkey, Coinbase, lobster.cash</a>. <span class="venue">crossmint.com, 2026</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-31"><span class="authors">Coinbase</span>. <a href="https://docs.cdp.coinbase.com/agent-kit/welcome">Welcome to AgentKit — Coinbase Developer Documentation</a>. <span class="venue">docs.cdp.coinbase.com, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-32"><span class="authors">Coinbase</span>. <a href="https://www.coinbase.com/developer-platform/products/agentkit">AgentKit — Coinbase Developer Platform</a>. <span class="venue">coinbase.com, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-33"><span class="authors">Coinbase</span>. <a href="https://docs.cdp.coinbase.com/embedded-wallets/evm-features/smart-accounts">Smart Accounts — Coinbase Developer Documentation</a>. <span class="venue">docs.cdp.coinbase.com, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-34"><span class="authors">Coinbase</span>. <a href="https://github.com/coinbase/spend-permissions">coinbase/spend-permissions — Coinbase Smart Wallet permission system</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">접근일 2026-05-19.</span></li>
+      <li id="ref-35"><span class="authors">Coinbase</span>. <a href="https://www.coinbase.com/developer-platform/discover/launches/agentic-wallets">Introducing Agentic Wallets — Coinbase</a>. <span class="venue">coinbase.com, 2025</span>. <span class="accessed">접근일 2026-05-19.</span> <span class="unverified">[접근 제한]</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-05-19 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
