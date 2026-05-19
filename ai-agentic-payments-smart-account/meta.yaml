@@ -1,0 +1,10 @@
+title: AI 에이전트 결제와 스마트 계정 — 개념, 제품, 기능, 코드 분석
+subtitle: ERC-4337 / EIP-7702 기반 스마트 계정이 AI 에이전트 결제 인프라로 진화하는 과정과 대표 구현체의 코드 수준 분석
+title_en: AI Agentic Payments and Smart Accounts — Concepts, Products, Features, and Code Analysis
+subtitle_en: How ERC-4337 / EIP-7702 smart accounts are becoming the substrate for AI agent payments, with code-level analysis of representative implementations
+slug: ai-agentic-payments-smart-account
+lang: ko
+langs: [ko, en]
+date: 2026-05-19
+tags: [smart-account, account-abstraction, erc-4337, eip-7702, ai-agents, agentic-payments, x402, session-keys, intents]
+status: ready
