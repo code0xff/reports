@@ -1,0 +1,10 @@
+title: AI 에이전트 결제용 스마트 계정 — 핵심 기능 요구사항과 구현 청사진
+subtitle: 기존 인프라·제품과 표준을 교차 비교해 도출한 기능 체크리스트와 참조 구현 설계
+title_en: Smart Accounts for AI Agent Payments — Required Features and an Implementation Blueprint
+subtitle_en: A cross-comparative feature checklist and a reference implementation blueprint derived from existing infrastructure, products, and standards
+slug: agent-payments-smart-account-design
+lang: ko
+langs: [ko, en]
+date: 2026-05-20
+tags: [smart-account, ai-agents, agent-payments, erc-4337, erc-7579, eip-7702, session-keys, policy-engine, paymaster, mpp, x402, design]
+status: ready
