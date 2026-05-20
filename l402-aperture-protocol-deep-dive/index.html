@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>L402 프로토콜과 Aperture — Lightning Network 기반 HTTP 402 결제 표준 심층 분석 — Deepsearch</title>
+<meta name="description" content="2020년 LSAT으로 출범해 2024년 L402로 개명된 Lightning Labs 표준과 Go로 작성된 리버스 프록시 Aperture의 1차 소스 분석">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="en" href="en/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="en/index.html" hreflang="en">English</a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>L402 프로토콜과 Aperture — Lightning Network 기반 HTTP 402 결제 표준 심층 분석</h1>
+    <p class="subtitle">2020년 LSAT으로 출범해 2024년 L402로 개명된 Lightning Labs 표준과 Go로 작성된 리버스 프록시 Aperture의 1차 소스 분석</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-05-20</span>
+      <span><strong>태그</strong> l402, lsat, aperture, lightning-network, lightning-labs, macaroons, http-402, ai-agents, bolt11, micropayments, bitcoin</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="l402-aperture-protocol-deep-dive.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>본 보고서는 Lightning Labs가 2020년 3월에 <strong>LSAT</strong>(Lightning Service Authentication Tokens)라는 이름으로 처음 발표하고<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, 이후 HTTP 402 상태 코드를 직접 참조하는 이름으로 개명한 <strong>L402</strong> 프로토콜을 1차 사양 수준에서 해체한다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. L402는 (a) HTTP 402 Payment Required, (b) <strong>macaroons</strong> 토큰, (c) <strong>Lightning Network</strong> 결제를 결합하여 데이터베이스 조회 없이 stateless로 결제·인증을 검증하는 모델이다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 그 위에 Lightning Labs가 직접 운영하는 Go 구현체 <strong>Aperture</strong>가 얹혀 있다 — MIT 라이선스, 2026년 3월 25일 기준 v0.5.0, Lightning Loop의 프로덕션 트래픽을 받아 온 리버스 프록시다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 본 보고서는 두 GitHub 리포(<code>lightninglabs/L402</code>, <code>lightninglabs/aperture</code>) README와 명세 파일, <code>sample-conf.yaml</code>, <code>aperture.go</code> 코드, 그리고 2020·2026 두 차례의 Lightning Engineering 공식 블로그<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>를 통째로 인용해 L402가 (i) 어떻게 작동하는지 (ii) Aperture가 그 추상을 어떻게 구현하는지 (iii) x402·MPP 같은 후발 표준과 어떻게 다른지를 정리한다.</p>
+  </section>
+
+  <main class="body">
+<h1>L402 프로토콜과 Aperture — Lightning Network 기반 HTTP 402 결제 표준 심층 분석</h1>
+<h2>1. 서론 — L402가 왜 다시 주목받는가</h2>
+<p>L402는 2020년에 이미 출시된 표준이다. Lightning Labs CTO Olaoluwa Osuntokun이 같은 해 3월 30일 LSAT의 출범을 다음과 같이 발표했다 — "By leveraging L402s, a service or business is able to offer a new tier of paid APIs that sits between free and subscription: metered, with no login, email or passwords required!"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 그 자리에 6년 동안 비교적 조용히 존재하던 표준이, 2025–2026년 AI 에이전트 결제 흐름이 폭발하면서 다시 무대 위로 올라오고 있다.</p>
+<p>Lightning Labs 자신의 2026년 3월 11일 블로그가 그 변화를 명료하게 정리한다 — "Agents can read documentation, write code, orchestrate multi-step workflows, and call APIs across the web. They cannot, by and large, pay for things"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. L402는 처음부터 "사람이 아닌 클라이언트가 한 번의 HTTP 왕복으로 결제와 인증을 동시에 끝낸다"는 자리에 설계되었고, 그래서 에이전트 결제 시나리오에 매우 자연스럽다는 것이 Lightning Labs 측 주장이다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>독립 매체의 정리도 같은 결을 따라간다 — "L402 lets a client pay for online resources in one automated step"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. 본 보고서는 (a) 표준 자체 (b) 표준의 레퍼런스 구현 Aperture (c) 비교를 세 갈래로 풀어 본다.</p>
+<h2>2. 배경 — 표준 스택</h2>
+<h3>2.1 HTTP 402의 부활과 세 표준의 경합</h3>
+<p>HTTP 402 "Payment Required"는 RFC 7231 시점부터 "reserved for future use"로 남아 있던 상태 코드다. 2025–2026년 사이에 이 자리를 노리는 세 표준이 거의 동시에 부상했다 — L402(Lightning + macaroon)<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, x402(EVM + EIP-712 / EIP-3009)<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, MPP(다레일 인텐트)<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. ln.bot의 비교 글은 L402가 "Lightning Labs publishing the spec in 2020 under the name LSAT, later renamed to reference the status code it activates"로서 가장 먼저 자리잡은 표준임을 명시한다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<h3>2.2 Lightning Network와 BOLT 11 invoice</h3>
+<p>L402의 결제 레이어는 Lightning Network다. 머천트는 BOLT 11 형식의 invoice를 발행하고, 클라이언트가 그 invoice를 결제하면 <code>preimage</code>(<code>r</code>, 32바이트)를 받는다. <code>sha256(r) == payment_hash</code>라는 해시 관계가 결제 완료의 <em>암호학적 증명</em>이다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 이 한 줄이 L402의 핵심이다 — 클라이언트가 preimage만 들고 있으면 누구든지 "이 결제는 완료됐다"를 데이터베이스 조회 없이 검증할 수 있다.</p>
+<h3>2.3 Macaroons — HMAC 체인 + 카비엇(caveat)</h3>
+<p>L402의 토큰은 일반 OAuth Bearer Token이 아니라 <strong>macaroon</strong>이다. Lightning Engineering의 macaroon 페이지는 다음과 같이 정리한다 — "Macaroons can be attenuated by the user with their own restrictions. This allows to delegate permissions and functions in a safe way"<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. macaroon은 HMAC 체인으로 서명되며, 각 체인 단계에 "caveat"라는 제약이 추가될 수 있다. 카비엇은 단방향이다 — 후속 카비엇은 권한을 <strong>좁힐 수만 있고 넓힐 수는 없다</strong><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. 이 단방향성 덕에 부모 에이전트가 자기 macaroon에 "USDC 100달러까지, 24시간 안에" 같은 추가 카비엇을 붙여 자식 에이전트에 위임할 수 있다.</p>
+<h2>3. L402 프로토콜 명세</h2>
+<h3>3.1 챌린지 / 응답 흐름</h3>
+<p>표준 헤더 형식은 두 줄로 압축된다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<pre><code>WWW-Authenticate: L402 macaroon=&quot;&lt;base64&gt;&quot;, invoice=&quot;&lt;bolt11&gt;&quot;
+Authorization:    L402 &lt;base64(macaroon)&gt;:&lt;hex(preimage)&gt;</code></pre>
+<p>전체 흐름은 다음 4단계다.</p>
+<p>1. <strong>클라이언트가 보호 자원 요청.</strong> 2. <strong>서버가 402로 응답</strong> — <code>WWW-Authenticate</code> 헤더에 macaroon과 BOLT 11 invoice를 동봉한다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 3. <strong>클라이언트가 Lightning invoice를 결제</strong> — preimage <code>r</code>을 얻는다. 4. <strong>클라이언트가 재요청</strong> — <code>Authorization: L402 &lt;base64(macaroon)&gt;:&lt;hex(preimage)&gt;</code> 헤더로 자원을 받는다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<h3>3.2 토큰 형식과 payment hash binding</h3>
+<p>토큰의 결정적 디테일은 <strong>macaroon의 identifier가 invoice의 payment_hash <code>H</code>에 commit한다</strong>는 것이다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 명세는 이를 다음과 같이 적시한다 — "The macaroon's identifier commits to the payment hash H of the Lightning invoice. This commitment enables in-band payment verification: the server can confirm a client has paid using only the macaroon and preimage, with no additional state or backend lookup"<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 즉 검증자는 (1) macaroon에서 H를 꺼내고 (2) 들어온 preimage <code>r</code>로 sha256(r)을 계산해 H와 같은지 확인하고 (3) macaroon HMAC 체인이 유효한지, 카비엇이 통과하는지 확인한다 — 모두 stateless다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<h3>3.3 402 vs 401 분리</h3>
+<p>명세는 두 상태 코드를 의도적으로 분리한다 — "402 Payment Required: Used exclusively for initial challenges when no credential exists. 401 Unauthorized: Returned when credentials are present but invalid, tampered, or verification fails"<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 즉 자격증명이 아예 없으면 402, 자격증명이 있는데 검증에 실패하면 401이다. 표준은 명시적으로 "Once a client presents a credential (valid or not), the server MUST respond with 401 if verification fails, not 402"라고 못박는다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 이 분리는 클라이언트가 결제를 새로 시도해야 할 상황과 단순히 기존 자격증명이 깨진 상황을 구분하게 해 준다.</p>
+<h3>3.4 캐비엇과 위임</h3>
+<p>macaroon의 캐비엇은 서비스 액세스, 능력, 만료, 볼륨 제한 등 임의의 조건을 인코딩할 수 있다 — "Caveats can encode service access, capabilities, expiration, volume limits, and other constraints. Each successive caveat can only narrow the macaroon's authority, never widen it"<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. Lightning Labs 측 예시는 "Loop가 거래소에 macaroon을 발급하고, 거래소가 추가 제약을 더 붙여 end user에게 넘긴다"는 다단 위임 패턴이다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<h3>3.5 gRPC 어댑테이션</h3>
+<p>gRPC는 HTTP/2 위에서 항상 200을 반환해야 하므로, L402 명세는 별도 어댑테이션을 둔다 — "For gRPC, servers return HTTP 200 but encode the L402 challenge in trailing headers (<code>grpc-status: 402</code>) since gRPC requires 200 responses"<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 결과적으로 같은 토큰 형식이 REST와 gRPC 양쪽에서 동일하게 동작한다.</p>
+<h3>3.6 BLIP-0026 표준화 트래킹</h3>
+<p>L402는 <code>lightning/blips</code> 리포에 BLIP-0026(Bitcoin Lightning Improvement Proposal)으로 PR이 열려 있어 Lightning 측 표준화 트랙에서도 추적되고 있다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 본 보고서 시점에는 IANA HTTP authentication scheme registry 등재 여부는 확정되지 않았다.</p>
+<h2>4. Aperture — Lightning Labs 리버스 프록시</h2>
+<h3>4.1 구현체 개요</h3>
+<p>Aperture는 L402를 받아 들이고 처리하는 머천트 측 인프라의 <strong>레퍼런스 구현</strong>이다. 리포 한 줄 정의는 다음과 같다 — "An HTTP 402 reverse proxy that supports proxying requests for gRPC (HTTP/2) and REST (HTTP/1 and HTTP/2) backends using the L402 Protocol Standard"<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. MIT 라이선스이며, 2026년 3월 25일 기준 v0.5.0이 pkg.go.dev에 게시되어 있다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. Lightning Loop가 production에서 사용한다 — "Aperture is a Lightning HTTP 402 (L402) reverse proxy … used in production by Lightning Loop for non-custodial on/off ramps on the Lightning Network"<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+<h3>4.2 패키지 구조</h3>
+<p>pkg.go.dev는 Aperture의 패키지를 다음 7개로 나눠 보여 준다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>:</p>
+<table><thead><tr><th>패키지</th><th>역할</th></tr></thead><tbody><tr><td><code>auth</code></td><td>L402 토큰과 macaroon 인증</td></tr><tr><td><code>proxy</code></td><td>HTTP/2와 gRPC 백엔드 라우팅</td></tr><tr><td><code>mint</code></td><td>토큰 발행과 invoice 생성</td></tr><tr><td><code>l402</code></td><td>L402 프로토콜 구현</td></tr><tr><td><code>admin</code></td><td>어드민 API와 관리 엔드포인트</td></tr><tr><td><code>aperturedb</code></td><td>DB 백엔드 (SQLite/Postgres/etcd)</td></tr><tr><td><code>challenger</code></td><td>결제 챌린지 생성</td></tr></tbody></table>
+<p>핵심 구조체는 <code>Aperture</code>이고, 라이프사이클 함수는 다음 세 개다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>:</p>
+<pre><code>func NewAperture(cfg *Config) *Aperture
+func (a *Aperture) Start(errChan chan error, shutdown &lt;-chan struct{}) error
+func (a *Aperture) Stop() error</code></pre>
+<p>추가로 <code>UpdateServices(services []*proxy.Service) error</code>로 런타임에 서비스 목록을 갱신할 수 있다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. <code>Start</code> 단계에서 Prometheus 메트릭, DB 연결(etcd/Postgres/SQLite), TLS, gRPC/REST 서버, HTTP listener가 모두 차곡차곡 올라오고, <code>Stop</code>은 challenger·admin·proxy·DB·HTTP 순으로 우아하게 내려간다<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</p>
+<h3>4.3 <code>sample-conf.yaml</code> — LND 인증 + 백엔드 선택</h3>
+<p>Aperture의 표준 설정 파일은 ~/.aperture/aperture.yaml이며, <code>sample-conf.yaml</code>이 그 템플릿이다<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. 핵심 블록을 정리하면 다음과 같다.</p>
+<pre><code>listenaddr: localhost:8081
+debuglevel: debug
+basedir: /path/to/.aperture
+insecure: false
+autocert: false
+
+authenticator:
+  network: simnet
+  lnd:
+    host: localhost:10009
+    tlspath: /path/to/lnd/tls.cert
+    macdir: /path/to/lnd/data/chain/bitcoin/simnet
+
+database:
+  backend: sqlite   # 또는 postgres / etcd
+  sqlite:
+    dbfile: /path/to/.aperture/aperture.db
+
+services:
+  - name: example
+    hostregexp: ^example\.com$
+    pathregexp: ^/api/.*$
+    address: backend.local:8080
+    protocol: https
+    authwhitelistpaths: [...]
+    auth: L402
+    capabilities: &quot;add,subtract&quot;
+    pricing: { ... }</code></pre>
+<p>서비스는 다수 등록 가능하며 각 서비스는 hostregexp / pathregexp로 라우팅, capability(macaroon caveat에 들어갈 능력 목록), pricing 룰(고정·동적·티어), rate limit 룰을 각자 갖는다<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. Tor 옵션·hashmail 서버(Lightning Node Connect용)·Prometheus 메트릭도 옵션이다<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>.</p>
+<h3>4.4 LND 연결과 invoice 발행</h3>
+<p><code>authenticator.lnd</code>가 핵심이다. Aperture는 lnd에 macaroon·TLS 인증으로 붙어 (a) 매 요청마다 BOLT 11 invoice를 발행하고 (b) preimage 도착 여부를 polling/subscription으로 확인한다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. 머천트는 lnd를 직접 운영해야 하지만 — 그 대신 facilitator 같은 외부 의존성이 없다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</p>
+<h3>4.5 admin API · dashboard · CLI · MCP</h3>
+<p>옵션 기능 셋이 풍성하다.</p>
+<ul>
+<li><strong>gRPC/REST admin API</strong> — 10개의 RPC로 서비스 등록·변경, 트랜잭션 조회, 토큰 통계, 매출 모니터링을 한다. "services persist to the database and survive restarts" / "changes take effect immediately"<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</li>
+<li><strong>dashboard 빌드 태그</strong> — <code>dashboard</code> 빌드 태그로 빌드하면 Next.js 기반 임베디드 대시보드가 같이 컴파일된다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</li>
+<li><strong><code>aperturecli</code></strong> — 별도 CLI 바이너리로 일상 운영을 처리한다. MCP 서버를 내장해 Claude Code / OpenAI Codex 같은 AI 에이전트에서 직접 부를 수 있다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</li>
+</ul>
+<h3>4.6 rate limiting</h3>
+<p>token bucket 알고리즘 기반 rate limit이 표준 기능이다 — "path-based rules" + per-client isolation으로 라우트마다 다른 한도를 둘 수 있다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. 한도를 넘기면 REST는 <code>HTTP 429 + Retry-After</code>, gRPC는 <code>ResourceExhausted</code> 상태를 돌려준다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<h2>5. 코드 &amp; SDK 생태계</h2>
+<h3>5.1 클라이언트 측 라이브러리</h3>
+<p>L402 호환 클라이언트 SDK는 주로 Tierion 진영에서 출발했다.</p>
+<ul>
+<li><strong><code>Tierion/lsat-js</code></strong> — JavaScript 유틸리티 라이브러리. "A javascript library for working with LSATs (Lightning Service Authentication Tokens)"<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. macaroon 직렬화/역직렬화, preimage 부착·검증, caveat 추가를 SDK 수준에서 처리한다.</li>
+<li><strong><code>Tierion/boltwall</code></strong> — Node.js + TypeScript 미들웨어. "Bitcoin Lightning paywall and authentication using LSATs. Built with LND, Nodejs, and Typescript"<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. 사실상 Node 진영의 Aperture에 해당하는 페이월 미들웨어다.</li>
+</ul>
+<p>(현 시점에는 <code>lsat-go</code>로 통칭되는 공식 Go 클라이언트 SDK는 단일 표준 리포로 굳어지지 않았고, 클라이언트 코드 대부분은 Aperture 자체의 <code>l402</code> 패키지를 직접 import해 쓰는 패턴을 따른다 _(unverified — single source)_.)</p>
+<h3>5.2 Lightning Agent Tools (2026-02-11 발표)</h3>
+<p>2026년 2월 11일, Lightning Labs는 "Lightning Agent Tools"라는 7개 스킬 패키지를 공개했다<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup><sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. 발표문은 다음과 같이 정리한다 — "The new Lightning agent tools repo ships with seven composable skills covering the full agent commerce stack: running a Lightning node, isolating private keys with a remote signer, baking scoped credentials, paying for L402-gated APIs, hosting paid endpoints, querying node state via MCP"<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>. 일곱 스킬은 (1) Lightning 노드 운영, (2) remote signer로 키 격리, (3) scoped credential baking, (4) <strong><code>lnget</code></strong> — L402 게이트 API 자동 결제 클라이언트, (5) <strong><code>aperture</code> 스킬</strong> — paid endpoint 호스팅, (6) MCP로 노드 상태 조회, (7) buyer/seller 워크플로 오케스트레이션이다<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>. 모두 Claude Code · Codex · npx · ClawHub 경로로 배포된다<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>.</p>
+<h3>5.3 표준화 트래킹</h3>
+<p>L402는 lightning/blips PR #26로 <strong>BLIP-0026</strong>이 제안되어 있다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Lightning 표준 트랙 안에서 추적되고 있다는 점에서 단순 vendor spec과는 위치가 다르다.</p>
+<h2>6. 비교 — L402 vs x402 vs MPP</h2>
+<table><thead><tr><th>축</th><th>L402</th><th>x402</th><th>MPP</th></tr></thead><tbody><tr><td>결제 자산</td><td>BTC / Lightning sats<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td><td>USDC 등 EVM ERC-20<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></td><td>USDC / 카드 / SPT 등 다레일<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td></tr><tr><td>토큰</td><td>macaroon + preimage<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></td><td>EIP-712 / EIP-3009 서명</td><td>EIP-712 voucher / 카드 토큰</td></tr><tr><td>정산 모델</td><td>즉시 Lightning 결제 + stateless 검증<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></td><td>facilitator의 <code>/verify</code> + <code>/settle</code><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></td><td>채널 + 누적 commitment<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td></tr><tr><td>출시</td><td>2020 LSAT<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, 이후 L402로 개명<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td><td>2025<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></td><td>2025–2026<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td></tr><tr><td>가격 단위</td><td>1 sat (분당 1 cent 미만)<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td><td>가스+토큰 1 cent~수십 cent<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td><td>다양 (sub-cent ~ 달러)</td></tr><tr><td>거버넌스</td><td>Lightning Labs + BLIP-0026<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup></td><td>x402 Foundation (Coinbase + Cloudflare)<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></td><td>IETF draft (Tempo + Stripe)</td></tr><tr><td>검열 저항성</td><td>Bitcoin PoW 합의<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td><td>EVM 체인 + Circle USDC 발행자<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td><td>운영자/체인 따라 다름</td></tr><tr><td>가격 안정성</td><td>BTC 가격 변동 노출<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td><td>USD pegged<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td><td>다양</td></tr></tbody></table>
+<p>ln.bot의 정리는 결론을 다음과 같이 요약한다 — L402는 "stateless cryptographic verification requiring no external dependencies"이고, x402는 "facilitators or chain queries that introduce latency and operational complexity"에 의존한다는 차이<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 검열 저항성 측면에서도 L402는 "nobody can freeze your sats, censor your payment, or unilaterally shut down the network"인 반면, x402는 USDC 발행자(Circle)와 Base 시퀀서(Coinbase)에 의존한다는 비교가 같은 글에서 명시적으로 이루어진다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<p>이 비교는 어느 한쪽이 우월하다는 결론이 아니다 — 본 보고서의 자매 보고서 <a href="../x402-batch-vs-mpp-session/"><code>x402-batch-vs-mpp-session</code></a>에서 x402 batch-settlement와 MPP session의 다른 트래픽 형상이 정리되어 있고, L402는 그 두 표준이 <em>그 위에서 우열을 다투기 전에 이미 존재하던</em> Bitcoin-native 진영이다.</p>
+<h2>7. 논의 — 언제 L402를 골라야 하는가</h2>
+<p>(interpretive) 본 보고서의 종합 판단은 다음과 같다.</p>
+<ul>
+<li><strong>AI agent commerce와 1 sat 단위 마이크로결제</strong> — Lightning 라우팅 수수료가 1 sat 수준이라 "한 호출당 1 cent 미만" 가격대가 경제적으로 성립한다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 본 보고서가 다룬 다른 표준들이 단가 floor를 낮추는 데 별도의 채널/배치 인프라가 필요한 반면, L402는 단건 결제만으로도 단가 floor가 같은 수준이다.</li>
+<li><strong>비-EVM 환경 / Bitcoin-native 운영자</strong> — Bitcoin 인프라(lnd)를 이미 운영 중이거나, EVM 의존성을 피하고 싶은 머천트에게 L402가 자연 선택이다.</li>
+<li><strong>stateless 검증이 결정적인 환경</strong> — 외부 facilitator·RPC·체인 인덱서에 의존하지 않고 자체 서버로 자기 매출을 검증하고 싶은 경우, macaroon + preimage 두 값만으로 충분한 L402가 다른 어떤 표준보다 단순하다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</li>
+<li><strong>반대로</strong> USD-pegged 가격 정책이 필요한 비즈니스(가격표가 USD 단위), 카드 분쟁/chargeback이 필요한 소비자 결제, EVM 토큰을 자산으로 받아야 하는 시나리오에서는 x402·MPP·ACP가 더 맞을 수 있다 _(interpretive)_<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</li>
+<li><strong>에이전트 측에서는 동시에 여러 표준을 받아들이는 어댑터 패턴이 더 현실적</strong>이라는 결론이 자매 보고서 <a href="../agent-payments-smart-account-design/"><code>agent-payments-smart-account-design</code></a>에 정리되어 있다 — L402는 그 어댑터 셋의 Bitcoin-native 슬롯을 담당하는 셈이다.</li>
+</ul>
+<h2>8. 한계</h2>
+<ul>
+<li>본 보고서는 2026년 5월 20일 시점의 1차 사양·docs·GitHub·블로그를 기준으로 한다. <code>lightning/blips</code> PR #26의 BLIP-0026 본문은 직접 인용하지 않았으며 이슈의 존재만 확인되었다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</li>
+<li>L402 명세 파일 경로가 <code>specification.md</code>와 <code>protocol-specification.md</code> 사이에서 이동한 흔적이 있어, 본 보고서는 후자 경로<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>를 1차 인용으로 삼는다.</li>
+<li>클라이언트 SDK 관점에서 <code>lsat-js</code>(JS)·<code>boltwall</code>(Node) 외의 공식 다언어 라이브러리는 본 보고서 범위 안에서 별도 표준 리포로 확인되지 않았다.</li>
+<li>Aperture의 <code>aperture.go</code> 코드 인용은 master 브랜치 기준이며, v0.5.0 릴리스 이후 master에 새 변경이 들어왔을 수 있다.</li>
+<li>L402의 USD 가격 안정성 부재나 x402의 검열 저항성 비교는 ln.bot 비교 글<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>을 1차 인용으로 삼았고, 이는 Lightning 옹호 입장에서의 정리에 가깝다 — 본 보고서의 uncertainties에 그대로 기록되어 있다.</li>
+<li>Lightning Loop 외에 Aperture가 production 트래픽을 받고 있는 서비스 전수 조사는 본 보고서 범위가 아니다.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Olaoluwa Osuntokun</span>. <a href="https://lightning.engineering/posts/2020-03-30-lsat/">L402: Authentication and Payments for the Lightning-Native Web</a>. <span class="venue">Lightning Engineering, 2020</span>. <span class="accessed">접근일 2026-05-20.</span></li>
+      <li id="ref-2"><span class="authors">Lightning Labs</span>. <a href="https://lightning.engineering/posts/2026-03-11-L402-for-agents/">The Future Is Now: Why L402 Is the Internet-Native Payments Protocol for Agents</a>. <span class="venue">Lightning Engineering, 2026</span>. <span class="accessed">접근일 2026-05-20.</span></li>
+      <li id="ref-3"><span class="authors">Lightning Labs</span>. <a href="https://github.com/lightninglabs/L402/blob/master/introduction.md">L402 Introduction — Lightning Labs</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-05-20.</span></li>
+      <li id="ref-4"><span class="authors">BingX</span>. <a href="https://bingx.com/en/learn/article/what-is-l402-payments-for-ai-agents-on-lightning-network-how-does-it-work">What Is L402, Lightning-Powered Payments for AI Agents?</a>. <span class="venue">bingx.com, 2026</span>. <span class="accessed">접근일 2026-05-20.</span></li>
+      <li id="ref-5"><span class="authors">Lightning Labs</span>. <a href="https://github.com/lightninglabs/L402">lightninglabs/L402 — Pay for APIs with Lightning</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-05-20.</span></li>
+      <li id="ref-6"><span class="authors">Coinbase, x402 Foundation</span>. <a href="https://github.com/coinbase/x402">coinbase/x402 — payments protocol</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">접근일 2026-05-20.</span></li>
+      <li id="ref-7"><span class="authors">ln.bot</span>. <a href="https://ln.bot/learn/x402-vs-l402">x402 vs L402: Stablecoins vs Lightning for APIs</a>. <span class="venue">ln.bot, 2026</span>. <span class="accessed">접근일 2026-05-20.</span></li>
+      <li id="ref-8"><span class="authors">Lightning Labs</span>. <a href="https://docs.lightning.engineering/the-lightning-network/l402">L402: Lightning HTTP 402 Protocol — Builder&#x27;s Guide</a>. <span class="venue">docs.lightning.engineering, 2026</span>. <span class="accessed">접근일 2026-05-20.</span></li>
+      <li id="ref-9"><span class="authors">Lightning Labs</span>. <a href="https://github.com/lightninglabs/L402/blob/master/protocol-specification.md">L402 Protocol Specification</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-05-20.</span></li>
+      <li id="ref-10"><span class="authors">Lightning Labs</span>. <a href="https://docs.lightning.engineering/the-lightning-network/l402/macaroons">Macaroons — Builder&#x27;s Guide</a>. <span class="venue">docs.lightning.engineering, 2026</span>. <span class="accessed">접근일 2026-05-20.</span></li>
+      <li id="ref-11"><span class="authors">Olaoluwa Osuntokun</span>. <a href="https://github.com/lightning/blips/pull/26">blip-0026: L402 — Lightning HTTP 402 Protocol</a>. <span class="venue">GitHub (lightning/blips), 2026</span>. <span class="accessed">접근일 2026-05-20.</span></li>
+      <li id="ref-12"><span class="authors">Lightning Labs</span>. <a href="https://github.com/lightninglabs/aperture">lightninglabs/aperture — L402 (Lightning HTTP 402) Reverse Proxy</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-05-20.</span></li>
+      <li id="ref-13"><span class="authors">Lightning Labs</span>. <a href="https://pkg.go.dev/github.com/lightninglabs/aperture">aperture — pkg.go.dev</a>. <span class="venue">pkg.go.dev, 2026</span>. <span class="accessed">접근일 2026-05-20.</span></li>
+      <li id="ref-14"><span class="authors">Lightning Labs</span>. <a href="https://raw.githubusercontent.com/lightninglabs/aperture/master/aperture.go">aperture.go — main service struct</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-05-20.</span></li>
+      <li id="ref-15"><span class="authors">Lightning Labs</span>. <a href="https://raw.githubusercontent.com/lightninglabs/aperture/master/sample-conf.yaml">aperture sample-conf.yaml</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-05-20.</span></li>
+      <li id="ref-16"><span class="authors">Lightning Labs</span>. <a href="https://docs.lightning.engineering/lightning-network-tools/aperture">Aperture — Builder&#x27;s Guide</a>. <span class="venue">docs.lightning.engineering, 2026</span>. <span class="accessed">접근일 2026-05-20.</span></li>
+      <li id="ref-17"><span class="authors">Tierion</span>. <a href="https://github.com/Tierion/lsat-js">Tierion/lsat-js — JavaScript LSAT library</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">접근일 2026-05-20.</span></li>
+      <li id="ref-18"><span class="authors">Tierion</span>. <a href="https://github.com/Tierion/boltwall">Tierion/boltwall — Bitcoin Lightning paywall</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">접근일 2026-05-20.</span></li>
+      <li id="ref-19"><span class="authors">Lightning Labs</span>. <a href="https://lightning.engineering/posts/2026-02-11-ln-agent-tools/">The Agents Are Here and They Want to Transact: Powering the AI Economy with Lightning</a>. <span class="venue">Lightning Engineering, 2026</span>. <span class="accessed">접근일 2026-05-20.</span></li>
+      <li id="ref-20"><span class="authors">The Block</span>. <a href="https://www.theblock.co/post/389584/lightning-labs-releases-ai-agent-tools-for-native-bitcoin-lightning-payments">Lightning Labs releases AI agent tools for native Bitcoin Lightning payments</a>. <span class="venue">theblock.co, 2026</span>. <span class="accessed">접근일 2026-05-20.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-05-20 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

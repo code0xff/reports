@@ -1,0 +1,10 @@
+title: L402 프로토콜과 Aperture — Lightning Network 기반 HTTP 402 결제 표준 심층 분석
+subtitle: 2020년 LSAT으로 출범해 2024년 L402로 개명된 Lightning Labs 표준과 Go로 작성된 리버스 프록시 Aperture의 1차 소스 분석
+title_en: The L402 Protocol and Aperture — A Deep Dive into Lightning Labs' Lightning-Native HTTP 402 Payment Standard
+subtitle_en: Tracing L402 from its 2020 LSAT origin to today's deployments, with a code-level reading of the Aperture Go reverse proxy
+slug: l402-aperture-protocol-deep-dive
+lang: ko
+langs: [ko, en]
+date: 2026-05-20
+tags: [l402, lsat, aperture, lightning-network, lightning-labs, macaroons, http-402, ai-agents, bolt11, micropayments, bitcoin]
+status: ready

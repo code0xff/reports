@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The L402 Protocol and Aperture — A Deep Dive into Lightning Labs&#x27; Lightning-Native HTTP 402 Payment Standard — Deepsearch</title>
+<meta name="description" content="Tracing L402 from its 2020 LSAT origin to today&#x27;s deployments, with a code-level reading of the Aperture Go reverse proxy">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>The L402 Protocol and Aperture — A Deep Dive into Lightning Labs&#x27; Lightning-Native HTTP 402 Payment Standard</h1>
+    <p class="subtitle">Tracing L402 from its 2020 LSAT origin to today&#x27;s deployments, with a code-level reading of the Aperture Go reverse proxy</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-05-20</span>
+      <span><strong>Tags</strong> l402, lsat, aperture, lightning-network, lightning-labs, macaroons, http-402, ai-agents, bolt11, micropayments, bitcoin</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="l402-aperture-protocol-deep-dive.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>This report unpacks the <strong>L402</strong> protocol — first published by Lightning Labs in March 2020 under the name <strong>LSAT</strong> (Lightning Service Authentication Tokens)<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> and later renamed to reference the HTTP 402 status code it operationalises<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> — at the level of its primary specification. L402 combines (a) HTTP 402 Payment Required, (b) <strong>macaroons</strong> as bearer tokens, and (c) <strong>Lightning Network</strong> payments to perform stateless payment-and-authentication verification, without any database lookup<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. On top of it sits <strong>Aperture</strong>, Lightning Labs' Go reference implementation — MIT-licensed, v0.5.0 as of 25 March 2026 on pkg.go.dev, and running in production for Lightning Loop<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. The report quotes both GitHub READMEs (<code>lightninglabs/L402</code>, <code>lightninglabs/aperture</code>), the protocol specification, <code>sample-conf.yaml</code>, <code>aperture.go</code>, and the 2020 and 2026 Lightning Engineering blog posts<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> to lay out (i) how L402 works, (ii) how Aperture implements that abstraction, and (iii) how it compares to later standards like x402 and MPP.</p>
+  </section>
+
+  <main class="body">
+<h1>The L402 Protocol and Aperture — A Deep Dive into Lightning Labs' Lightning-Native HTTP 402 Payment Standard</h1>
+<h2>1. Introduction — Why L402 is back in the spotlight</h2>
+<p>L402 is not a 2026 standard — it was already shipped in 2020. Lightning Labs CTO Olaoluwa Osuntokun framed the original LSAT launch on 30 March 2020: "By leveraging L402s, a service or business is able to offer a new tier of paid APIs that sits between free and subscription: metered, with no login, email or passwords required!"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. After six relatively quiet years, the agent-payments push of 2025–2026 has put it back on stage.</p>
+<p>Lightning Labs' own 11 March 2026 post puts the shift plainly: "Agents can read documentation, write code, orchestrate multi-step workflows, and call APIs across the web. They cannot, by and large, pay for things"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. L402 was always designed for <em>clients that are not humans</em> — one HTTP round-trip that resolves both payment and authentication — which is exactly the requirement of agent commerce<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>Independent coverage echoes the framing — "L402 lets a client pay for online resources in one automated step"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The rest of this report breaks that down into (a) the protocol, (b) the reference proxy Aperture, (c) the comparison.</p>
+<h2>2. Background — Standards stack</h2>
+<h3>2.1 HTTP 402 and three competing standards</h3>
+<p>HTTP 402 "Payment Required" has been "reserved for future use" since RFC 7231. Three standards now compete for that slot in 2025–2026: L402 (Lightning + macaroons)<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, x402 (EVM + EIP-712 / EIP-3009)<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, and MPP (multi-rail intents)<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. ln.bot's comparison nails the chronology: L402 was first, "Lightning Labs publishing the spec in 2020 under the name LSAT, later renamed to reference the status code it activates"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<h3>2.2 Lightning Network and BOLT 11 invoices</h3>
+<p>The payment layer of L402 is the Lightning Network. The merchant issues a BOLT 11 invoice; the client pays and receives the <code>preimage</code> (<code>r</code>, 32 bytes). The hash relationship <code>sha256(r) == payment_hash</code> is the <em>cryptographic proof</em> of payment<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. That one line is the heart of L402 — anyone with the preimage can verify the payment without consulting any database.</p>
+<h3>2.3 Macaroons — HMAC chain + caveats</h3>
+<p>L402's token is not a generic OAuth Bearer token but a <strong>macaroon</strong>. Lightning Engineering's macaroon doc summarises: "Macaroons can be attenuated by the user with their own restrictions. This allows to delegate permissions and functions in a safe way"<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. Macaroons are signed by an HMAC chain; each link can add a "caveat" that further restricts authority. Caveats are one-directional — successive caveats can only <em>narrow</em> authority, never widen it<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. That asymmetry is what lets a parent agent attach "up to $100 USDC, within 24 hours" caveats to its own macaroon before handing it to a child agent.</p>
+<h2>3. The L402 protocol specification</h2>
+<h3>3.1 Challenge / response</h3>
+<p>The protocol headers fit in two lines<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>:</p>
+<pre><code>WWW-Authenticate: L402 macaroon=&quot;&lt;base64&gt;&quot;, invoice=&quot;&lt;bolt11&gt;&quot;
+Authorization:    L402 &lt;base64(macaroon)&gt;:&lt;hex(preimage)&gt;</code></pre>
+<p>The full flow is four steps:</p>
+<p>1. <strong>Client requests a protected resource.</strong> 2. <strong>Server responds 402</strong> with <code>WWW-Authenticate</code> carrying the macaroon and a BOLT 11 invoice<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 3. <strong>Client pays the Lightning invoice</strong> and obtains the preimage <code>r</code>. 4. <strong>Client retries</strong> with <code>Authorization: L402 &lt;base64(macaroon)&gt;:&lt;hex(preimage)&gt;</code> and gets the resource<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<h3>3.2 Token format and payment-hash binding</h3>
+<p>The decisive detail is that <strong>the macaroon's identifier commits to the invoice's <code>payment_hash</code> H</strong><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. The specification spells it out: "The macaroon's identifier commits to the payment hash H of the Lightning invoice. This commitment enables in-band payment verification: the server can confirm a client has paid using only the macaroon and preimage, with no additional state or backend lookup"<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. Verification then reduces to: (1) extract H from the macaroon, (2) compute <code>sha256(r)</code> from the incoming preimage and compare to H, (3) verify the macaroon's HMAC chain and that all caveats pass — all stateless<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<h3>3.3 402 vs 401</h3>
+<p>The spec separates the two status codes deliberately: "402 Payment Required: Used exclusively for initial challenges when no credential exists. 401 Unauthorized: Returned when credentials are present but invalid, tampered, or verification fails"<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. The rule is explicit: "Once a client presents a credential (valid or not), the server MUST respond with 401 if verification fails, not 402"<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. The split makes "I have no credential and need to pay" and "my credential is broken" two different states for the client to react to.</p>
+<h3>3.4 Caveats and delegation</h3>
+<p>A macaroon caveat can encode any condition — service access, capabilities, expiry, volume — as long as it only narrows authority: "Caveats can encode service access, capabilities, expiration, volume limits, and other constraints. Each successive caveat can only narrow the macaroon's authority, never widen it"<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. Lightning Labs' canonical example: "Loop could issue a Macaroon to an exchange, which could apply further restrictions before handing it to the end users"<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<h3>3.5 gRPC adaptation</h3>
+<p>gRPC always returns HTTP/2 200, so L402 specifies a separate adaptation: "For gRPC, servers return HTTP 200 but encode the L402 challenge in trailing headers (<code>grpc-status: 402</code>) since gRPC requires 200 responses"<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. The token format itself is the same across REST and gRPC.</p>
+<h3>3.6 BLIP-0026 standards tracking</h3>
+<p>L402 has a pull request open at <code>lightning/blips</code> as <strong>BLIP-0026</strong> (Bitcoin Lightning Improvement Proposal)<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>, placing it on the Lightning standards track and not merely as a vendor spec. As of this writing, formal IANA HTTP-authentication-scheme registration is not confirmed.</p>
+<h2>4. Aperture — Lightning Labs' reverse proxy</h2>
+<h3>4.1 Overview</h3>
+<p>Aperture is the reference implementation merchants run to accept L402. The README's one-liner: "An HTTP 402 reverse proxy that supports proxying requests for gRPC (HTTP/2) and REST (HTTP/1 and HTTP/2) backends using the L402 Protocol Standard"<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. MIT licensed; v0.5.0 published 25 March 2026<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. It runs in production for Lightning Loop: "Aperture is a Lightning HTTP 402 (L402) reverse proxy … used in production by Lightning Loop for non-custodial on/off ramps on the Lightning Network"<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+<h3>4.2 Package structure</h3>
+<p>pkg.go.dev lists seven Aperture packages<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>:</p>
+<table><thead><tr><th>Package</th><th>Purpose</th></tr></thead><tbody><tr><td><code>auth</code></td><td>L402 token and macaroon authentication</td></tr><tr><td><code>proxy</code></td><td>HTTP/2 and gRPC backend routing</td></tr><tr><td><code>mint</code></td><td>Token minting and invoice generation</td></tr><tr><td><code>l402</code></td><td>L402 protocol implementation</td></tr><tr><td><code>admin</code></td><td>Admin API and management endpoints</td></tr><tr><td><code>aperturedb</code></td><td>Database backends (SQLite, Postgres, etcd)</td></tr><tr><td><code>challenger</code></td><td>Payment challenge generation</td></tr></tbody></table>
+<p>The core service struct is <code>Aperture</code>; the lifecycle methods are three<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>:</p>
+<pre><code>func NewAperture(cfg *Config) *Aperture
+func (a *Aperture) Start(errChan chan error, shutdown &lt;-chan struct{}) error
+func (a *Aperture) Stop() error</code></pre>
+<p><code>UpdateServices(services []*proxy.Service) error</code> lets the service list change at runtime<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. <code>Start</code> brings up Prometheus metrics, the DB connection (etcd / Postgres / SQLite), TLS, gRPC / REST servers, and HTTP listeners in order; <code>Stop</code> brings down challenger, admin server, proxy, DB, HTTP server in the reverse order<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</p>
+<h3>4.3 <code>sample-conf.yaml</code> — LND auth + backend choice</h3>
+<p>Aperture reads <code>~/.aperture/aperture.yaml</code>; <code>sample-conf.yaml</code> is the template<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. The key blocks:</p>
+<pre><code>listenaddr: localhost:8081
+debuglevel: debug
+basedir: /path/to/.aperture
+insecure: false
+autocert: false
+
+authenticator:
+  network: simnet
+  lnd:
+    host: localhost:10009
+    tlspath: /path/to/lnd/tls.cert
+    macdir: /path/to/lnd/data/chain/bitcoin/simnet
+
+database:
+  backend: sqlite   # or postgres / etcd
+  sqlite:
+    dbfile: /path/to/.aperture/aperture.db
+
+services:
+  - name: example
+    hostregexp: ^example\.com$
+    pathregexp: ^/api/.*$
+    address: backend.local:8080
+    protocol: https
+    authwhitelistpaths: [...]
+    auth: L402
+    capabilities: &quot;add,subtract&quot;
+    pricing: { ... }</code></pre>
+<p>Multiple services can be registered, each routed by <code>hostregexp</code> / <code>pathregexp</code>, with its own capability list (the caveats baked into the macaroon), pricing rules (fixed / dynamic / tier), and rate-limit rules<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. Tor, the hashmail server for Lightning Node Connect, and Prometheus metrics are optional<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>.</p>
+<h3>4.4 LND wiring and invoice issuance</h3>
+<p><code>authenticator.lnd</code> is the integration point. Aperture connects to lnd with macaroon + TLS authentication and (a) issues a BOLT 11 invoice for every challenge, (b) polls or subscribes to invoice updates to receive the preimage<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. The merchant has to operate lnd themselves — in exchange they get no external facilitator dependency<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</p>
+<h3>4.5 Admin API · dashboard · CLI · MCP</h3>
+<p>A rich optional surface area:</p>
+<ul>
+<li><strong>gRPC / REST admin API</strong> — 10 RPCs for registering / updating services, querying transactions, token stats, revenue monitoring. "Services persist to the database and survive restarts" and "changes take effect immediately"<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</li>
+<li><strong>Dashboard build tag</strong> — <code>dashboard</code> build tag compiles in an embedded Next.js dashboard<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</li>
+<li><strong><code>aperturecli</code></strong> — a separate CLI binary. It embeds an MCP server so Claude Code / Codex can drive it directly<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</li>
+</ul>
+<h3>4.6 Rate limiting</h3>
+<p>Token-bucket rate limiting is a first-class feature — "path-based rules" with per-client isolation, so different routes can carry different limits via regex<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. When the bucket is empty, REST gets <code>HTTP 429 + Retry-After</code>, gRPC gets <code>ResourceExhausted</code><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<h2>5. Code and SDK ecosystem</h2>
+<h3>5.1 Client-side libraries</h3>
+<p>Client SDKs for L402 have largely come out of Tierion.</p>
+<ul>
+<li><strong><code>Tierion/lsat-js</code></strong> — JavaScript utility library: "A javascript library for working with LSATs (Lightning Service Authentication Tokens)"<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. Handles macaroon (de)serialisation, preimage attachment / verification, and caveat addition at SDK level.</li>
+<li><strong><code>Tierion/boltwall</code></strong> — Node.js + TypeScript middleware: "Bitcoin Lightning paywall and authentication using LSATs. Built with LND, Nodejs, and Typescript"<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. Effectively the Node-side analog of Aperture as a paywall middleware.</li>
+</ul>
+<p>(There is no single canonical Go client SDK called <code>lsat-go</code> as of this writing; most Go clients import Aperture's own <code>l402</code> package directly _(unverified — single source)_.)</p>
+<h3>5.2 Lightning Agent Tools (announced 11 Feb 2026)</h3>
+<p>On 11 February 2026 Lightning Labs released "Lightning Agent Tools," a seven-skill package<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup><sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. The announcement summarises: "The new Lightning agent tools repo ships with seven composable skills covering the full agent commerce stack: running a Lightning node, isolating private keys with a remote signer, baking scoped credentials, paying for L402-gated APIs, hosting paid endpoints, querying node state via MCP"<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>. The seven skills are (1) running an LN node, (2) remote signer for key isolation, (3) scoped credential baking, (4) <strong><code>lnget</code></strong> — auto-paying CLI client for L402-gated APIs, (5) <strong><code>aperture</code> skill</strong> — hosting paid endpoints, (6) node-state queries via MCP, (7) buyer / seller workflow orchestration<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>. Distribution is via Claude Code · Codex · npx · ClawHub<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>.</p>
+<h3>5.3 Standards tracking</h3>
+<p>L402 has BLIP-0026 open at <code>lightning/blips</code> PR #26<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. That places it on the Lightning standards track, not in vendor-spec territory.</p>
+<h2>6. Comparison — L402 vs x402 vs MPP</h2>
+<table><thead><tr><th>Axis</th><th>L402</th><th>x402</th><th>MPP</th></tr></thead><tbody><tr><td>Payment asset</td><td>BTC / Lightning sats<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td><td>USDC and other EVM ERC-20<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></td><td>USDC / cards / SPTs etc.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td></tr><tr><td>Token</td><td>macaroon + preimage<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></td><td>EIP-712 / EIP-3009 signatures</td><td>EIP-712 voucher / card tokens</td></tr><tr><td>Settlement model</td><td>Immediate Lightning + stateless verify<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></td><td>Facilitator <code>/verify</code> + <code>/settle</code><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></td><td>Channel + cumulative commitment<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td></tr><tr><td>Launch</td><td>2020 as LSAT<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, renamed to L402<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td><td>2025<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></td><td>2025–2026<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td></tr><tr><td>Price unit</td><td>1 sat (sub-cent)<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td><td>gas + token ≈ 1¢ to tens of cents<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td><td>sub-cent to dollars</td></tr><tr><td>Governance</td><td>Lightning Labs + BLIP-0026<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup></td><td>x402 Foundation (Coinbase + Cloudflare)<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></td><td>IETF draft (Tempo + Stripe)</td></tr><tr><td>Censorship resistance</td><td>Bitcoin PoW consensus<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td><td>EVM chain + Circle USDC issuer<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td><td>Operator-dependent</td></tr><tr><td>Price stability</td><td>Exposed to BTC volatility<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td><td>USD-pegged<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td><td>Varies</td></tr></tbody></table>
+<p>ln.bot's comparison reaches the same conclusion: L402 has "stateless cryptographic verification requiring no external dependencies," whereas x402 depends on "facilitators or chain queries that introduce latency and operational complexity"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. On censorship resistance, L402 sits on Bitcoin where "nobody can freeze your sats, censor your payment, or unilaterally shut down the network," while x402 relies on the USDC issuer (Circle) and Base's sequencer (Coinbase)<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<p>The comparison is not "one is better." The sister report <a href="../x402-batch-vs-mpp-session/"><code>x402-batch-vs-mpp-session</code></a> shows how x402 batch-settlement and MPP <code>session</code> split by traffic shape on top of the same problem; L402 is the Bitcoin-native standard that <em>predates</em> both.</p>
+<h2>7. Discussion — When to pick L402</h2>
+<p>(interpretive) The judgement that this report's evidence supports:</p>
+<ul>
+<li><strong>AI agent commerce and 1-sat micropayments</strong> — Lightning routing fees in the 1-sat (sub-cent) range make "less than one cent per call" economically viable<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Other standards require additional channel / batching infrastructure to reach the same floor; L402 hits it with single-shot payments.</li>
+<li><strong>Non-EVM environments / Bitcoin-native operators</strong> — Merchants already running Bitcoin infrastructure (lnd), or those who want to avoid EVM dependency, fit L402 naturally.</li>
+<li><strong>Stateless-verification-critical environments</strong> — When external facilitators, RPC providers, or chain indexers are off the table, L402's <code>(macaroon, preimage)</code> pair is the simplest possible verification primitive<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</li>
+<li><strong>Where L402 is the wrong fit</strong> — USD-pegged price tables, dispute / chargeback flows for consumer payments, or business logic that requires receiving EVM tokens as the settlement asset — for those, x402 / MPP / ACP are better fits _(interpretive)_<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</li>
+<li><strong>The pragmatic answer</strong> is for agents to support multiple standards through an adapter layer — the sister report <a href="../agent-payments-smart-account-design/"><code>agent-payments-smart-account-design</code></a> recommends exactly that. L402 fills the Bitcoin-native slot in that adapter set.</li>
+</ul>
+<h2>8. Limitations</h2>
+<ul>
+<li>This report reflects primary specs, docs, GitHub, and blog posts as of 20 May 2026. The body of <code>lightning/blips</code> PR #26 (BLIP-0026) was not quoted; only its existence was confirmed<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</li>
+<li>The L402 specification file moved between <code>specification.md</code> and <code>protocol-specification.md</code> at different times; this report cites the latter<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</li>
+<li>For client SDKs, beyond <code>lsat-js</code> (JavaScript) and <code>boltwall</code> (Node.js), no canonical multi-language library was identified within the scope of this report.</li>
+<li>Aperture's <code>aperture.go</code> code citations are based on master branch reading; the v0.5.0 release may have moved relative to master since.</li>
+<li>The L402-vs-x402 framing on USD price stability and censorship resistance is sourced from ln.bot's comparison<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>; that source is sympathetic to Lightning, and the report's uncertainties file reflects this.</li>
+<li>A complete inventory of Aperture-in-production deployments beyond Lightning Loop is out of scope here.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Olaoluwa Osuntokun</span>. <a href="https://lightning.engineering/posts/2020-03-30-lsat/">L402: Authentication and Payments for the Lightning-Native Web</a>. <span class="venue">Lightning Engineering, 2020</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-2"><span class="authors">Lightning Labs</span>. <a href="https://lightning.engineering/posts/2026-03-11-L402-for-agents/">The Future Is Now: Why L402 Is the Internet-Native Payments Protocol for Agents</a>. <span class="venue">Lightning Engineering, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-3"><span class="authors">Lightning Labs</span>. <a href="https://github.com/lightninglabs/L402/blob/master/introduction.md">L402 Introduction — Lightning Labs</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-4"><span class="authors">BingX</span>. <a href="https://bingx.com/en/learn/article/what-is-l402-payments-for-ai-agents-on-lightning-network-how-does-it-work">What Is L402, Lightning-Powered Payments for AI Agents?</a>. <span class="venue">bingx.com, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-5"><span class="authors">Lightning Labs</span>. <a href="https://github.com/lightninglabs/L402">lightninglabs/L402 — Pay for APIs with Lightning</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-6"><span class="authors">Coinbase, x402 Foundation</span>. <a href="https://github.com/coinbase/x402">coinbase/x402 — payments protocol</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-7"><span class="authors">ln.bot</span>. <a href="https://ln.bot/learn/x402-vs-l402">x402 vs L402: Stablecoins vs Lightning for APIs</a>. <span class="venue">ln.bot, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-8"><span class="authors">Lightning Labs</span>. <a href="https://docs.lightning.engineering/the-lightning-network/l402">L402: Lightning HTTP 402 Protocol — Builder&#x27;s Guide</a>. <span class="venue">docs.lightning.engineering, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-9"><span class="authors">Lightning Labs</span>. <a href="https://github.com/lightninglabs/L402/blob/master/protocol-specification.md">L402 Protocol Specification</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-10"><span class="authors">Lightning Labs</span>. <a href="https://docs.lightning.engineering/the-lightning-network/l402/macaroons">Macaroons — Builder&#x27;s Guide</a>. <span class="venue">docs.lightning.engineering, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-11"><span class="authors">Olaoluwa Osuntokun</span>. <a href="https://github.com/lightning/blips/pull/26">blip-0026: L402 — Lightning HTTP 402 Protocol</a>. <span class="venue">GitHub (lightning/blips), 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-12"><span class="authors">Lightning Labs</span>. <a href="https://github.com/lightninglabs/aperture">lightninglabs/aperture — L402 (Lightning HTTP 402) Reverse Proxy</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-13"><span class="authors">Lightning Labs</span>. <a href="https://pkg.go.dev/github.com/lightninglabs/aperture">aperture — pkg.go.dev</a>. <span class="venue">pkg.go.dev, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-14"><span class="authors">Lightning Labs</span>. <a href="https://raw.githubusercontent.com/lightninglabs/aperture/master/aperture.go">aperture.go — main service struct</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-15"><span class="authors">Lightning Labs</span>. <a href="https://raw.githubusercontent.com/lightninglabs/aperture/master/sample-conf.yaml">aperture sample-conf.yaml</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-16"><span class="authors">Lightning Labs</span>. <a href="https://docs.lightning.engineering/lightning-network-tools/aperture">Aperture — Builder&#x27;s Guide</a>. <span class="venue">docs.lightning.engineering, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-17"><span class="authors">Tierion</span>. <a href="https://github.com/Tierion/lsat-js">Tierion/lsat-js — JavaScript LSAT library</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-18"><span class="authors">Tierion</span>. <a href="https://github.com/Tierion/boltwall">Tierion/boltwall — Bitcoin Lightning paywall</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-19"><span class="authors">Lightning Labs</span>. <a href="https://lightning.engineering/posts/2026-02-11-ln-agent-tools/">The Agents Are Here and They Want to Transact: Powering the AI Economy with Lightning</a>. <span class="venue">Lightning Engineering, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-20"><span class="authors">The Block</span>. <a href="https://www.theblock.co/post/389584/lightning-labs-releases-ai-agent-tools-for-native-bitcoin-lightning-payments">Lightning Labs releases AI agent tools for native Bitcoin Lightning payments</a>. <span class="venue">theblock.co, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-05-20. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
