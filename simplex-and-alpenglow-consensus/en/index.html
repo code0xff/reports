@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Simplex and Alpenglow — A Technical Deep Dive into the Next-Generation BFT Consensus and Solana&#x27;s New Consensus Algorithm — Deepsearch</title>
+<meta name="description" content="From Chan &amp; Pass&#x27;s Simplex (2023) to Anza&#x27;s Alpenglow (2025) — algorithms, code-level reading, and the differences between them">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>Simplex and Alpenglow — A Technical Deep Dive into the Next-Generation BFT Consensus and Solana&#x27;s New Consensus Algorithm</h1>
+    <p class="subtitle">From Chan &amp; Pass&#x27;s Simplex (2023) to Anza&#x27;s Alpenglow (2025) — algorithms, code-level reading, and the differences between them</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-05-20</span>
+      <span><strong>Tags</strong> simplex, alpenglow, consensus, solana, anza, tower-bft, proof-of-history, votor, rotor, bls12-381, bft, partial-synchrony, simd-0326</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="simplex-and-alpenglow-consensus.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>This report unpacks two consensus protocols that sit in the same partially-synchronous BFT family yet end up in different places — <strong>Simplex</strong> (Chan &amp; Pass, 2023)<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> and <strong>Alpenglow</strong> (Kniep, Sliwinski, and Wattenhofer, 2025)<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Simplex is the academic-side standardisation effort: collapse view-change into immediate iteration rotation, leave only <code>notarize</code> and <code>finalize</code> votes, and the protocol advertises worst-case 400 ms finality at 80 ms message delay under one-third faulty leaders<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. It is already adopted in Commonware, Tempo, Solana Alpenglow, and Ava Labs<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Alpenglow is the production side: Anza's replacement for Solana's TowerBFT + Proof-of-History, defined by SIMD-0326 (passed governance on 2 September 2025 with 98.27% in favour<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>, activated on a community test cluster on 11 May 2026<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>). It introduces two components — <strong>Votor</strong> for voting and finalisation, <strong>Rotor</strong> for block dissemination — and targets ~150 ms median finality with an explicit "20 + 20" fault model<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. This report reads the SIMD-0326 spec, the Anza blog, the simplex.blog landing page, and independent technical analyses (Helius, Alchemy, Sei, 1inch) to trace (a) the distance between an academic standard and its production fork, (b) the 80% fast / 60% slow dual-path design, (c) the BLS12-381-aggregated vote-data compression, and (d) the trade-off in moving from a 33% Byzantine bound to a 20% bound with an extra 20% crash slack.</p>
+  </section>
+
+  <main class="body">
+<h1>Simplex and Alpenglow — A Technical Deep Dive into the Next-Generation BFT Consensus and Solana's New Consensus Algorithm</h1>
+<h2>1. Introduction — Why both at once</h2>
+<p>Academic standards and production consensus often arrive at the same abstraction at different times. Simplex is the TCC 2023 culmination of a long line of academic simplification<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>; Alpenglow is Anza's 19 May 2025 announcement of a production replacement for Solana's 12.8-second TowerBFT finality<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The two sit in the same partially-synchronous family but pick different trade-offs — Simplex chasing simplicity and a general standard slot<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>; Alpenglow chasing 100–150 ms finality for the world's busiest L1 _(interpretive)_<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p>These tracks are not independent. simplex.blog states plainly: "Solana's next-generation consensus (Votor) is based on Simplex with large modifications to support fast-path consensus"<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Alpenglow's Votor is therefore a direct descendant of Simplex. This report puts the two side by side and follows how the academic spec transforms into the production spec.</p>
+<h2>2. Background — The foundations beneath both</h2>
+<h3>2.1 BFT partial synchrony and <code>f &lt; n/3</code></h3>
+<p>The partial-synchrony model has been the default substrate for BFT-SMR since PBFT — "unknown global stabilization time after which all messages are delivered within a known bound Δ" and <code>f &lt; n/3</code> Byzantine tolerance<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Both Simplex and Alpenglow live inside this model.</p>
+<h3>2.2 PBFT → HotStuff → Tendermint → Simplex</h3>
+<p>Earlier standard BFT designs accumulated machinery — view-change subroutines, multi-phase voting (prepare / precommit / commit) — to handle leader failures. Simplex makes a different bet: "move to the next view upon receiving a cert in this view," collapsing the view-change into a single rotation, and reach worst-case 400 ms confirmation under one-third faulty leaders<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<h3>2.3 TowerBFT + Proof-of-History — the problem Alpenglow targets</h3>
+<p>SIMD-0326 names three failings of Solana's existing consensus: "(1) consensus finality time of 12.8 seconds … (2) does not have a security proof, which is concerning … (3) bandwidth use, e.g., by … costly gossip traffic"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Alpenglow's motivation is summarised in one line — "Lowers actual consensus finality latency below the pre-confirmation latency of TowerBFT"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<h2>3. Simplex — Reading the academic spec</h2>
+<h3>3.1 Paper identity</h3>
+<p>Simplex is the work of Benjamin Y. Chan and Rafael Pass — IACR ePrint 2023/463<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, TCC 2023<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The abstract compresses the contribution: "a new and simple consensus protocol in the partially synchronous setting, tolerating f &lt; n/3 byzantine faults, which is essentially as simple to describe as the simplest known protocols, but it also enjoys an even simpler security proof, while matching and even improving the efficiency of the state-of-the-art"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. simplex.blog's one-liner: "Simplex is a consensus protocol that is faster than the state-of-the-art (on paper), yet easier to understand"<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<h3>3.2 Iteration structure and leader rotation</h3>
+<p>Simplex progresses by iteration <code>h</code>. The leader of iteration <code>h</code> is deterministic — <code>Lₕ = H*(h) mod n</code> — and every node moves to the next iteration immediately on receiving a certificate; there is no separate view-change subprotocol. The sister report <a href="../commonware-simplex-consensus/"><code>commonware-simplex-consensus</code></a> traces the iteration rules in line-by-line detail.</p>
+<h3>3.3 Two votes (<code>notarize</code> + <code>finalize</code>) and dummy-block skip</h3>
+<p>Simplex's safety rests on two vote types and a dummy-block skip pattern. If an iteration cannot reach consensus, the node casts a vote for a dummy block, which both skips the slot and serves as proof that "no decision occurred in the previous view"<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. That collapse is what lets the paper claim an "even simpler security proof"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h3>3.4 Published benchmarks</h3>
+<p>simplex.blog publishes a worst-case table (80 ms message delay, one-third faulty leaders)<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>:</p>
+<table><thead><tr><th>Protocol</th><th>Worst-case finality</th></tr></thead><tbody><tr><td><strong>Simplex</strong></td><td>400 ms</td></tr><tr><td>Algorand Agreement</td><td>480 ms</td></tr><tr><td>Tendermint (chained)</td><td>1,840 ms</td></tr><tr><td>HotStuff</td><td>2,480 ms</td></tr></tbody></table>
+<p>This is an author-published table — this report records that fact in <code>uncertainties.md</code>.</p>
+<h3>3.5 Adoption</h3>
+<p>simplex.blog names four active implementations: <strong>Commonware, Tempo, Solana Alpenglow, Ava Labs</strong><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. The Rust Commonware implementation (the <code>simplex</code> module of the <code>commonware-consensus</code> crate) is reviewed at code level in the sister report <a href="../commonware-simplex-consensus/"><code>commonware-simplex-consensus</code></a>.</p>
+<h2>4. Alpenglow — Solana's new consensus</h2>
+<h3>4.1 Authors, announcement, governance</h3>
+<p>Alpenglow's authors are <strong>Quentin Kniep, Kobi Sliwinski, and Roger Wattenhofer</strong><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. Wattenhofer leads the Disco distributed-systems group at ETH Zurich; Kniep and Sliwinski are his former PhD students. Anza announced Alpenglow on 19 May 2025<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. SIMD-0326's governance vote closed on 2 September 2025 with 98.27% in favour, 1.05% opposed, 0.69% abstaining, and roughly 52% of staked tokens participating<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. On 11 May 2026 Anza activated Alpenglow on a community-validator test cluster<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<h3>4.2 Votor — fast (80%) / slow (60%) dual path</h3>
+<p>Votor replaces TowerBFT as the voting and finalisation component. Two paths run in parallel.</p>
+<ul>
+<li><strong>Fast path (80%)</strong> — "If the proposed block receives ≥80% of stake approval in the first voting round, the block is immediately finalized and a Fast-Finalization Certificate is produced"<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. SIMD-0326 specifies that ≥80% NOTARIZE votes in Round 1 yield a fast-finalization certificate<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</li>
+<li><strong>Slow path (60%)</strong> — when first-round support sits between 60% and 80%, a second round begins. "ALPENGLOW … slow path runs a second round if 60–80% approve in round one, and if 60%+ approve again, the block is confirmed at approximately 150 milliseconds"<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. SIMD-0326's wording: a "slow-finalization certificate and a notarization certificate" must arrive together<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</li>
+</ul>
+<p>The two paths run <strong>in parallel; whichever finalises first wins</strong> — 1inch summarises: "Votor can finalize a block in a single round if at least 80% of the total stake participates"<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. Anza's headline: "Alpenglow will shatter both these latency bounds. We expect that Alpenglow can achieve actual finality in about 150 ms (median)"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<h3>4.3 Five certificate types</h3>
+<p>SIMD-0326 tracks consensus state with five distinct certificates<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>:</p>
+<table><thead><tr><th>Certificate</th><th>Threshold</th><th>Role</th></tr></thead><tbody><tr><td>Notarization</td><td>60%</td><td>standard Round-1 pass</td></tr><tr><td>Skip</td><td>60%</td><td>skip the slot</td></tr><tr><td>Finalization</td><td>60%</td><td>Round-2 confirmation</td></tr><tr><td>Fast-Finalization</td><td>80%</td><td>immediate Round-1 confirmation</td></tr><tr><td>Notar-Fallback</td><td>60%</td><td>Round-1 fallback</td></tr></tbody></table>
+<p>The finalisation rule is compressed into two cases: "Create or receive a fast-finalization certificate" or "Create or receive a slow-finalization certificate and a notarization certificate"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Indirect finalisation: "Whenever a block b in slot s is finalized directly, all previous slots that were undecided are decided indirectly"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<h3>4.4 Rotor — single relay + single erasure-coded shred</h3>
+<p>Rotor replaces Solana's existing <strong>Turbine</strong> data-dissemination protocol. Turbine used a multi-layer relay tree and sent separate data and recovery shreds. Rotor flattens the tree to a single relay layer and merges the shreds — "Rotor transmits only a single erasure-coded version of each shred, eliminating the need to send separate data and recovery shreds as Turbine does"<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. 1inch describes the same flow more abstractly: "Rotor distributes block data using erasure coding — a technique that divides information into fragments and shares them among validators"<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. Bandwidth is allocated stake-weighted so larger validators carry proportionally more<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. Alchemy reports that 1,500 shreds take ~18 ms over a 1 Gb/s link<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> _(unverified — single source)_.</p>
+<h3>4.5 BLS12-381 aggregation and vote-data compression</h3>
+<p>Vote messages are aggregated using BLS12-381 signatures. SIMD-0326 states "the desired security level of 128-bits is achieved" with SHA-256 + BLS12-381<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Alchemy quantifies the effect: "Validators exchange votes as lightweight UDP messages using BLS signature aggregation, with only the aggregated certificate (~1,000 bytes) recorded on-chain—replacing ~500KB of current vote data"<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. So roughly 500 KB of per-slot vote traffic collapses into a single ~1 KB certificate header — the concrete instantiation of SIMD-0326's "decreases bandwidth use, e.g., by eliminating costly gossip traffic"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<h3>4.6 The 20+20 security model</h3>
+<p>Alpenglow trades the classic 33% Byzantine bound for a <strong>20+20</strong> model. SIMD-0326's framing: "a distinctive 20+20 security model" with "40% crash failure resilience" trading off 33% Byzantine security<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Anza's framing: "The distinctive '20+20' resilience allows the protocol to operate effectively even under harsh network conditions, tolerating up to 20% adversarial stake and an additional 20% non-responsive stake"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>The Byzantine bound therefore drops to 20%, but a separate 20% crash budget yields a 40% combined fault tolerance. On a single Byzantine axis this is tighter than 33%; on the combined axis it is looser than 33%. That trade-off is the most visible design decision in Alpenglow.</p>
+<h3>4.7 Validator economics and the VAT</h3>
+<p>SIMD-0326 caps the validator set: "only admits the 2,000 highest staked validators"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Each validator must burn a Validator Admission Ticket (VAT) — "initially about 0.8 SOL per day"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. In return, vote-transaction fees disappear — formerly about 1 SOL/day per validator<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. Alchemy estimates the minimum-profitable stake falls from ~4,850 SOL to ~450 SOL and that overall operating cost drops 20–50%<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</p>
+<h3>4.8 Timeline</h3>
+<ul>
+<li><strong>2025-05-19</strong> — Anza announces Alpenglow<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</li>
+<li><strong>2025-09-02</strong> — SIMD-0326 governance vote closes, 98.27% in favour<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</li>
+<li><strong>2026-05-11</strong> — Anza activates Alpenglow on a community-validator test cluster<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</li>
+<li><strong>Late 2026</strong> — target mainnet rollout per Anza's announced schedule<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. (Governance discussion is hosted on the Solana Developer Forums<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>; Wattenhofer's own X post pointed to the v1.1 white paper and the public presentation slides<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.)</li>
+</ul>
+<h2>5. Code-level analysis — From spec to code</h2>
+<h3>5.1 The five-certificate definitions (SIMD-0326)</h3>
+<p>The thresholds are captured by SIMD-0326 as<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>:</p>
+<pre><code>Notarization     := { stake-weighted sum of NOTARIZE votes ≥ 60% }
+Skip             := { stake-weighted sum of SKIP votes      ≥ 60% }
+Finalization     := { stake-weighted sum of FINALIZE votes  ≥ 60% }
+Fast-Finalization:= { stake-weighted sum of NOTARIZE votes  ≥ 80% }
+Notar-Fallback   := { stake-weighted sum of NOTAR-FALLBACK votes ≥ 60% }</code></pre>
+<p>Each certificate is a single BLS12-381-aggregated object of roughly 1 KB<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</p>
+<h3>5.2 Fast / slow path pseudocode</h3>
+<p>The finalisation rules of SIMD-0326 reduce to<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>:</p>
+<pre><code>on each slot s, in parallel:
+    fast_path:
+        if NOTARIZE votes for block b ≥ 80% of stake within Round 1 timeout:
+            emit FastFinalizationCertificate(b)
+            finalize(b)  // ~100ms
+    slow_path:
+        if NOTARIZE votes for b ∈ [60%, 80%) within Round 1:
+            broadcast(FINALIZE_or_FALLBACK vote)
+            if FINALIZE votes for b ≥ 60% within Round 2 timeout:
+                if NotarizationCertificate(b) exists:
+                    emit FinalizationCertificate(b)
+                    finalize(b)  // ~150ms
+        else if SKIP votes ≥ 60%:
+            skip(s)</code></pre>
+<p>When a block finalises, the <strong>indirect-finalisation</strong> rule applies — every undecided earlier slot finalises along with it<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<h3>5.3 Mapping to Commonware Simplex</h3>
+<p>Commonware's Rust Simplex implementation (the <code>simplex</code> module of the <code>commonware-consensus</code> crate) rewires the academic protocol into actors (Batcher / Voter / Resolver / Application); the sister report <a href="../commonware-simplex-consensus/"><code>commonware-simplex-consensus</code></a> documents that mapping. Alpenglow's Votor sits on top of the same abstraction with production-side modifications — fast-path 80%, five-certificate split, BLS aggregation, the 20+20 model<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<h3>5.4 The Rotor erasure-coding flow</h3>
+<p>Rotor's data flow per slot (summarised from SIMD-0326 + Alchemy / Helius)<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>:</p>
+<pre><code>on block proposal at slot s:
+    1. proposer encodes block into N erasure-coded shreds
+    2. proposer broadcasts shreds to a stake-weighted relay set R
+    3. each relay r ∈ R forwards its shreds to ALL validators
+    4. validators decode the block once they have (k of N) shreds</code></pre>
+<p>The single relay layer (R) replaces Turbine's multi-layer tree, and the measurement on a 1 Gb/s link is "1,500 shreds takes approximately 18 milliseconds"<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> _(unverified — single source)_.</p>
+<h2>6. Comparison — Simplex vs Alpenglow vs TowerBFT</h2>
+<table><thead><tr><th>Axis</th><th>Simplex</th><th>Alpenglow</th><th>TowerBFT (existing)</th></tr></thead><tbody><tr><td>Fault model</td><td><code>f &lt; n/3</code> Byzantine (partial synchrony)<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></td><td>20% Byzantine + 20% crash (20+20)<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td><td>33% Byzantine + Proof-of-History<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td></tr><tr><td>Voting</td><td>notarize + finalize, two votes<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></td><td>80% fast / 60% slow dual-path with five certificates<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td><td>Multi-stage stake-based TowerBFT<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td></tr><tr><td>Worst-case finality</td><td>400 ms at 80 ms message delay<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></td><td>100–150 ms median<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></td><td>12.8 s<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td></tr><tr><td>Data dissemination</td><td>Implementation-dependent</td><td>Rotor: single relay + single erasure shred<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></td><td>Turbine: multi-layer relay tree<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></td></tr><tr><td>Signatures / aggregation</td><td>Implementation-dependent (e.g. BLS12-381 threshold)</td><td>BLS12-381 aggregation, 128-bit security<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td><td>Ed25519 per vote<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td></tr><tr><td>Governance</td><td>Academic (Chan &amp; Pass, TCC 2023)<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></td><td>Anza + SIMD-0326 (98.27% approval)<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></td><td>Solana Labs / Anza operated</td></tr><tr><td>Adoption</td><td>Commonware / Tempo / Ava Labs / Solana Votor<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></td><td>Activated on test cluster 2026-05-11<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup></td><td>Solana mainnet today</td></tr><tr><td>Security proof</td><td>Simplified safety + liveness proof<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></td><td>Whitepaper provides safety + liveness proofs<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td><td>None published<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td></tr></tbody></table>
+<p>Sei summarises the trade-off: "Alpenglow performs better than traditional BFT when dealing with mixed failure scenarios … but offers weaker protection against purely adversarial attacks"<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. The 33%-vs-(20%/40%) trade-off is the central design call _(interpretive)_.</p>
+<h2>7. Discussion</h2>
+<h3>7.1 What it means to drop the Byzantine bound to 20%</h3>
+<p>Alpenglow's 20% Byzantine threshold is materially tighter than 33% on a single-axis adversarial scenario<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. SIMD-0326 acknowledges this directly: in exchange the protocol gets fast finality and operational simplifications<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Sei's phrasing: "While this provides a combined 40% fault tolerance that exceeds traditional BFT systems' 33% limit, the trade-offs are nuanced"<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>.</p>
+<h3>7.2 The 2,000-validator cap and geographic asymmetry</h3>
+<p>SIMD-0326's 2,000-validator cap<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> is a deliberate decision to bound BLS aggregation cost and to make vote-data compression predictable, but Sei raises an additional concern: "Geographic performance variations mean validators in remote locations may struggle to participate in fast-path consensus"<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. Validators in low-RTT regions are likelier to land in the fast-path 80% quorum, which creates new decentralisation pressure _(interpretive)_<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>.</p>
+<h3>7.3 VAT economics and operating cost</h3>
+<p>The economics move in two directions at once: vote fees vanish (savings) while a VAT must be burned (cost). Alchemy projects the minimum-profitable stake falls from ~4,850 SOL to ~450 SOL, and overall operating cost drops 20–50%<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. The direction widens validator diversity, but whether 0.8 SOL/day per validator burnt indefinitely is sustainable is a question for further work _(interpretive)_.</p>
+<h3>7.4 The Simplex–Alpenglow relationship</h3>
+<p>simplex.blog spells the relationship out: "Solana's next-generation consensus (Votor) is based on Simplex with large modifications to support fast-path consensus"<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Alpenglow sits in the Simplex family but adopts (a) fast-path 80%, (b) five separated certificates, (c) BLS aggregation, (d) the 20+20 model on top. The span between (a)–(d) is the distance between an academic standard and a production fork _(interpretive)_.</p>
+<h2>8. Limitations</h2>
+<ul>
+<li><strong>The Alpenglow whitepaper v1.1 PDF</strong><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> returned only header-level content under scripted fetch; theorem statements are not quoted here. Quantitative claims rest on SIMD-0326<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>, the Anza blog<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>, and independent technical analyses (Helius / Alchemy / Sei / 1inch).</li>
+<li><strong>Wattenhofer's presentation slides</strong><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup> are cited by URL only; the slides themselves were not extracted.</li>
+<li><strong>The Simplex paper PDF on IACR ePrint</strong><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> returned 403 on scripted fetch. Algorithmic quotes are cross-referenced via simplex.blog<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, the Cornell talk slides<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>, and the sister report <code>commonware-simplex-consensus</code>.</li>
+<li><strong>Votor's production source code</strong> is not yet in a public repository at the time of writing; code-level claims rest on the SIMD-0326 specification<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> and external analyses<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</li>
+<li><strong>The simplex.blog benchmark table</strong><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> is published by the Simplex authors; independent measurements are out of scope.</li>
+<li><strong>Mainnet activation timing</strong> has shifted across coverage; this report treats the 11 May 2026 test-cluster activation<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> as the most recent confirmed milestone and does not assert a specific mainnet date beyond it.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Benjamin Y. Chan, Rafael Pass</span>. <a href="https://eprint.iacr.org/2023/463">Simplex Consensus: A Simple and Fast Consensus Protocol</a>. <span class="venue">IACR ePrint 2023/463, 2023</span>. <span class="accessed">Accessed 2026-05-20.</span> <span class="unverified">[access limited]</span></li>
+      <li id="ref-2"><span class="authors">Benjamin Y. Chan, Rafael Pass</span>. <a href="https://link.springer.com/chapter/10.1007/978-3-031-48624-1_17">Simplex Consensus — Theory of Cryptography (TCC) 2023</a>. <span class="venue">Springer (TCC 2023), 2023</span>. <span class="accessed">Accessed 2026-05-20.</span> <span class="unverified">[access limited]</span></li>
+      <li id="ref-3"><span class="authors">Quentin Kniep, Kobi Sliwinski, Roger Wattenhofer</span>. <a href="https://www.anza.xyz/blog/alpenglow-a-new-consensus-for-solana">Alpenglow: A New Consensus for Solana</a>. <span class="venue">anza.xyz, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-4"><span class="authors">CoinDesk</span>. <a href="https://www.coindesk.com/tech/2025/05/21/solana-could-soon-witness-its-largest-consensus-change-as-developer-proposes-alpenglow">What is Solana Alpenglow? Developer Anza Proposes &#x27;Largest&#x27; Consensus Change</a>. <span class="venue">coindesk.com, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-5"><span class="authors">The Block</span>. <a href="https://www.theblock.co/post/354934/solana-labs-spinout-anza-proposes-alpenglow-the-biggest-change-to-solanas-core-protocol">Anza proposes Alpenglow, &#x27;the biggest change to Solana&#x27;s core protocol&#x27;</a>. <span class="venue">theblock.co, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-6"><span class="authors">Benjamin Y. Chan, Rafael Pass</span>. <a href="https://simplex.blog/">Simplex Consensus — State-of-the-Art Consensus Protocol</a>. <span class="venue">simplex.blog, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-7"><span class="authors">Anza, Solana Foundation</span>. <a href="https://github.com/solana-foundation/solana-improvement-documents/blob/main/proposals/0326-alpenglow.md">SIMD-0326: Alpenglow consensus protocol</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-8"><span class="authors">Everstake</span>. <a href="https://everstake.one/blog/what-is-alpenglow-in-solana">What Is Alpenglow in Solana</a>. <span class="venue">everstake.one, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-9"><span class="authors">Quentin Kniep, Kobi Sliwinski, Roger Wattenhofer</span>. <a href="https://www.anza.xyz/alpenglow-1-1">Alpenglow White Paper v1.1</a>. <span class="venue">anza.xyz, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span> <span class="unverified">[access limited]</span></li>
+      <li id="ref-10"><span class="authors">PANews</span>. <a href="https://www.panewslab.com/en/articles/040332ed-2b56-4391-8dbf-7566e19777a8">Alpenglow Upgrade Passed! Solana Undergoes a Major Restructuring</a>. <span class="venue">panewslab.com, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-11"><span class="authors">CoinSpeaker</span>. <a href="https://www.coinspeaker.com/solana-alpenglow-upgrade-live-validator-testing/">Solana News: Alpenglow Upgrade Activates for Live Validator Testing</a>. <span class="venue">coinspeaker.com, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-12"><span class="authors">Helius</span>. <a href="https://www.helius.dev/blog/alpenglow">Alpenglow: Solana&#x27;s Great Consensus Rewrite</a>. <span class="venue">helius.dev, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-13"><span class="authors">1inch</span>. <a href="https://1inch.medium.com/https-blog-1inch-com-inside-alpenglow-d9bca04af089">Inside Alpenglow: Solana&#x27;s consensus upgrade</a>. <span class="venue">Medium, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-14"><span class="authors">Alchemy</span>. <a href="https://www.alchemy.com/blog/solana-alpenglow">What is Solana Alpenglow? Consensus upgrade explained</a>. <span class="venue">alchemy.com, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-15"><span class="authors">Solana governance</span>. <a href="https://forum.solana.com/t/simd-0326-proposal-for-the-new-alpenglow-consensus-protocol/4236">SIMD-0326: Proposal for the New Alpenglow Consensus Protocol</a>. <span class="venue">forum.solana.com, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-16"><span class="authors">Roger Wattenhofer</span>. <a href="https://x.com/TheWattenhofer/status/1924555025499488278">Roger Wattenhofer on X — Alpenglow presentation slides</a>. <span class="venue">X, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-17"><span class="authors">Sei Labs</span>. <a href="https://blog.sei.io/solanas-alpenglow-a-faster-consensus-with-new-trade-offs/">Solana&#x27;s Alpenglow: A Faster Consensus with New Trade-Offs</a>. <span class="venue">blog.sei.io, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-18"><span class="authors">Roger Wattenhofer</span>. <a href="https://disco.ethz.ch/members/wroger/AlpenglowPresentation.pdf">Alpenglow Presentation Slides — Roger Wattenhofer (ETH)</a>. <span class="venue">ETH Zurich Disco group, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span> <span class="unverified">[access limited]</span></li>
+      <li id="ref-19"><span class="authors">Benjamin Y. Chan</span>. <a href="https://www.cs.cornell.edu/~byc/talks/simplexconsensus-cornell23.pdf">Simplex Consensus talk slides — Cornell 2023</a>. <span class="venue">Cornell, 2023</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-05-20. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+title: Simplex와 Alpenglow — 차세대 BFT 합의 프로토콜과 Solana의 새 합의 알고리즘 심층 분석
+subtitle: Chan·Pass의 Simplex(2023)와 Anza의 Alpenglow(2025) — 두 프로토콜의 알고리즘, 코드 수준 분석, 차이점
+title_en: Simplex and Alpenglow — A Technical Deep Dive into the Next-Generation BFT Consensus and Solana's New Consensus Algorithm
+subtitle_en: From Chan & Pass's Simplex (2023) to Anza's Alpenglow (2025) — algorithms, code-level reading, and the differences between them
+slug: simplex-and-alpenglow-consensus
+lang: ko
+langs: [ko, en]
+date: 2026-05-20
+tags: [simplex, alpenglow, consensus, solana, anza, tower-bft, proof-of-history, votor, rotor, bls12-381, bft, partial-synchrony, simd-0326]
+status: ready
