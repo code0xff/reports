@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>x402 batch-settlement vs MPP session — Mechanism Comparison and Implementation Analysis — Deepsearch</title>
+<meta name="description" content="A side-by-side reading of two HTTP-402-anchored off-chain micropayment channel standards, with code-level walkthroughs">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>x402 batch-settlement vs MPP session — Mechanism Comparison and Implementation Analysis</h1>
+    <p class="subtitle">A side-by-side reading of two HTTP-402-anchored off-chain micropayment channel standards, with code-level walkthroughs</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-05-20</span>
+      <span><strong>Tags</strong> x402, mpp, batch-settlement, payment-channels, http-402, ai-agents, eip-712, eip-3009, tempo, stripe, coinbase, micropayments</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="x402-batch-vs-mpp-session.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>This report compares the two HTTP-402-anchored off-chain payment channel standards that surfaced in near lock-step in early-to-mid 2026 — Coinbase / x402 Foundation's <strong><code>batch-settlement</code> scheme</strong><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> and Tempo / Stripe's <strong>MPP <code>session</code> intent</strong><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> — along the same six axes (payment unit, trust model, multi-chain reach, governance, settlement trigger, refund / dispute). The two arrived at almost the same abstraction — <strong>one deposit → cumulative EIP-712 voucher → periodic batched settlement</strong> — for the same problem: per-request on-chain payment cannot carry AI-agent micropayments. They diverge on payment unit (merchant-side N vs. user-side N), multi-chain reach (EVM-only vs. Tempo / Stellar / …), and governance (Foundation vs. IETF draft). The second half walks through how each lands in real code, with snippets quoted from the x402-foundation repo's EVM binding<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> and the <code>mppx</code> TypeScript SDK<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>, and explains the design points the two standards share and the points they do not.</p>
+  </section>
+
+  <main class="body">
+<h1>x402 batch-settlement vs MPP session — Mechanism Comparison and Implementation Analysis</h1>
+<h2>1. Introduction — The problem both standards solve</h2>
+<p>x402's <code>exact</code> scheme moves USDC one transfer at a time via EIP-3009 <code>transferWithAuthorization</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>; MPP's <code>charge</code> intent is structurally the same single-shot payment<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Both standards started there. The problem appears the moment that single-shot pattern is forced onto LLM token billing, streaming data feeds, or machine-to-machine API calls: (a) per-request gas exceeds the per-request payment, (b) block-finality latency becomes response latency, (c) facilitator load scales linearly with N.</p>
+<p>Both standards arrived at the same answer in early-to-mid 2026 — "the user deposits once into an escrow, then off-chain cumulative EIP-712 vouchers are exchanged, and the merchant (or a channel manager) batches settlement periodically." x402 expresses that answer as the <code>batch-settlement</code> scheme<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>; MPP expresses it as the <code>session</code> intent<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Putting them side by side along six axes is what lets us see where the same abstraction splits at the spec and the code level.</p>
+<h2>2. Background — The shared foundation</h2>
+<h3>2.1 HTTP 402 challenge / retry</h3>
+<p>Both standards live on top of HTTP 402. x402 V2 defines <code>PAYMENT-REQUIRED</code> / <code>PAYMENT-SIGNATURE</code> headers<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>; MPP defines <code>WWW-Authenticate: Payment</code> / <code>Authorization: Payment</code> / <code>Payment-Receipt</code><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. The two header conventions are partially being unified at IETF — MPP is submitted as <code>draft-ryan-httpauth-payment-01</code>, authored by Tempo Labs (Brendan Ryan, Jake Moxey, Tom Meagher) and Stripe (Jeff Weinstein, Steve Kaliski)<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. x402 instead chose Foundation-level governance, established by Coinbase and Cloudflare in September 2025<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<h3>2.2 EIP-712 / EIP-3009</h3>
+<p>Both use <strong>EIP-712 typed-data signing</strong> as the core signing primitive<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. On EVM both partially reference EIP-3009 <code>transferWithAuthorization</code> for settlement<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>, but for the <strong>deposit</strong> step x402 batch-settlement uses <code>receiveWithAuthorization</code> for EIP-3009 tokens like USDC and falls back to <strong>Permit2</strong> for ERC-20s without EIP-3009<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. MPP <code>session</code> has the channel contract supply its own deposit function, and its EIP-712 domain is bound to that contract address and chain id<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+<h3>2.3 Governance split</h3>
+<ul>
+<li><strong>x402 Foundation</strong> — Founded by Coinbase + Cloudflare in September 2025<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. The specs live in <code>x402-foundation/x402</code> under <code>specs/schemes/</code><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. License: Apache-2.0<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>.</li>
+<li><strong>MPP</strong> — Co-stewarded by Tempo Labs and Stripe; specs at <code>tempoxyz/mpp-specs</code> (CC0 1.0, with tooling under Apache or MIT) and hosted on <code>paymentauth.org</code><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. IETF draft <code>draft-ryan-httpauth-payment-01</code> expires 19 September 2026<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</li>
+</ul>
+<h2>3. x402 batch-settlement — Deep dive</h2>
+<h3>3.1 Where the scheme sits</h3>
+<p>As of May 2026 the formal x402 schemes are <code>exact</code>, <code>upto</code>, and <code>batch-settlement</code>, with Cloudflare's <code>deferred</code> proposed<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. <code>batch-settlement</code> was officially announced on 13 May 2026<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup> with the explicit goal of enabling "sub-cent crypto payments" by reducing per-request on-chain gas<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup><sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>. The same repo is mirrored from the pre-Foundation <code>coinbase/x402</code> upstream<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>.</p>
+<p>The x402-foundation repo's <code>specs/schemes/batch-settlement/</code> directory ships three documents<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>:</p>
+<ul>
+<li><code>scheme_batch_settlement.md</code> — the conceptual (network-agnostic) spec.</li>
+<li><code>scheme_batch_settlement_evm.md</code> — the EVM binding.</li>
+<li><code>scheme_batch_settlement_cloudflare.md</code> — Cloudflare's variant where Cloudflare itself is the Merchant of Record billing identified agents.</li>
+</ul>
+<h3>3.2 Three phases — Commit / Accumulate / Redeem</h3>
+<p>The conceptual spec defines a three-phase lifecycle that every binding must follow:</p>
+<p>&gt; "The client produces a cryptographic payment commitment and attaches it to the request. The commitment is validated and stored. The resource is served immediately."<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup> &gt; &gt; "The network retains the commitment in a voucher store, channel state, account ledger, or billing system."<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup> &gt; &gt; "Value is transferred out of band through an onchain contract call, a channel close, a fiat batch invoice, or any rail the network defines."<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup></p>
+<p>The conceptual spec explicitly allows two trust models — capital-backed (the user locks funds on-chain) and credit-backed (an identified party billed after the fact)<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>. The EVM binding is capital-backed; the Cloudflare binding is credit-backed<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup>.</p>
+<h3>3.3 EVM binding — channelId, ChannelConfig, voucher</h3>
+<p>The EVM binding<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> defines a channel's identity in a single line:</p>
+<pre><code>channelId = EIP712Hash(ChannelConfig)</code></pre>
+<p><code>ChannelConfig</code> carries seven fields: (a) <code>payer</code>, (b) <code>payerAuthorizer</code> (an EOA used for signing, zero for EIP-1271 contract wallets), (c) <code>receiver</code>, (d) <code>receiverAuthorizer</code> (claim / refund authority), (e) <code>token</code> (the ERC-20), (f) <code>withdrawDelay</code> (15 minutes – 30 days, both bounds enforced), and (g) <code>salt</code>. The hash is taken under the "x402 Batch Settlement" EIP-712 domain, which itself binds to <code>chainId</code> and the deployed <code>x402BatchSettlement</code> contract address<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. Two identical <code>ChannelConfig</code>s on two different chains therefore produce different channelIds.</p>
+<p>A voucher is an EIP-712 signature over two fields<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>:</p>
+<ul>
+<li><code>channelId</code> — derived above.</li>
+<li><code>maxClaimableAmount</code> — a <strong>monotonically increasing</strong> ceiling.</li>
+</ul>
+<p>The server maintains <code>chargedCumulativeAmount</code> in its channel state and validates that each new voucher's ceiling equals "(previous chargedCumulativeAmount) + (this request's amount)"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The voucher is therefore "a cumulative ceiling that includes the next request," and the ceiling discipline gives both monotonicity and no-double-charge in the same field.</p>
+<h3>3.4 Deposit — ERC-3009 or Permit2</h3>
+<p>The spec defines two gasless deposit methods<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>:</p>
+<p>1. <strong>ERC-3009 <code>receiveWithAuthorization</code></strong> — for EIP-3009-compliant tokens such as USDC. 2. <strong>Permit2</strong> — the generic ERC-20 fallback.</p>
+<p>Both go through canonical collector contracts at fixed addresses<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>:</p>
+<ul>
+<li><code>ERC3009DepositCollector</code>: <code>0x4020806089470a89826cB9fB1f4059150b550004</code></li>
+<li><code>Permit2DepositCollector</code>: <code>0x4020425FAf3B746C082C2f942b4E5159887B0005</code></li>
+</ul>
+<p>This removes the user's <code>approve()</code> step, and a facilitator-side paymaster can sponsor the gas — Cointelegraph's wording is "deposits, batched settlements and refunds are all sponsored by the transaction's facilitator"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<h3>3.5 claim / settle / refund / forced withdraw</h3>
+<p>The EVM binding splits settlement into four distinct functions<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>:</p>
+<ul>
+<li><strong>claim</strong> — <code>claimWithSignature</code> validates many vouchers across many channels in one call and updates per-channel <code>totalClaimed</code>. <strong>No token transfer happens here.</strong> A relay-friendly variant accepts an EIP-712 <code>ClaimBatch</code> signature from the <code>receiverAuthorizer</code><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</li>
+<li><strong>settle</strong> — transfers all claimed-but-unsettled funds for a (receiver, token) pair in one transaction. It is <strong>permissionless</strong><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</li>
+<li><strong>refund</strong> — cooperative refund. The receiver side can return up to <code>balance - totalClaimed</code> to the payer, optionally relayed via EIP-712 signature. The refund nonce increments before the amount cap is applied, so a zero-value refund still advances the nonce<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</li>
+<li><strong>timed withdrawal (escape hatch)</strong> — the payer starts a grace period (15 minutes – 30 days). The server must claim outstanding vouchers within that window. After the window expires, <code>finalizeWithdraw</code> caps the transfer to the remaining unclaimed escrow<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</li>
+</ul>
+<p>The spec proposes three batching strategies for servers: periodic batching, threshold-triggered claiming, and claim-before-withdraw<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The server is effectively a <strong>channel-state custodian</strong> — the operational load that a per-request facilitator would carry is moved to the merchant-side channel manager.</p>
+<h3>3.6 Multi-token reach, EVM-only</h3>
+<p>A real differentiator: <strong>batch-settlement accepts any EVM ERC-20</strong>. Cointelegraph reports "AI agents using batch settlement will be able to accept any Ethereum-native ERC-20 tokens, not just stablecoins"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The Permit2 fallback is what makes this possible. The flip side is that batch-settlement is EVM-only — the x402 docs nail this down: "x402 supports the batch-settlement scheme on EVM"<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>.</p>
+<h2>4. MPP session — Deep dive</h2>
+<h3>4.1 Where the intent sits</h3>
+<p>MPP classifies payment patterns by intent. The mppx TypeScript SDK exposes four — <code>charge</code>, <code>stream</code>, <code>session</code>, <code>free</code> — and defines <code>session</code> as "Multiple paid requests over a single payment channel"<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>. <code>session</code> is what this report compares to x402's batch-settlement.</p>
+<h3>4.2 Unidirectional channel + cumulative commitment</h3>
+<p>Stellar developer docs summarise the model precisely:</p>
+<p>&gt; "The funder deposits tokens once, then makes many off-chain payments by signing cumulative commitments."<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> &gt; &gt; "Each commitment is cumulative. The server tracks the highest commitment it has seen; closing the channel batch-settles all payments in a single on-chain transaction."<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></p>
+<p>The model is therefore: (1) deposit once, (2) exchange EIP-712 cumulative commitments off-chain, (3) close the channel and settle the highest commitment in one transaction. The server only needs to remember "the highest commitment seen so far"<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<h3>4.3 Tempo integration and the SSE flow</h3>
+<p>MPP <code>session</code> is tightly coupled to Tempo-native capabilities — sub-second finality, payment lanes, transaction memos, fee sponsorship, TIP-20. Tempo's "Accept streamed payments" documentation describes the server side as:</p>
+<p>&gt; "If the channel balance runs out mid-stream, the server emits a payment-need-voucher event and the client automatically signs a new voucher."<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></p>
+<p>The <code>stream</code> intent is essentially <code>session</code> plus Server-Sent Events to enable per-token billing. The mpp.dev guide presents the same flow for an LLM token-billing scenario<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>.</p>
+<h3>4.4 Multi-chain reach and IETF standardisation</h3>
+<p>MPP <code>session</code> was designed multi-chain from day one. Stellar provides a Soroban implementation<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>; Tempo provides the <code>TempoStreamChannel</code> escrow contract on its own mainnet<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>; Stripe's docs show the same intent layered with cards, SPTs, and Lightning, hosting non-EVM rails behind the same HTTP contract<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. The protocol itself is filed at IETF as <code>draft-ryan-httpauth-payment-01</code>, with intent / method definitions hosted alongside on paymentauth.org<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>.</p>
+<h3>4.5 Security: the mpp-rs advisory</h3>
+<p>The protocol's model being safe is one thing; a particular SDK being safe is another. The 2026 GHSA-fxc9-7j2w-vx54 advisory reports that the <code>mpp-rs</code> Rust SDK's "tempo/session handler lacks enforcement that sessions are active and paid for, enabling unlimited session creation without charges"<sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup>. That is an implementation defect, not a spec defect, but it illustrates the threat surface any session-channel standard creates when the server's channel accounting is not airtight.</p>
+<h2>5. Comparison — Six axes</h2>
+<table><thead><tr><th>Axis</th><th>x402 batch-settlement</th><th>MPP session</th></tr></thead><tbody><tr><td>Payment unit (traffic shape)</td><td><strong>One merchant × many users</strong> — claim/settle sweeps every channel for a (receiver, token) pair in one transaction<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></td><td><strong>One user × one merchant</strong> — one user, one channel, the server only retains the highest commitment<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></td></tr><tr><td>Trust model</td><td>EVM binding is capital-backed (escrow); Cloudflare binding is credit-backed (MoR)<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup></td><td>Capital-backed, unidirectional channel; the same pattern on Tempo and Stellar<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></td></tr><tr><td>Multi-chain reach</td><td>EVM-only (Base, Ethereum, any EVM-compatible ERC-20)<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></td><td>Tempo · Stellar · Stripe cards / SPT etc.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></td></tr><tr><td>Governance</td><td>x402 Foundation (Coinbase + Cloudflare, founded 2025-09), <code>x402-foundation/x402</code> Apache-2.0<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></td><td>Tempo Labs + Stripe, <code>tempoxyz/mpp-specs</code> CC0 1.0, IETF <code>draft-ryan-httpauth-payment-01</code><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup></td></tr><tr><td>Settlement trigger</td><td>claim → settle, two-step. claim is transfer-free, settle is permissionless and batched<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></td><td>server-initiated <code>close</code>, single step, highest-commitment-and-go<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></td></tr><tr><td>Dispute / refund</td><td>Cooperative refund + timed-withdrawal escape hatch (15 min – 30 days)<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></td><td>Server closes at its discretion; the spec does not standardise a dispute procedure and assumes a trusted server<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></td></tr></tbody></table>
+<p>The cleanest cut is <strong>payment-unit traffic shape</strong>. x402 batch-settlement is shaped for "one merchant sweeping vouchers from many users in one batch" — API servers, agent fleets hitting the same endpoint<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. MPP <code>session</code> is shaped for "one user running one channel for a long while against one merchant" — an agent camped on one LLM endpoint<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. Both standards define unidirectional channels; the scenarios they layer on top differ _(interpretive)_<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<h2>6. Implementation patterns — Code-level reading</h2>
+<h3>6.1 x402 server side — <code>paymentMiddleware</code> + scheme registration</h3>
+<p>The V2 Express example declares payment requirements per-route through <code>paymentMiddleware</code> and registers schemes with <code>x402ResourceServer.register(network, scheme)</code><sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup>. The same repo's "advanced server" examples (all_networks, bazaar, hooks, dynamic-price, eip2612-gas-sponsoring) show how the same middleware composes with V2 extensions such as multi-chain configuration, payment hooks, and gas sponsorship<sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup>. The canonical <code>exact</code> registration is:</p>
+<pre><code>import express from &quot;express&quot;;
+import { paymentMiddleware, x402ResourceServer } from &quot;@x402/express&quot;;
+import { ExactEvmScheme } from &quot;@x402/evm/exact/server&quot;;
+import { HTTPFacilitatorClient } from &quot;@x402/core/server&quot;;
+
+const app = express();
+app.use(
+  paymentMiddleware(
+    {
+      &quot;GET /your-endpoint&quot;: {
+        accepts: {
+          scheme: &quot;exact&quot;,
+          price: &quot;$0.10&quot;,
+          network: &quot;eip155:84532&quot;,
+          payTo: evmAddress,
+        },
+        description: &quot;Your endpoint&quot;,
+        mimeType: &quot;application/json&quot;,
+      },
+    },
+    new x402ResourceServer(
+      new HTTPFacilitatorClient({ url: facilitatorUrl }),
+    ).register(&quot;eip155:84532&quot;, new ExactEvmScheme()),
+  ),
+);</code></pre>
+<p>To switch a route to <code>batch-settlement</code> (conceptually) the server registers a <code>BatchSettlementEvmScheme</code> in the same slot and changes the route's <code>accepts.scheme</code> to <code>"batch-settlement"</code>. The server then needs three additional configuration points: (a) <strong>channel storage</strong> — file-based for a single process, Redis for distributed deployments, (b) <strong>batch cadence</strong> — periodic / threshold / pre-withdraw, and (c) a <strong>deposit policy multiplier</strong> — at least 3× the per-request maximum, default 5×. (Those three are the values surveyed in the sister report <a href="../x402-payment-schemes/"><code>x402-payment-schemes</code></a> and in the spec body<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.) The server is effectively running its own <strong>channel manager</strong> that retains cumulative vouchers and periodically invokes <code>claimWithSignature</code> + <code>settle</code><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<h3>6.2 User side — deposit, sign cumulative voucher</h3>
+<p>The user flow compresses to three steps<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>:</p>
+<p>1. <strong>Open / top up channel</strong> — submit a deposit through either <code>ERC3009DepositCollector</code> or <code>Permit2DepositCollector</code>, materialising a <code>ChannelConfig</code> and locking USDC (or any ERC-20). No <code>approve()</code> transaction needed. 2. <strong>Per-request voucher</strong> — sign <code>(channelId, maxClaimableAmount = previous chargedCumulativeAmount + this request's amount)</code> as an EIP-712 typed-data signature each time. 3. <strong>Optional withdraw</strong> — when done, call <code>initiateWithdraw</code> and (after the 15-min–30-day grace period) <code>finalizeWithdraw</code> to claim back the unspent escrow. If the server fails to claim within the grace window, the user can claim the entire remaining balance.</p>
+<p>The design point is that <strong>a user pays the deposit cost once per merchant relationship</strong>. A user running a channel with a 30-day grace period can send thousands of micropayments against the same merchant and end up with only two on-chain transactions per cycle: one deposit, one settle.</p>
+<h3>6.3 MPP <code>session</code> client — <code>tempo.session()</code> + <code>.sse()</code></h3>
+<p>The mpp.dev streamed-payments guide compresses the client into a single block:</p>
+<pre><code>const session = tempo.session({
+  account: privateKeyToAccount(&quot;0x...&quot;),
+  maxDeposit: &quot;1&quot;, // Lock up to 1 pathUSD per channel
+});
+
+const stream = await session.sse(&quot;http://localhost:3000/api/sessions/poem&quot;);
+
+for await (const word of stream) {
+  process.stdout.write(word + &quot; &quot;);
+}
+
+await session.close(); // Settle and reclaim unspent deposit</code></pre>
+<p>That one block contains the entire channel lifecycle: (1) open + deposit, (2) SSE stream with per-token charging, (3) close and reclaim unspent balance<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>. <code>session.sse()</code> listens for <code>payment-need-voucher</code> events from the server and signs new vouchers automatically, so the stream is not interrupted when one voucher's ceiling is exhausted<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>. For interactive scenarios that need bidirectionality, <code>.ws()</code> replaces <code>.sse()</code>, and "vouchers and content travel over a single socket rather than separate HTTP requests"<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>.</p>
+<h3>6.4 MPP server side — verify commitment, close on the highest</h3>
+<p>Stellar's MPP Session Guide summarises the server side directly:</p>
+<p>&gt; "Server (<code>@stellar/mpp/channel/server</code>): Validates ed25519 signatures via Soroban simulation."<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> &gt; "Client (<code>@stellar/mpp/channel/client</code>): Signs commitments with the private key; handles automatic 402 responses."<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> &gt; "Close function: Submits settlement using the highest cumulative amount and corresponding signature."<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></p>
+<p>On EVM, EIP-712 + <code>ecrecover</code> replaces ed25519, but the server-side logic is identical: validate each incoming commitment, update <code>highestCommitment</code>, then on <code>close</code> submit one transaction with that maximum<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. The sister report <a href="../mpp-session-mechanism/"><code>mpp-session-mechanism</code></a> records the exact <code>TempoStreamChannel</code> mainnet / testnet contract addresses and the channelId derivation function in its own primary sources.</p>
+<h3>6.5 Side by side</h3>
+<p>Same abstraction, different texture.</p>
+<ul>
+<li><strong>Server load</strong> — x402 batch-settlement asks the server to manage <strong>many channels for many users</strong> (storage, cadence, multiplier). MPP <code>session</code> asks the server to retain <strong>one channel's highest commitment per user</strong>.</li>
+<li><strong>Client texture</strong> — x402 is "the protocol itself" — the server announces <code>accepts</code> per request and the client signs vouchers to match. MPP centres on an SDK abstraction — <code>tempo.session()</code> wraps the whole lifecycle. Both standards expose both flavours, but the centre of gravity differs.</li>
+<li><strong>Multi-chain code split</strong> — x402 changes one parameter (CAIP-2 <code>network: "eip155:..."</code>) within the EVM family; MPP changes the entire method (<code>tempo.session()</code> vs. <code>@stellar/mpp/channel/*</code> vs. <code>stripe.charge(...)</code>).</li>
+</ul>
+<h2>7. Discussion — Which standard fits when</h2>
+<h3>7.1 Fit by scenario</h3>
+<p>(interpretive) The design decisions produce natural fits.</p>
+<ul>
+<li><strong>A single endpoint with many agents paying the same fee</strong> — x402 batch-settlement fits naturally; merchant-side claim/settle sweeps many channels at once<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</li>
+<li><strong>One agent camped on one LLM endpoint, token-billed</strong> — MPP <code>stream</code> / <code>session</code> fits naturally; SSE / WebSocket carries <code>payment-need-voucher</code> events while one channel runs the whole session<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>.</li>
+<li><strong>Cards, SPT, and stablecoins mixed at the same endpoint</strong> — MPP wins; the spec was designed for "WWW-Authenticate: Payment" lines advertising several methods at once<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</li>
+<li><strong>Accepting arbitrary ERC-20 as the payment asset</strong> — x402 batch-settlement wins; the Permit2 fallback enables gasless deposit even for non-EIP-3009 tokens<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</li>
+</ul>
+<h3>7.2 Potential convergence</h3>
+<p>Analysts have raised the possibility of the two standards being <strong>bundled inside the same SDK adapter</strong> _(interpretive)_. The x402 community has an open issue on "Enable EIP-4337 Smart Wallet / UserOperation Support in x402 Protocol"<sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup>, and MPP's <code>mpp-specs</code> repo is explicit that intent / method orthogonality is a design goal<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. Nothing at the spec level prevents a single SDK from exposing "x402 <code>batch-settlement</code> + MPP <code>session</code>" as parallel intents.</p>
+<h3>7.3 The cost of fragmentation</h3>
+<p>The two standards do not share a governance body. x402 Foundation specs are Apache-2.0 but not RFCs<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>; MPP is on the IETF track but RFC promotion takes time<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. For a merchant the tension is between (a) the integration cost of "I don't know which standard my user's SDK will speak" and (b) the abstraction convergence that lets one adapter layer absorb the difference.</p>
+<h2>8. Limitations</h2>
+<ul>
+<li>This report reflects primary specs and SDK docs as of 20 May 2026. Both x402 V2 and MPP intent definitions are moving fast; field / function names may drift after specific version cut-overs.</li>
+<li>The exact TypeScript / Go batch-settlement package paths under <code>typescript/packages/mechanisms/evm/</code> were partly obscured by GitHub UI restrictions; the code citations are reconstructed from the spec text<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> and the canonical <code>paymentMiddleware</code> Express example<sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup>, not from the batch-settlement mechanism package itself.</li>
+<li>The <code>session.md</code> of <code>mpp-specs</code> was not directly fetchable via raw URLs; the MPP-side citations rely on the Stellar guide<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>, the Tempo streamed-payments docs<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>, the mpp.dev guide<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>, and the Tempo MPP Sessions blog<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. The sister report <a href="../mpp-session-mechanism/"><code>mpp-session-mechanism</code></a> holds deeper citations of the same intent.</li>
+<li>The two standards covered here are not exhaustive of off-chain channel families. Lightning Network channels, Solana state-channel variants, and ERC-7824 are adjacent families that deserve separate reports.</li>
+<li>Some vendor-quoted numbers (e.g. x402 batch-settlement's "sub-cent" claim) are surfaced as vendor-stated; this report does not independently audit those figures.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Coinbase, x402 Foundation</span>. <a href="https://github.com/coinbase/x402/blob/main/specs/schemes/exact/scheme_exact_evm.md">x402 — exact_evm scheme specification</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-2"><span class="authors">Tempo Labs, Stripe</span>. <a href="https://mpp.dev">MPP — Machine Payments Protocol (official site)</a>. <span class="venue">mpp.dev, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-3"><span class="authors">Brendan Ryan, Jake Moxey, Tom Meagher, Jeff Weinstein, Steve Kaliski</span>. <a href="https://datatracker.ietf.org/doc/draft-ryan-httpauth-payment/">IETF Draft: The &#x27;Payment&#x27; HTTP Authentication Scheme (draft-ryan-httpauth-payment-01)</a>. <span class="venue">IETF Datatracker, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-4"><span class="authors">x402 Foundation</span>. <a href="https://raw.githubusercontent.com/x402-foundation/x402/main/specs/schemes/batch-settlement/scheme_batch_settlement_evm.md">x402 batch-settlement — EVM binding spec</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-5"><span class="authors">Cointelegraph</span>. <a href="https://cointelegraph.com/news/coinbase-launches-x402-batch-settlement-ai-payments">Coinbase Launches x402 Batch Settlement to Advance AI Payments</a>. <span class="venue">Cointelegraph, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-6"><span class="authors">Tempo Labs</span>. <a href="https://tempo.xyz/blog/mpp-sessions">MPP Sessions — Tempo Blog</a>. <span class="venue">tempo.xyz, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-7"><span class="authors">x402 Foundation</span>. <a href="https://www.x402.org/writing/x402-v2-launch">Introducing x402 V2: Evolving the Standard for Internet-native Payments</a>. <span class="venue">x402.org, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-8"><span class="authors">Stripe</span>. <a href="https://docs.stripe.com/payments/machine/mpp">Stripe Docs — MPP payments</a>. <span class="venue">docs.stripe.com, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-9"><span class="authors">Cloudflare</span>. <a href="https://blog.cloudflare.com/x402/">Launching the x402 Foundation with Coinbase, and support for x402 transactions</a>. <span class="venue">Cloudflare Blog, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-10"><span class="authors">Remco Bloemen, Leonid Logvinov, Jacob Evans</span>. <a href="https://eips.ethereum.org/EIPS/eip-712">EIP-712: Typed structured data hashing and signing</a>. <span class="venue">Ethereum EIPs, 2017</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-11"><span class="authors">Peter Jihoon Kim, Kevin Britz, David Knott</span>. <a href="https://eips.ethereum.org/EIPS/eip-3009">EIP-3009: Transfer With Authorization</a>. <span class="venue">Ethereum EIPs, 2020</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-12"><span class="authors">Stellar Development Foundation</span>. <a href="https://developers.stellar.org/docs/build/agentic-payments/mpp/channel-guide">MPP Session Guide — Stellar Developer Docs</a>. <span class="venue">developers.stellar.org, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-13"><span class="authors">Tempo Labs</span>. <a href="https://docs.tempo.xyz/guide/machine-payments/streamed-payments">Tempo Docs — Accept streamed payments</a>. <span class="venue">docs.tempo.xyz, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-14"><span class="authors">x402 Foundation</span>. <a href="https://github.com/x402-foundation/x402/tree/main/specs/schemes/batch-settlement">x402 specs/schemes/batch-settlement directory</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-15"><span class="authors">x402 Foundation, Coinbase</span>. <a href="https://github.com/x402-foundation/x402">x402-foundation/x402 — A payments protocol for the internet. Built on HTTP.</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-16"><span class="authors">Tempo Labs, Stripe</span>. <a href="https://github.com/tempoxyz/mpp-specs">tempoxyz/mpp-specs — Specifications for the Machine Payments Protocol</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-17"><span class="authors">Tempo Labs, Stripe</span>. <a href="https://paymentauth.org">paymentauth.org — Machine Payments Protocol Specifications</a>. <span class="venue">paymentauth.org, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-18"><span class="authors">x402 Foundation</span>. <a href="https://docs.x402.org/core-concepts/network-and-token-support">x402 Docs — Networks &amp; Token Support</a>. <span class="venue">docs.x402.org, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-19"><span class="authors">Cointelegraph via TradingView</span>. <a href="https://www.tradingview.com/news/cointelegraph:b1044807b094b:0-coinbase-backed-x402-adds-batch-settlement-for-ai-agent-payments/">Coinbase-backed x402 adds batch settlement for AI agent payments</a>. <span class="venue">TradingView, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-20"><span class="authors">x402 Foundation</span>. <a href="https://docs.x402.org/">x402 Documentation index</a>. <span class="venue">docs.x402.org, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-21"><span class="authors">Cryptopolitan</span>. <a href="https://www.cryptopolitan.com/base-adds-batch-settlement-to-x402/">Base adds batch settlement to x402, opening the door to sub-cent crypto payments</a>. <span class="venue">Cryptopolitan, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-22"><span class="authors">Coinbase</span>. <a href="https://github.com/coinbase/x402">coinbase/x402 — A payments protocol for the internet. Built on HTTP. (pre-foundation mirror)</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-23"><span class="authors">x402 Foundation</span>. <a href="https://raw.githubusercontent.com/x402-foundation/x402/main/specs/schemes/batch-settlement/scheme_batch_settlement.md">x402 batch-settlement scheme (conceptual)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-24"><span class="authors">x402 Foundation, Cloudflare</span>. <a href="https://raw.githubusercontent.com/x402-foundation/x402/main/specs/schemes/batch-settlement/scheme_batch_settlement_cloudflare.md">x402 batch-settlement — Cloudflare binding</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-25"><span class="authors">wevm</span>. <a href="https://github.com/wevm/mppx">wevm/mppx — TypeScript SDK for the Machine Payments Protocol</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-26"><span class="authors">Tempo Labs, Stripe</span>. <a href="https://mpp.dev/guides/streamed-payments">MPP Guide — Accept streamed payments</a>. <span class="venue">mpp.dev, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-27"><span class="authors">GitHub Security Advisory</span>. <a href="https://dailycve.com/mpp-rs-multiple-payment-bypass-and-griefing-vulnerabilities-github-advisory-critical/">GHSA-fxc9-7j2w-vx54: mpp-rs Multiple Payment Bypass and Griefing Vulnerabilities</a>. <span class="venue">dailycve.com, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-28"><span class="authors">x402 Foundation</span>. <a href="https://github.com/x402-foundation/x402/tree/main/examples/typescript/servers/express">x402 — TypeScript Express server example</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-29"><span class="authors">x402 Foundation</span>. <a href="https://github.com/x402-foundation/x402/tree/main/examples/typescript/servers/advanced">x402 — TypeScript advanced server examples</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-30"><span class="authors">x402 community</span>. <a href="https://github.com/coinbase/x402/issues/639">Issue: Enable EIP-4337 Smart Wallet / UserOperation Support in x402 Protocol</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-05-20. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

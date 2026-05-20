@@ -1,0 +1,10 @@
+title: x402 batch-settlement vs MPP session — 메커니즘 비교와 구현 분석
+subtitle: 두 오프체인 결제 채널 표준의 메시지·상태·정산 흐름을 코드 인용과 함께 비교한다
+title_en: x402 batch-settlement vs MPP session — Mechanism Comparison and Implementation Analysis
+subtitle_en: A side-by-side reading of two HTTP-402-anchored off-chain micropayment channel standards, with code-level walkthroughs
+slug: x402-batch-vs-mpp-session
+lang: ko
+langs: [ko, en]
+date: 2026-05-20
+tags: [x402, mpp, batch-settlement, payment-channels, http-402, ai-agents, eip-712, eip-3009, tempo, stripe, coinbase, micropayments]
+status: ready
