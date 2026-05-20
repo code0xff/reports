@@ -1,0 +1,10 @@
+title: Circle 블로그 분석 — Turn Your API into a Storefront for Agents (Agent Stack · Gateway · x402-batching)
+subtitle: 2026-05-18 블로그의 전체 흐름과 @circle-fin/x402-batching 코드 구조, 그리고 참조 GitHub 리포 정리
+title_en: Reading Circle's "Turn Your API into a Storefront for Agents" — Agent Stack, Gateway, and @circle-fin/x402-batching
+subtitle_en: A deep read of the 18 May 2026 Circle blog plus a code-level analysis of @circle-fin/x402-batching and the related Circle GitHub repositories
+slug: circle-api-storefront-for-agents
+lang: ko
+langs: [ko, en]
+date: 2026-05-20
+tags: [circle, agent-stack, agent-wallets, gateway, x402, x402-batching, usdc, arc-testnet, ai-agents, agent-marketplace]
+status: ready

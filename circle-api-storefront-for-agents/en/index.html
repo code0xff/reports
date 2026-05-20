@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reading Circle&#x27;s &quot;Turn Your API into a Storefront for Agents&quot; — Agent Stack, Gateway, and @circle-fin/x402-batching — Deepsearch</title>
+<meta name="description" content="A deep read of the 18 May 2026 Circle blog plus a code-level analysis of @circle-fin/x402-batching and the related Circle GitHub repositories">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>Reading Circle&#x27;s &quot;Turn Your API into a Storefront for Agents&quot; — Agent Stack, Gateway, and @circle-fin/x402-batching</h1>
+    <p class="subtitle">A deep read of the 18 May 2026 Circle blog plus a code-level analysis of @circle-fin/x402-batching and the related Circle GitHub repositories</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-05-20</span>
+      <span><strong>Tags</strong> circle, agent-stack, agent-wallets, gateway, x402, x402-batching, usdc, arc-testnet, ai-agents, agent-marketplace</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="circle-api-storefront-for-agents.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>This report reads Circle's 18 May 2026 blog post "Turn Your API into a Storefront for Agents"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> down to the code level and traces it through Circle Agent Stack<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>, the <code>@circle-fin/x402-batching</code> npm package<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>, and two reference GitHub repositories (<code>circlefin/arc-nanopayments</code><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> and the community sample <code>BlockRunAI/circle-nanopayment-sample</code><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>). The headline of the blog reduces to one line: "turn any HTTP API into a storefront that accepts USDC nanopayments." Drop <code>createGatewayMiddleware({ sellerAddress, facilitatorUrl, networks })</code> into an Express app and add <code>gateway.require("$0.001")</code> to a route, and the rest of the stack — HTTP 402 negotiation<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>, off-chain batched settlement via Circle Gateway<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>, and onchain settlement on Arc Testnet (chain ID 5042002)<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> — is wired underneath. The report unpacks that line along three axes: (a) the blog body, (b) the server and client code, (c) the supporting GitHub repositories.</p>
+  </section>
+
+  <main class="body">
+<h1>Reading Circle's "Turn Your API into a Storefront for Agents" — Agent Stack, Gateway, and @circle-fin/x402-batching</h1>
+<h2>1. Introduction — What the blog actually announced</h2>
+<p>The blog's claim is crisp: "Gateway uses x402 for the HTTP payment flow. The server responds with 402 Payment Required, the caller retries with a signed payment authorization"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Circle Gateway therefore occupies the x402 facilitator slot, takes USDC at nanopayment scale, and settles batches onchain.</p>
+<p>The value of that one line is the compression of "how do I monetise my API for agents?" — a problem that would historically have required a billing system, login, KYC, and a payment processor — into <strong>a single Express middleware</strong>. That maps onto Circle for Agents' own headline: "Agents get stuck behind paywalls and authentication, halting workflows. USDC unlocks doors for agents to work uninterrupted"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>The rest of this report unpacks what that one-liner means at three layers: (a) the specification, (b) the code, and (c) the surrounding infrastructure.</p>
+<h2>2. Background — Where Agent Stack and Gateway sit</h2>
+<h3>2.1 The five Agent Stack components</h3>
+<p>Circle launched Agent Stack on 11 May 2026<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. The five components are (1) <strong>Agent Wallets</strong> — hold and move USDC and other tokens within policy, (2) <strong>Agent Marketplace</strong> — agents discover and pay for services, (3) <strong>Circle CLI</strong> — one entry point for every action (<code>circle wallet</code>, <code>circle gateway</code>, <code>circle services</code>), (4) <strong>Nanopayments (powered by Circle Gateway)</strong> — x402-compatible USDC micropayments, (5) <strong>Circle Skills</strong> — best-practice modules that drop into AI coding assistants like Claude Code, Cursor, and Codex<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Circle describes the stack as "chain- and protocol-agnostic open infrastructure designed for the agentic economy," summarised in one sentence as "agents can hold and move USDC through Agent Wallets … discover and evaluate services through Agent Marketplace … execute repeatable financial actions through CLI … settle payments using USDC"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<h3>2.2 Gateway / Nanopayments / x402</h3>
+<p>Gateway plays two roles at once.</p>
+<ul>
+<li><strong>x402 facilitator</strong> — <code>/verify</code> + <code>/settle</code> REST endpoints for validating and settling payment payloads<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. The interface matches Coinbase's facilitator but the asset model is <strong>chain-abstracted USDC</strong> — Circle's own phrasing is "Gateway already provides chain-abstracted USDC across supported blockchains"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>; TronWeekly's coverage echoes it: "Gateway pairs with x402 to settle USDC micropayments at scale for autonomous AI agents"<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</li>
+<li><strong>Nanopayments batched settlement</strong> — Gateway does not push every payment onchain. "Gateway's new batching feature will enable deferred settlement by bundling transactions offchain and settling them onchain"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. The same line appears in <a href="https://github.com/circlefin/arc-nanopayments"><code>circlefin/arc-nanopayments</code></a> — "Circle Gateway batches many signed offchain authorizations into a single onchain settlement, enabling economically viable sub-cent payments"<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</li>
+</ul>
+<h3>2.3 Arc Testnet and chain ID 5042002</h3>
+<p>The blog's example pins the middleware to Arc Testnet with <code>networks: ["eip155:5042002"]</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Arc itself is Circle's own chain — "the Economic OS for the internet"<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> — positioned as a stablecoin-native settlement environment: "a stablecoin-native settlement environment, eliminating gas token volatility concerns"<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. The facilitator endpoint is <code>https://gateway-api-testnet.circle.com</code>, and <code>https://faucet.circle.com/</code> issues testnet USDC<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h2>3. Architecture — Five-step payment flow</h2>
+<p>The flow the blog defines<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>:</p>
+<p>1. <strong>Agent requests a paid resource</strong> — plain HTTP <code>POST http://localhost:3000/research/company-brief</code>. 2. <strong>Server responds 402</strong> — <code>createGatewayMiddleware</code> automatically returns a <code>PAYMENT-REQUIRED</code> header with (scheme, network, token, payTo, amount). 3. <strong>Agent retries with a signed payment authorization</strong> — the client SDK (<code>@circle-fin/x402-batching/client</code>) checks the Gateway balance, signs an EIP-3009 <code>transferWithAuthorization</code> against the GatewayWallet contract, and resubmits with a <code>PAYMENT-SIGNATURE</code> header<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. 4. <strong>Gateway verifies and records revenue in the Seller Gateway Balance</strong> — Gateway acts as the facilitator, validating in-line so the response is unblocked, while the actual USDC transfer is deferred to the batch settlement<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Revenue accumulates in the Seller Wallet's Gateway Balance. 5. <strong>Seller withdraws to a Payout Wallet</strong> — one CLI line moves accumulated balance to the payout wallet: <code>circle gateway withdraw --amount ... --recipient $PAYOUT_WALLET_ADDRESS</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>That is the blog's identity. The merchant never operates a key-management infrastructure, an on-chain transaction queue, a node, or gas budgeting — <strong>Circle Gateway sits in those positions as the facilitator</strong>.</p>
+<h2>4. Code analysis — Reading <code>@circle-fin/x402-batching</code></h2>
+<h3>4.1 The npm package</h3>
+<p>The package the blog imports is <code>@circle-fin/x402-batching</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The npm page describes it as a small package — v3.0.4, 0 dependencies, 8 dependents — and summarises it as "gas-free micropayments via Circle Gateway using the open x402 protocol, with payments signed off-chain and settled in batches by Circle Gateway"<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. It exposes two entry points: <code>@circle-fin/x402-batching/server</code> (merchant) and <code>@circle-fin/x402-batching/client</code> (agent)<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. Peer dependencies are <code>@x402/core</code> and <code>viem</code>, plus <code>@x402/evm</code> for EVM schemes<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>.</p>
+<h3>4.2 Server side — <code>createGatewayMiddleware</code></h3>
+<p>The blog's full Express example, quoted verbatim<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>:</p>
+<pre><code>import express from &quot;express&quot;;
+import { createGatewayMiddleware } from &quot;@circle-fin/x402-batching/server&quot;;
+import { formatUnits } from &quot;viem&quot;;
+
+type PaidRequest = express.Request &amp; {
+  payment?: {
+    payer: string;
+    amount: string;
+    network: string;
+    transaction?: string;
+  };
+};
+
+const app = express();
+app.use(express.json());
+
+const gateway = createGatewayMiddleware({
+  sellerAddress: process.env.SELLER_WALLET_ADDRESS!,
+  facilitatorUrl: &quot;https://gateway-api-testnet.circle.com&quot;,
+  networks: [&quot;eip155:5042002&quot;], // Arc Testnet
+});
+
+app.post(
+  &quot;/research/company-brief&quot;,
+  gateway.require(&quot;$0.001&quot;),
+  (req: PaidRequest, res) =&gt; {
+    const payment = req.payment;
+    const paidAmount = payment?.amount
+      ? `${formatUnits(BigInt(payment.amount), 6)} USDC`
+      : &quot;$0.001&quot;;
+
+    res.json({
+      company: &quot;ExampleCo&quot;,
+      brief: &quot;ExampleCo is expanding into agent-accessible data products...&quot;,
+      paid: {
+        amount: paidAmount,
+        payer: payment?.payer,
+        network: payment?.network,
+        transaction: payment?.transaction,
+      },
+    });
+  },
+);</code></pre>
+<p>Three things stand out:</p>
+<ul>
+<li><code>createGatewayMiddleware</code> accepts <strong>just three options</strong> — <code>sellerAddress</code> / <code>facilitatorUrl</code> / <code>networks</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</li>
+<li>Per-route pricing is a <strong>USD string</strong> — <code>gateway.require("$0.001")</code>. The middleware handles 6-decimal USDC conversion; the handler converts back with <code>formatUnits(BigInt(amount), 6)</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</li>
+<li>Payment metadata is injected onto <code>req.payment</code> as <code>{ payer, amount, network, transaction? }</code>, so handlers can enrich responses with payment context<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</li>
+</ul>
+<p>In a Next.js App Router project the same middleware is exposed as a route wrapper — "<code>export const GET = withGateway(handler, "$0.001", "/api/premium/quote")</code>"<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. The <code>circlefin/arc-nanopayments</code> repository shows this pattern end-to-end with Next.js + Supabase<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<h3>4.3 Client side — <code>GatewayClient</code> + <code>circle services pay</code></h3>
+<p>The same package exposes a client SDK at the <code>/client</code> subpath. <code>BlockRunAI/circle-nanopayment-sample</code> documents it: "client (<code>src/client.ts</code>) leverages <code>GatewayClient</code> from <code>@circle-fin/x402-batching</code> to check Gateway balance, call the API with automatic 402 flow handling, sign EIP-3009 authorizations against the GatewayWallet contract, and receive paid responses"<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+<p>The blog compresses the same flow into a single CLI line, <code>circle services pay</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>:</p>
+<pre><code>circle services pay \
+  http://localhost:3000/research/company-brief \
+  --address &quot;$AGENT_WALLET_ADDRESS&quot; \
+  --chain ARC-TESTNET \
+  -X POST \
+  --max-amount 0.001 \
+  --output json</code></pre>
+<p>That CLI (a) sends the initial request and receives 402, (b) checks the balance at <code>gateway-api-testnet.circle.com</code>, (c) signs an EIP-3009 authorization against the <code>GatewayWallet</code> contract, and (d) resubmits with the <code>PAYMENT-SIGNATURE</code> header — exactly what the SDK would do, in one shell line.</p>
+<h3>4.4 CLI — <code>circle wallet</code> / <code>circle gateway</code> / <code>circle services</code></h3>
+<p>The blog shows the full setup flow as CLI<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>:</p>
+<pre><code>which circle || npm install -g @circle-fin/cli
+circle skill install --tool codex
+circle wallet status --type agent
+circle wallet login &lt;YOUR_EMAIL&gt; --testnet
+
+circle wallet list --type agent --chain ARC-TESTNET
+circle wallet create --output json
+
+circle wallet balance --address &quot;$AGENT_WALLET_ADDRESS&quot; --chain ARC-TESTNET
+circle wallet fund --address &quot;$AGENT_WALLET_ADDRESS&quot; --chain ARC-TESTNET
+circle gateway deposit --amount 10 --address &quot;$AGENT_WALLET_ADDRESS&quot; --chain ARC-TESTNET --method direct
+circle gateway balance --address &quot;$AGENT_WALLET_ADDRESS&quot; --chain ARC-TESTNET
+
+circle services pay &lt;URL&gt; --address &quot;$AGENT_WALLET_ADDRESS&quot; --chain ARC-TESTNET ...
+
+circle gateway withdraw --amount 0.001 --address &quot;$SELLER_WALLET_ADDRESS&quot; \
+  --chain ARC-TESTNET --recipient &quot;$PAYOUT_WALLET_ADDRESS&quot; --output json</code></pre>
+<p>The five-step flow maps 1:1 onto these commands. <code>circle wallet</code> covers key infrastructure, <code>circle gateway</code> covers settlement-balance management, <code>circle services</code> triggers actual payments, and <code>circle skill install</code> injects Circle Skills into AI coding assistants like Claude Code / Cursor / Codex<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</p>
+<h3>4.5 Reference GitHub repositories</h3>
+<p>To see the flow in real code, two repositories are the canonical starting points.</p>
+<ul>
+<li><strong><code>circlefin/arc-nanopayments</code></strong> — Circle's official reference implementation. Apache-2.0, TypeScript 96.6%. Structure: (a) Next.js App Router (<code>/app</code>) exposing paywalled routes, (b) Supabase for payment persistence, (c) LangChain + Deep Agents buyer agent in <code>agent.mts</code>, (d) a seller dashboard with real-time payment monitoring<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. Route prices span <code>$0.0003 – $0.03</code>.</li>
+<li><strong><code>BlockRunAI/circle-nanopayment-sample</code></strong> — Community sample. TypeScript Express + autonomous agent client. The server gates <code>GET /risk-profile</code> at <code>$0.01</code>; the client automates 402 → EIP-3009 signing → retry<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. The npm scripts (<code>npm run setup</code> / <code>server</code> / <code>client</code> / <code>deposit</code> / <code>balance</code>) follow the five-step flow exactly<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</li>
+</ul>
+<p>Two more repositories support the codebase.</p>
+<ul>
+<li><strong><code>circlefin/skills</code></strong> — Apache-2.0. The README states it provides "best-practice guidance for USDC payments, crosschain transfers, wallets, and smart contracts, plus Circle's MCP server for real-time SDK and documentation context"<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. 13 core skills work across Claude Code, Cursor, Vercel Skills CLI, Codex, and Windsurf<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. <code>circle skill install --tool codex</code> (in the blog) installs from this repo<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</li>
+<li><strong><code>circlefin/arc-node</code></strong> — Rust implementation of the Arc chain node itself<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. To verify smart-account / settlement assumptions directly, this is the starting point.</li>
+</ul>
+<p>On the standards side, the <code>coinbase/x402</code> repo (now mirrored as <code>x402-foundation/x402</code>) contains issue #447 "x402 x Circle Gateway," which tracks Circle's integration from the standards-body angle<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<h3>4.6 How Circle maps onto the x402 standard</h3>
+<ul>
+<li><strong>x402 scheme</strong> — <code>@circle-fin/x402-batching</code> belongs to the x402 <code>batch-settlement</code> camp as the name implies<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. The EVM-binding details (channelId, ChannelConfig, cumulative voucher, claim/settle/refund) are surveyed in the sister report <a href="../x402-batch-vs-mpp-session/"><code>x402-batch-vs-mpp-session</code></a>.</li>
+<li><strong>Facilitator role</strong> — Gateway performs both <code>/verify</code> (instant) and <code>/settle</code> (deferred, batched)<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. This differs from Coinbase's facilitator default of immediate settlement.</li>
+<li><strong>EIP-3009 anchoring</strong> — the client signs an EIP-3009 <code>transferWithAuthorization</code> — the same primitive used by x402's EVM <code>exact</code> scheme<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Gateway verifies the signature in line and batches the actual USDC movement against the GatewayWallet contract<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</li>
+</ul>
+<h2>5. Comparison — Circle's position</h2>
+<h3>5.1 vs. Coinbase facilitator</h3>
+<p>The x402 spec does not bake any single facilitator into the standard. Coinbase Developer Platform's facilitator processes ERC-20 payments on Base, Polygon, Arbitrum, World Chain, and Solana<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, whereas <strong>Circle Gateway treats its own chain (Arc) as the first-class settlement environment and treats USDC as a chain-abstracted asset</strong><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. The "$0.000001 nanopayments" claim is Circle's own positioning<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<h3>5.2 vs. MPP <code>session</code> intent</h3>
+<p>As the sister report <a href="../x402-batch-vs-mpp-session/"><code>x402-batch-vs-mpp-session</code></a> shows, x402 batch-settlement is shaped for "one merchant × many users," while MPP <code>session</code> is shaped for "one user × one merchant." Circle aligns with the x402 batch-settlement camp<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, so it does not compete head-on with MPP <code>session</code> — it solves a different traffic shape _(interpretive)_.</p>
+<h3>5.3 Standards compatibility</h3>
+<p>Circle implements its own facilitator while keeping the x402 standard interface (402 response + <code>PAYMENT-REQUIRED</code> / <code>PAYMENT-SIGNATURE</code> headers + <code>/verify</code> + <code>/settle</code>)<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. The same client SDK should work against another facilitator (e.g. Coinbase-hosted) without rewriting the call site — Circle's strategy is "adopt the standard while differentiating on settlement infrastructure" _(interpretive)_.</p>
+<h2>6. Discussion — Merchant design points</h2>
+<h3>6.1 The operational meaning of a <code>$0.000001</code> price unit</h3>
+<p>The blog opens at <code>gateway.require("$0.001")</code>, while <code>circlefin/arc-nanopayments</code> exposes routes from <code>$0.0003</code> to <code>$0.03</code><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. That price band is "one LLM call" or "one data lookup" priced as a payment unit, which forces the merchant to <strong>rebuild an API as a per-call product, not a subscription</strong>. Circle Nanopayments' own floor ($0.000001) defines the lower bound of that re-pricing<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<h3>6.2 Multi-chain (Arc / EVM / Solana)</h3>
+<p>The blog's code pins to Arc Testnet only, but Agent Stack itself is positioned as "chain- and protocol-agnostic open infrastructure"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. Gateway's chain-abstracted USDC model is designed to let one user receive USDC balances from many chains into the same Gateway Balance<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Future EVM / Solana expansion is signposted in Circle's own materials<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<h3>6.3 Agent Marketplace as a discovery layer</h3>
+<p>The blog points at Agent Marketplace as the discovery channel for paid APIs. The agents.circle.com landing page already lists Meeting Prep / Quant Analysis / Research / Domain Search / Social Analytics / Crypto Analysis as priced categories ($0.022–$0.301)<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The shape is consistent with the analyst framing of the marketplace as "the search engine of the agent era" _(interpretive)_<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. As of this writing, listing is submitted through a Google Form — that fact is recorded in this report's uncertainties<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h3>6.4 Five merchant-side decisions</h3>
+<p>The decision points this report extracts for a merchant adopting the blog's pattern:</p>
+<p>1. <strong>Price unit</strong> — <code>$0.001</code> / <code>$0.0003</code> / <code>$0.03</code>? Lower prices improve batching efficiency but compress per-call margin. 2. <strong>Chain choice</strong> — stay on Arc Testnet, or leave room for other chains. 3. <strong>Payout Wallet model</strong> — withdraw to an EOA, an MPC wallet, or another SaaS? 4. <strong>Marketplace listing</strong> — strong merchant marketing makes it optional; weak marketing makes it close to mandatory. 5. <strong>Dispute / refund policy</strong> — the x402 standard does not specify a dispute procedure<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, so the merchant must define its own.</p>
+<h2>7. Limitations</h2>
+<ul>
+<li>This report reflects the blog, docs, npm, and GitHub metadata as of 20 May 2026. Arc Mainnet launch, finalised chain IDs, and Gateway production facilitator are out of scope.</li>
+<li>The <code>@circle-fin/x402-batching</code> npm page was access-limited under scripted fetch; package metadata (v3.0.4, 0 deps, 8 dependents) comes from search snippets plus the <code>BlockRunAI</code> sample README<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</li>
+<li>The <code>circlefin/arc-nanopayments</code> README could not be fetched as raw text, so code excerpts rely on the repo metadata summary<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. For production use, the live repo should be consulted directly.</li>
+<li>x402 issue #447's discussion text was not directly cited; only its existence is confirmed<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>.</li>
+<li>Quantitative identifiers (Arc Testnet chain ID <code>5042002</code>, the GatewayWallet contract address) are taken from the blog's code citation and were not cross-checked against an independent chain registry.</li>
+<li>Circle Wallets and Agent Stack are operated by Circle Technology Services, LLC (CTS) as a software provider, not as a regulated financial / advisory service, as the blog itself states<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. This report preserves that disclaimer.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Elton Tay</span>. <a href="https://www.circle.com/blog/turn-your-api-into-a-storefront-for-agents">Turn Your API into a Storefront for Agents</a>. <span class="venue">Circle Blog, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-2"><span class="authors">Circle</span>. <a href="https://agents.circle.com/">Circle for Agents</a>. <span class="venue">agents.circle.com, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-3"><span class="authors">Blockhead</span>. <a href="https://www.blockhead.co/2026/05/12/circle-launches-agent-stack-to-put-usdc-at-the-centre-of-machine-to-machine-payments/">Circle Launches Agent Stack to Put USDC at the Centre of M2M Payments</a>. <span class="venue">blockhead.co, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-4"><span class="authors">Circle</span>. <a href="https://www.circle.com/blog/introducing-circle-agent-stack-financial-infrastructure-for-the-agentic-economy">Introducing Circle Agent Stack</a>. <span class="venue">Circle Blog, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-5"><span class="authors">Circle</span>. <a href="https://developers.circle.com/agent-stack">Agent Stack — Circle Developer Docs</a>. <span class="venue">developers.circle.com, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-6"><span class="authors">x402 Foundation</span>. <a href="https://docs.x402.org/core-concepts/network-and-token-support">x402 docs — Networks &amp; Token Support</a>. <span class="venue">docs.x402.org, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-7"><span class="authors">Circle</span>. <a href="https://www.circle.com/blog/autonomous-payments-using-circle-wallets-usdc-and-x402">Build Autonomous Payments with Circle Wallets, USDC, and x402</a>. <span class="venue">Circle Blog, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-8"><span class="authors">Circle</span>. <a href="https://www.circle.com/blog/enabling-machine-to-machine-micropayments-with-gateway-and-usdc">Enabling Machine-to-Machine Micropayments with Gateway and USDC</a>. <span class="venue">Circle Blog, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-9"><span class="authors">TronWeekly</span>. <a href="https://www.tronweekly.com/circles-gateway-x402-integration-ignites">Circle&#x27;s Gateway x402 Integration Ignites the Next Wave of Autonomous Financial Systems</a>. <span class="venue">tronweekly.com, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-10"><span class="authors">Circle</span>. <a href="https://github.com/circlefin/arc-nanopayments">circlefin/arc-nanopayments — reference implementation</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-11"><span class="authors">Circle</span>. <a href="https://github.com/circlefin/arc-node">circlefin/arc-node — The Economic OS for the internet</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-12"><span class="authors">Circle</span>. <a href="https://www.circle.com/blog/build-agentic-systems-for-high-frequency-sub-cent-transactions">How to Build Agentic AI Payments Systems on Arc</a>. <span class="venue">Circle Blog, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-13"><span class="authors">BlockRunAI</span>. <a href="https://github.com/BlockRunAI/circle-nanopayment-sample">BlockRunAI/circle-nanopayment-sample</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-14"><span class="authors">Peter Jihoon Kim, Kevin Britz, David Knott</span>. <a href="https://eips.ethereum.org/EIPS/eip-3009">EIP-3009: Transfer With Authorization</a>. <span class="venue">Ethereum EIPs, 2020</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-15"><span class="authors">Circle</span>. <a href="https://www.npmjs.com/package/@circle-fin/x402-batching">@circle-fin/x402-batching — npm</a>. <span class="venue">npmjs.com, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span> <span class="unverified">[access limited]</span></li>
+      <li id="ref-16"><span class="authors">Circle</span>. <a href="https://github.com/circlefin/skills">circlefin/skills — Circle Skills</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-17"><span class="authors">x402 community</span>. <a href="https://github.com/coinbase/x402/issues/447">x402 x Circle Gateway — issue #447</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-20.</span> <span class="unverified">[access limited]</span></li>
+      <li id="ref-18"><span class="authors">Coinbase, x402 Foundation</span>. <a href="https://github.com/coinbase/x402">coinbase/x402 — payments protocol</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-05-20. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
