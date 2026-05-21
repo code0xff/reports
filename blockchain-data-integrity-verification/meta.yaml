@@ -1,0 +1,10 @@
+title: 블록체인 기반 데이터 정합성 검증 — 기술적 접근과 제품 지형도
+subtitle: 해시 앵커링·Merkle proof·전송 가능성(DA)·attestation·콘텐츠 주소화·증명-기반 스토리지 패턴과 실제 제품을 한 데 비교한다
+title_en: Blockchain-Based Data Integrity Verification — Technical Approaches and the Product Landscape
+subtitle_en: A survey of hash anchoring, Merkle proofs, data availability, attestation, content-addressing, and proof-based storage patterns alongside the products that ship them
+slug: blockchain-data-integrity-verification
+lang: ko
+langs: [ko, en]
+date: 2026-05-21
+tags: [data-integrity, blockchain, opentimestamps, guardtime-ksi, sigstore, rekor, eas, chainlink, proof-of-reserve, filecoin, arweave, celestia, eigenda, supply-chain, notarization]
+status: ready

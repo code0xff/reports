@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Blockchain-Based Data Integrity Verification — Technical Approaches and the Product Landscape — Deepsearch</title>
+<meta name="description" content="A survey of hash anchoring, Merkle proofs, data availability, attestation, content-addressing, and proof-based storage patterns alongside the products that ship them">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>Blockchain-Based Data Integrity Verification — Technical Approaches and the Product Landscape</h1>
+    <p class="subtitle">A survey of hash anchoring, Merkle proofs, data availability, attestation, content-addressing, and proof-based storage patterns alongside the products that ship them</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-05-21</span>
+      <span><strong>Tags</strong> data-integrity, blockchain, opentimestamps, guardtime-ksi, sigstore, rekor, eas, chainlink, proof-of-reserve, filecoin, arweave, celestia, eigenda, supply-chain, notarization</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="blockchain-data-integrity-verification.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>This report opens up the question "how does blockchain verify data integrity?" into two distinct sub-questions — (a) <strong>tamper-evidence</strong> (no one changed this since time T) and (b) <strong>availability</strong> (this data actually exists on the network and is retrievable). Seven technical approaches are in market: hash anchoring<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>, Merkle proofs + transparency logs<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, content addressing<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>, proof-based decentralised storage (PoRep / PoSt / SPoRA)<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>, on-chain attestation (EAS / Sigstore Fulcio)<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>, oracle data feeds (Chainlink Proof of Reserve)<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>, and data-availability layers (Celestia / EigenDA)<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. The report walks each approach down to primary sources and then runs nine shipping products — OpenTimestamps · Guardtime KSI · OriginStamp · Sigstore Rekor · EAS · Chainlink PoR · Filecoin / Arweave · VeChain / IBM Food Trust · Celestia / EigenDA — through the same comparison frame, surfacing where blockchain genuinely adds value and where (Sigstore Rekor being the canonical example) plain transparency logs are explicitly preferred.</p>
+  </section>
+
+  <main class="body">
+<h1>Blockchain-Based Data Integrity Verification — Technical Approaches and the Product Landscape</h1>
+<h2>1. Introduction — The two integrity questions</h2>
+<p>The phrase "data integrity verification" is used in industry to point at two distinct problems.</p>
+<ul>
+<li><strong>Tamper-evidence</strong> — "anyone can independently verify that this data has not changed since time T." Notarisation, document timestamping, software-supply-chain attestations, and physical-supply-chain provenance all sit here.</li>
+<li><strong>Availability</strong> — "this data actually exists on the network and can be retrieved by anyone." The canonical example is a rollup proving it has published all the transaction data it claims to have<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</li>
+</ul>
+<p>Blockchain becomes a candidate for both because many distributed nodes hold an identical copy and that copy is frozen by a consensus algorithm. Anchor either (a) a hash of the data or (b) the data itself into the consensus state, and a verifier can confirm integrity without trusting any one party.</p>
+<p>The honest caveat is that blockchain is not <em>always</em> the right tool. Sigstore evaluated blockchain when designing Rekor and chose an append-only transparency log family instead<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. This report keeps the seven approaches side by side because the word "integrity" hides several different mechanisms _(interpretive)_.</p>
+<h2>2. Technical approaches — seven patterns</h2>
+<h3>2.1 Hash anchoring</h3>
+<p>The simplest pattern: post a SHA-256 hash of the data into a single transaction on a public chain. OpenTimestamps states the goal plainly — "OpenTimestamps aims to be a standard format for blockchain timestamping"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The marginal cost is one transaction's fee; verification recomputes the hash and re-finds the transaction.</p>
+<p>Anchoring per-document does not scale, so the next pattern fixes that.</p>
+<h3>2.2 Merkle proofs + transparency logs</h3>
+<p>Combine many hashes into a Merkle tree and post only the root. OpenTimestamps' wording: "An OpenTimestamps server provides aggregation of multiple document hashes in a Merkle tree data structure and attests only the hash of the Merkle tree root"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, and the root lands in Bitcoin via "The commitment process embeds the 32-byte Merkle root hash into a Bitcoin transaction using an OP_RETURN script output"<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Each document then carries its Merkle path (the <code>.ots</code> file) from its leaf up to the rooted-on-chain hash.</p>
+<p>The same abstraction is called a <strong>transparency log</strong> in software supply-chain land. Sigstore's Rekor is the canonical example — "Rekor is an append-only (sometimes called 'immutable') data log that stores signed metadata about a software artifact"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Notably Rekor does <em>not</em> anchor in a blockchain: "When first developing Rekor, blockchain was attempted but determined to be less optimal technology. Instead, Rekor is based on transparency log technology similar to Certificate Transparency logs used for digital certificates"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. The Merkle abstraction works either way.</p>
+<h3>2.3 Content addressing (CIDs / IPFS)</h3>
+<p>Define the identifier of a piece of data as the <strong>hash of the data itself</strong>. IPFS CIDs, Git SHAs, and Sigstore OCI digests all share this primitive — "Decentralized storage solutions like IPFS, Filecoin and Arweave"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Given an identifier, anyone can verify the bytes they received with no extra trust. Blockchains often anchor the CID or attach it to an attestation.</p>
+<h3>2.4 Proof-based decentralised storage — Filecoin PoRep / PoSt, Arweave SPoRA</h3>
+<p>Content addressing alone does not show that any one node is <em>currently storing</em> the data. Filecoin requires two recurring proofs — "Filecoin ensures data storage through Proof-of-Replication (PoRep) and Proof-of-Spacetime"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. PoRep proves a unique copy was created; PoSt proves the copy is still kept over time.</p>
+<p>Arweave takes a different route: "Arweave uses a unique consensus mechanism called Succinct Proof of Random Access (SPoRA)"<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. Miners must be able to access arbitrary historical data to claim a reward, which incentivises permanent storage.</p>
+<h3>2.5 Attestations and signed credentials</h3>
+<p>Record a <strong>signed assertion about data</strong> on chain. The Ethereum Attestation Service (EAS) compresses the design to two contracts — "EAS runs on two simple smart contracts: one for registering attestation Schemas and another for attesting with them"<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. Schemas define the attestation format — "Schemas are essential because they ensure that attestations are consistent, readable, and verifiable"<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> — and the attestation itself is an EIP-712 signature. EAS supports both on-chain and off-chain modes, so sensitive data can stay off-chain while only the hash is anchored<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> _(access-limited)_.</p>
+<p>This pattern is the focus of the sister report <a href="../ethereum-attestation-service/"><code>ethereum-attestation-service</code></a>.</p>
+<h3>2.6 Oracle data feeds</h3>
+<p>Bring data from <em>outside</em> the chain <em>into</em> the chain in a way smart contracts can verify. Chainlink Proof of Reserve is the canonical example — "Chainlink Proof of Reserve provides automated, tamper-proof reserve monitoring — powering stablecoins, tokenized assets, and DeFi protocols"<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. N oracle nodes pull reserve data (on-chain wallet balances, self-hosted APIs, third-party attestation reports), aggregate by consensus, and post to chain<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. Updates are triggered by deviation thresholds or heartbeat intervals — "PoR feeds can trigger updates based on deviation thresholds or heartbeat intervals"<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>.</p>
+<h3>2.7 Data-availability layers (Celestia · EigenDA)</h3>
+<p>Let a <em>light client</em> verify that a rollup actually published its transaction data. Celestia uses erasure-coding + DAS — "Celestia uses data availability sampling (DAS), a decentralized network that provides DA and allows anyone to efficiently verify via DAS"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. EigenDA takes a different route: "EigenDA utilizes Reed Solomon encoding that is cryptographically verified by KZG polynomial opening proofs"<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. Unlike Celestia's publicly-verifiable DAS, EigenDA relies on a Data Availability Committee (DAC) trust assumption — Avail's comparison frames this as the security trade-off<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup> _(framing comes from a Celestia/Avail-sympathetic source; this report flags that explicitly)_.</p>
+<h2>3. Product landscape — nine shipping products</h2>
+<h3>3.1 OpenTimestamps — the Bitcoin-anchoring standard</h3>
+<p>Peter Todd's OpenTimestamps<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> sends hashes to a calendar server that Merkle-batches them and anchors them via Bitcoin OP_RETURN<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Verification needs only the <code>.ots</code> file and a Bitcoin node — no trusted third party. The calendar server pays the single transaction fee; the user pays nothing<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<h3>3.2 Guardtime KSI — Estonia's national integrity layer</h3>
+<p>Guardtime (Tallinn, 2007) built the Keyless Signature Infrastructure (KSI) to provide "Proof-of-Existence artifacts for digital records at large scale"<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. The internal mechanism is the same Merkle-tree pattern — "Single hashes from different records in the system are combined together based on when they are created … and form a tree-shaped data encryption structure"<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. Estonia has run KSI in its e-Justice, Land Register, e-Business Register, and State Gazette since 2012 — "The Estonian Ministry of Justice has been using blockchain technology solutions for better auditability and integrity purposes since 2012"<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>. Guardtime separately announces a Dutch government deployment for integrity assurance<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup> _(vendor-stated)_.</p>
+<h3>3.3 OriginStamp — multi-chain timestamping SaaS</h3>
+<p>OriginStamp (since 2013) is a SaaS variant of OpenTimestamps. The flow is — "A SHA-256 hash is calculated locally in your browser. The file itself never leaves your device, only the hash is transmitted"<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>. The distinguishing piece is multi-chain anchoring (Bitcoin, Ethereum, Polygon) and GDPR-friendly certificates. OriginStamp claims — "Over 60 million proofs created since 2013"<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup> _(vendor-stated)_.</p>
+<h3>3.4 Sigstore Rekor — software-supply-chain transparency log</h3>
+<p>Rekor records signed metadata about software artefacts in an append-only ledger — "Rekor's goals are to provide an immutable tamper resistant ledger of metadata generated within a software projects supply chain"<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>. Apache-2.0 licensed. The OCI image, npm, PyPI, and Helm ecosystems already sign and verify through Sigstore + Rekor. As discussed in §2.2, Rekor explicitly chose <em>not</em> to use a blockchain<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> — the canonical example of "Merkle log without consensus."</p>
+<h3>3.5 Ethereum Attestation Service — the de-facto on-chain attestation standard</h3>
+<p>EAS uses two contracts (Schema Registry + Attestation)<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. Schemas enforce attestation shape — "Schemas are essential because they ensure that attestations are consistent, readable, and verifiable"<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> — and attestations are EIP-712-signed and work in both on-chain and off-chain modes<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. The sister report <a href="../ethereum-attestation-service/"><code>ethereum-attestation-service</code></a> covers the contract-level mechanics.</p>
+<h3>3.6 Chainlink Proof of Reserve — off-chain reserves published on-chain</h3>
+<p>Stablecoins (USDC, USDT, TUSD, USDO), tokenised treasuries, wrapped BTC, ETPs, metals — many sit on Chainlink PoR<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. The mechanism is — N oracle nodes collect reserve data (bank attestations, cold-wallet balances, custodian APIs), aggregate by consensus, and post to chain<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. Updates fire on deviation/heartbeat triggers<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>; stablecoin contracts can wire those feeds into mint-pause / circuit-breaker logic<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+<h3>3.7 Filecoin · Arweave — proof-based decentralised storage</h3>
+<p>Filecoin requires both "physically a unique copy" and "still stored over time" — PoRep + PoSt<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Arweave aims at permanent storage with a one-time payment and uses SPoRA to require that miners can access arbitrary historical data<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. Both build on content addressing (CIDs) and layer proofs on top.</p>
+<h3>3.8 VeChain · IBM Food Trust — physical-supply-chain integrity</h3>
+<p>Bringing the physical world into a tamper-evidence record is hard. VeChain pairs IoT + RFID + blockchain — "Walmart China collaborated with VeChain … to enhance food tracking, traceability, and safety through the supply chain in 2019"<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup>. IBM Food Trust frames the same problem as "permissioned, immutable and shared record of food provenance" — "Food Trust provides supply chain visibility and efficiency, provenance for better understanding product quality"<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>. Walmart, Carrefour, and Nestlé are documented participants.</p>
+<h3>3.9 Celestia · EigenDA — DA layers for the rollup era</h3>
+<p>Celestia: erasure-coded DAS so anyone can verify with light-client cost that data is genuinely published<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. EigenDA: KZG-proved Reed-Solomon encoding + DAC for higher raw throughput at the cost of an honest-committee assumption<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. Two trade-offs occupying the same slot in different ways.</p>
+<h2>4. Pattern × Product Matrix</h2>
+<table><thead><tr><th>Pattern</th><th>OpenTimestamps</th><th>KSI</th><th>OriginStamp</th><th>Rekor</th><th>EAS</th><th>Chainlink PoR</th><th>Filecoin/Arweave</th><th>VeChain/Food Trust</th><th>Celestia/EigenDA</th></tr></thead><tbody><tr><td>Hash anchoring</td><td>✓<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></td><td>✓<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup></td><td>✓<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup></td><td>✗ (log)<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></td><td>△ on-chain mode<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></td><td>△ off-chain feed<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup></td><td>CID<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></td><td>hash batch<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup></td><td>DA root<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></td></tr><tr><td>Merkle proofs</td><td>✓<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></td><td>✓<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup></td><td>✓<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup></td><td>✓<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td><td>✓ off-chain<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></td><td>—</td><td>✓<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></td><td>—</td><td>✓<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></td></tr><tr><td>Transparency log</td><td>△</td><td>✓</td><td>△</td><td>✓<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>Attestation</td><td>—</td><td>—</td><td>—</td><td>✓ artifact<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup></td><td>✓<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></td><td>✓ via DON consensus<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup></td><td>—</td><td>—</td><td>—</td></tr><tr><td>Storage proof</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>✓ PoRep/PoSt<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> / SPoRA<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></td><td>—</td><td>—</td></tr><tr><td>Oracle feed</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>✓<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></td><td>—</td><td>△ IoT gateway<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup></td><td>—</td></tr><tr><td>DA sampling</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>✓ Celestia<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> / ✗ EigenDA<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup></td></tr></tbody></table>
+<p>The clean observation: <strong>no shipping product uses only one pattern</strong>. EAS combines attestation with hash anchoring (on-chain) or Merkle proofs (off-chain)<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Chainlink PoR is an oracle feed whose inner aggregation step is itself an attestation pattern<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. Each row in the table is a <em>primitive</em>; each product is a <em>composition</em> _(interpretive)_.</p>
+<h2>5. Discussion — Trade-offs</h2>
+<h3>5.1 Tamper-evidence vs ground truth</h3>
+<p>Hash anchoring, transparency logs, and attestations all prove "the data did not change." They do not prove "the data is true." OriginStamp's own framing — "tamper-proof digital proof" — is honest about that<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>. Ground-truth verification still needs separate trust paths (KYC, audit, dispute) for every product in this report _(interpretive)_.</p>
+<h3>5.2 Is blockchain actually required? — the Sigstore answer</h3>
+<p>Sigstore explicitly chose <em>no</em> — "blockchain was attempted but determined to be less optimal technology"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Append-only Merkle logs are sufficient; consensus overhead is unjustified for the problem of "anyone can later check that this signed metadata existed." Rekor runs at scale today without any blockchain<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>, which is the single strongest piece of evidence in this survey that "blockchain for integrity" is not a one-size-fits-all answer.</p>
+<h3>5.3 Public verifiability vs private data</h3>
+<p>Public verifiability requires the data (or at least its hash) to be public. Many industrial scenarios need privacy. The market answers in three layers — (a) anchor only the hash and keep the original off-chain, (b) keep the attestation off-chain and anchor only its hash, (c) prove via ZK proof that the data satisfies some property without revealing the data itself. EAS's on/off-chain dual mode<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> is the canonical (a)/(b); Chainlink PoR with bank attestations is a (b) variant where the trusted issuer holds the original<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</p>
+<h3>5.4 DA layers solve a different problem</h3>
+<p>Of the seven approaches here, DA (Celestia, EigenDA) is about <em>availability</em>, not <em>tamper-evidence</em>. The transparency-log pattern proves "this did not change"; DA proves "this exists" — that a rollup actually published its transaction data so anyone can later reconstruct state<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The word "integrity" smears these two together in market conversation; keeping them apart matters _(interpretive)_.</p>
+<h3>5.5 Cost · Latency · Trust models</h3>
+<ul>
+<li><strong>Bitcoin OP_RETURN anchoring (OpenTimestamps):</strong> ~10 min confirmation, near-zero marginal cost via Merkle batching<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</li>
+<li><strong>L2 / EAS anchoring:</strong> seconds, gas per anchor.</li>
+<li><strong>Transparency log (Rekor):</strong> instant verification, no chain<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> — operationally simpler.</li>
+<li><strong>Storage proofs (Filecoin / Arweave):</strong> cost scales with storage price, but also buys <em>durability</em> beyond tamper-evidence<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</li>
+<li><strong>Oracle feeds (Chainlink PoR):</strong> N-oracle consensus cost, configurable update cadence<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>.</li>
+</ul>
+<h2>6. Limitations</h2>
+<ul>
+<li>This report reflects primary sources and external analyses as of 21 May 2026. Filecoin PoSt parameters (window cadence, fault recovery), Arweave SPoRA economics, and EigenDA committee size / slashing rules are out of scope.</li>
+<li>EAS contract-level internals are deferred to the sister report <a href="../ethereum-attestation-service/"><code>ethereum-attestation-service</code></a>.</li>
+<li>Vendor-stated numbers (e.g. OriginStamp's "60M+ proofs since 2013") are flagged in <code>uncertainties.md</code><sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup> and not independently audited.</li>
+<li>The EigenDA critique is sourced from Avail's comparison piece<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>; this is a competitor's framing and is labelled as such in the body.</li>
+<li>The two senses of "integrity" (tamper-evidence vs availability) are this report's editorial framing. No single industry definition is canonical.</li>
+<li>ZK-proof-based data integrity (e.g. zk-MIPS, Pinocchio, zkRollup state proofs) is not covered as a separate section here; that family deserves its own report.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Celestia Labs</span>. <a href="https://celestia.org/what-is-da/">What is Data Availability? — Celestia</a>. <span class="venue">celestia.org, 2026</span>. <span class="accessed">Accessed 2026-05-21.</span></li>
+      <li id="ref-2"><span class="authors">Celestia</span>. <a href="https://docs.celestia.org/learn/celestia-101/data-availability/">Celestia&#x27;s data availability layer</a>. <span class="venue">docs.celestia.org, 2026</span>. <span class="accessed">Accessed 2026-05-21.</span></li>
+      <li id="ref-3"><span class="authors">Chainguard</span>. <a href="https://edu.chainguard.dev/open-source/sigstore/rekor/an-introduction-to-rekor/">An Introduction to Rekor — Chainguard Academy</a>. <span class="venue">edu.chainguard.dev, 2026</span>. <span class="accessed">Accessed 2026-05-21.</span></li>
+      <li id="ref-4"><span class="authors">Peter Todd, OpenTimestamps contributors</span>. <a href="https://opentimestamps.org/">OpenTimestamps — official site</a>. <span class="venue">opentimestamps.org, 2026</span>. <span class="accessed">Accessed 2026-05-21.</span></li>
+      <li id="ref-5"><span class="authors">Wikipedia contributors</span>. <a href="https://en.wikipedia.org/wiki/OpenTimestamps">OpenTimestamps — Wikipedia</a>. <span class="venue">Wikipedia, 2026</span>. <span class="accessed">Accessed 2026-05-21.</span></li>
+      <li id="ref-6"><span class="authors">ProofSnap</span>. <a href="https://getproofsnap.com/posts/blockchain-timestamping.html">How OpenTimestamps Bitcoin Anchoring Works</a>. <span class="venue">getproofsnap.com, 2026</span>. <span class="accessed">Accessed 2026-05-21.</span></li>
+      <li id="ref-7"><span class="authors">Sigstore</span>. <a href="https://docs.sigstore.dev/logging/overview/">Rekor overview — Sigstore Docs</a>. <span class="venue">docs.sigstore.dev, 2026</span>. <span class="accessed">Accessed 2026-05-21.</span></li>
+      <li id="ref-8"><span class="authors">Open Source For You</span>. <a href="https://www.opensourceforu.com/2025/06/decentralised-storage-on-blockchain-ipfs-filecoin-and-arweave/">Decentralised Storage on Blockchain: IPFS, Filecoin, and Arweave</a>. <span class="venue">opensourceforu.com, 2025</span>. <span class="accessed">Accessed 2026-05-21.</span></li>
+      <li id="ref-9"><span class="authors">Gemini Cryptopedia</span>. <a href="https://www.gemini.com/cryptopedia/arweave-token-ar-coin-permaweb">Arweave: Blockchain Data Storage with AR Coin</a>. <span class="venue">gemini.com, 2025</span>. <span class="accessed">Accessed 2026-05-21.</span></li>
+      <li id="ref-10"><span class="authors">EAS</span>. <a href="https://docs.attest.org/">Welcome to EAS — Ethereum Attestation Service</a>. <span class="venue">docs.attest.org, 2026</span>. <span class="accessed">Accessed 2026-05-21.</span></li>
+      <li id="ref-11"><span class="authors">EAS</span>. <a href="https://docs.attest.org/docs/core--concepts/schemas">EAS Schemas</a>. <span class="venue">docs.attest.org, 2026</span>. <span class="accessed">Accessed 2026-05-21.</span></li>
+      <li id="ref-12"><span class="authors">EAS</span>. <a href="https://docs.attest.org/docs/core--concepts/how-eas-works">How EAS works</a>. <span class="venue">docs.attest.org, 2026</span>. <span class="accessed">Accessed 2026-05-21.</span> <span class="unverified">[access limited]</span></li>
+      <li id="ref-13"><span class="authors">Chainlink Labs</span>. <a href="https://chain.link/proof-of-reserve">Proof of Reserve — Chainlink</a>. <span class="venue">chain.link, 2026</span>. <span class="accessed">Accessed 2026-05-21.</span></li>
+      <li id="ref-14"><span class="authors">Messari</span>. <a href="https://messari.io/report/chainlink-proof-of-reserve-por-bringing-transparency-to-the-forefront">Chainlink Proof of Reserve — Messari</a>. <span class="venue">messari.io, 2024</span>. <span class="accessed">Accessed 2026-05-21.</span></li>
+      <li id="ref-15"><span class="authors">Chainlink Labs</span>. <a href="https://docs.chain.link/data-feeds/proof-of-reserve">Proof of Reserve Feeds — Chainlink Documentation</a>. <span class="venue">docs.chain.link, 2026</span>. <span class="accessed">Accessed 2026-05-21.</span></li>
+      <li id="ref-16"><span class="authors">Avail Project</span>. <a href="https://blog.availproject.org/a-guide-to-selecting-the-right-data-availability-layer/">Choosing a Data Availability Layer: Avail vs Celestia vs EigenDA vs Ethereum</a>. <span class="venue">blog.availproject.org, 2026</span>. <span class="accessed">Accessed 2026-05-21.</span></li>
+      <li id="ref-17"><span class="authors">Guardtime Federal</span>. <a href="https://blockchain.machetemag.com/wp-content/uploads/2017/11/Guardtime_WhitePaper_KSI.pdf">Guardtime KSI White Paper</a>. <span class="venue">Guardtime, 2017</span>. <span class="accessed">Accessed 2026-05-21.</span></li>
+      <li id="ref-18"><span class="authors">Taka Kv</span>. <a href="https://takakv.com/2021/09/10/guardtime-ksi-blockchain/">How Does The Guardtime KSI Blockchain Work?</a>. <span class="venue">takakv.com, 2021</span>. <span class="accessed">Accessed 2026-05-21.</span></li>
+      <li id="ref-19"><span class="authors">Interoperable Europe Portal</span>. <a href="https://interoperable-europe.ec.europa.eu/collection/public-sector-tech-watch/use-national-blockchain-infrastructure-support-e-residency-initiative-estonia">Use of National Blockchain Infrastructure to support the E-Residency Initiative in Estonia</a>. <span class="venue">European Commission, 2024</span>. <span class="accessed">Accessed 2026-05-21.</span></li>
+      <li id="ref-20"><span class="authors">Guardtime</span>. <a href="https://guardtime.com/blog/dutch-government-deploys-guardtime-s-ksi-blockchain-for-integrity-assurance">Dutch Government deploys Guardtime&#x27;s KSI Blockchain</a>. <span class="venue">guardtime.com, 2023</span>. <span class="accessed">Accessed 2026-05-21.</span></li>
+      <li id="ref-21"><span class="authors">OriginStamp</span>. <a href="https://originstamp.com/en/timestamp">Blockchain Timestamping — OriginStamp</a>. <span class="venue">originstamp.com, 2026</span>. <span class="accessed">Accessed 2026-05-21.</span></li>
+      <li id="ref-22"><span class="authors">OriginStamp</span>. <a href="https://originstamp.com/en/blog/reader/blockchain-timestamp">Blockchain Timestamping Guide: Securing Digital Proof</a>. <span class="venue">originstamp.com, 2026</span>. <span class="accessed">Accessed 2026-05-21.</span></li>
+      <li id="ref-23"><span class="authors">Sigstore</span>. <a href="https://github.com/sigstore/rekor">sigstore/rekor — Software Supply Chain Transparency Log</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-21.</span></li>
+      <li id="ref-24"><span class="authors">Securing Industry</span>. <a href="https://www.securingindustry.com/food-and-beverage/food-traceability-blockchain-features-in-new-projects/s104/a11820/">Food traceability: blockchain features in new projects</a>. <span class="venue">securingindustry.com, 2024</span>. <span class="accessed">Accessed 2026-05-21.</span></li>
+      <li id="ref-25"><span class="authors">IBM</span>. <a href="https://www.ibm.com/products/supply-chain-intelligence-suite/food-trust">IBM Supply Chain Intelligence Suite — Food Trust</a>. <span class="venue">ibm.com, 2026</span>. <span class="accessed">Accessed 2026-05-21.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-05-21. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
