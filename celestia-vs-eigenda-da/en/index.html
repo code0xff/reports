@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Celestia vs EigenDA as Data Availability Layers — Features, Technical Foundations, and Differences — Deepsearch</title>
+<meta name="description" content="A comparative deep-dive into the architecture, trust model, and operational properties of two leading modular DA layers.">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>Celestia vs EigenDA as Data Availability Layers — Features, Technical Foundations, and Differences</h1>
+    <p class="subtitle">A comparative deep-dive into the architecture, trust model, and operational properties of two leading modular DA layers.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-05-20</span>
+      <span><strong>Tags</strong> data-availability, celestia, eigenda, modular-blockchain, rollups</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="celestia-vs-eigenda-da.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>Celestia and EigenDA both call themselves "general-purpose DA layers," but they start from different architectural premises. Celestia is a standalone PoS chain that fuses CometBFT consensus, 2D Reed–Solomon erasure coding, Namespaced Merkle Trees, and light-client DAS into one coherent stack. EigenDA has no native consensus; it is an EigenLayer AVS that secures itself with restaked ETH, uses KZG commitments and BLS attestations, and posts DA Certificates directly to Ethereum L1. This report sets out (1) the DA problem and the theoretical primitives behind it — DAS, Reed–Solomon, KZG; (2) Celestia's consensus, data structures, and Blobstream bridge; (3) EigenDA's Disperser-Operator-attestation pipeline; and then compares the two systems across trust model, verifiability, throughput, use of polynomial commitments, and bridging, before discussing adoption, slashing, and operational risk. The substantive takeaway is not which system is "better" but that the difference in trust assumptions and the source of securing capital is the design difference.</p>
+  </section>
+
+  <main class="body">
+<h2>Introduction</h2>
+<p>The modular blockchain paradigm decouples execution, consensus, settlement, and data availability (DA) into separable layers rather than concentrating them in a single monolithic chain. Celestia's foundational blog argues that consensus should be reduced to "ordering transactions and guaranteeing their data availability," with execution validity living in upper layers<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Within this paradigm Celestia and EigenDA are the two most prominent "general-purpose DA layers," but they start from different architectural premises: Celestia is a standalone proof-of-stake chain secured by the TIA token<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>, while EigenDA is an Actively Validated Service (AVS) with no native consensus, secured by ETH restaked through EigenLayer<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. This report compares their technical foundations, trust models, throughput, and operational posture.</p>
+<h2>Background: The Data Availability Problem</h2>
+<p>The DA problem asks how a light client can confirm that block data was actually published without trusting full nodes. Al-Bassam, Sonnino, and Buterin (2018) formalized that combining fraud proofs with probabilistic sampling lets light clients "eliminate the honest-majority assumption"<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. This result underpins modern Data Availability Sampling (DAS).</p>
+<p>DAS lays block data out as a k×k square, erasure-codes it to a 2k×2k square via Reed–Solomon, and has light clients randomly sample coordinates so that any meaningful withholding is detected with high probability<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Reed–Solomon's mathematical structure guarantees that enough surviving chunks suffice to reconstruct the original data<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>Orthogonal to DAS, KZG polynomial commitments (Kate, Zaverucha, Goldberg, 2010) give "constant-size" commitments and openings — both the commitment and an opening proof fit in a single elliptic-curve group element<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. KZG underlies the chunk-correctness proofs in EigenDA and the blob commitments in Ethereum's danksharding roadmap<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<h2>Celestia: Architecture and Technical Foundation</h2>
+<p>Celestia is a Cosmos-stack PoS chain. Its consensus engine is <code>celestia-core</code>, a fork of CometBFT (the Tendermint successor), with validators staking the TIA token<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Mainnet beta launched on 31 October 2023, accompanied by a TIA airdrop to 580,000 addresses<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>Celestia's data structure identity is the Namespaced Merkle Tree (NMT). Each internal node carries the min/max namespace range of its descendants; leaves take the form <code>&lt;NsID&gt;||&lt;Message Data&gt;</code> sorted by namespace<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. As a result, a rollup can download only the data for its namespace and still prove completeness<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>At the block level, Celestia treats the data as a k×k square, erasure-codes it into a 2k×2k square, and commits to row and column roots in the Tendermint block header<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Light nodes verify DA themselves via random sampling, removing the need to trust full nodes<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<p>Ethereum L2s reach Celestia DA through <strong>Blobstream</strong> (renamed from Quantum Gravity Bridge). Blobstream relays validator-signed attestations of Celestia's data root to an on-chain light client on Ethereum; the production implementation is now an SP1-based ZK light client that verifies Tendermint consensus and the data commitments<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<h2>EigenDA: Architecture and Technical Foundation</h2>
+<p>EigenDA is not a chain; it is an AVS on top of EigenLayer. ETH restakers register as EigenDA operators that run DA nodes, and security flows from EigenLayer's shared-security model "that allows the same stake to be utilized across a variety of applications"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. EigenDA went live on Ethereum mainnet on 9 April 2024 alongside EigenLayer Stage 2<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</p>
+<p>The dispersal pipeline is the canonical way to read EigenDA<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>:</p>
+<p>1. The rollup sequencer uploads a blob to the <strong>Disperser</strong>. 2. The Disperser Reed–Solomon erasure-codes the blob into chunks — V2 (Blazar) expands one blob into 8,192 chunks with 8× redundancy, where any 1,024 chunks suffice for recovery — and generates a KZG commitment plus multi-reveal proofs for those chunks. 3. Chunks are dispersed to EigenDA operators; each operator verifies its chunks against the KZG commitment and returns a BLS signature. 4. Aggregated BLS signatures form a Data Availability Certificate (DA-Cert) that is posted to an Ethereum L1 contract; rollups verify the certificate inside their own contracts.</p>
+<p>EigenDA therefore has no native consensus — the final DA guarantee resolves at the Ethereum settlement layer when the attestation is accepted<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Instead of light-client DAS, EigenDA uses a retrieval-based model in which consumers fetch chunks directly and attestation vouches for the survival of enough chunks<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup> _(interpretive)_.</p>
+<p>EigenDA V2 (codename Blazar) advertises <strong>100 MB/s</strong> throughput by splitting a lightweight control plane from a high-bandwidth data plane _(vendor-stated)_<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. EigenLayer slashing went live on mainnet on 17 April 2025, formalising that "an Operator's staked funds can be burned if they fail to meet the commitments they've agreed to with an AVS"<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>.</p>
+<h2>Comparative Analysis</h2>
+<p><strong>Trust model.</strong> Celestia's primary security assumption is the honesty of its own TIA-staked validator set<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. EigenDA has no validator set of its own and instead leans on the restaker pool that signs attestations and submits them to Ethereum L1<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The two models differ structurally in <em>where</em> the securing capital comes from — Celestia's TIA market cap versus ETH-denominated restake — and that difference is the cleanest axis of comparison _(interpretive)_<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</p>
+<p><strong>Verifiability.</strong> Celestia treats light-client DAS as the central device for shrinking trust assumptions<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. A competing-vendor analysis from Avail labels EigenDA closer to a Data Availability Committee model, arguing that end users "can only confirm that committee members agreed to store data"<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. EigenLabs frames the same system as a restaking-secured decentralized service<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. These two framings disagree and are presented here as a disagreement rather than silently resolved.</p>
+<p><strong>Throughput.</strong> Celestia launched mainnet at 2 MB blocks, has since enlarged to 8 MB, and at a 6-second block time runs around 1.33 MB/s today<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. EigenDA V2 (Blazar) advertises 100 MB/s as a target _(vendor-stated)_<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. Both numbers reflect different measurement regimes and security assumptions; direct numeric comparison should be read with that caveat _(interpretive)_.</p>
+<p><strong>Use of polynomial commitments.</strong> Both systems use KZG-family commitments but in different roles. Celestia layers DAS and (when needed) fraud-proof-style integrity defences on top of 2D Reed–Solomon and NMT; EigenDA uses KZG commitments as the core correctness proof for chunk dispersal<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p><strong>Bridging and integration.</strong> Celestia surfaces DA on EVM chains through Blobstream (now an SP1-based ZK light client)<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. EigenDA needs no separate bridge — DA-Certs are written directly to Ethereum L1 contracts<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>.</p>
+<h2>Discussion: Adoption, Trade-offs, Risks</h2>
+<p>On the adoption front, Celestia absorbed several EVM L2s in its first year, with Manta Pacific the most-cited early integrator<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup> _(unverified — single source)_. EigenDA serves AVS-aligned rollups as well as multi-DA setups such as Manta's<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. Reporting suggests both systems are integrated with major rollup frameworks (Arbitrum Orbit, OP Stack, Polygon CDK), but the precise count of live integrations varies across sources<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</p>
+<p>On the risk side, Celestia depends on the safety and liveness of its own validator set. L2BEAT's independent walk-through notes that DA guarantees can break if a dishonest supermajority finalises unavailable blocks while light nodes fail to reconstruct, or if Blobstream contracts are upgraded with zero delay<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<p>EigenDA inherits EigenLayer's general risks. Slashing only activated on mainnet in April 2025, and because the model is per-AVS opt-in, EigenDA-specific slashing conditions and their real-world bite are still being settled<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. The Disperser is also today operated as a single EigenLabs-hosted service; the advertised security model relies on subsequent decentralization of dispersal and on slashing becoming enforceable in practice _(early signal)_<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<h2>Limitations</h2>
+<ul>
+<li>The throughput and cost numbers in this report reflect the snapshot at writing. Both systems are moving fast (e.g. Celestia's Matcha/Fibre roadmap, EigenDA's V2/Blazar rollout) and several figures will likely change after publication<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</li>
+<li>EigenDA-specific slashing parameters are only partially documented at the time of writing; the EigenLayer slashing primitive itself is live<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>.</li>
+<li>The Manta Pacific–Celestia adoption story (<code>s14</code>) was access-limited at fetch time and is cited at headline level only. A primary press release or post-mortem would strengthen this claim.</li>
+<li>This report deliberately excludes other DA candidates (Avail, NEAR DA, EIP-4844 blobs) — comparing those is a separate study.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Mustafa Al-Bassam</span>. <a href="https://blog.celestia.org/celestia-a-scalable-general-purpose-data-availability-layer-for-decentralized-apps-and-trust-minimized-sidechains/">Celestia: A Scalable General-Purpose Data Availability Layer</a>. <span class="venue">blog.celestia.org, 2021</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://docs.celestia.org/learn/how-celestia-works/data-availability-layer">Celestia&#x27;s data availability layer</a>. <span class="venue">docs.celestia.org, 2024</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://www.coindesk.com/business/2023/10/31/celestia-mainnet-goes-live-as-580000-users-receive-airdrop">Celestia Airdrops TIA Token as Network Goes Live, Claims Start of &#x27;Modular Era&#x27;</a>. <span class="venue">CoinDesk, 2023</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://blog.eigencloud.xyz/intro-to-eigenda-hyperscale-data-availability-for-rollups/">Intro to EigenDA: Hyperscale Data Availability for Rollups</a>. <span class="venue">EigenCloud Blog, 2024</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://github.com/Layr-Labs/eigenda">EigenDA GitHub repository</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-6"><span class="authors">Mustafa Al-Bassam, Alberto Sonnino, Vitalik Buterin</span>. <a href="https://arxiv.org/abs/1809.09044">Fraud and Data Availability Proofs: Maximising Light Client Security and Scaling Blockchains with Dishonest Majorities</a>. <span class="venue">arXiv, 2018</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-7"><span class="authors">—</span>. <a href="https://docs.celestia.org/learn/celestia-101/data-availability/">Celestia&#x27;s data availability layer (Celestia 101)</a>. <span class="venue">docs.celestia.org, 2024</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-8"><span class="authors">Aniket Kate, Gregory M. Zaverucha, Ian Goldberg</span>. <a href="https://www.iacr.org/archive/asiacrypt2010/6477178/6477178.pdf">Constant-Size Commitments to Polynomials and Their Applications (KZG)</a>. <span class="venue">ASIACRYPT 2010, 2010</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-9"><span class="authors">—</span>. <a href="https://blog.eigencloud.xyz/eigenda-v2-core-architecture/">EigenDA V2: Core Architecture (Blazar)</a>. <span class="venue">EigenCloud Blog, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-10"><span class="authors">—</span>. <a href="https://github.com/celestiaorg/celestia-app">celestia-app GitHub repository</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-11"><span class="authors">—</span>. <a href="https://github.com/celestiaorg/nmt/blob/main/docs/spec/nmt.md">Namespaced Merkle Tree Specification</a>. <span class="venue">GitHub (celestiaorg/nmt), 2024</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-12"><span class="authors">—</span>. <a href="https://l2beat.com/data-availability/projects/celestia/blobstream">Celestia / Blobstream — L2BEAT</a>. <span class="venue">L2BEAT, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-13"><span class="authors">—</span>. <a href="https://docs.celestia.org/learn/blobstream/">Blobstream</a>. <span class="venue">docs.celestia.org, 2024</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-14"><span class="authors">—</span>. <a href="https://www.coindesk.com/tech/2024/04/09/eigenlayer-and-eigenda-launch-on-ethereum-mainnet">EigenLayer and EigenDA Launch on Ethereum Mainnet</a>. <span class="venue">CoinDesk, 2024</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-15"><span class="authors">—</span>. <a href="https://docs.l2beat.com/code_walkthroughs/dalayers/eigenda/index.html">EigenDA — L2 code walkthroughs</a>. <span class="venue">L2BEAT, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-16"><span class="authors">—</span>. <a href="https://blog.availproject.org/a-guide-to-selecting-the-right-data-availability-layer/">Choosing a Data Availability Layer: Avail vs Celestia vs EigenDA vs Ethereum</a>. <span class="venue">Avail Project Blog, 2024</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-17"><span class="authors">—</span>. <a href="https://blog.eigencloud.xyz/slashing-goes-live/">Slashing Goes Live on Mainnet</a>. <span class="venue">EigenCloud Blog, 2025</span>. <span class="accessed">Accessed 2026-05-20.</span></li>
+      <li id="ref-18"><span class="authors">—</span>. <a href="https://blockworks.co/news/layer-2-adopts-celestia-mainnet">Manta Pacific adopts Celestia, embraces native Ethereum yield</a>. <span class="venue">Blockworks, 2024</span>. <span class="accessed">Accessed 2026-05-20.</span> <span class="unverified">[access limited]</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-05-20. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

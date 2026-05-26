@@ -1,0 +1,10 @@
+title: 데이터 가용성 레이어(DA)로써의 Celestia 와 EigenDA의 특징과 기술적 기반, 차이점
+subtitle: Celestia와 EigenDA의 기술 구조, 신뢰 모델, 운영 특성을 비교한 모듈러 DA 레이어 리서치.
+title_en: Celestia vs EigenDA as Data Availability Layers — Features, Technical Foundations, and Differences
+subtitle_en: A comparative deep-dive into the architecture, trust model, and operational properties of two leading modular DA layers.
+slug: celestia-vs-eigenda-da
+lang: ko
+langs: [ko, en]
+date: 2026-05-20
+tags: [data-availability, celestia, eigenda, modular-blockchain, rollups]
+status: ready
