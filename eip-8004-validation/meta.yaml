@@ -1,0 +1,10 @@
+title: "EIP-8004 Validation: code-level verification of trustless agents"
+subtitle: "The Validation Registry at the Solidity level — request, response, accessors, and how zkML / TEE / re-execution validators plug in."
+title_ko: "EIP-8004 Validation — 신뢰 없는 에이전트의 코드 레벨 검증"
+subtitle_ko: "Validation Registry 의 Solidity 표면 — 요청·응답·읽기 접근자, 그리고 zkML·TEE·재실행 검증자가 어떻게 꽂히는지."
+slug: eip-8004-validation
+lang: en
+langs: [en, ko]
+date: 2026-05-26
+tags: [eip-8004, erc-8004, validation-registry, zkml, tee, ai-agents, ethereum]
+status: ready

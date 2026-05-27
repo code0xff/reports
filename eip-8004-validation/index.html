@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EIP-8004 Validation: code-level verification of trustless agents — Deepsearch</title>
+<meta name="description" content="The Validation Registry at the Solidity level — request, response, accessors, and how zkML / TEE / re-execution validators plug in.">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="ko" href="ko/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>EIP-8004 Validation: code-level verification of trustless agents</h1>
+    <p class="subtitle">The Validation Registry at the Solidity level — request, response, accessors, and how zkML / TEE / re-execution validators plug in.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-05-26</span>
+      <span><strong>Tags</strong> eip-8004, erc-8004, validation-registry, zkml, tee, ai-agents, ethereum</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="eip-8004-validation.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>EIP-8004's Validation Registry is the on-chain notarisation surface for verdicts on agent work. At the code level it is two write functions — <code>validationRequest(validatorAddress, agentId, requestURI, requestHash)</code> called by the agent owner, and <code>validationResponse(requestHash, response, responseURI, responseHash, tag)</code> called by the named validator — plus four read accessors added in the Jan 2026 spec update to make individual statuses and filterable summaries readable by other contracts. The standard is method-agnostic: re-execution AVSs, zkML verifiers (e.g. JOLT-Atlas), and TEE oracles (e.g. Phala's TEERegistry extension) all plug in by writing a <code>uint8</code> 0–100 score back. The registry deliberately does not specify validator economics or trust — those live in the wrapping protocol — which is both why deployment across Ethereum, Base, Arbitrum, Polygon, Optimism, and BNB Chain happened quickly in early 2026 and why "registry says 100" is not the same as "result is verified". Integrators should pick validators with backed economic guarantees, mint identities via the ERC-721 Identity Registry, commit work via keccak-256 hashes, and treat the Validation Registry as an auditable log rather than as oracle truth.</p>
+  </section>
+
+  <main class="body">
+<h1>EIP-8004 Validation — Code-Level Verification of Trustless Agents</h1>
+<h2>Introduction</h2>
+<p>EIP-8004 (also tracked as ERC-8004, "Trustless Agents") is an Ethereum standard whose stated purpose is to let agents from different organisations discover each other and establish trust on-chain without prior contractual relationships <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. It does this through three lightweight per-chain singletons — Identity, Reputation, and Validation <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. This report focuses narrowly on the <em>Validation</em> registry: what it actually is at the Solidity level, how a developer wires a verification flow through it, and what kinds of "verification" the standard does and does not give you.</p>
+<p>The standard's authors are deliberate that the Validation Registry is method-agnostic. Stake-secured re-execution, zkML proofs, and TEE oracles are all listed in the spec as legitimate validators, with the registry providing only the <em>hooks</em> to request and record their verdicts <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The on-chain code does not know whether the "response" recorded by a validator is the output of a re-executed inference, a verified ZK proof, or a TEE attestation digest — and that is by design <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<h2>Background — The three registries</h2>
+<p>The Identity Registry is an ERC-721 contract; each agent is a token whose <code>tokenId</code> is its <code>agentId</code>, and whose <code>tokenURI</code> (called <code>agentURI</code> in the spec) resolves to a JSON registration file describing the agent's services <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Agents are globally addressed by <code>agentRegistry = "{namespace}:{chainId}:{identityRegistry}"</code>, e.g. <code>eip155:1:0x742...</code> <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The Reputation Registry holds feedback signals keyed to those <code>agentId</code>s. The Validation Registry holds verifier verdicts — what this report is about.</p>
+<p>The three registries are independent contracts deployable as per-chain singletons; trust models are explicitly described as "pluggable and tiered, with security proportional to value at risk, from low-stake tasks like ordering pizza to high-stake tasks like medical diagnosis" <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Integrators choose which combination they care about. A consumer that only wants discovery can ignore Validation; a consumer that wants cryptographic re-execution evidence reads it.</p>
+<h2>The Validation Registry at the code level</h2>
+<p>The current spec (Jan 2026 update, also the version reflected in the ChaosChain reference implementation) exposes two write entry points and four read accessors <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p><strong>Request.</strong> The agent (or its operator) calls:</p>
+<pre><code>function validationRequest(
+    address validatorAddress,
+    uint256 agentId,
+    string  calldata requestURI,
+    bytes32 requestHash
+) external;</code></pre>
+<p>The function MUST be called by the owner or an approved operator of <code>agentId</code> — the reference implementation enforces this against the Identity Registry's ERC-721 ownership/operator state <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. <code>requestURI</code> points to the off-chain payload (inputs, outputs, anything the validator needs); <code>requestHash</code> is the keccak-256 commitment to that payload and acts as the request's identifier <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The reference implementation also enforces two non-spec safety checks: it rejects <code>validatorAddress == agentOwner</code> ("Self-validation not allowed") and refuses to overwrite a <code>requestHash</code> already in use <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>An event is emitted on success:</p>
+<pre><code>event ValidationRequest(
+    address indexed validatorAddress,
+    uint256 indexed agentId,
+    string requestURI,
+    bytes32 indexed requestHash
+);</code></pre>
+<p><strong>Response.</strong> Only the <code>validatorAddress</code> named in the request may call back:</p>
+<pre><code>function validationResponse(
+    bytes32 requestHash,
+    uint8   response,
+    string  calldata responseURI,
+    bytes32 responseHash,
+    string  calldata tag
+) external;</code></pre>
+<p><code>response</code> is a <code>uint8</code> in <code>[0, 100]</code>, intended either as binary (0 = failed, 100 = passed) or as a graded scalar for verifiers whose output is a spectrum <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. <code>responseURI</code>, <code>responseHash</code>, and <code>tag</code> are optional, where <code>tag</code> allows progressive states such as <code>"soft-final"</code> vs <code>"hard-final"</code> <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Importantly, the spec permits <code>validationResponse</code> to be called <em>multiple times</em> for the same <code>requestHash</code>, which is the mechanism used to advance a request through progressive states <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. There is <strong>no expiration window</strong> baked into the spec or the Jan 2026 reference contract — instead, the request stays open and can be re-answered, and integrators that need a deadline must impose one in the wrapping protocol _(unverified — single source: the canonical spec and reference implementation are themselves the primary sources; no third-party commentary on the absence of an expiration window was located)_.</p>
+<p><strong>Reads.</strong> The Jan 2026 spec introduced on-chain read accessors that earlier critiques had requested <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>:</p>
+<pre><code>function getValidationStatus(bytes32 requestHash) external view returns (
+    address validatorAddress,
+    uint256 agentId,
+    uint8 response,
+    bytes32 responseHash,
+    string memory tag,
+    uint256 lastUpdate
+);
+
+function getSummary(uint256 agentId, address[] calldata validatorAddresses, string calldata tag)
+    external view returns (uint64 count, uint8 averageResponse);
+
+function getAgentValidations(uint256 agentId)
+    external view returns (bytes32[] memory requestHashes);
+
+function getValidatorRequests(address validatorAddress)
+    external view returns (bytes32[] memory requestHashes);</code></pre>
+<p>These addressed a specific community critique from Ethereum Magicians, where spengrah objected that there was "no way in the current standard for an arbitrary smart contract to read the result of a validation response" and proposed adding a <code>getValidationResponse()</code> accessor <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Marco-MetaMask had argued that keeping the surface light was deliberate for gas-efficiency reasons and because "single feedback or validation won't be used to decide trust — people will always aggregate entries" <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The Jan 2026 update is a partial reconciliation: contracts <em>can</em> now read individual statuses and an on-chain average, but the spec still warns that real aggregation is expected off-chain, and the reference implementation explicitly comments that <code>getSummary</code> without filters may exceed gas limits for popular agents <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>The Validation Registry contract stores <code>(requestHash → Request)</code> and <code>(requestHash → Response)</code> mappings plus reverse indices keyed by <code>agentId</code> and by <code>validatorAddress</code> <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. State is append-only by construction: there are no delete paths in the reference implementation, and the spec's security section notes that "on-chain pointers and hashes cannot be deleted, ensuring audit-trail integrity" <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<h2>Verification methods plugged into the registry</h2>
+<p>What turns a <code>validationResponse(...)</code> call into actual trust is <em>who</em> the validator is and <em>what they did before calling back</em>. The spec is explicit that "validator smart contracts could use, for example, stake-secured inference re-execution, zkML verifiers or TEE oracles to validate or reject requests" and that "incentives and slashing related to validation are managed by the specific validation protocol and are outside the scope of this registry" <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p><strong>Stake-secured re-execution.</strong> A validator (typically an operator set, often described in commentary as an AVS-style design where an EigenLayer-style restaking layer collateralises operators) reads <code>requestURI</code>, re-runs the agent's task, and writes a 0–100 score back via <code>validationResponse</code> <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> _(interpretive — independent commentary describes the pattern; the registry itself is agnostic to it)_. The economic guarantee is entirely off-registry: the registry just stores the verdict.</p>
+<p><strong>zkML.</strong> The ICME write-up on JOLT-Atlas describes the flow as: "agent executes ML inference, JOLT-Atlas generates a ZK proof of execution, the dataHash commits to the proof and verification parameters, the validator contract verifies the proof on-chain, and the <code>ValidationResponse</code> records the verification result" <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. In code terms, the validator is a contract whose business logic is <code>verifyProof(...)</code> from a zkSNARK verifier, gated by <code>msg.sender == request.validatorAddress</code>. The same source is candid that this is practical for small models today and that large LLMs "still take minutes" of proving time <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> _(early signal)_.</p>
+<p><strong>TEE attestation.</strong> Phala's <code>erc-8004-tee-agent</code> adds a <code>TEERegistry</code> extension that records per-<code>agentId</code> keys as <code>(teeArch, codeMeasurement, pubkey, codeConfigUri, verifier)</code> tuples <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. <code>addKey</code> is gated on the verifier being whitelisted and is supposed to validate that "the TEE attestation is valid, the codeMeasurement matches the public input in the proof, and the pubkey matches the public input in the proof" <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. The TEE registry is a sibling rather than a replacement for the Validation Registry: the Validation Registry remains the place to record per-task verdicts, while the TEE Registry binds agent identity to a measurement of the code that produced those outputs.</p>
+<h2>End-to-end developer workflow</h2>
+<p>A minimal integrator flow against the Jan 2026 contracts looks like this <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>:</p>
+<p>1. <strong>Mint identity.</strong> Deploy or look up the per-chain <code>IdentityRegistry</code> singleton and mint an agent NFT whose <code>agentURI</code> resolves to the registration file (services list — A2A, MCP, OASF endpoints, ENS, wallet addresses) <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 2. <strong>Pick a validator.</strong> Choose a contract address that implements your trust model (re-execution AVS, zkML verifier, TEE-attested oracle). The registry does not enumerate validators; discovery happens via the registration file or via the off-chain agent ecosystem <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 3. <strong>Commit work.</strong> Compute <code>requestHash = keccak256(payload)</code> where <code>payload</code> contains everything the validator needs (inputs, outputs, any intermediate state). Upload the payload to <code>requestURI</code> (IPFS, HTTPS, etc.). 4. <strong>Request validation.</strong> Call <code>validationRequest(validatorAddress, agentId, requestURI, requestHash)</code> as the agent owner/operator <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. 5. <strong>Validator responds.</strong> The validator pulls the payload from <code>requestURI</code>, performs its method-specific check, and calls <code>validationResponse(requestHash, response, responseURI, responseHash, tag)</code> from the address it was registered as <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. 6. <strong>Consume.</strong> Off-chain consumers listen for the <code>ValidationResponse</code> event; on-chain composers call <code>getValidationStatus(requestHash)</code> or <code>getSummary(agentId, validators, tag)</code>. The reference implementation explicitly recommends filtering by validator and/or tag for popular agents because unfiltered <code>getSummary</code> can exceed gas limits <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>Tooling that smooths these calls is concentrated around two repositories. <code>erc-8004/erc-8004-contracts</code> is the canonical CC0-licensed registry, shipped with upgradeable (UUPS) variants (<code>IdentityRegistryUpgradeable.sol</code>, <code>ReputationRegistryUpgradeable.sol</code>, <code>ValidationRegistryUpgradeable.sol</code>) <sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. <code>ChaosChain/trustless-agents-erc-ri</code> is the Jan 2026 reference implementation that most third-party SDKs target, including <code>create-8004-agent</code>, <code>erc-8004-js</code>, <code>erc-8004-py</code>, the Agent0 SDK (JS + Python), and chaoschain-sdk; Agent0 also publishes a subgraph for multi-chain indexing <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p>As of early 2026, ERC-8004 contracts are deployed on Ethereum mainnet, Base, Arbitrum, Polygon, Optimism, and BNB Chain, with BNB Chain explicitly positioning itself as "an early hub for agent systems that require low fees and fast execution" <sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Reported registration counts — over 45,000 agents protocol-wide within the first month, around 24,000 on Ethereum-based deployments — come from ecosystem trackers (8004 Scan) rather than independent on-chain audits and should be treated as directional _(vendor-stated)_ <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<h2>Analysis &amp; limitations</h2>
+<p><strong>Composability is partially solved, not fully.</strong> The Jan 2026 read accessors <code>getValidationStatus</code> / <code>getSummary</code> directly answer the spengrah critique that arbitrary contracts could not see validation results <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. But the spec still pushes serious aggregation off-chain: <code>getSummary</code> is documented (in code comments) as designed for off-chain consumption and as risky to call unfiltered <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. On-chain composers should treat the registry as a notarised log, not an oracle.</p>
+<p><strong>Validator economics are out of scope.</strong> Both QuillAudits and Composable Security flag that ERC-8004 "does not specify economic incentives for validators; security depends on composing higher-level protocols" <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. The spec confirms this: "Incentives and slashing related to validation are managed by the specific validation protocol and are outside the scope of this registry" <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. A high <code>response</code> score from a validator with no stake means nothing.</p>
+<p><strong>Self-validation is contract-prevented, validator quality is not.</strong> The reference contract refuses calls where <code>validatorAddress == agentOwner</code> or where the requester names themselves as validator <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. But beyond that, registration as a "validator" is permissionless: the registry will accept any address. Trust has to be sourced from a layer outside EIP-8004 — staking, attestation, social, or audit-driven <sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<p><strong>Single-aggregate score risk.</strong> Daniel-Ospina raised on Magicians that single-score aggregation can facilitate monopolistic or biased reputation <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The Jan 2026 update mitigates by letting consumers filter <code>getSummary</code> by validator address and by tag, but it does not eliminate the risk — an integrator that just calls <code>getSummary(agentId, [], "")</code> gets the unfiltered mean and inherits whatever bias the dominant validators carry.</p>
+<p><strong>The spec is mid-flight.</strong> Both the canonical repo's <code>ERC8004SPEC.md</code> and the ChaosChain reference carry an explicit warning that "this section is still under active updates with the TEE community. Expect further changes later in 2026. Consider this EXPERIMENTAL." <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. The function signatures shown here are accurate at the time of writing but may shift.</p>
+<h2>Discussion</h2>
+<p>EIP-8004 in 2026 has the shape of an infrastructure standard that won the easy part (Identity), the medium part (Reputation), and is iterating on the hard part (Validation). The Validation Registry as it stands is intentionally a thin notarisation layer — it commits <em>who said what about which task</em> — and offloads every interesting question (what counts as a valid proof, who pays for being wrong, who aggregates the signals) to whatever protocol sits above. That minimalism is the source of both its rapid cross-chain deployment <sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> and its main critique: a developer who treats <code>response == 100</code> as trust will be disappointed, because the registry does not vouch for the validator.</p>
+<p>Compared to off-chain attestation stacks like EAS (Ethereum Attestation Service) or AVS-mediated trust layers, EIP-8004 occupies a narrower niche: it is <em>specifically</em> the agent-discovery + per-task verdict-recording surface, not a general attestation framework. The standard's traction comes from co-positioning with agent-payment protocols (x402, AP2) — Validation answers the question "did this agent do the thing I paid for" in a way that downstream payment rails can read <sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+<h2>Limitations</h2>
+<p>This report does not cover: (1) formal verification or detailed audit findings on the registry contracts; (2) non-EVM ports (a TRON SDK exists <sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> but was not exercised here); (3) the Reputation Registry's feedback semantics beyond what is necessary to understand Validation; (4) the agent-side cryptography for binding TEE attestations to specific inferences (Phala-side concerns); (5) economic modelling of validator marketplaces. Several pieces — especially zkML throughput numbers and adoption counts — depend on vendor-stated metrics that this report flagged but did not independently verify.</p>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Marco De Rossi, Davide Crapis, Jordan Ellis, Erik Reppel</span>. <a href="https://eips.ethereum.org/EIPS/eip-8004">ERC-8004: Trustless Agents</a>. <span class="venue">Ethereum Improvement Proposals, 2025</span>. <span class="accessed">Accessed 2026-05-26.</span></li>
+      <li id="ref-2"><span class="authors">ERC-8004 authors</span>. <a href="https://github.com/erc-8004/erc-8004-contracts/blob/master/ERC8004SPEC.md">ERC-8004 Spec (Jan 2026 Update) — Validation Registry section</a>. <span class="venue">GitHub (erc-8004/erc-8004-contracts), 2026</span>. <span class="accessed">Accessed 2026-05-26.</span></li>
+      <li id="ref-3"><span class="authors">Composable Security</span>. <a href="https://composable-security.com/blog/erc-8004-a-practical-explainer-for-trustless-agents/">ERC-8004: a practical explainer for trustless agents</a>. <span class="venue">Composable Security blog, 2025</span>. <span class="accessed">Accessed 2026-05-26.</span></li>
+      <li id="ref-4"><span class="authors">ChaosChain Labs</span>. <a href="https://github.com/ChaosChain/trustless-agents-erc-ri/blob/main/src/ValidationRegistry.sol">ValidationRegistry.sol — Reference Implementation (Jan 2026 Update)</a>. <span class="venue">GitHub (ChaosChain/trustless-agents-erc-ri), 2026</span>. <span class="accessed">Accessed 2026-05-26.</span></li>
+      <li id="ref-5"><span class="authors">davidecrapis.eth, spengrah, pcarranzav, daniel-ospina, Marco-MetaMask</span>. <a href="https://ethereum-magicians.org/t/erc-8004-trustless-agents/25098">ERC-8004: Trustless Agents — discussions</a>. <span class="venue">Ethereum Magicians forum, 2025</span>. <span class="accessed">Accessed 2026-05-26.</span></li>
+      <li id="ref-6"><span class="authors">Bitcoin Ethereum News</span>. <a href="https://bitcoinethereumnews.com/tech/erc-8004-mainnet-launch-what-this-agent-protocol-actually-does/">ERC-8004 Mainnet Launch: What This Agent Protocol Actually Does</a>. <span class="venue">BitcoinEthereumNews, 2026</span>. <span class="accessed">Accessed 2026-05-26.</span></li>
+      <li id="ref-7"><span class="authors">Wyatt Benno</span>. <a href="https://blog.icme.io/trustless-agents-with-zkml/">Trustless Agents — with zkML (JOLT-Atlas)</a>. <span class="venue">ICME blog, 2025</span>. <span class="accessed">Accessed 2026-05-26.</span></li>
+      <li id="ref-8"><span class="authors">Phala Network</span>. <a href="https://github.com/Phala-Network/erc-8004-tee-agent">Phala-Network/erc-8004-tee-agent — ERC-8004 Compliant TEE Agent with TEE Registry Extension</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-26.</span></li>
+      <li id="ref-9"><span class="authors">sudeepb02</span>. <a href="https://github.com/sudeepb02/awesome-erc8004">awesome-erc8004 — curated list of ERC-8004 resources</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-26.</span></li>
+      <li id="ref-10"><span class="authors">ERC-8004 team</span>. <a href="https://github.com/erc-8004/erc-8004-contracts">erc-8004/erc-8004-contracts — canonical CC0 registry contracts (Identity/Reputation/Validation, Upgradeable)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-26.</span></li>
+      <li id="ref-11"><span class="authors">Bankless Times</span>. <a href="https://www.banklesstimes.com/articles/2026/02/04/bnb-chain-backs-erc-8004-for-on-chain-ai-identities/">BNB Chain Backs ERC-8004 for On-chain AI Identities</a>. <span class="venue">Bankless Times, 2026</span>. <span class="accessed">Accessed 2026-05-26.</span></li>
+      <li id="ref-12"><span class="authors">QuillAudits</span>. <a href="https://www.quillaudits.com/blog/smart-contract/erc-8004">ERC-8004: Infrastructure for Autonomous AI Agents</a>. <span class="venue">QuillAudits blog, 2025</span>. <span class="accessed">Accessed 2026-05-26.</span></li>
+      <li id="ref-13"><span class="authors">CoinDesk</span>. <a href="https://www.coindesk.com/markets/2026/01/28/ethereum-s-erc-8004-aims-to-put-identity-and-trust-behind-ai-agents">Ethereum&#x27;s ERC-8004 aims to put identity and trust behind AI agents</a>. <span class="venue">CoinDesk, 2026</span>. <span class="accessed">Accessed 2026-05-26.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-05-26. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
