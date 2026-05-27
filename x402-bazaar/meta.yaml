@@ -1,0 +1,10 @@
+title: x402 Bazaar — 에이전트용 x402 서비스 디스커버리 레이어 분석
+subtitle: CDP Facilitator가 정산 시점에 자동 인덱싱하는 서비스 카탈로그, /v2/x402/discovery 엔드포인트, MCP 서버, 그리고 declareDiscoveryExtension 코드 분석
+title_en: x402 Bazaar — The x402 Service Discovery Layer for Agents
+subtitle_en: The settlement-time auto-indexed service catalog, the /v2/x402/discovery endpoints, the MCP server, and a code-level read of declareDiscoveryExtension
+slug: x402-bazaar
+lang: ko
+langs: [ko, en]
+date: 2026-05-27
+tags: [x402, bazaar, discovery, coinbase, cdp-facilitator, mcp, ai-agents, service-discovery, usdc, base]
+status: ready

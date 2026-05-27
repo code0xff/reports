@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>x402 Bazaar — The x402 Service Discovery Layer for Agents — Deepsearch</title>
+<meta name="description" content="The settlement-time auto-indexed service catalog, the /v2/x402/discovery endpoints, the MCP server, and a code-level read of declareDiscoveryExtension">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>x402 Bazaar — The x402 Service Discovery Layer for Agents</h1>
+    <p class="subtitle">The settlement-time auto-indexed service catalog, the /v2/x402/discovery endpoints, the MCP server, and a code-level read of declareDiscoveryExtension</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-05-27</span>
+      <span><strong>Tags</strong> x402, bazaar, discovery, coinbase, cdp-facilitator, mcp, ai-agents, service-discovery, usdc, base</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="x402-bazaar.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>If the x402 protocol solved "how does an agent pay," the <strong>x402 Bazaar</strong> solves the question left on top of it: "how does an agent know which paid services even exist?"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> Coinbase launched it on 10 September 2025<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. It auto-indexes x402 endpoints that the CDP Facilitator has <em>settled</em>, cataloguing them with semantic descriptions, payment metadata, and on-chain trust signals<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The defining design choice is that <strong>there is no registration step</strong> — "There is no separate registration step. The CDP Facilitator catalogs your service the first time it settles a payment for that endpoint"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. This report analyses, from primary docs and example code, (1) the settlement-triggered indexing model and resource schema, (2) the four <code>/v2/x402/discovery</code> endpoints — resources, search, merchant, mcp, and (3) the <code>declareDiscoveryExtension</code> of <code>@x402/extensions/bazaar</code> plus the <code>discoverable:true</code> / <code>wrapFetchWithPayment</code> code in <code>x402-express</code>.</p>
+  </section>
+
+  <main class="body">
+<h1>x402 Bazaar — The x402 Service Discovery Layer for Agents</h1>
+<h2>1. Introduction — The discovery problem in x402</h2>
+<p>x402 standardised "a client pays for a gated resource in one round trip" on top of HTTP 402<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. But the payment flow assumes the <em>client already knows which endpoint to call</em>. In autonomous-agent scenarios that assumption breaks — you must first know "where is the paid API that sells the data I need" before there is anything to pay for. The Bazaar fills exactly that slot as x402's discovery layer — "a discovery system enabling developers and AI agents to browse and search for x402-enabled services that are cataloged through the CDP Facilitator"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Press coverage framed it as the "AI agents' marketplace"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<h2>2. Background — Where the Bazaar sits</h2>
+<h3>2.1 Why the facilitator is the indexer</h3>
+<p>The x402 facilitator brokers payment verification (<code>/verify</code>) and settlement (<code>/settle</code>) so sellers don't have to run blockchain infrastructure — "The facilitator handles payment verification and settlement so that sellers don't need to maintain their own blockchain infrastructure"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. Because it sees all settlement traffic, it is also the party best positioned to know "which endpoints are actually receiving payments." The Bazaar turns that vantage point into an index<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Coinbase's hosted facilitator states it charges no facilitator fee for USDC on Base<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<h3>2.2 The x402 standard is facilitator-agnostic</h3>
+<p>The x402 GitBook likewise defines the Bazaar as "the discovery layer of x402, letting clients enumerate facilitator-cataloged resources"<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. That said, the Bazaar itself is a CDP-Facilitator-bound implementation, while the x402 standard is facilitator-agnostic<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. So the Bazaar is best read as "a discovery service Coinbase built on top of x402" — a layer above the standard, not part of it _(interpretive)_<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h2>3. Architecture — How the Bazaar works</h2>
+<h3>3.1 Settlement-triggered auto-indexing</h3>
+<p>The Bazaar's most important design decision is that <strong>registration derives from settlement</strong><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Four conditions are needed for a service to be indexed<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>:</p>
+<p>1. Register <code>bazaarResourceServerExtension</code>. 2. Attach <code>declareDiscoveryExtension()</code> on the route. 3. Include <code>paymentPayload.resource</code> in the settlement payload. 4. Complete at least one successful settlement.</p>
+<p>So only "an endpoint that has actually been paid once" lands in the catalogue — an automatic, weak sybil resistance ("a settlement is proof of existence"). Resources with no activity in 30 days are excluded, but newly indexed resources with no calls yet are exempt from that filter<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<h3>3.2 Resource schema</h3>
+<p>Each indexed resource carries<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>:</p>
+<table><thead><tr><th>Field</th><th>Meaning</th></tr></thead><tbody><tr><td><code>resource</code></td><td>the monetized endpoint URL</td></tr><tr><td><code>type</code></td><td>protocol (currently <code>"http"</code>)</td></tr><tr><td><code>x402Version</code></td><td>supported protocol version</td></tr><tr><td><code>accepts</code></td><td>array of payment requirements (scheme/network/amount/asset/payTo)</td></tr><tr><td><code>lastUpdated</code></td><td>ISO 8601 timestamp</td></tr><tr><td><code>metadata</code></td><td>optional description + Bazaar input/output schemas and examples</td></tr></tbody></table>
+<h3>3.3 Quality ranking</h3>
+<p>Search blends two signals<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>:</p>
+<ul>
+<li><strong>Retrieval relevance</strong> — hybrid full-text + semantic search.</li>
+<li><strong>Service quality</strong> — (a) distinct buyers in 30 days (buyer reach), (b) transaction volume, (c) recency, (d) metadata completeness.</li>
+</ul>
+<p>Quality metrics are recomputed on a 6-hour schedule, so new payments do not immediately move rankings<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<h2>4. Discovery API &amp; MCP</h2>
+<p>The Bazaar exposes four endpoints under the CDP platform API<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<h3>4.1 Catalog — <code>GET /platform/v2/x402/discovery/resources</code></h3>
+<p>Returns an <code>items</code> array newest-first with <code>limit</code> (default 100, max 1000) and <code>offset</code> pagination<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. For inventory-style walking of the full catalogue.</p>
+<h3>4.2 Semantic search — <code>GET /platform/v2/x402/discovery/search</code></h3>
+<p>Takes <code>query</code> (max 400 chars) plus <code>network</code>/<code>asset</code>/<code>scheme</code>/<code>payTo</code>/<code>maxUsdPrice</code>/<code>extensions</code> filters and returns up to 20 results — "optimized for query, filters, and quality ranking, not for walking the full catalog"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<h3>4.3 Merchant lookup — <code>GET /platform/v2/x402/discovery/merchant?payTo=&lt;address&gt;</code></h3>
+<p>Finds resources payable to a specific wallet address<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<h3>4.4 MCP server — <code>GET /platform/v2/x402/discovery/mcp</code></h3>
+<p>The Bazaar also exposes a Model Context Protocol server<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> with two tools:</p>
+<ul>
+<li><strong><code>search_resources</code></strong> — semantic search returning matching descriptions, pricing, and schemas in relevance order.</li>
+<li><strong><code>proxy_tool_call</code></strong> — calls a discovered resource by <code>toolName</code> and <code>arguments</code>.</li>
+</ul>
+<p>The client-side <code>@x402/mcp</code> wraps a standard MCP client with automatic payment handling — "the @x402/mcp client automatically creates a payment payload and retries if payment is required"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The agent never touches wallets or signing; it just "searches → calls."</p>
+<h2>5. Code analysis — server and client</h2>
+<h3>5.1 Server side — <code>declareDiscoveryExtension</code></h3>
+<p>The discovery extension ships as <code>@x402/extensions/bazaar</code> — "Facilitators catalog paid HTTP or MCP tools from server-declared input/output hints"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. The x402-foundation repo's <code>bazaar.ts</code> attaches <code>declareDiscoveryExtension</code> to a route's <code>extensions</code><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>:</p>
+<pre><code>extensions: {
+  ...declareDiscoveryExtension({
+    input: { city: &quot;San Francisco&quot; },
+    inputSchema: {
+      properties: { city: { type: &quot;string&quot; } },
+      required: [&quot;city&quot;],
+    },
+    output: {
+      example: { city: &quot;San Francisco&quot;, weather: &quot;foggy&quot;, temperature: 60 },
+    },
+  }),
+}</code></pre>
+<p><code>inputSchema</code> tells an agent how to call the tool (the parameter shape), and <code>output.example</code> shows what the response looks like ahead of time — these two schemas are what let an agent "self-configure" without a human once the resource is in the Bazaar<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<h3>5.2 Server side — the <code>x402-express</code> shorthand</h3>
+<p>In <code>x402-express</code>'s <code>paymentMiddleware</code>, putting <code>discoverable: true</code> and <code>inputSchema</code> in the route config achieves the same effect<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>:</p>
+<pre><code>app.use(
+  paymentMiddleware(
+    &quot;0xB1De43C2Ca1195258FEE160adAcB1820c3776B7D&quot;,
+    {
+      &quot;POST /rps/play&quot;: {
+        price: &quot;$0.001&quot;,
+        network: &quot;base&quot;,
+        config: {
+          name: &quot;Rock-Paper-Scissors&quot;,
+          discoverable: true,
+          inputSchema: {
+            type: &quot;object&quot;,
+            properties: { move: { type: &quot;string&quot;, enum: [&quot;rock&quot;, &quot;paper&quot;, &quot;scissors&quot;] } },
+          },
+        },
+      },
+    },
+    { facilitator },
+  ),
+);</code></pre>
+<p>Once this server settles one <code>$0.001</code> payment, <code>POST /rps/play</code> is auto-listed in the Bazaar catalogue<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<h3>5.3 Buyer side — <code>listCatalog</code> + <code>wrapFetchWithPayment</code></h3>
+<p>The buying agent fetches the catalogue, then calls a discovered resource through <code>x402-fetch</code>'s <code>wrapFetchWithPayment</code>, which performs the 402 auto-payment retry<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>:</p>
+<pre><code>const listCatalog = async () =&gt; {
+  const r = await fetch(&quot;https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources&quot;);
+  return r.json();
+};
+
+const fetchWithPayment = wrapFetchWithPayment(fetch, cdpAccount);
+const catalog = await listCatalog();
+const service = catalog.items[0];
+const response = await fetchWithPayment(service.resource, {
+  method: &quot;POST&quot;,
+  headers: { &quot;Content-Type&quot;: &quot;application/json&quot; },
+  body: JSON.stringify({ move: &quot;rock&quot; }),
+});</code></pre>
+<p>The flow is <strong>Discovery → 402 Response → Facilitator Settlement → Retry with Proof → Paid Result</strong>, with no account creation required<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<h2>6. Discussion — observations and limits</h2>
+<h3>6.1 Trust signals replacing SEO</h3>
+<p>On the traditional web, service discovery leans on SEO, reviews, and directories. The Bazaar replaces that with <strong>on-chain transaction activity</strong> (distinct buyers, volume, recency)<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The service that ranks highest is not "the one humans searched/linked most" but "the one agents actually paid for most" — a ranking mechanism tuned for the agent economy _(interpretive)_<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<h3>6.2 The double edge of auto-indexing</h3>
+<p>No registration step drops the entry barrier to zero, but "one settlement and you're listed" leaves room for sybil/spam listings. The 30-day inactivity exclusion<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> and quality ranking<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> are partial defences, but the fact that a newly indexed resource is exempt from the inactivity filter after just one settlement remains a weakness _(interpretive)_.</p>
+<h3>6.3 Central facilitator dependency</h3>
+<p>The Bazaar uses the CDP Facilitator as its indexer, so "which services get discovered" is bound to one facilitator's settlement vantage point<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The x402 standard is facilitator-agnostic<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, so in principle another facilitator could run its own Bazaar-style index — but as of this writing the live Bazaar is CDP-hosted.</p>
+<h3>6.4 Comparison with MPP and Circle</h3>
+<p>Circle's Agent Marketplace (<a href="../circle-api-storefront-for-agents/"><code>circle-api-storefront-for-agents</code></a>) targets the same "agent service discovery" slot. MPP does not mandate a discovery standard — see the sister report <a href="../mpp-spec-and-payment-flows/"><code>mpp-spec-and-payment-flows</code></a>. Of these, the Bazaar is the most automated in that it indexes facilitator settlement data directly _(interpretive)_.</p>
+<h2>7. Limitations</h2>
+<ul>
+<li>This report reflects primary docs and example code as of 27 May 2026. The Coinbase launch page<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> was access-limited at fetch time, so the launch date (2025-09-10) and "self-improving / self-configuring" framing are corroborated via Yahoo<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> and MEXC<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</li>
+<li>The exact quality-ranking weights are not published; this report covers only the signal list (buyer reach / volume / recency / metadata).</li>
+<li>The "200 ms" settlement figure is a Coinbase/coverage claim, with Yahoo itself noting real-world end-to-end is typically 300–500 ms once network latency is included<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</li>
+<li>Whether non-CDP facilitators run independent Bazaar indexes is unconfirmed as of this writing.</li>
+<li>The <code>declareDiscoveryExtension</code> API surface is captured from the <code>bazaar.ts</code> example<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>; field names may shift across x402 V2 releases.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Coinbase, x402 Foundation</span>. <a href="https://github.com/coinbase/x402">coinbase/x402 — payments protocol</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-27.</span></li>
+      <li id="ref-2"><span class="authors">Coinbase Developer Platform</span>. <a href="https://docs.cdp.coinbase.com/x402/bazaar">x402 Bazaar (Discovery Layer) — Coinbase Developer Documentation</a>. <span class="venue">docs.cdp.coinbase.com, 2026</span>. <span class="accessed">Accessed 2026-05-27.</span></li>
+      <li id="ref-3"><span class="authors">MEXC News</span>. <a href="https://www.mexc.com/news/coinbase-presents-x402-bazaar-the-ai-agents-marketplace-they-pay-apis-in-200-ms-and-configure-themselves/92906">Coinbase presents x402 Bazaar, the AI agents&#x27; marketplace</a>. <span class="venue">mexc.com, 2025</span>. <span class="accessed">Accessed 2026-05-27.</span></li>
+      <li id="ref-4"><span class="authors">Coinbase Developer Platform</span>. <a href="https://docs.cdp.coinbase.com/x402/welcome">Welcome to x402 — Coinbase Developer Documentation</a>. <span class="venue">docs.cdp.coinbase.com, 2026</span>. <span class="accessed">Accessed 2026-05-27.</span></li>
+      <li id="ref-5"><span class="authors">Yahoo Finance</span>. <a href="https://finance.yahoo.com/news/ai-agents-now-pay-apis-105821945.html">AI agents can now pay APIs with USDC in 200 ms as Coinbase activates x402 Bazaar</a>. <span class="venue">finance.yahoo.com, 2025</span>. <span class="accessed">Accessed 2026-05-27.</span></li>
+      <li id="ref-6"><span class="authors">x402</span>. <a href="https://x402.gitbook.io/x402/core-concepts/bazaar-discovery-layer">Bazaar (Discovery Layer) — x402 GitBook</a>. <span class="venue">x402.gitbook.io, 2026</span>. <span class="accessed">Accessed 2026-05-27.</span> <span class="unverified">[access limited]</span></li>
+      <li id="ref-7"><span class="authors">x402 Foundation</span>. <a href="https://github.com/x402-foundation/x402/tree/main/typescript/packages/extensions">x402 @x402/extensions packages directory</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-27.</span></li>
+      <li id="ref-8"><span class="authors">x402 Foundation</span>. <a href="https://raw.githubusercontent.com/x402-foundation/x402/main/examples/typescript/servers/advanced/bazaar.ts">x402 advanced server example — bazaar.ts</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-27.</span></li>
+      <li id="ref-9"><span class="authors">HeimLabs</span>. <a href="https://medium.com/@heimlabs/ship-a-402-powered-api-bazaar-with-x402-from-discovery-to-paid-response-in-one-script-cf08f3853b05">Ship an x402-Powered API with Bazaar: From Discovery to Paid Response in One Script</a>. <span class="venue">Medium, 2026</span>. <span class="accessed">Accessed 2026-05-27.</span></li>
+      <li id="ref-10"><span class="authors">Coinbase</span>. <a href="https://www.coinbase.com/developer-platform/discover/launches/x402-bazaar">Introducing x402 Bazaar: An index for self-improving AI agents</a>. <span class="venue">coinbase.com, 2025</span>. <span class="accessed">Accessed 2026-05-27.</span> <span class="unverified">[access limited]</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-05-27. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
