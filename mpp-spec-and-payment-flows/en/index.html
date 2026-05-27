@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tempo MPP Spec and Technical Structure — Intents and Per-Method Payment Flows — Deepsearch</title>
+<meta name="description" content="A technical reference for the &quot;Payment&quot; HTTP authentication scheme, the charge/session/subscription intents, and the per-method flows for Tempo, Stripe, Stellar, and more">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>Tempo MPP Spec and Technical Structure — Intents and Per-Method Payment Flows</h1>
+    <p class="subtitle">A technical reference for the &quot;Payment&quot; HTTP authentication scheme, the charge/session/subscription intents, and the per-method flows for Tempo, Stripe, Stellar, and more</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-05-27</span>
+      <span><strong>Tags</strong> mpp, tempo, stripe, http-402, payment-auth, intents, charge, session, subscription, stellar, solana, lightning, ai-agents, ietf</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="mpp-spec-and-payment-flows.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>This report dissects Tempo and Stripe's <strong>Machine Payments Protocol (MPP)</strong> at the level of its specification rather than its marketing. The foundation is the IETF Internet-Draft "Payment" HTTP Authentication Scheme (<code>draft-ryan-httpauth-payment-01</code>, co-authored by Tempo Labs and Stripe)<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, on top of which sit (a) three <strong>intents</strong> — <code>charge</code>, <code>session</code>, <code>subscription</code><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> — and (b) payment <strong>methods</strong> (Tempo, Stripe, Stellar, Solana, Lightning, Card) registered separately<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. The core flow is a three-step <strong>challenge → credential → receipt</strong> cycle over HTTP 402: the server issues a <code>WWW-Authenticate: Payment</code> challenge, the client retries with an <code>Authorization: Payment</code> credential, and the server confirms settlement with a <code>Payment-Receipt</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. The report lays out, from primary sources, (1) the header grammar and status codes, (2) the fields and flows of the three intents, and (3) the per-method behaviour, quoting Stripe's <code>mppx</code> code and Stellar's Soroban-channel code to trace what actually crosses the wire.</p>
+  </section>
+
+  <main class="body">
+<h1>Tempo MPP Spec and Technical Structure — Intents and Per-Method Payment Flows</h1>
+<h2>1. Introduction — What MPP standardises</h2>
+<p>MPP standardises "an AI pays for something" inside a single HTTP request. mpp.dev's one-liner — "MPP (Machine Payments Protocol) is the open standard for machine-to-machine payments via HTTP 402"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. External coverage agrees — "Stripe and Tempo's Machine Payments Protocol (MPP) is an open HTTP-native standard for billing AI agents"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Its foundation splits two ways.</p>
+<ul>
+<li><strong>core (payment-method agnostic)</strong> — an HTTP authentication grammar independent of the payment rail. The IETF "Payment" scheme occupies this slot<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</li>
+<li><strong>extensions (method-specific)</strong> — per-rail specs for Tempo stablecoins, Stripe SPT, Stellar SEP-41, and so on. The <code>mpp-specs</code> repo phrases it as a "payment-method agnostic core alongside extensions for specific payment method flows"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</li>
+</ul>
+<p>This two-layer split lets a third party (e.g. Visa) add a card-based method spec independently — the design decision this report treats as the most important one _(interpretive)_<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<h2>2. The "Payment" HTTP Authentication Scheme (draft)</h2>
+<h3>2.1 Authors, governance, license</h3>
+<p>The base standard is IETF <code>draft-ryan-httpauth-payment-01</code>, authored by Tempo Labs' Brendan Ryan, Jake Moxey, and Tom Meagher, and Stripe's Jeff Weinstein and Steve Kaliski<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. The spec text is CC0 1.0 (public domain) and the tooling is dual Apache-2.0/MIT, hosted at <code>tempoxyz/mpp-specs</code><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<h3>2.2 The <code>WWW-Authenticate: Payment</code> grammar</h3>
+<p>The challenge a server sends to demand payment carries these parameters<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>:</p>
+<table><thead><tr><th>Param</th><th>Required</th><th>Meaning</th></tr></thead><tbody><tr><td><code>id</code></td><td>✓</td><td>challenge identifier bound to the parameters</td></tr><tr><td><code>realm</code></td><td>✓</td><td>RFC 9110 protection space</td></tr><tr><td><code>method</code></td><td>✓</td><td>payment-method identifier (lowercase ASCII)</td></tr><tr><td><code>intent</code></td><td>✓</td><td>a registered payment-intent type</td></tr><tr><td><code>request</code></td><td>✓</td><td>method-specific data (JCS-serialised, base64url JSON)</td></tr><tr><td><code>expires</code></td><td>✗</td><td>RFC 3339 expiry</td></tr><tr><td><code>digest</code></td><td>✗</td><td>RFC 9530 content digest (binds the request body)</td></tr><tr><td><code>description</code></td><td>✗</td><td>human-readable purpose</td></tr><tr><td><code>opaque</code></td><td>✗</td><td>server correlation data (base64url JSON string map)</td></tr></tbody></table>
+<p>The spec mandates "Unknown parameters MUST be ignored by clients"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Critically, <strong>a single response can carry multiple <code>WWW-Authenticate: Payment</code> lines</strong> — the server offers Tempo and Stripe at once and the client picks one to pay<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<h3>2.3 The <code>Authorization: Payment</code> credential</h3>
+<p>After paying, the client's retry carries a base64url JSON credential with three fields<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>:</p>
+<pre><code>{
+  &quot;challenge&quot;: { &quot;id&quot;: &quot;...&quot;, &quot;realm&quot;: &quot;...&quot;, &quot;method&quot;: &quot;...&quot;, &quot;intent&quot;: &quot;...&quot;, &quot;request&quot;: &quot;...&quot;, &quot;expires&quot;: &quot;...&quot;, &quot;opaque&quot;: &quot;...&quot;, &quot;digest&quot;: &quot;...&quot; },
+  &quot;source&quot;: &quot;did:key:...&quot;,
+  &quot;payload&quot;: { }
+}</code></pre>
+<ul>
+<li><code>challenge</code> — echoes back the server's challenge.</li>
+<li><code>source</code> — (optional) a W3C DID identifying the payment source.</li>
+<li><code>payload</code> — method-specific proof (an EIP-712 signature for Tempo, an SPT for Stripe, etc.).</li>
+</ul>
+<h3>2.4 The <code>Payment-Receipt</code> header</h3>
+<p>A receipt is issued only on a 2xx response — "Receipts are only issued on successful payment responses (2xx status codes)"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Its JSON carries <code>status</code>, <code>method</code>, <code>timestamp</code>, and <code>reference</code><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<h3>2.5 Status codes and the problem registry</h3>
+<p>MPP deliberately separates three status codes — "402 = Payment barrier (initial challenge or retry needed); 401 = Authentication failure unrelated to payment; 403 = Payment succeeded but access denied by policy"<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Failures return RFC 9457 Problem Details (<code>application/problem+json</code>); the registry base is <code>https://paymentauth.org/problems/</code> and defines types such as <code>payment-required</code>, <code>payment-insufficient</code>, <code>payment-expired</code>, <code>verification-failed</code>, <code>method-unsupported</code>, <code>malformed-credential</code>, and <code>invalid-challenge</code><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. A malformed, expired, reused, or failed credential always returns a <strong>402 with a fresh challenge attached</strong><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>For security the spec mandates TLS 1.2+ ("Servers MUST NOT issue Payment challenges over unencrypted HTTP") and forbids logging credentials ("Servers and intermediaries MUST NOT log Payment credentials")<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<h3>2.6 The intent / method registries</h3>
+<p>Intents and methods are two separate registries. A method spec must define (1) an identifier (lowercase ASCII), (2) the JSON schema for the challenge's <code>request</code> parameter, (3) the JSON schema for the credential's <code>payload</code>, and (4) the verification procedure<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Those four pieces are the contract a method extension must satisfy.</p>
+<h2>3. Intents — Payment patterns</h2>
+<h3>3.1 charge — one-time payment</h3>
+<p>The simplest intent. mpp.dev/intents/charge defines a seven-step flow (request → 402 challenge → pay → credential retry → verify+settle → network confirm → resource + receipt)<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Its request schema<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>:</p>
+<table><thead><tr><th>Field</th><th>Type</th><th>Required</th></tr></thead><tbody><tr><td><code>amount</code></td><td>string</td><td>✓</td></tr><tr><td><code>currency</code></td><td>string</td><td>✓</td></tr><tr><td><code>description</code></td><td>string</td><td>✗</td></tr><tr><td><code>expires</code></td><td>string</td><td>✗</td></tr><tr><td><code>externalId</code></td><td>string</td><td>✗</td></tr><tr><td><code>recipient</code></td><td>string</td><td>✗</td></tr></tbody></table>
+<p>Method-specific fields are added through <code>methodDetails</code> — "Payment methods extend this schema with method-specific fields through methodDetails"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. charge fits "a single payment with a known cost" (paid APIs, content access, tool calls); metered/high-volume cases should use session<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<h3>3.2 session — streaming-channel payment</h3>
+<p>session is an off-chain payment channel for continuous activity. The flow: (1) deposit into an escrow contract to open the channel → (2) issue a signed cumulative voucher per request instead of an on-chain transaction → (3) the server periodically settles the accumulated vouchers on-chain → (4) refund the unspent deposit when the channel closes<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. Cloudflare's one-liner — "Session — A streaming payment over a payment channel. Use for pay-as-you-go or per-token billing with sub-cent costs and sub-millisecond latency"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. The mechanism detail (TempoStreamChannel, channelId derivation, EIP-712 voucher structure) is covered in the sister report <a href="../mpp-session-mechanism/"><code>mpp-session-mechanism</code></a>. (The <code>mpp.dev/intents/session</code> page returned 404 at fetch time, so session fields are reconstructed from secondary sources — see <code>gaps.md</code>.)</p>
+<h3>3.3 subscription — recurring payment</h3>
+<p>subscription charges at most once per period from a single authorisation — "The client authorizes a fixed payment amount once, and the server reuses that authorization to collect at most one charge per billing period"<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. Its request schema is <code>amount</code>, <code>currency</code>, <code>periodCount</code>, <code>periodUnit</code> (day/week/month) required, plus <code>description</code>/<code>externalId</code>/<code>methodDetails</code>/<code>recipient</code>/<code>subscriptionExpires</code> optional<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. After charging the first period, the server returns a <code>subscriptionId</code> in the receipt and reuses it for later periods. The spec is explicit that "a subscriptionId alone doesn't grant access" — the server must layer on session/account context<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<h2>4. Payment methods</h2>
+<p>mpp.dev and Cloudflare docs enumerate <strong>Tempo, Stripe, Lightning, Solana, Stellar (SEP-41), Monad, RedotPay, Card, and Custom</strong><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<h3>4.1 Tempo — stablecoin</h3>
+<p>Tempo is the sub-second stablecoin method<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. In charge it is an on-chain transfer; in session it uses EIP-712 cumulative vouchers. The server verifies vouchers with <code>ecrecover</code>, achieving sub-100ms verification with no RPC call and per-request micropayments as small as $0.0001 — "Agents deposit funds into an escrow contract (roughly 500ms setup time), then issue cumulative EIP-712 signed vouchers with each subsequent request"<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. If the balance runs out mid-stream, the server emits a <code>payment-need-voucher</code> event and the client auto-signs a new voucher<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<h3>4.2 Stripe — SPT / card / wallet / fiat</h3>
+<p>The Stripe method splits two ways<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>:</p>
+<ul>
+<li><strong>crypto</strong> — on-chain transfer on the Tempo network (testnet/mainnet). "Direct on-chain payment that uses crypto deposit addresses."</li>
+<li><strong>fiat (SPT)</strong> — Shared Payment Token covering cards, wallets, and other fiat methods. "Card, wallet, and other payment methods that shared payment tokens (SPTs) support"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. An SPT triggers payment without exposing the buyer's credentials<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</li>
+</ul>
+<h3>4.3 Stellar — SEP-41 + Soroban ed25519 channel</h3>
+<p>The Stellar method implements session via a Soroban contract<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. (1) the client opens a channel with an ed25519 commitment key and a USDC deposit → (2) per request it receives a challenge (<code>channel: C..., amount, cumulativeAmount, network, reference</code>), read-only-simulates <code>prepare_commitment</code>, and signs the commitment bytes locally with ed25519 → (3) the server verifies locally via <code>Keypair.verify()</code> and updates cumulative tracking → (4) on close it settles with one on-chain transaction at the highest cumulative commitment — "The server closes the channel by submitting one on-chain transaction with the highest cumulative commitment and signature"<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. Where Tempo uses EVM's EIP-712 + ecrecover, Stellar uses Soroban's ed25519 + Keypair.verify() — the same abstraction, per-chain.</p>
+<h3>4.4 Solana / Lightning / Card / Monad / RedotPay</h3>
+<p>These follow the same method-extension contract (identifier + request/payload schema + verification procedure), differing only in the rail — Solana's SDK shipped ahead of its spec, Lightning uses Bitcoin Lightning invoices, Card uses encrypted network-token payments<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<h2>5. Per-flow walkthroughs</h2>
+<h3>5.1 charge × tempo + stripe offered together (Stripe <code>mppx</code>)</h3>
+<p>Stripe's MPP server SDK (<code>mppx</code>) registers methods with <code>Mppx.create</code> and binds several to one route with <code>Mppx.compose</code><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>:</p>
+<pre><code>import { Mppx, stripe, tempo } from &#x27;mppx/server&#x27;;
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.charge({ currency: PATH_USD, recipient: recipientAddress, testnet: true }),
+    stripe.charge({ client: stripeClient, networkId: process.env.STRIPE_PROFILE_ID!, paymentMethodTypes: [&#x27;card&#x27;, &#x27;link&#x27;] }),
+  ],
+  secretKey: mppSecretKey,
+});
+
+const response = await Mppx.compose(
+  mppx.tempo.charge({ amount: &#x27;0.01&#x27;, recipient: recipientAddress }),
+  mppx.stripe.charge({ amount: &#x27;0.50&#x27;, currency: &#x27;usd&#x27; }),
+)(request);
+
+if (response.status === 402) return response.challenge;
+return response.withReceipt(Response.json({ data: &#x27;...&#x27; }));</code></pre>
+<p>The 402 response then carries two challenge lines at once<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>:</p>
+<pre><code>HTTP/1.1 402 Payment Required
+WWW-Authenticate: Payment id=&quot;chal_abc123&quot;, method=&quot;tempo&quot;, intent=&quot;charge&quot;, ...
+WWW-Authenticate: Payment id=&quot;chal_def456&quot;, method=&quot;stripe&quot;, intent=&quot;charge&quot;, ...
+Content-Type: application/problem+json
+Cache-Control: no-store
+
+{ &quot;type&quot;: &quot;https://paymentauth.org/problems/payment-required&quot;, &quot;title&quot;: &quot;Payment Required&quot;, &quot;status&quot;: 402, &quot;challengeId&quot;: &quot;...&quot; }</code></pre>
+<p>The agent picks one, pays, and resends the chosen method's credential in <code>Authorization: Payment</code>. Stripe requires the <code>2026-03-04.preview</code> API version for this feature; mainnet means dropping <code>testnet: true</code> and using a live <code>profile_</code> networkId<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<h3>5.2 charge × tempo crypto PaymentIntent</h3>
+<p>On the crypto path, the Stripe PaymentIntent returns Tempo deposit addresses and supported tokens via <code>crypto_display_details</code><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>:</p>
+<pre><code>{ &quot;id&quot;: &quot;pi_123&quot;, &quot;status&quot;: &quot;requires_action&quot;,
+  &quot;next_action&quot;: { &quot;type&quot;: &quot;crypto_display_details&quot;,
+    &quot;crypto_display_details&quot;: { &quot;deposit_addresses&quot;: {
+      &quot;tempo&quot;: { &quot;address&quot;: &quot;0xtempo_address&quot;, &quot;supported_tokens&quot;: [{ &quot;token_currency&quot;: &quot;usdc&quot;, &quot;token_contract_address&quot;: &quot;0x…&quot; }] } } } } }</code></pre>
+<h3>5.3 session × Stellar (Soroban)</h3>
+<p>The Stellar session uses <code>@stellar/mpp/channel/server</code> (signature verification + cumulative tracking) and <code>@stellar/mpp/channel/client</code> (auto ed25519 signing, transparent 402 handling)<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. The server tracks cumulative commitments in an in-memory store and settles once on close — where charge is one settlement per request, session is N requests → one settlement<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+<h2>6. Discussion — design observations</h2>
+<h3>6.1 The two-layer structure</h3>
+<p>MPP's most important design decision is the split between <strong>core (the IETF draft)</strong> and <strong>method extensions (separate specs)</strong><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The core defines only a rail-agnostic HTTP grammar; per-rail differences are absorbed into each method spec's four-part contract (identifier, request schema, payload schema, verification procedure)<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. That lets Tempo (EIP-712), Stellar (ed25519), Stripe (SPT), and card (network token) coexist in the same <code>WWW-Authenticate: Payment</code> line, and lets one server offer several methods at once<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> _(interpretive)_. Each method spec is maintained as a separate file in the <code>methods/</code> directory of the <code>mpp-specs</code> repo<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</p>
+<h3>6.2 intent × method orthogonality</h3>
+<p>Intent (what you pay for — one-shot/streaming/recurring) and method (which rail you pay on) are orthogonal. The same <code>charge</code> intent runs over tempo, stripe, or stellar; the same tempo method runs charge or session. That orthogonality is exactly why the registries are split in two<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<h3>6.3 SDK ecosystem</h3>
+<p>MPP ships SDKs in TypeScript (<code>mppx</code>), Python (<code>pympp</code>), and Rust (<code>mpp-rs</code>), with middleware for Hono, Express, Next.js, and Elysia<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. A server handles 402 issuance, credential verification, and receipt attachment with one middleware layer; the client patches global fetch to handle 402 transparently.</p>
+<h3>6.4 Relationship to x402</h3>
+<p>MPP's session intent and x402's batch-settlement scheme share the same "off-chain cumulative voucher + batched settlement" abstraction but differ in traffic shape — the head-to-head is in the sister report <a href="../x402-batch-vs-mpp-session/"><code>x402-batch-vs-mpp-session</code></a>.</p>
+<h2>7. Limitations</h2>
+<ul>
+<li>This report reflects primary specs and docs as of 27 May 2026. <code>draft-ryan-httpauth-payment-01</code> may be revised, and field names can shift in later revisions.</li>
+<li>The <code>mpp.dev/intents/session</code> page was 404 at fetch time, so session-intent field detail is reconstructed from mpp.dev/protocol<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, Cloudflare<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>, Formo<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>, the Stellar guide<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>, and the sister report.</li>
+<li>Of the payment methods, only Tempo, Stripe, and Stellar are covered at flow level; the request/payload JSON schemas for Solana, Lightning, Card, Monad, and RedotPay are out of scope.</li>
+<li>The <code>paymentauth.org</code> charge sub-spec (<code>draft-payment-intent-charge-00</code>) and the file listing of the mpp-specs methods directory are referenced by URL but not directly quoted.</li>
+<li>Figures like "sub-100ms / $0.0001" are explainer-stated and not independently benchmarked — flagged in <code>uncertainties.md</code><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Tempo Labs, Stripe</span>. <a href="https://mpp.dev/">MPP — Machine Payments Protocol (official site)</a>. <span class="venue">mpp.dev, 2026</span>. <span class="accessed">Accessed 2026-05-27.</span></li>
+      <li id="ref-2"><span class="authors">Eco</span>. <a href="https://eco.com/support/en/articles/14845486-stripe-machine-payments-protocol-mpp">Stripe Machine Payments Protocol (MPP) Explained</a>. <span class="venue">eco.com, 2026</span>. <span class="accessed">Accessed 2026-05-27.</span></li>
+      <li id="ref-3"><span class="authors">Brendan Ryan, Jake Moxey, Tom Meagher, Jeff Weinstein, Steve Kaliski</span>. <a href="https://datatracker.ietf.org/doc/draft-ryan-httpauth-payment/">The &#x27;Payment&#x27; HTTP Authentication Scheme (draft-ryan-httpauth-payment-01)</a>. <span class="venue">IETF Datatracker, 2026</span>. <span class="accessed">Accessed 2026-05-27.</span></li>
+      <li id="ref-4"><span class="authors">Tempo Labs, Stripe</span>. <a href="https://github.com/tempoxyz/mpp-specs">tempoxyz/mpp-specs — Specifications for the Machine Payments Protocol</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-27.</span></li>
+      <li id="ref-5"><span class="authors">Stripe</span>. <a href="https://docs.stripe.com/payments/machine/mpp">MPP payments — Stripe Documentation</a>. <span class="venue">docs.stripe.com, 2026</span>. <span class="accessed">Accessed 2026-05-27.</span></li>
+      <li id="ref-6"><span class="authors">Tempo Labs, Stripe</span>. <a href="https://mpp.dev/protocol">Protocol overview — MPP</a>. <span class="venue">mpp.dev, 2026</span>. <span class="accessed">Accessed 2026-05-27.</span></li>
+      <li id="ref-7"><span class="authors">Tempo Labs, Stripe</span>. <a href="https://mpp.dev/intents/charge">Charge intent for one-time payments — MPP</a>. <span class="venue">mpp.dev, 2026</span>. <span class="accessed">Accessed 2026-05-27.</span></li>
+      <li id="ref-8"><span class="authors">Cloudflare</span>. <a href="https://developers.cloudflare.com/agents/agentic-payments/mpp/">MPP (Machine Payments Protocol) — Cloudflare Agents docs</a>. <span class="venue">developers.cloudflare.com, 2026</span>. <span class="accessed">Accessed 2026-05-27.</span></li>
+      <li id="ref-9"><span class="authors">Formo</span>. <a href="https://formo.so/blog/mpp-machine-payments-protocol-explained">What Is MPP? The Machine Payments Protocol by Tempo Explained</a>. <span class="venue">formo.so, 2026</span>. <span class="accessed">Accessed 2026-05-27.</span></li>
+      <li id="ref-10"><span class="authors">Tempo Labs, Stripe</span>. <a href="https://mpp.dev/intents/subscription">Subscription intent for recurring payments — MPP</a>. <span class="venue">mpp.dev, 2026</span>. <span class="accessed">Accessed 2026-05-27.</span></li>
+      <li id="ref-11"><span class="authors">Tempo Labs</span>. <a href="https://docs.tempo.xyz/guide/machine-payments/streamed-payments">Tempo Docs — Accept streamed payments</a>. <span class="venue">docs.tempo.xyz, 2026</span>. <span class="accessed">Accessed 2026-05-27.</span></li>
+      <li id="ref-12"><span class="authors">Stripe</span>. <a href="https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens">Shared Payment Tokens — Stripe Documentation</a>. <span class="venue">docs.stripe.com, 2026</span>. <span class="accessed">Accessed 2026-05-27.</span></li>
+      <li id="ref-13"><span class="authors">Stellar Development Foundation</span>. <a href="https://developers.stellar.org/docs/build/agentic-payments/mpp/channel-guide">MPP Session Guide — Stellar Developer Docs</a>. <span class="venue">developers.stellar.org, 2026</span>. <span class="accessed">Accessed 2026-05-27.</span></li>
+      <li id="ref-14"><span class="authors">Tempo Labs, Stripe</span>. <a href="https://github.com/tempoxyz/mpp-specs/tree/main/methods">mpp-specs methods directory</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-27.</span> <span class="unverified">[access limited]</span></li>
+      <li id="ref-15"><span class="authors">Apify</span>. <a href="https://blog.apify.com/machine-payments-protocol-overview/">Machine Payments Protocol: How agents pay for things</a>. <span class="venue">blog.apify.com, 2026</span>. <span class="accessed">Accessed 2026-05-27.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-05-27. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tempo MPP 스펙과 기술 구조 — 인텐트와 결제 방식별 플로우 분석 — Deepsearch</title>
+<meta name="description" content="Payment&quot; HTTP 인증 스킴(draft-ryan-httpauth-payment-01)과 charge·session·subscription 인텐트, 그리고 Tempo·Stripe·Stellar 등 결제 방식별 플로우의 기술 레퍼런스">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="en" href="en/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="en/index.html" hreflang="en">English</a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>Tempo MPP 스펙과 기술 구조 — 인텐트와 결제 방식별 플로우 분석</h1>
+    <p class="subtitle">Payment&quot; HTTP 인증 스킴(draft-ryan-httpauth-payment-01)과 charge·session·subscription 인텐트, 그리고 Tempo·Stripe·Stellar 등 결제 방식별 플로우의 기술 레퍼런스</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-05-27</span>
+      <span><strong>태그</strong> mpp, tempo, stripe, http-402, payment-auth, intents, charge, session, subscription, stellar, solana, lightning, ai-agents, ietf</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="mpp-spec-and-payment-flows.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>본 보고서는 Tempo·Stripe의 <strong>MPP(Machine Payments Protocol)</strong> 를 마케팅이 아닌 <strong>사양 수준</strong>에서 해체한다. MPP의 기반은 IETF 인터넷 드래프트 "Payment" HTTP Authentication Scheme(<code>draft-ryan-httpauth-payment-01</code>, Tempo Labs + Stripe 공동 저작)이며<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, 그 위에 (a) <code>charge</code>·<code>session</code>·<code>subscription</code>의 세 <strong>인텐트</strong><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>와 (b) Tempo·Stripe·Stellar·Solana·Lightning·Card 등 결제 <strong>방식(method)</strong> 이 별도 레지스트리로 얹힌다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. 핵심 흐름은 HTTP 402 위의 <strong>challenge → credential → receipt</strong> 3단계다 — 서버가 <code>WWW-Authenticate: Payment</code> 챌린지를 내고, 클라이언트가 <code>Authorization: Payment</code> credential로 재요청하며, 서버가 <code>Payment-Receipt</code>로 정산을 확인한다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 본 보고서는 (1) 헤더 그래머와 상태 코드 (2) 세 인텐트의 필드와 플로우 (3) 결제 방식별 동작을 각각 1차 사양으로 정리하고, Stripe <code>mppx</code> 코드와 Stellar Soroban 채널 코드를 인용해 실제 헤더가 어떻게 오가는지 추적한다.</p>
+  </section>
+
+  <main class="body">
+<h1>Tempo MPP 스펙과 기술 구조 — 인텐트와 결제 방식별 플로우 분석</h1>
+<h2>1. 서론 — MPP가 표준화하는 것</h2>
+<p>MPP는 "AI가 돈을 낸다"는 추상을 HTTP 한 요청 안에서 표준화한다. mpp.dev의 한 줄 — "MPP (Machine Payments Protocol) is the open standard for machine-to-machine payments via HTTP 402"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 외부 정리도 같은 결 — "Stripe and Tempo's Machine Payments Protocol (MPP) is an open HTTP-native standard for billing AI agents"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 그 토대는 두 가지로 갈린다.</p>
+<ul>
+<li><strong>core (payment-method agnostic)</strong> — 결제 방식과 무관한 HTTP 인증 그래머. IETF "Payment" 스킴이 이 자리다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</li>
+<li><strong>extensions (method-specific)</strong> — Tempo 스테이블코인, Stripe SPT, Stellar SEP-41 같은 방식별 사양. <code>mpp-specs</code> 리포는 이를 "payment-method agnostic core alongside extensions for specific payment method flows"로 명시한다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</li>
+</ul>
+<p>이 2계층 구조 덕에 제3자(예: Visa)가 카드 기반 method spec을 독립적으로 추가할 수 있다 — 본 보고서가 MPP의 가장 중요한 설계 결정으로 보는 지점이다 _(interpretive)_<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<h2>2. "Payment" HTTP Authentication Scheme (draft)</h2>
+<h3>2.1 저자·거버넌스·라이선스</h3>
+<p>기반 표준은 IETF <code>draft-ryan-httpauth-payment-01</code>이며 저자는 Tempo Labs의 Brendan Ryan·Jake Moxey·Tom Meagher와 Stripe의 Jeff Weinstein·Steve Kaliski다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 사양 본문은 CC0 1.0(퍼블릭 도메인), 도구는 Apache-2.0/MIT 듀얼로 <code>tempoxyz/mpp-specs</code>에 호스팅된다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<h3>2.2 <code>WWW-Authenticate: Payment</code> 그래머</h3>
+<p>서버가 결제를 요구할 때 보내는 챌린지는 다음 파라미터를 가진다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<table><thead><tr><th>파라미터</th><th>필수</th><th>의미</th></tr></thead><tbody><tr><td><code>id</code></td><td>✓</td><td>파라미터에 바인딩된 챌린지 식별자</td></tr><tr><td><code>realm</code></td><td>✓</td><td>RFC 9110 보호 공간</td></tr><tr><td><code>method</code></td><td>✓</td><td>결제 방식 식별자(소문자 ASCII)</td></tr><tr><td><code>intent</code></td><td>✓</td><td>등록된 결제 인텐트 타입</td></tr><tr><td><code>request</code></td><td>✓</td><td>method별 데이터(JCS 직렬화 후 base64url JSON)</td></tr><tr><td><code>expires</code></td><td>✗</td><td>RFC 3339 만료 시각</td></tr><tr><td><code>digest</code></td><td>✗</td><td>RFC 9530 content digest(요청 본문 바인딩)</td></tr><tr><td><code>description</code></td><td>✗</td><td>사람이 읽는 결제 목적</td></tr><tr><td><code>opaque</code></td><td>✗</td><td>서버 상관 데이터(base64url JSON 문자열 맵)</td></tr></tbody></table>
+<p>사양은 "Unknown parameters MUST be ignored by clients"를 명시한다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 중요한 점은 <strong>한 응답에 여러 줄의 <code>WWW-Authenticate: Payment</code></strong> 가 올 수 있다는 것이다 — 즉 서버가 Tempo와 Stripe를 동시에 제시하고 클라이언트가 하나를 골라 결제한다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<h3>2.3 <code>Authorization: Payment</code> credential 구조</h3>
+<p>클라이언트가 결제 후 재요청에 싣는 credential은 base64url JSON으로 세 필드를 담는다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<pre><code>{
+  &quot;challenge&quot;: { &quot;id&quot;: &quot;...&quot;, &quot;realm&quot;: &quot;...&quot;, &quot;method&quot;: &quot;...&quot;, &quot;intent&quot;: &quot;...&quot;, &quot;request&quot;: &quot;...&quot;, &quot;expires&quot;: &quot;...&quot;, &quot;opaque&quot;: &quot;...&quot;, &quot;digest&quot;: &quot;...&quot; },
+  &quot;source&quot;: &quot;did:key:...&quot;,
+  &quot;payload&quot;: { }
+}</code></pre>
+<ul>
+<li><code>challenge</code> — 서버가 보낸 챌린지를 그대로 에코.</li>
+<li><code>source</code> — (선택) W3C DID 형식의 결제 출처.</li>
+<li><code>payload</code> — method별 결제 증명(예: Tempo면 EIP-712 서명, Stripe면 SPT).</li>
+</ul>
+<h3>2.4 <code>Payment-Receipt</code> 헤더</h3>
+<p>성공(2xx) 응답에만 receipt가 발급된다 — "Receipts are only issued on successful payment responses (2xx status codes)"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 형식은 <code>status</code>, <code>method</code>, <code>timestamp</code>, <code>reference</code>를 담은 JSON이다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<h3>2.5 상태 코드와 problem 레지스트리</h3>
+<p>MPP는 세 상태 코드를 의도적으로 분리한다 — "402 = Payment barrier (initial challenge or retry needed); 401 = Authentication failure unrelated to payment; 403 = Payment succeeded but access denied by policy"<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. 실패는 RFC 9457 Problem Details(<code>application/problem+json</code>)로 반환되고, 레지스트리 base는 <code>https://paymentauth.org/problems/</code>다 — <code>payment-required</code>, <code>payment-insufficient</code>, <code>payment-expired</code>, <code>verification-failed</code>, <code>method-unsupported</code>, <code>malformed-credential</code>, <code>invalid-challenge</code> 같은 타입을 정의한다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. credential이 깨지거나(만료·재사용 포함) 검증이 실패하면 항상 <strong>새 챌린지를 동봉한 402</strong>가 돌아온다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>보안 요건으로 사양은 TLS 1.2 이상을 강제하고("Servers MUST NOT issue Payment challenges over unencrypted HTTP"), credential을 로그·에러·분석에 남기는 것을 금지한다("Servers and intermediaries MUST NOT log Payment credentials")<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<h3>2.6 intent / method 레지스트리</h3>
+<p>intent와 method는 각각 별도 레지스트리다. method spec은 (1) 식별자(소문자 ASCII) (2) <code>request</code> 파라미터의 JSON 스키마 (3) credential <code>payload</code>의 JSON 스키마 (4) 검증 절차를 정의해야 한다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. 이 4요소가 method extension의 계약이다.</p>
+<h2>3. Intents — 결제 패턴</h2>
+<h3>3.1 charge — 단건 결제</h3>
+<p>가장 단순한 인텐트다. mpp.dev/intents/charge는 7단계 흐름(요청 → 402 챌린지 → 결제 → credential 재요청 → 검증·정산 → 네트워크 확정 → resource + receipt)을 정의한다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. request 스키마는 다음과 같다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<table><thead><tr><th>필드</th><th>타입</th><th>필수</th></tr></thead><tbody><tr><td><code>amount</code></td><td>string</td><td>✓</td></tr><tr><td><code>currency</code></td><td>string</td><td>✓</td></tr><tr><td><code>description</code></td><td>string</td><td>✗</td></tr><tr><td><code>expires</code></td><td>string</td><td>✗</td></tr><tr><td><code>externalId</code></td><td>string</td><td>✗</td></tr><tr><td><code>recipient</code></td><td>string</td><td>✗</td></tr></tbody></table>
+<p>method별 추가 필드는 <code>methodDetails</code>로 확장된다 — "Payment methods extend this schema with method-specific fields through methodDetails"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. charge는 "단일 결제로 비용이 미리 알려진" 시나리오(유료 API, 콘텐츠 접근, tool call)에 맞고, 고빈도·미터링은 session을 권한다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<h3>3.2 session — 스트리밍 채널 결제</h3>
+<p>session은 연속 활동을 위한 오프체인 결제 채널이다. 흐름은 (1) 에스크로 컨트랙트에 디포짓해 채널 개설 → (2) 매 요청마다 온체인 트랜잭션 대신 서명된 누적 voucher 발행 → (3) 서버가 누적 voucher를 주기적으로 온체인 정산 → (4) 채널 종료 시 미사용 디포짓 환불이다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. Cloudflare의 한 줄 — "Session — A streaming payment over a payment channel. Use for pay-as-you-go or per-token billing with sub-cent costs and sub-millisecond latency"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. session의 메커니즘 상세(TempoStreamChannel, channelId 파생, EIP-712 voucher 구조)는 자매 보고서 <a href="../mpp-session-mechanism/"><code>mpp-session-mechanism</code></a>에 정리되어 있다. (본 보고서 작성 시점에 <code>mpp.dev/intents/session</code> 페이지가 404였으므로 session 필드는 2차 자료로 재구성했다 — <code>gaps.md</code> 참조.)</p>
+<h3>3.3 subscription — 정기 결제</h3>
+<p>subscription은 한 번의 권한 부여로 주기당 최대 1회 과금하는 인텐트다 — "The client authorizes a fixed payment amount once, and the server reuses that authorization to collect at most one charge per billing period"<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. request 스키마는 <code>amount</code>, <code>currency</code>, <code>periodCount</code>, <code>periodUnit</code>(day/week/month) 필수 + <code>description</code>/<code>externalId</code>/<code>methodDetails</code>/<code>recipient</code>/<code>subscriptionExpires</code> 선택이다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. 서버는 첫 주기 과금 후 receipt에 <code>subscriptionId</code>를 담아 돌려주고 이후 주기에 재사용한다. 다만 사양은 "a subscriptionId alone doesn't grant access"를 명시한다 — 서버는 세션/계정 컨텍스트를 추가로 적용해야 한다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<h2>4. Payment Methods — 결제 방식</h2>
+<p>mpp.dev와 Cloudflare 문서가 열거하는 결제 방식은 <strong>Tempo, Stripe, Lightning, Solana, Stellar(SEP-41), Monad, RedotPay, Card, Custom</strong>이다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<h3>4.1 Tempo — 스테이블코인</h3>
+<p>Tempo는 sub-second 확정의 스테이블코인 결제 방식이다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. charge에서는 on-chain 이체로, session에서는 EIP-712 누적 voucher로 동작한다. session에서 서버는 ecrecover로 voucher를 검증하므로 RPC 호출 없이 sub-100ms 검증을 달성하고, 마이크로결제 단가는 요청당 $0.0001까지 내려간다 — "Agents deposit funds into an escrow contract (roughly 500ms setup time), then issue cumulative EIP-712 signed vouchers with each subsequent request"<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 잔액이 mid-stream에 소진되면 서버가 <code>payment-need-voucher</code> 이벤트를 내고 클라이언트가 새 voucher를 자동 서명한다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<h3>4.2 Stripe — SPT / card / wallet / fiat</h3>
+<p>Stripe method는 두 갈래다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<ul>
+<li><strong>crypto</strong> — Tempo 네트워크(testnet/mainnet)에서 on-chain 이체. "Direct on-chain payment that uses crypto deposit addresses."</li>
+<li><strong>fiat (SPT)</strong> — Shared Payment Token으로 카드·지갑·기타 fiat 결제를 지원한다. "Card, wallet, and other payment methods that shared payment tokens (SPTs) support"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. SPT는 결제 자격증명을 노출하지 않고 결제를 트리거한다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</li>
+</ul>
+<h3>4.3 Stellar — SEP-41 + Soroban ed25519 채널</h3>
+<p>Stellar method는 session을 Soroban 컨트랙트로 구현한다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. (1) 클라이언트가 ed25519 commitment 키와 USDC 디포짓으로 채널 개설 → (2) 매 요청마다 챌린지(<code>channel: C..., amount, cumulativeAmount, network, reference</code>)를 받아 <code>prepare_commitment</code>를 read-only 시뮬레이션하고 commitment bytes를 ed25519로 로컬 서명 → (3) 서버가 <code>Keypair.verify()</code>로 로컬 검증하고 누적값을 갱신 → (4) 종료 시 가장 높은 누적 commitment 하나로 단일 온체인 정산이다 — "The server closes the channel by submitting one on-chain transaction with the highest cumulative commitment and signature"<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. 즉 Tempo가 EVM의 EIP-712 + ecrecover를 쓴다면 Stellar는 Soroban의 ed25519 + Keypair.verify()를 쓰는, 같은 추상의 체인별 변형이다.</p>
+<h3>4.4 Solana / Lightning / Card / Monad / RedotPay</h3>
+<p>이들은 같은 method extension 계약(식별자 + request/payload 스키마 + 검증 절차)을 따르되 결제 레일만 다르다 — Solana는 SDK가 먼저 나오고 spec이 후행, Lightning은 Bitcoin Lightning invoice, Card는 암호화된 network token 결제다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<h2>5. Per-flow walkthrough — 헤더 단위 추적</h2>
+<h3>5.1 charge × tempo + stripe 동시 제시 (Stripe <code>mppx</code>)</h3>
+<p>Stripe의 MPP 서버 SDK(<code>mppx</code>)는 <code>Mppx.create</code>로 method를 등록하고 <code>Mppx.compose</code>로 한 라우트에 여러 method를 동시에 건다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<pre><code>import { Mppx, stripe, tempo } from &#x27;mppx/server&#x27;;
+
+const mppx = Mppx.create({
+  methods: [
+    tempo.charge({ currency: PATH_USD, recipient: recipientAddress, testnet: true }),
+    stripe.charge({ client: stripeClient, networkId: process.env.STRIPE_PROFILE_ID!, paymentMethodTypes: [&#x27;card&#x27;, &#x27;link&#x27;] }),
+  ],
+  secretKey: mppSecretKey,
+});
+
+const response = await Mppx.compose(
+  mppx.tempo.charge({ amount: &#x27;0.01&#x27;, recipient: recipientAddress }),
+  mppx.stripe.charge({ amount: &#x27;0.50&#x27;, currency: &#x27;usd&#x27; }),
+)(request);
+
+if (response.status === 402) return response.challenge;
+return response.withReceipt(Response.json({ data: &#x27;...&#x27; }));</code></pre>
+<p>이때 402 응답은 두 줄의 챌린지를 동시에 싣는다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<pre><code>HTTP/1.1 402 Payment Required
+WWW-Authenticate: Payment id=&quot;chal_abc123&quot;, method=&quot;tempo&quot;, intent=&quot;charge&quot;, ...
+WWW-Authenticate: Payment id=&quot;chal_def456&quot;, method=&quot;stripe&quot;, intent=&quot;charge&quot;, ...
+Content-Type: application/problem+json
+Cache-Control: no-store
+
+{ &quot;type&quot;: &quot;https://paymentauth.org/problems/payment-required&quot;, &quot;title&quot;: &quot;Payment Required&quot;, &quot;status&quot;: 402, &quot;challengeId&quot;: &quot;...&quot; }</code></pre>
+<p>클라이언트(에이전트)는 둘 중 하나를 골라 결제하고, 고른 method의 credential을 <code>Authorization: Payment</code>로 재전송한다. Stripe 측은 이 기능에 <code>2026-03-04.preview</code> API 버전을 요구하며, mainnet 전환은 <code>testnet: true</code> 제거 + 라이브 <code>profile_</code> networkId 설정으로 이뤄진다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<h3>5.2 charge × tempo crypto PaymentIntent</h3>
+<p>crypto 경로에서 Stripe PaymentIntent는 <code>crypto_display_details</code>로 Tempo 디포짓 주소와 지원 토큰을 돌려준다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<pre><code>{ &quot;id&quot;: &quot;pi_123&quot;, &quot;status&quot;: &quot;requires_action&quot;,
+  &quot;next_action&quot;: { &quot;type&quot;: &quot;crypto_display_details&quot;,
+    &quot;crypto_display_details&quot;: { &quot;deposit_addresses&quot;: {
+      &quot;tempo&quot;: { &quot;address&quot;: &quot;0xtempo_address&quot;, &quot;supported_tokens&quot;: [{ &quot;token_currency&quot;: &quot;usdc&quot;, &quot;token_contract_address&quot;: &quot;0x…&quot; }] } } } } }</code></pre>
+<h3>5.3 session × Stellar (Soroban)</h3>
+<p>Stellar session은 <code>@stellar/mpp/channel/server</code>(서명 검증 + 누적 추적)와 <code>@stellar/mpp/channel/client</code>(자동 ed25519 서명, 402 투명 처리)로 구성된다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. 서버는 in-memory store로 누적 commitment를 추적하다가 종료 시 한 번의 온체인 트랜잭션으로 정산한다 — charge가 요청당 1회 정산이라면 session은 N요청 → 1정산이라는 점이 핵심 차이다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+<h2>6. 논의 — 설계 관찰</h2>
+<h3>6.1 2계층 구조의 의미</h3>
+<p>MPP의 가장 중요한 설계 결정은 <strong>core(IETF draft) + method extension(별도 spec)</strong> 의 분리다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. core는 결제 방식과 무관한 HTTP 그래머만 정의하고, 방식별 차이는 method spec의 4요소 계약(식별자·request schema·payload schema·검증 절차)으로 흡수한다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. 덕분에 Tempo(EIP-712), Stellar(ed25519), Stripe(SPT), card(network token)가 같은 <code>WWW-Authenticate: Payment</code> 줄 안에서 공존하고, 한 서버가 여러 method를 동시에 제시할 수 있다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> _(interpretive)_. 각 method spec은 <code>mpp-specs</code> 리포의 <code>methods/</code> 디렉토리에 별도 파일로 관리된다<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</p>
+<h3>6.2 intent × method 직교성</h3>
+<p>intent(무엇을 결제하는가 — 단건/스트리밍/정기)와 method(어떤 레일로 결제하는가)는 직교한다. 같은 <code>charge</code> intent가 tempo·stripe·stellar 어느 method로도 실행되고, 같은 tempo method가 charge·session 어느 intent로도 동작한다. 이 직교성이 레지스트리를 둘로 나눈 이유다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<h3>6.3 SDK 생태계</h3>
+<p>MPP는 TypeScript(<code>mppx</code>), Python(<code>pympp</code>), Rust(<code>mpp-rs</code>) 세 SDK와 Hono·Express·Next.js·Elysia 미들웨어를 제공한다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. 서버는 미들웨어 한 겹으로 402 발행·credential 검증·receipt 부착을 처리하고, 클라이언트는 글로벌 fetch가 402를 투명하게 처리하도록 패치된다.</p>
+<h3>6.4 x402와의 관계</h3>
+<p>MPP의 session intent와 x402의 batch-settlement 스킴은 같은 "오프체인 누적 voucher + 배치 정산" 추상을 공유하지만 트래픽 형상이 다르다 — 두 표준의 head-to-head 비교는 자매 보고서 <a href="../x402-batch-vs-mpp-session/"><code>x402-batch-vs-mpp-session</code></a>에 정리되어 있다.</p>
+<h2>7. 한계</h2>
+<ul>
+<li>본 보고서는 2026년 5월 27일 시점의 1차 사양·docs를 기준으로 한다. <code>draft-ryan-httpauth-payment-01</code>은 개정될 수 있고, 필드명은 후속 리비전에서 바뀔 수 있다.</li>
+<li><code>mpp.dev/intents/session</code> 페이지가 fetch 시점에 404였으므로, session intent의 필드 상세는 mpp.dev/protocol<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, Cloudflare<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>, Formo<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>, Stellar 가이드<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>와 자매 보고서로 재구성했다.</li>
+<li>결제 방식 중 Tempo·Stripe·Stellar만 플로우 수준으로 다뤘고, Solana·Lightning·Card·Monad·RedotPay의 request/payload JSON 스키마는 본 보고서 범위 밖이다.</li>
+<li><code>paymentauth.org</code>의 charge intent sub-spec(<code>draft-payment-intent-charge-00</code>)과 mpp-specs의 methods 디렉토리 파일 목록은 URL로만 참조하고 본문을 직접 인용하지 않았다.</li>
+<li>"sub-100ms / $0.0001" 같은 수치는 explainer가 제시한 값이며 독립 벤치마크를 거치지 않았다 — <code>uncertainties.md</code>에 명시<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Tempo Labs, Stripe</span>. <a href="https://mpp.dev/">MPP — Machine Payments Protocol (official site)</a>. <span class="venue">mpp.dev, 2026</span>. <span class="accessed">접근일 2026-05-27.</span></li>
+      <li id="ref-2"><span class="authors">Eco</span>. <a href="https://eco.com/support/en/articles/14845486-stripe-machine-payments-protocol-mpp">Stripe Machine Payments Protocol (MPP) Explained</a>. <span class="venue">eco.com, 2026</span>. <span class="accessed">접근일 2026-05-27.</span></li>
+      <li id="ref-3"><span class="authors">Brendan Ryan, Jake Moxey, Tom Meagher, Jeff Weinstein, Steve Kaliski</span>. <a href="https://datatracker.ietf.org/doc/draft-ryan-httpauth-payment/">The &#x27;Payment&#x27; HTTP Authentication Scheme (draft-ryan-httpauth-payment-01)</a>. <span class="venue">IETF Datatracker, 2026</span>. <span class="accessed">접근일 2026-05-27.</span></li>
+      <li id="ref-4"><span class="authors">Tempo Labs, Stripe</span>. <a href="https://github.com/tempoxyz/mpp-specs">tempoxyz/mpp-specs — Specifications for the Machine Payments Protocol</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-05-27.</span></li>
+      <li id="ref-5"><span class="authors">Stripe</span>. <a href="https://docs.stripe.com/payments/machine/mpp">MPP payments — Stripe Documentation</a>. <span class="venue">docs.stripe.com, 2026</span>. <span class="accessed">접근일 2026-05-27.</span></li>
+      <li id="ref-6"><span class="authors">Tempo Labs, Stripe</span>. <a href="https://mpp.dev/protocol">Protocol overview — MPP</a>. <span class="venue">mpp.dev, 2026</span>. <span class="accessed">접근일 2026-05-27.</span></li>
+      <li id="ref-7"><span class="authors">Tempo Labs, Stripe</span>. <a href="https://mpp.dev/intents/charge">Charge intent for one-time payments — MPP</a>. <span class="venue">mpp.dev, 2026</span>. <span class="accessed">접근일 2026-05-27.</span></li>
+      <li id="ref-8"><span class="authors">Cloudflare</span>. <a href="https://developers.cloudflare.com/agents/agentic-payments/mpp/">MPP (Machine Payments Protocol) — Cloudflare Agents docs</a>. <span class="venue">developers.cloudflare.com, 2026</span>. <span class="accessed">접근일 2026-05-27.</span></li>
+      <li id="ref-9"><span class="authors">Formo</span>. <a href="https://formo.so/blog/mpp-machine-payments-protocol-explained">What Is MPP? The Machine Payments Protocol by Tempo Explained</a>. <span class="venue">formo.so, 2026</span>. <span class="accessed">접근일 2026-05-27.</span></li>
+      <li id="ref-10"><span class="authors">Tempo Labs, Stripe</span>. <a href="https://mpp.dev/intents/subscription">Subscription intent for recurring payments — MPP</a>. <span class="venue">mpp.dev, 2026</span>. <span class="accessed">접근일 2026-05-27.</span></li>
+      <li id="ref-11"><span class="authors">Tempo Labs</span>. <a href="https://docs.tempo.xyz/guide/machine-payments/streamed-payments">Tempo Docs — Accept streamed payments</a>. <span class="venue">docs.tempo.xyz, 2026</span>. <span class="accessed">접근일 2026-05-27.</span></li>
+      <li id="ref-12"><span class="authors">Stripe</span>. <a href="https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens">Shared Payment Tokens — Stripe Documentation</a>. <span class="venue">docs.stripe.com, 2026</span>. <span class="accessed">접근일 2026-05-27.</span></li>
+      <li id="ref-13"><span class="authors">Stellar Development Foundation</span>. <a href="https://developers.stellar.org/docs/build/agentic-payments/mpp/channel-guide">MPP Session Guide — Stellar Developer Docs</a>. <span class="venue">developers.stellar.org, 2026</span>. <span class="accessed">접근일 2026-05-27.</span></li>
+      <li id="ref-14"><span class="authors">Tempo Labs, Stripe</span>. <a href="https://github.com/tempoxyz/mpp-specs/tree/main/methods">mpp-specs methods directory</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-05-27.</span> <span class="unverified">[접근 제한]</span></li>
+      <li id="ref-15"><span class="authors">Apify</span>. <a href="https://blog.apify.com/machine-payments-protocol-overview/">Machine Payments Protocol: How agents pay for things</a>. <span class="venue">blog.apify.com, 2026</span>. <span class="accessed">접근일 2026-05-27.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-05-27 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

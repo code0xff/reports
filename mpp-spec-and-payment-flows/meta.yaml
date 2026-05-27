@@ -1,0 +1,10 @@
+title: Tempo MPP 스펙과 기술 구조 — 인텐트와 결제 방식별 플로우 분석
+subtitle: "Payment" HTTP 인증 스킴(draft-ryan-httpauth-payment-01)과 charge·session·subscription 인텐트, 그리고 Tempo·Stripe·Stellar 등 결제 방식별 플로우의 기술 레퍼런스
+title_en: Tempo MPP Spec and Technical Structure — Intents and Per-Method Payment Flows
+subtitle_en: A technical reference for the "Payment" HTTP authentication scheme, the charge/session/subscription intents, and the per-method flows for Tempo, Stripe, Stellar, and more
+slug: mpp-spec-and-payment-flows
+lang: ko
+langs: [ko, en]
+date: 2026-05-27
+tags: [mpp, tempo, stripe, http-402, payment-auth, intents, charge, session, subscription, stellar, solana, lightning, ai-agents, ietf]
+status: ready
