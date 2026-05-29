@@ -1,0 +1,10 @@
+title: "Google AP2 (Agent Payments Protocol) — 상세 기술 분석과 예제 구현"
+subtitle: "다섯 역할·Mandate·SD-JWT·Human-Present/Not-Present 흐름을 코드 레벨에서 분해하고 Python 예제 구현으로 묶는다."
+title_en: "Google AP2 (Agent Payments Protocol) — Deep Technical Analysis with Example Code"
+subtitle_en: "Five roles, Mandates as SD-JWTs, Human-Present and Human-Not-Present flows, decomposed at the code level with a Python implementation walkthrough."
+slug: google-ap2-protocol
+lang: ko
+langs: [ko, en]
+date: 2026-05-29
+tags: [ap2, agent-payments, google, sd-jwt, verifiable-credentials, a2a, mcp, x402, fido]
+status: ready

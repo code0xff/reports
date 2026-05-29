@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Google AP2 (Agent Payments Protocol) — Deep Technical Analysis with Example Code — Deepsearch</title>
+<meta name="description" content="Five roles, Mandates as SD-JWTs, Human-Present and Human-Not-Present flows, decomposed at the code level with a Python implementation walkthrough.">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>Google AP2 (Agent Payments Protocol) — Deep Technical Analysis with Example Code</h1>
+    <p class="subtitle">Five roles, Mandates as SD-JWTs, Human-Present and Human-Not-Present flows, decomposed at the code level with a Python implementation walkthrough.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-05-29</span>
+      <span><strong>Tags</strong> ap2, agent-payments, google, sd-jwt, verifiable-credentials, a2a, mcp, x402, fido</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="google-ap2-protocol.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>AP2 is a payment-authority standard that injects <em>user- or agent-signed Mandates</em>, carried as W3C Verifiable Credentials and serialised as SD-JWTs, into every step of an agent-initiated payment. Five roles (Shopping Agent, Credential Provider, Merchant, Merchant Payment Processor, Trusted Surface) divide responsibility; Shopping Agent is intrinsically agentic and Trusted Surface MUST be non-agentic, with all verification done in deterministic code. The v0.1 SDK shipped with three Mandate types (Intent / Cart / Payment) as Pydantic models, but the April 2026 v0.2 spec consolidates these into Checkout Mandate + Payment Mandate carried as SD-JWTs with a <code>vct</code> Verifiable-Credential-Type claim, permanently bound by the hash of the merchant's ECDSA-signed Checkout JWT. Human-Present flows have the user sign closed Mandates at payment time; Human-Not-Present flows have the user sign open Mandates with constraints in advance, with the agent later layering its own signature. The protocol is rail-agnostic — cards, real-time bank transfer, stablecoins, and the A2A x402 extension — and was donated to the FIDO Alliance on 2026-04-28. The reference repo (<code>google-agentic-commerce/AP2</code>, Apache-2.0) ships Python, Go, and Android samples plus an SD-JWT-based Python SDK, so the example code in this report is structured as a runnable sketch of the end-to-end flow.</p>
+  </section>
+
+  <main class="body">
+<h1>Google AP2 (Agent Payments Protocol) — Deep Technical Analysis with Example Code</h1>
+<h2>Introduction</h2>
+<p>The Agent Payments Protocol (AP2) is an open standard, announced by Google on 2025-09-17, for cryptographically proving the authority and intent behind a payment that an AI agent initiates on behalf of a user <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The launch included 60+ partners spanning card networks and PSPs (Mastercard, American Express, JCB, UnionPay, PayPal, Adyen, Worldpay), platform vendors (Salesforce, ServiceNow), and Web3 providers (Coinbase, MetaMask, Mysten Labs) <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>The question AP2 answers is, on the surface, simple: <em>how can a merchant or a payment processor trust a payment request that comes from a non-deterministic, LLM-driven agent?</em> The answer is to insert a <strong>Mandate</strong> — a user- or agent-signed digital authorization — at every stage of the flow, and to carry each Mandate as a W3C Verifiable Credential <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. AP2 itself only specifies <em>payment authorization</em>; catalog APIs, checkout transport, and other parts of a full "Commerce Protocol" are explicitly out of scope <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<h2>Background — A2A, MCP, and the gap AP2 fills</h2>
+<p>Google already had two adjacent standards: MCP, which supplies context to models and tools, and A2A, which standardises agent-to-agent calls and delegation. Both handle <em>talking</em>; neither handles <em>money</em>. AP2 fills that gap. The spec is explicit: "AP2 operates as a security feature within a Commerce Protocol. … AP2 is designed explicitly to be compatible with the Universal Commerce Protocol (UCP) and integrates seamlessly" <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. In other words, AP2 owns <em>payment authorization</em> only; the actual transport of cart and catalog information is owned by a separate protocol such as UCP.</p>
+<p>Two things happened together on 2026-04-28: AP2 v0.2 landed on GitHub, and Google donated governance of the standard to the <strong>FIDO Alliance</strong> <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. v0.2 added two substantive things — (1) Human-Not-Present payments (delayed autonomous execution by the agent) and (2) <strong>Verifiable Intent</strong>, a tamper-evident log of user-authorized agent actions co-developed with Mastercard and also donated to FIDO <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<h2>Architecture and the Mandate model</h2>
+<h3>Five roles</h3>
+<p>The spec defines five roles <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>:</p>
+<table><thead><tr><th>Role</th><th>Abbr.</th><th>Responsibility</th><th>Agentic?</th></tr></thead><tbody><tr><td>Shopping Agent</td><td>SA</td><td>Product discovery, cart assembly, purchase execution</td><td><strong>Must be agentic</strong></td></tr><tr><td>Credential Provider</td><td>CP</td><td>Supplies and scopes payment credentials</td><td>May be either</td></tr><tr><td>Merchant</td><td>M</td><td>Provides checkout; inventory/price integrity</td><td>May be either</td></tr><tr><td>Merchant Payment Processor</td><td>MPP</td><td>Processes payment; verifies Payment Mandate</td><td>May be either</td></tr><tr><td>Trusted Surface</td><td>TS</td><td>Obtains user consent, mints user-signed Mandates</td><td><strong>Must be non-agentic</strong></td></tr></tbody></table>
+<p>The threat model is explicit: "AP2 assumes that, at a minimum, the Shopping Agent is agentic … the Agent itself is a potential attacker" <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. That is, AP2 treats the Shopping Agent as a <em>potential adversary</em> on the user's behalf, and the only acceptable proof of user intent is a signature minted on a Trusted Surface. A single legal entity may play multiple roles, but every validation and processing step "MUST happen in deterministic code regardless of whether the role is agentic or not" <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<h3>Two delegation models</h3>
+<p>A separate document, <code>agent_authorization.md</code>, splits Mandate delegation into two trust models <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>:</p>
+<ul>
+<li><strong>User Credential model.</strong> An Issuer external to the agent (e.g. the user's wallet or passkey provider) attests the user's identity. The same user credential can delegate Mandates to many different agents <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</li>
+<li><strong>Trusted Agent Provider model.</strong> The agent's <em>provider</em> is the party the Verifier trusts. Simpler trust graph, but the Verifier needs an explicit trust relationship with every agent provider <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</li>
+</ul>
+<h3>v0.1 vs v0.2 — the Mandate model changed once</h3>
+<p>This is the place integrators most often get confused: the repo currently ships two generations of the Mandate model side by side.</p>
+<p><strong>v0.1 (launch SDK, Pydantic).</strong> <code>code/sdk/python/ap2/models/mandate.py</code> still defines the original three Mandate models <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>:</p>
+<pre><code>class IntentMandate(BaseModel):
+    user_cart_confirmation_required: bool = True
+    natural_language_description: str   # e.g. &quot;High top, old school, red basketball shoes&quot;
+    merchants: list[str] | None
+    skus: list[str] | None
+    requires_refundability: bool | None
+    intent_expiry: str                  # ISO 8601
+
+class CartContents(BaseModel):
+    id: str
+    user_cart_confirmation_required: bool
+    payment_request: PaymentRequest     # W3C PaymentRequest
+    cart_expiry: str
+    merchant_name: str
+
+class CartMandate(BaseModel):
+    contents: CartContents
+    merchant_authorization: str | None  # base64url-encoded JWT signed by merchant
+
+class PaymentMandate(BaseModel):
+    payment_mandate_contents: PaymentMandateContents
+    # payment_mandate_id, payment_details_id, payment_details_total,
+    # payment_response, merchant_agent, timestamp</code></pre>
+<p>The <code>merchant_authorization</code> docstring specifies that the JWT payload must contain <code>iss/sub/aud/iat/exp/jti/cart_hash</code>, where <code>cart_hash</code> is a secure hash over the canonical JSON of <code>CartContents</code> <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. The "Intent → Cart → Payment" three-stage Mandate flow described in the original launch press is precisely this SDK <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p><strong>v0.2 (2026-04, current spec).</strong> <code>specification.md</code> consolidates Mandates to two types — <strong>Checkout Mandate</strong> and <strong>Payment Mandate</strong> — both represented as <strong>SD-JWTs</strong> (Selective Disclosure JWTs) with a <code>vct</code> (Verifiable Credential Type) claim that encodes the schema version <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The JSON schemas are <sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>:</p>
+<pre><code>// checkout_mandate.json — required fields
+{
+  &quot;vct&quot;:          &quot;mandate.checkout.1&quot;,
+  &quot;checkout_jwt&quot;: &quot;&lt;base64url JWT&gt;&quot;,        // merchant-signed Checkout payload
+  &quot;checkout_hash&quot;:&quot;&lt;base64url sha-256&gt;&quot;,    // hash of checkout_jwt
+  &quot;iat&quot;: 1746...,
+  &quot;exp&quot;: 1746...
+}</code></pre>
+<pre><code>// payment_mandate.json — required fields
+{
+  &quot;vct&quot;:            &quot;mandate.payment.1&quot;,
+  &quot;transaction_id&quot;: &quot;&lt;base64url hash of checkout_jwt&gt;&quot;,  // ← link
+  &quot;payee&quot;:          { /* merchant.json */ },
+  &quot;payment_amount&quot;: { &quot;currency&quot;:&quot;USD&quot;, &quot;amount&quot;:27999 }, // ISO 4217 minor units
+  &quot;payment_instrument&quot;: { /* payment_instrument.json */ },
+  &quot;execution_date&quot;: &quot;2026-05-29T...&quot;,       // absent ⇒ execute immediately
+  &quot;risk_data&quot;:      { /* risk signals collected by the Trusted Surface */ }
+}</code></pre>
+<p>The two Mandates are permanently bound by <strong>the hash of the merchant's Checkout JWT</strong> — the Payment Mandate's <code>transaction_id</code> equals the Checkout Mandate's <code>checkout_hash</code> <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. The spec requires that "the Checkout JWT MUST be signed using a digital signature scheme (e.g., ECDSA) and not a deterministic signature (e.g., Ed25519)" — a deterministic scheme would produce the same signature for the same input and would let a verifier with a rainbow table recover the Checkout JWT <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<h3>Human-Present vs Human-Not-Present</h3>
+<p><code>flows.md</code> describes both <sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>:</p>
+<ul>
+<li><strong>Human Present (<code>direct</code>).</strong> The user signs <em>closed</em> Checkout and Payment Mandates at the moment of payment. The Shopping Agent builds the Mandate Content, the Trusted Surface renders it, the user authenticates (biometric) and consents, and the Trusted Surface signs with <code>user_sk</code>. The <code>checkout_jwt</code> hash permanently links the two Mandates, and the <code>agent_pk</code> is included as a confirmation claim that <em>sender-constrains</em> the Mandate so another agent cannot replay it <sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</li>
+<li><strong>Human Not Present (<code>autonomous</code>).</strong> In Phase 1a the user signs <em>open</em> Mandates that carry constraints (price ceiling, time window, SKU set). After the user leaves, the agent autonomously assembles a cart (Phase 1b) and executes payment (Phase 2). If the Merchant or Credential Provider returns an <code>unresolved_constraint</code> error, the flow falls back to Human-Present — the user is brought back to sign closed Mandates <sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</li>
+</ul>
+<h2>Code-level walkthrough — example implementation</h2>
+<p>The repository ships the same flow in Python, Go, and Android scenarios. The Python sample uses Google ADK (<code>google.adk.tools.tool_context</code>), an A2A message builder, and a separate MCP server variant per role <sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. The following condenses <code>code/samples/python/src/roles/shopping_agent/tools.py</code> into a runnable sketch <sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>:</p>
+<pre><code># 1) Generate / load an ECDSA P-256 signing key for the user/agent
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives import serialization
+from jwcrypto.jwk import JWK
+
+raw_key = ec.generate_private_key(ec.SECP256R1())
+jwk_key = JWK.from_pyca(raw_key)
+# Set kid so verifiers can locate the key.
+
+# 2) Shopping Agent → Merchant Agent: ask for a Checkout over A2A
+from common.a2a_message_builder import A2aMessageBuilder
+
+message = (
+    A2aMessageBuilder()
+    .set_context_id(shopping_context_id)
+    .add_text(&quot;Create a checkout for the selected cart.&quot;)
+    .add_data(&quot;cart_id&quot;, chosen_cart_id)
+    .add_data(&quot;shopping_agent_id&quot;, &quot;trusted_shopping_agent&quot;)
+    .add_data(&quot;debug_mode&quot;, False)
+    .build()
+)
+task = await merchant_agent_client.send_a2a_message(message)
+
+# Merchant returns an ap2.checkout artifact: { checkout_jwt, checkout_hash, amount, ... }
+checkout_data = _extract_first_data(task.artifacts, &quot;ap2.checkout&quot;)</code></pre>
+<p>At this point <code>checkout_jwt</code> is a <em>merchant-ECDSA-signed JWT</em> and <code>checkout_hash</code> is its base64url SHA-256 <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. The Shopping Agent now builds the two SD-JWTs:</p>
+<pre><code># 3) Build the Checkout Mandate as an SD-JWT
+from ap2.sdk.generated.checkout_mandate import CheckoutMandate
+from ap2.sdk.generated.payment_mandate import PaymentMandate
+from ap2.sdk.mandate import MandateClient
+
+checkout_mandate = CheckoutMandate(
+    vct=&quot;mandate.checkout.1&quot;,
+    checkout_jwt=checkout_data[&quot;checkout_jwt&quot;],
+    checkout_hash=checkout_data[&quot;checkout_hash&quot;],
+    iat=int(time.time()),
+    exp=int(time.time()) + DEFAULT_MANDATE_TTL_SECONDS,  # 5–15 minutes
+)
+
+# 4) Build the Payment Mandate; the hash links the two
+payment_mandate = PaymentMandate(
+    vct=&quot;mandate.payment.1&quot;,
+    transaction_id=checkout_data[&quot;checkout_hash&quot;],   # ← link
+    payee=DEMO_MERCHANT,
+    payment_amount=Amount(currency=&quot;USD&quot;, amount=27999),  # $279.99
+    payment_instrument=DEMO_PAYMENT_INSTRUMENT,            # e.g. card •••4242
+)
+
+# 5) Trusted Surface signs both Mandates with user_sk
+mandate_client = MandateClient(signing_key=jwk_key)
+checkout_sd_jwt = mandate_client.sign(checkout_mandate)
+payment_sd_jwt  = mandate_client.sign(payment_mandate)
+
+# 6) Send the Payment Mandate to the Credential Provider → receive a scoped token
+token = await credentials_provider_client.exchange(payment_sd_jwt)
+
+# 7) Send the token and the Checkout Mandate to the Merchant → initiate payment
+receipt = await merchant_agent_client.finalize(
+    token=token,
+    checkout_sd_jwt=checkout_sd_jwt,
+)
+# The Merchant Payment Processor verifies that the Payment Mandate&#x27;s
+# transaction_id equals the hash of the Checkout JWT it is processing.</code></pre>
+<p>Steps 6–7 are exactly where the Mandate model earns its keep: the merchant verifies in deterministic code that the closed Checkout Mandate carries a valid user/agent signature, and the MPP verifies that the Payment Mandate is bound to the same Checkout via the hash <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. The Human-Not-Present flow is structurally the same, except the user signature lands on the <em>open</em> Mandate up front and the agent layers its own signature to produce the <em>closed</em> Mandate later <sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<h3>Crypto rail — the x402 scenario</h3>
+<p><code>code/samples/python/scenarios/a2a/human-not-present/x402/README.md</code> demonstrates a crypto payment under Human-Not-Present <sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. The trigger is a merchant-emitted price-drop event; once the price matches the user's intent, the Shopping Agent autonomously completes the purchase, skipping interactive steps like OTP <sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. The Merchant Agent advertises x402 support through its agent card and the CartMandate, and the payment runs on x402-compatible rails such as stablecoins <sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. Importantly, the <em>Mandate structure is identical</em> — what changes between the card rail and the crypto rail is only the PSP and Credential Provider implementation.</p>
+<h2>Analysis — comparisons and tradeoffs</h2>
+<p><strong>AP2 vs A2A alone.</strong> A2A standardises <em>messages</em>. There is no built-in way for a Shopping Agent's "please pay for this cart" message to demonstrate that the cart was actually approved by the user. AP2 stacks a <em>signed authorization</em> layer on top, turning non-deterministic LLM output into a deterministically verifiable authority <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p><strong>AP2 vs MCP.</strong> MCP is model/tool context; AP2 is payment authority. They are orthogonal — Google's own announcement says they sit alongside each other <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The repo ships MCP variants (<code>merchant_agent_mcp</code>, <code>credentials_provider_mcp</code>, …) so the AP2 flow runs unchanged on MCP transport <sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<p><strong>AP2 vs Coinbase x402 alone.</strong> x402 is an HTTP-402-based machine-to-machine payment protocol; it does not by itself answer <em>who has authority to pay</em>. AP2 uses x402 as a <em>rail</em> and stacks the Mandate authority layer on top <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+<p><strong>AP2 vs Mastercard Agent Pay.</strong> Mastercard runs its own agent-pay effort, but the v0.2 Verifiable Intent work was co-developed with Mastercard and donated jointly to FIDO <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Rather than head-on competition, Mastercard chose to fold part of its work into AP2's Verifiable Intent _(unverified — single source: NoHacks coverage)_.</p>
+<p><strong>Implication of the FIDO donation.</strong> A standard owned by a single company is hard for merchants and issuers to adopt. Donating to FIDO accepts a slower iteration cadence in exchange for multi-stakeholder governance <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p><strong>Disagreement in independent writeups.</strong> Vellum, Eco, and Medium describe AP2's Mandate / VC model consistently in spirit, but some still use the v0.1 "Intent / Cart / Payment" naming and others use the v0.2 "Checkout / Payment" naming <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Since both models live in the same repo, the right move is to name the version explicitly rather than pick a winner.</p>
+<h2>Discussion</h2>
+<p>The single sentence "AP2 assumes that … the Agent itself is a potential attacker" compresses the entire security model into one assumption <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. From it follow (1) the requirement that the Trusted Surface be <strong>non-agentic</strong>, (2) the requirement that every verification step runs in <strong>deterministic code</strong>, and (3) the ECDSA requirement on the Checkout JWT to support a safe hash-based linking primitive <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The structure is honest about an uncomfortable truth — <em>the agent itself</em> can never be the root of trust; trust has to come from a user signature or a separate non-agentic surface.</p>
+<p>Open areas: (1) the dispute / chargeback flow is described conceptually ("Mandates can be used as evidence at the time of dispute") but is not normatively specified; (2) under the Trusted Agent Provider model, <em>how</em> a provider earns and audits its reputation is undefined; (3) no migration tooling between the v0.1 SDK models and the v0.2 SD-JWT schemas is visible in the repo <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<p>For the ecosystem, AP2's biggest near-term contribution is that it pins down the <em>shape</em> of payment-authority objects. Once card networks and PSPs agree on what to verify, downstream infrastructure — risk models, insurance, certification — can attach to the same surface <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<h2>Limitations</h2>
+<p>Not covered here: (1) third-party audit findings for the AP2 SDK; (2) automated v0.1 → v0.2 migration (no such tool exists today); (3) the final form Verifiable Intent will take inside FIDO governance; (4) card-network-specific token issuance and scoping policy; (5) device-OS-level integration that binds passkeys/biometrics to the Trusted Surface. The "60+ partners" figure and most adoption claims are vendor-stated and were not independently verified.</p>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Google Cloud</span>. <a href="https://cloud.google.com/blog/products/ai-machine-learning/announcing-agents-to-payments-ap2-protocol">Announcing Agent Payments Protocol (AP2)</a>. <span class="venue">Google Cloud blog, 2025</span>. <span class="accessed">Accessed 2026-05-29.</span></li>
+      <li id="ref-2"><span class="authors">Vellum</span>. <a href="https://www.vellum.ai/blog/googles-ap2-a-new-protocol-for-ai-agent-payments">Google&#x27;s AP2: A new protocol for AI agent payments</a>. <span class="venue">Vellum blog, 2025</span>. <span class="accessed">Accessed 2026-05-29.</span></li>
+      <li id="ref-3"><span class="authors">NoHacks</span>. <a href="https://nohacks.co/blog/agent-payments-protocol-60-organizations">Sixty Organizations Joined Google&#x27;s AP2 Donation to FIDO</a>. <span class="venue">NoHacks blog, 2026</span>. <span class="accessed">Accessed 2026-05-29.</span></li>
+      <li id="ref-4"><span class="authors">Google</span>. <a href="https://github.com/google-agentic-commerce/AP2/blob/main/docs/ap2/specification.md">Agentic Payment Protocol (v0.2) — specification</a>. <span class="venue">google-agentic-commerce/AP2 (GitHub), 2026</span>. <span class="accessed">Accessed 2026-05-29.</span></li>
+      <li id="ref-5"><span class="authors">Eco</span>. <a href="https://eco.com/support/en/articles/15192002-ap2-protocol-explained-google-s-agentic-commerce-standard-2026">AP2 Protocol Explained: Google&#x27;s Agentic Commerce Standard 2026</a>. <span class="venue">Eco support / blog, 2026</span>. <span class="accessed">Accessed 2026-05-29.</span></li>
+      <li id="ref-6"><span class="authors">Google</span>. <a href="https://github.com/google-agentic-commerce/AP2/blob/main/docs/ap2/agent_authorization.md">AP2 Agent Authorization framework</a>. <span class="venue">google-agentic-commerce/AP2, 2026</span>. <span class="accessed">Accessed 2026-05-29.</span></li>
+      <li id="ref-7"><span class="authors">Google</span>. <a href="https://github.com/google-agentic-commerce/AP2/blob/main/code/sdk/python/ap2/models/mandate.py">AP2 SDK v0.1 mandate models (Pydantic)</a>. <span class="venue">google-agentic-commerce/AP2, 2025</span>. <span class="accessed">Accessed 2026-05-29.</span></li>
+      <li id="ref-8"><span class="authors">Vishal Mysore</span>. <a href="https://medium.com/@visrow/google-agent-payments-protocol-ap2-technical-guide-implementation-73ee772fe349">Google Agent Payments Protocol (AP2): Technical Guide &amp; Implementation</a>. <span class="venue">Medium, 2025</span>. <span class="accessed">Accessed 2026-05-29.</span></li>
+      <li id="ref-9"><span class="authors">Google</span>. <a href="https://github.com/google-agentic-commerce/AP2/blob/main/code/sdk/schemas/ap2/checkout_mandate.json">AP2 v0.2 schemas — checkout_mandate.json + payment_mandate.json</a>. <span class="venue">google-agentic-commerce/AP2, 2026</span>. <span class="accessed">Accessed 2026-05-29.</span></li>
+      <li id="ref-10"><span class="authors">Google</span>. <a href="https://github.com/google-agentic-commerce/AP2/blob/main/docs/ap2/flows.md">AP2 Flow Examples — Human Present and Human Not Present</a>. <span class="venue">google-agentic-commerce/AP2, 2026</span>. <span class="accessed">Accessed 2026-05-29.</span></li>
+      <li id="ref-11"><span class="authors">Google</span>. <a href="https://github.com/google-agentic-commerce/AP2">google-agentic-commerce/AP2 — Reference repository</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-29.</span></li>
+      <li id="ref-12"><span class="authors">Google</span>. <a href="https://github.com/google-agentic-commerce/AP2/blob/main/code/samples/python/src/roles/shopping_agent/tools.py">shopping_agent/tools.py — Python sample</a>. <span class="venue">google-agentic-commerce/AP2, 2026</span>. <span class="accessed">Accessed 2026-05-29.</span></li>
+      <li id="ref-13"><span class="authors">Google</span>. <a href="https://github.com/google-agentic-commerce/AP2/blob/main/code/samples/python/scenarios/a2a/human-not-present/x402/README.md">AP2 sample — Human-Not-Present with x402 (crypto rail)</a>. <span class="venue">google-agentic-commerce/AP2, 2026</span>. <span class="accessed">Accessed 2026-05-29.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-05-29. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
