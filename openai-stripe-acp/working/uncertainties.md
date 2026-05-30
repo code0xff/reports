@@ -1,0 +1,7 @@
+# Uncertainties
+
+- **Beta status, dated releases.** The README explicitly marks ACP as `beta`; every release is a dated snapshot under `spec/<date>/`. Any field shown in this report is accurate against `2026-04-17` but a future date may change shapes.
+- **Meta co-creator attribution is contested.** The Stripe docs page (s10) and at least one search result (s11) describe ACP as "created by Stripe, OpenAI, and Meta", while the canonical README (s02) and agenticcommerce.dev landing page (s01) list only OpenAI and Stripe as Founding Maintainers. The report shows the conflict instead of picking one side.
+- **OpenAI launch blog is access-limited.** WebFetch returns HTTP 403 on `openai.com/index/buy-it-in-chatgpt/`; the existence of that post and its tying ChatGPT Instant Checkout to ACP is confirmed via OpenAI Developer docs and search snippets, but quotes from that blog are not first-party here.
+- **Signature header is "optional" in the OpenAPI but production behaviour likely differs.** The OpenAPI shows `required: false` on the `Signature` parameter; in production, the PSP almost certainly requires it, but the spec text is the only first-party source available and it is permissive.
+- **Non-card payment methods are out of scope today.** The Delegated Payment OpenAPI states "Exactly one credential type is currently supported: card", so any stablecoin / wallet rails are not yet covered by the published Delegated Payment shape.

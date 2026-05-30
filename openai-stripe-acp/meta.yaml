@@ -1,0 +1,10 @@
+title: "OpenAI × Stripe Agentic Commerce Protocol (ACP)"
+subtitle: "Agentic Checkout + Delegated Payment, vault tokens, payment handlers, and a runnable Python sketch built from the canonical examples."
+title_ko: "OpenAI × Stripe Agentic Commerce Protocol (ACP)"
+subtitle_ko: "Agentic Checkout 와 Delegated Payment, vault token, payment handler 를 코드 레벨에서 분해하고 정식 예제 기반 Python 스케치로 묶는다."
+slug: openai-stripe-acp
+lang: en
+langs: [en, ko]
+date: 2026-05-30
+tags: [acp, agentic-commerce, openai, stripe, chatgpt, instant-checkout, delegated-payment, mcp, agent-payments]
+status: ready

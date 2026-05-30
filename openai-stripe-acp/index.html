@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OpenAI × Stripe Agentic Commerce Protocol (ACP) — Deepsearch</title>
+<meta name="description" content="Agentic Checkout + Delegated Payment, vault tokens, payment handlers, and a runnable Python sketch built from the canonical examples.">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="ko" href="ko/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>OpenAI × Stripe Agentic Commerce Protocol (ACP)</h1>
+    <p class="subtitle">Agentic Checkout + Delegated Payment, vault tokens, payment handlers, and a runnable Python sketch built from the canonical examples.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-05-30</span>
+      <span><strong>Tags</strong> acp, agentic-commerce, openai, stripe, chatgpt, instant-checkout, delegated-payment, mcp, agent-payments</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="openai-stripe-acp.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>The Agentic Commerce Protocol (ACP) is an Apache-2.0 open standard for AI-agent-led purchases, maintained by OpenAI and Stripe and currently in <code>beta</code>. It is composed of two REST sub-specs — <strong>Agentic Checkout</strong> (merchant-hosted; <code>/checkout_sessions</code> create/update/complete/cancel) and <strong>Delegated Payment</strong> (PSP-hosted; <code>POST /agentic_commerce/delegate_payment</code>) — joined by a payment-handler descriptor (<code>dev.acp.tokenized.card</code>, <code>psp: "stripe"</code>, <code>requires_pci_compliance: false</code>). The agent calls the merchant to open a session, picks a handler from <code>capabilities.payment.handlers[]</code>, calls the PSP's Delegated Payment to mint a single-use vault token (<code>vt_…</code>) scoped by an Allowance (<code>reason: "one_time"</code>, <code>max_amount</code>, <code>currency</code>, <code>checkout_session_id</code>, <code>merchant_id</code>, <code>expires_at</code>), and submits that vault token back to the merchant's <code>/complete</code>. Headers include <code>Idempotency-Key</code>, <code>Signature</code> (detached JSON signature), <code>Timestamp</code>, and <code>API-Version</code>; errors are structured (<code>invalid_card</code>, <code>idempotency_conflict</code>, …). Dated spec snapshots run from <code>2025-09-29</code> to <code>2026-04-17</code>, with an MCP binding added in the latest release; OpenAI's "Buy it in ChatGPT" Instant Checkout is the showcase consumer and Stripe is the founding PSP. Third-party writeups dispute whether Meta is a co-creator; the canonical README and landing page say only OpenAI and Stripe. The 2026-04-17 spec supports only <code>card</code> as a credential type; non-card rails and full dispute semantics are still open.</p>
+  </section>
+
+  <main class="body">
+<h1>OpenAI × Stripe Agentic Commerce Protocol (ACP)</h1>
+<h2>Introduction</h2>
+<p>The <strong>Agentic Commerce Protocol (ACP)</strong> is an Apache-2.0-licensed open standard, currently in <code>beta</code>, that defines how a buyer's AI agent and a merchant complete a purchase — including how the merchant gets paid without ever seeing the buyer's raw card. The specification is maintained jointly by OpenAI and Stripe as Founding Maintainers, with a stated path toward broader community governance <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The protocol's first production showcase is OpenAI's "Instant Checkout" inside ChatGPT, where Stripe operates as the first compatible PSP <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>ACP only specifies the <em>interaction surface</em> between three parties — agent, PSP, merchant. It deliberately does not standardise the agent runtime, the merchant's commerce backend, or the PSP's settlement plumbing; those keep using whatever each party already has. What ACP standardises is the JSON over the wire and the headers around it <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<h2>Background — Three parties and dated versions</h2>
+<p>The canonical actor model has three parties <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>:</p>
+<ul>
+<li><strong>Agent (ChatGPT).</strong> "ChatGPT collects buyer, fulfillment, and payment information from the user" and "calls the merchant's Agentic Commerce Protocol endpoints" <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</li>
+<li><strong>Merchant.</strong> Performs validation, determines fulfillment options, calculates taxes, analyzes payment signals, and processes payments on its own systems <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</li>
+<li><strong>PSP (Payment Service Provider).</strong> "The PSP responds with a payment token that OpenAI passes on to the merchant to complete the payment" <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</li>
+</ul>
+<p>ACP is released as <strong>dated spec snapshots</strong>, each version frozen under <code>spec/&lt;date&gt;/</code>. The published series is <code>2025-09-29</code> (initial release), <code>2025-12-12</code> (fulfillment enhancements), <code>2026-01-16</code> (capability negotiation), <code>2026-01-30</code> (extensions, discounts, payment handlers), and <code>2026-04-17</code> (cart, feed, orders, delegate-authentication, MCP binding) <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. RFC and SEP (Specification Enhancement Proposal) processes are documented in the repo (<code>rfcs/</code>, <code>docs/sep-guidelines.md</code>), and a parallel <code>unreleased/</code> directory hosts in-flight work <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<h2>Architecture — Agentic Checkout + Delegated Payment</h2>
+<p>ACP is two REST sub-specs that compose <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>:</p>
+<h3>Agentic Checkout</h3>
+<p>Hosted by the <strong>merchant</strong>. Endpoints (as of the 2026-04-17 OpenAPI) <sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>:</p>
+<pre><code>POST   /checkout_sessions                                    createCheckoutSession
+PATCH  /checkout_sessions/{checkout_session_id}              updateCheckoutSession
+GET    /checkout_sessions/{checkout_session_id}              getCheckoutSession
+POST   /checkout_sessions/{checkout_session_id}/complete     completeCheckoutSession
+POST   /checkout_sessions/{checkout_session_id}/cancel       cancelCheckoutSession</code></pre>
+<p>The session response advertises a capability surface that tells the agent <em>how this merchant wants to be paid</em>. The 2026-04-17 example shows two payment handlers in the same response — one tokenized-card handler routed through Stripe and one seller-managed handler keyed off a saved card — each described by a reverse-DNS id and an explicit PSP attribution <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>:</p>
+<pre><code>{
+  &quot;capabilities&quot;: {
+    &quot;payment&quot;: {
+      &quot;handlers&quot;: [
+        {
+          &quot;id&quot;: &quot;card_tokenized&quot;,
+          &quot;name&quot;: &quot;dev.acp.tokenized.card&quot;,
+          &quot;requires_delegate_payment&quot;: true,
+          &quot;requires_pci_compliance&quot;: false,
+          &quot;psp&quot;: &quot;stripe&quot;,
+          &quot;config&quot;: {
+            &quot;accepted_brands&quot;: [&quot;visa&quot;,&quot;mastercard&quot;,&quot;amex&quot;,&quot;discover&quot;],
+            &quot;supports_3ds&quot;: true,
+            &quot;3ds_versions&quot;: [&quot;2.1.0&quot;,&quot;2.2.0&quot;]
+          }
+        },
+        {
+          &quot;id&quot;: &quot;seller_pm_123&quot;,
+          &quot;name&quot;: &quot;dev.acp.seller_backed.saved_card&quot;,
+          &quot;requires_delegate_payment&quot;: true,
+          &quot;requires_pci_compliance&quot;: false,
+          &quot;psp&quot;: &quot;seller_managed&quot;
+        }
+      ]
+    },
+    &quot;interventions&quot;: {
+      &quot;supported&quot;: [&quot;3ds&quot;,&quot;address_verification&quot;],
+      &quot;enforcement&quot;: &quot;conditional&quot;
+    }
+  },
+  &quot;status&quot;: &quot;ready_for_payment&quot;
+}</code></pre>
+<p>The crucial flag for a builder is <code>requires_pci_compliance: false</code>. The merchant does not handle raw card data; it works with a vault token. PCI scope lives on the PSP.</p>
+<h3>Delegated Payment</h3>
+<p>Hosted by the <strong>PSP</strong>. A single endpoint <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>:</p>
+<pre><code>POST /agentic_commerce/delegate_payment        delegatePayment</code></pre>
+<p>Request headers per the OpenAPI <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>:</p>
+<table><thead><tr><th>Header</th><th>Purpose</th></tr></thead><tbody><tr><td><code>Authorization: Bearer …</code></td><td>PSP API credential</td></tr><tr><td><code>Idempotency-Key</code></td><td>Required by the error model (<code>idempotency_key_required</code>)</td></tr><tr><td><code>Request-Id</code></td><td>Correlation</td></tr><tr><td><code>Signature</code></td><td>Detached JSON signature for request verification</td></tr><tr><td><code>Timestamp</code></td><td>ISO 8601 timestamp for request timing validation</td></tr><tr><td><code>API-Version</code></td><td>Dated ACP version (e.g. <code>2026-04-17</code>)</td></tr><tr><td><code>Accept-Language</code>, <code>User-Agent</code>, <code>Content-Type</code></td><td>Standard</td></tr></tbody></table>
+<p><code>Signature</code> is declared <code>required: false</code> in the OpenAPI, but the error model and headers list it as a first-class verification primitive <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. In production deployments it is almost certainly mandatory; the report flags this as an under-specified field _(see uncertainties)_.</p>
+<p>The body has four top-level objects: <code>payment_method</code>, <code>allowance</code>, <code>risk_signals</code>, and <code>metadata</code> <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>:</p>
+<pre><code>{
+  &quot;payment_method&quot;: {
+    &quot;type&quot;: &quot;card&quot;,
+    &quot;card_number_type&quot;: &quot;fpan&quot;,
+    &quot;number&quot;: &quot;4242424242424242&quot;,
+    &quot;exp_month&quot;: &quot;11&quot;, &quot;exp_year&quot;: &quot;2026&quot;,
+    &quot;name&quot;: &quot;Jane Doe&quot;, &quot;cvc&quot;: &quot;223&quot;,
+    &quot;checks_performed&quot;: [&quot;avs&quot;,&quot;cvv&quot;],
+    &quot;display_brand&quot;: &quot;visa&quot;, &quot;display_last4&quot;: &quot;4242&quot;
+  },
+  &quot;allowance&quot;: {
+    &quot;reason&quot;: &quot;one_time&quot;,
+    &quot;max_amount&quot;: 2000,
+    &quot;currency&quot;: &quot;usd&quot;,
+    &quot;checkout_session_id&quot;: &quot;csn_01HV3P3XYZ9ABC&quot;,
+    &quot;merchant_id&quot;: &quot;acme_store&quot;,
+    &quot;expires_at&quot;: &quot;2025-10-09T07:20:50.52Z&quot;
+  },
+  &quot;risk_signals&quot;: [
+    { &quot;type&quot;: &quot;card_testing&quot;, &quot;score&quot;: 10, &quot;action&quot;: &quot;manual_review&quot; }
+  ],
+  &quot;metadata&quot;: { &quot;source&quot;: &quot;chatgpt_checkout&quot; }
+}</code></pre>
+<p>The PSP responds with a vault token whose id is the <code>vt_…</code> prefix <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>:</p>
+<pre><code>{
+  &quot;id&quot;: &quot;vt_01J8Z3WXYZ9ABC&quot;,
+  &quot;created&quot;: &quot;2025-09-29T11:00:00Z&quot;,
+  &quot;metadata&quot;: { &quot;source&quot;: &quot;agent_checkout&quot;, &quot;merchant_id&quot;: &quot;acme_store&quot; }
+}</code></pre>
+<p>The token is single-use and scoped by the <code>allowance</code> — it can only be used to charge up to <code>max_amount</code> in <code>currency</code> against <code>merchant_id</code> for the named <code>checkout_session_id</code> before <code>expires_at</code> <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. The OpenAI spec page makes the security claim plain: "PSP-returned credentials are narrowly scoped and cannot be used outside the defined limits of the user-approved purchase" <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p>Error model is structured and stable, with PSP-side conditions getting well-known codes <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>:</p>
+<pre><code>invalid_card
+idempotency_conflict          (same key, different body)
+idempotency_in_flight         (same key, request still processing)
+idempotency_key_required
+too_many_requests</code></pre>
+<h2>Code-level walkthrough — example implementation</h2>
+<p>The canonical happy-path is four HTTP calls. Below is a runnable Python sketch using <code>requests</code>; the request bodies are the example payloads shipped in the repo verbatim <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>:</p>
+<pre><code>import json, time, uuid, requests
+
+MERCHANT = &quot;https://acme.example.com&quot;
+PSP      = &quot;https://stripe-acp.example.com&quot;   # Stripe ACP base
+API_VER  = &quot;2026-04-17&quot;
+
+def H(idempotency_key=None, signature=None):
+    h = {
+        &quot;Content-Type&quot;: &quot;application/json&quot;,
+        &quot;API-Version&quot;: API_VER,
+        &quot;Request-Id&quot;: str(uuid.uuid4()),
+        &quot;Timestamp&quot;: time.strftime(&quot;%Y-%m-%dT%H:%M:%SZ&quot;, time.gmtime()),
+    }
+    if idempotency_key: h[&quot;Idempotency-Key&quot;] = idempotency_key
+    if signature:       h[&quot;Signature&quot;]       = signature
+    return h
+
+# 1) Agent → Merchant: create the checkout session
+r = requests.post(f&quot;{MERCHANT}/checkout_sessions&quot;,
+    headers=H(idempotency_key=&quot;agent-&quot; + str(uuid.uuid4())),
+    json={
+        &quot;currency&quot;: &quot;usd&quot;,
+        &quot;line_items&quot;: [{&quot;id&quot;: &quot;item_123&quot;}],
+        &quot;fulfillment_details&quot;: {
+            &quot;name&quot;: &quot;John Doe&quot;, &quot;phone_number&quot;: &quot;15551234567&quot;,
+            &quot;email&quot;: &quot;johndoe@example.com&quot;,
+            &quot;address&quot;: {
+                &quot;name&quot;: &quot;John Doe&quot;, &quot;line_one&quot;: &quot;1234 Chat Road&quot;,
+                &quot;city&quot;: &quot;San Francisco&quot;, &quot;state&quot;: &quot;CA&quot;,
+                &quot;country&quot;: &quot;US&quot;, &quot;postal_code&quot;: &quot;94131&quot;
+            }
+        }
+    })
+session = r.json()
+checkout_session_id = session[&quot;id&quot;]
+
+# 2) Agent picks a handler from capabilities.payment.handlers[]
+#    A handler with requires_delegate_payment=true means we need a vault token.
+handler = next(h for h in session[&quot;capabilities&quot;][&quot;payment&quot;][&quot;handlers&quot;]
+               if h[&quot;requires_delegate_payment&quot;])
+assert handler[&quot;name&quot;] == &quot;dev.acp.tokenized.card&quot;
+assert handler[&quot;psp&quot;]  == &quot;stripe&quot;
+
+# 3) Agent → PSP: delegate_payment to mint a vault token, scoped by allowance
+total = next(t for t in session[&quot;totals&quot;] if t[&quot;type&quot;] == &quot;total&quot;)[&quot;amount&quot;]
+r = requests.post(f&quot;{PSP}/agentic_commerce/delegate_payment&quot;,
+    headers=H(idempotency_key=&quot;delegate-&quot; + checkout_session_id,
+              signature=&quot;&lt;detached-jws-of-request-body&gt;&quot;),
+    json={
+        &quot;payment_method&quot;: {
+            &quot;type&quot;: &quot;card&quot;, &quot;card_number_type&quot;: &quot;fpan&quot;,
+            &quot;number&quot;: &quot;4242424242424242&quot;,
+            &quot;exp_month&quot;: &quot;11&quot;, &quot;exp_year&quot;: &quot;2026&quot;,
+            &quot;name&quot;: &quot;Jane Doe&quot;, &quot;cvc&quot;: &quot;223&quot;,
+            &quot;checks_performed&quot;: [&quot;avs&quot;, &quot;cvv&quot;]
+        },
+        &quot;allowance&quot;: {
+            &quot;reason&quot;: &quot;one_time&quot;,
+            &quot;max_amount&quot;: total,
+            &quot;currency&quot;: &quot;usd&quot;,
+            &quot;checkout_session_id&quot;: checkout_session_id,
+            &quot;merchant_id&quot;: handler[&quot;config&quot;][&quot;merchant_id&quot;],
+            &quot;expires_at&quot;: &quot;2026-05-30T07:20:50.52Z&quot;
+        },
+        &quot;risk_signals&quot;: [{&quot;type&quot;: &quot;card_testing&quot;, &quot;score&quot;: 10, &quot;action&quot;: &quot;manual_review&quot;}],
+        &quot;metadata&quot;: {&quot;source&quot;: &quot;chatgpt_checkout&quot;}
+    })
+vault = r.json()
+assert vault[&quot;id&quot;].startswith(&quot;vt_&quot;)    # vault token
+
+# 4) Agent → Merchant: complete the session using the vault token
+r = requests.post(f&quot;{MERCHANT}/checkout_sessions/{checkout_session_id}/complete&quot;,
+    headers=H(idempotency_key=&quot;complete-&quot; + checkout_session_id),
+    json={&quot;payment_token&quot;: vault[&quot;id&quot;]})
+print(r.json())                          # status: completed, order id, etc.</code></pre>
+<p>This is faithful to the structure of the canonical example JSON <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>: the request shapes (line items, fulfillment, allowance) and the response shapes (handler descriptors, vault token id) match the repo's example artefacts. Real production code should add signed bodies (the <code>Signature</code> header is a detached JSON signature <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>) and handle the documented error codes <sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. An independent reference implementation that wires this end-to-end against real Stripe APIs is <code>locus-technologies/agentic-commerce-protocol-demo</code> <sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p>The 2026-04-17 release also added an <strong>MCP binding</strong> (<code>examples.mcp.agentic_checkout.json</code>), so the same Agentic Checkout operations can be invoked over MCP transport instead of REST. ACP advertises itself as "REST and MCP compatible" <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<h2>Analysis — comparisons and tradeoffs</h2>
+<p><strong>Vault token vs Mandate.</strong> Google's AP2 represents authority as a user-signed Mandate carried as an SD-JWT; ACP represents authority as a PSP-issued vault token (<code>vt_…</code>) constrained by an Allowance. Mandates put cryptographic authority on the user's signature; vault tokens put scoping on the PSP. The two protocols can coexist — a Mandate could authorise <em>which</em> checkout the agent may attempt, while the vault token bounds <em>how</em> the charge can run — but they answer different questions. _(interpretive)_</p>
+<p><strong>ACP vs Coinbase x402.</strong> x402 is a payment-rails protocol (HTTP 402 for machine-to-machine). ACP is a <em>checkout</em> protocol that delegates the rail. In the 2026-04-17 spec the only credential type Delegated Payment supports is <code>card</code> ("Exactly one credential type is currently supported: card" <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>), so a crypto rail would have to be expressed either as a future <code>payment_method.type</code> or as a different handler under <code>capabilities.payment.handlers[]</code>. The handler model is <em>extensible by reverse-DNS name</em>, which is the obvious place for that growth <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<p><strong>ACP vs EIP-8004.</strong> EIP-8004 is an on-chain <em>identity / reputation / validation</em> layer for agents; it does not handle payment authorization at all. ACP and EIP-8004 are orthogonal — an EIP-8004 identity could be the <em>agent_id</em> that a merchant logs in ACP <code>metadata</code>, but the actual money-movement is ACP-side.</p>
+<p><strong>PCI scope is the headline value.</strong> A merchant integrating ACP receives <code>vt_…</code> tokens, not PANs. The handler descriptor literally encodes <code>requires_pci_compliance: false</code> on the merchant side <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, and the Delegated Payment OpenAPI keeps card primitives behind the PSP boundary <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. For a merchant that previously had to architect around PCI for agent flows, this is the biggest practical reason to adopt.</p>
+<p><strong>What Stripe gets.</strong> Being the first compatible PSP locks Stripe as the default vault-token issuer for ChatGPT Instant Checkout traffic <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. The protocol is open and Apache-2.0, so a future PSP can issue its own <code>vt_…</code> tokens, but the network effect from being shipped <em>with</em> ChatGPT is real.</p>
+<h2>Discussion</h2>
+<p><strong>Disputed attribution.</strong> Stripe's own ACP docs page and at least one widely-circulated search summary describe ACP as "an open standard created by Stripe, OpenAI, and Meta" <sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. The canonical project landing page at agenticcommerce.dev <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> and the GitHub README <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> list only OpenAI and Stripe as Founding Maintainers; Meta is not in <code>MAINTAINERS.md</code>. The cleanest reading is that the canonical README is authoritative for governance and Meta is either an implementer that some downstream writers misattributed, or a participant whose role has not yet shown up in the maintainer list. The report presents both citations and does not resolve.</p>
+<p><strong>Governance.</strong> The repo carries <code>docs/governance.md</code>, <code>docs/operating-model.md</code>, RFC and SEP processes (<code>rfcs/</code>, <code>docs/sep-guidelines.md</code>), and a CLA process under <code>legal/cla/</code> <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. That is more governance scaffolding than typical "post-on-our-blog" specs; combined with the dated-snapshot release cadence, ACP looks like it is being run as a standards effort rather than a Stripe SDK.</p>
+<p><strong>What is still missing.</strong> The Delegated Payment OpenAPI states "Exactly one credential type is currently supported: card" <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>, so non-card rails (stablecoins, bank, wallets that are not card-tokenised) are not formally specified yet. Dispute / chargeback semantics are referenced indirectly through the order example files but not given normative spec text. The <code>Signature</code> header is declared optional in the OpenAPI even though real deployments would require it <sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>; that gap is in the spec, not the implementations.</p>
+<h2>Limitations</h2>
+<p>This report does not cover: (1) Stripe-side internal mechanics for how <code>vt_…</code> tokens map to Stripe <code>PaymentIntent</code> or vault keys; (2) the OpenAI launch blog quotes (the page is <code>access_limited: true</code> for WebFetch); (3) the production behaviour of the <code>Signature</code> header (we only quote the OpenAPI text); (4) RFC-stage features not yet in a dated snapshot (e.g. <code>rfc.delegate_authentication.md</code>, <code>rfc.intent_traces.md</code>, <code>rfc.marketing_consent.md</code>) beyond noting they exist; (5) the discount and extension JSON Schemas in detail.</p>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Agentic Commerce Protocol</span>. <a href="https://www.agenticcommerce.dev/">Agentic Commerce Protocol — overview</a>. <span class="venue">agenticcommerce.dev, 2026</span>. <span class="accessed">Accessed 2026-05-30.</span></li>
+      <li id="ref-2"><span class="authors">OpenAI, Stripe</span>. <a href="https://github.com/agentic-commerce-protocol/agentic-commerce-protocol">agentic-commerce-protocol/agentic-commerce-protocol — repository</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-30.</span></li>
+      <li id="ref-3"><span class="authors">OpenAI Developers</span>. <a href="https://developers.openai.com/commerce/guides/key-concepts">Key concepts — Agentic Commerce</a>. <span class="venue">OpenAI Developers documentation, 2026</span>. <span class="accessed">Accessed 2026-05-30.</span></li>
+      <li id="ref-4"><span class="authors">ACP</span>. <a href="https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/main/spec/2026-04-17/openapi/openapi.delegate_payment.yaml">openapi.delegate_payment.yaml — 2026-04-17</a>. <span class="venue">agentic-commerce-protocol/agentic-commerce-protocol, 2026</span>. <span class="accessed">Accessed 2026-05-30.</span></li>
+      <li id="ref-5"><span class="authors">ACP</span>. <a href="https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/main/spec/2026-04-17/openapi/openapi.agentic_checkout.yaml">openapi.agentic_checkout.yaml — 2026-04-17</a>. <span class="venue">agentic-commerce-protocol/agentic-commerce-protocol, 2026</span>. <span class="accessed">Accessed 2026-05-30.</span></li>
+      <li id="ref-6"><span class="authors">ACP</span>. <a href="https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/main/examples/2026-04-17/examples.agentic_checkout.json">examples.agentic_checkout.json — 2026-04-17</a>. <span class="venue">agentic-commerce-protocol/agentic-commerce-protocol, 2026</span>. <span class="accessed">Accessed 2026-05-30.</span></li>
+      <li id="ref-7"><span class="authors">ACP</span>. <a href="https://github.com/agentic-commerce-protocol/agentic-commerce-protocol/blob/main/examples/2026-04-17/examples.delegate_payment.json">examples.delegate_payment.json — 2026-04-17</a>. <span class="venue">agentic-commerce-protocol/agentic-commerce-protocol, 2026</span>. <span class="accessed">Accessed 2026-05-30.</span></li>
+      <li id="ref-8"><span class="authors">OpenAI Developers</span>. <a href="https://developers.openai.com/commerce/specs/payment">Delegated Payment Spec</a>. <span class="venue">OpenAI Developers documentation, 2026</span>. <span class="accessed">Accessed 2026-05-30.</span></li>
+      <li id="ref-9"><span class="authors">Locus Technologies</span>. <a href="https://github.com/locus-technologies/agentic-commerce-protocol-demo">locus-technologies/agentic-commerce-protocol-demo — Reference implementation</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-05-30.</span></li>
+      <li id="ref-10"><span class="authors">Stripe</span>. <a href="https://docs.stripe.com/agentic-commerce/acp">Agentic Commerce Protocol — Stripe Documentation</a>. <span class="venue">Stripe docs, 2026</span>. <span class="accessed">Accessed 2026-05-30.</span></li>
+      <li id="ref-11"><span class="authors">various</span>. <a href="https://www.google.com/search?q=OpenAI+Stripe+Agentic+Commerce+Protocol+ACP+spec+GitHub+delegated+payment+2026">Search result claiming ACP is created by Stripe, OpenAI, and Meta</a>. <span class="venue">web search, 2026</span>. <span class="accessed">Accessed 2026-05-30.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-05-30. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
