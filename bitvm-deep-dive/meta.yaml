@@ -1,0 +1,10 @@
+title: 'BitVM: 비트코인에서의 범용 연산 검증과 트러스트 최소화 브리지'
+subtitle: BitVM1·BitVM2·BitVMX·BitVM3의 기술적 진화와 옵티미스틱 검증, 1-of-n 트러스트 모델, 그리고 실배포·비판에 대한 심층 분석.
+title_en: 'BitVM: Universal Computation Verification and Trust-Minimized Bridges on Bitcoin'
+subtitle_en: A deep analysis of the BitVM1/BitVM2/BitVMX/BitVM3 evolution, optimistic verification, the 1-of-n trust model, and real deployments and critiques.
+slug: bitvm-deep-dive
+lang: ko
+langs: [ko, en]
+date: 2026-06-01
+tags: [bitvm, bitcoin, optimistic-verification, fraud-proofs, bridges, taproot, snark, garbled-circuits]
+status: ready

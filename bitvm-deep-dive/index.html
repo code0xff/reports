@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BitVM: 비트코인에서의 범용 연산 검증과 트러스트 최소화 브리지 — Deepsearch</title>
+<meta name="description" content="BitVM1·BitVM2·BitVMX·BitVM3의 기술적 진화와 옵티미스틱 검증, 1-of-n 트러스트 모델, 그리고 실배포·비판에 대한 심층 분석.">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="en" href="en/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="en/index.html" hreflang="en">English</a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>BitVM: 비트코인에서의 범용 연산 검증과 트러스트 최소화 브리지</h1>
+    <p class="subtitle">BitVM1·BitVM2·BitVMX·BitVM3의 기술적 진화와 옵티미스틱 검증, 1-of-n 트러스트 모델, 그리고 실배포·비판에 대한 심층 분석.</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-06-01</span>
+      <span><strong>태그</strong> bitvm, bitcoin, optimistic-verification, fraud-proofs, bridges, taproot, snark, garbled-circuits</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="bitvm-deep-dive.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>BitVM은 비트코인의 합의 규칙을 전혀 바꾸지 않고(소프트포크 없이) 비트코인 위에서 표현력 있는, 사실상 튜링 완전한 계약을 가능하게 하려는 패러다임이다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 핵심 발상은 "실행하지 말고 검증하라"이다. 연산은 비트코인 위에서 실행되지 않고 옵티미스틱 롤업처럼 <em>검증</em>만 되며, 온체인 행위는 분쟁이 발생할 때만 필요하다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> 본 보고서는 BitVM의 네 세대를 추적한다. 불리언(NAND) 회로와 2자(prover/verifier) 모델의 BitVM1(2023),<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 퍼미션리스 검증과 Groth16 SNARK 검증기·BitVM 브리지를 도입한 BitVM2(2024),<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> RISC-V/MIPS 가상 CPU를 머클 트리 없이 해시 체인으로 구현한 BitVMX(2024),<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> 그리고 가블드 회로(garbled circuits)로 연산을 오프체인으로 옮겨 분쟁 비용을 약 1000배 줄인 BitVM3(2025)이다.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> 이들이 가능케 하는 BitVM 브리지는 1-of-n 트러스트 모델을 쓴다. 운영자 중 단 한 명만 정직해도 예치금은 탈취될 수 없다(부정직한 전원이 할 수 있는 최악은 동결·소각이지 절도가 아니다).<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> 그러나 이는 "트러스트리스"가 아니라 "트러스트 최소화"이며, 운영자가 출금을 위해 자기 BTC 유동성을 선대(先貸)해야 하는 자본 형성·생존성(liveness) 문제가 미해결 비판으로 남아 있다.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> 실제 배포는 Citrea(Clementine) 테스트넷(2025)과 Bitlayer 메인넷 베타(2025-07-15)로 확인된다.<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></p>
+  </section>
+
+  <main class="body">
+<h1>BitVM: 비트코인에서의 범용 연산 검증과 트러스트 최소화 브리지</h1>
+<h2>1. 서론</h2>
+<p>비트코인 스크립트는 의도적으로 제한적이다. 반복문이 없고, 옵코드가 제한되며, 큰 정수 산술이나 범용 연산을 네이티브로 지원하지 않는다. 이 때문에 이더리움식 스마트 계약을 비트코인에서 직접 실행하는 것은 불가능에 가까웠다. BitVM이 푸는 문제는 바로 이 간극이다 — 합의 규칙을 바꾸지 않고(소프트포크 없이) 비트코인에 프로그래머빌리티를 부여하는 것.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<p>BitVM의 답은 우회로다. 임의의 함수를 비트코인 <em>위에서</em> 계산하지 말고, 그 계산이 올바르게 수행되었음을 <em>검증할 수 있게</em> 만든다. 프루버(prover)가 "함수 f가 입력에 대해 출력 y를 낸다"고 주장하면, 그 주장이 거짓일 경우 검증자(verifier)가 간결한 사기 증명(fraud proof)으로 이를 반증하고 프루버를 처벌할 수 있다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 이는 옵티미스틱 롤업과 동형이며, 정직한 경로에서는 온체인 흔적이 거의 없다. 본 보고서는 BitVM의 1차 자료(화이트페이퍼·프로젝트 페이지·레퍼런스 구현)와 독립 분석·언론·비판을 함께 읽어 기술과 한계를 균형 있게 정리한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></p>
+<h2>2. 배경: 비트코인 스크립트의 한계, Taproot, 그리고 옵티미스틱 발상</h2>
+<p>BitVM이 성립하는 토대는 2021년 활성화된 <strong>Taproot</strong>다. Taproot/Tapscript는 하나의 출력에 여러 스크립트를 트리(leaf)로 커밋하고 실제 사용된 잎만 공개하도록 한다. BitVM은 큰 프로그램을 Taproot 트리의 잎들로 커밋하므로, 오프체인 프로그램이 아무리 커도 온체인 풋프린트는 최소로 유지된다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<p>작동의 두 번째 기둥은 <strong>사전 서명된 트랜잭션 그래프</strong>다. 프루버와 검증자는 분쟁이 일어나기 <em>전에</em> 챌린지-응답 게임을 구성하는 일련의 트랜잭션에 미리 서명해 둔다. 협력이 지속되는 한 양측은 "어떤 흔적도 체인에 남기지 않고 임의로 복잡하고 상태를 가진 오프체인 연산을 수행할 수 있으며, 온체인 실행은 분쟁이 발생한 경우에만 필요하다."<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 이 사전 서명 그래프 구조는 이후 BitVMX의 메시지 연결(message-linking) 프로토콜로도 일반화된다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<h2>3. BitVM1 (2023): 최초 설계</h2>
+<p>Robin Linus가 2023년 발표한 원래의 BitVM은 연산을 <strong>불리언 회로</strong>로 표현한다. 모든 계산 가능한 함수는 불리언 회로로 나타낼 수 있다는 사실을 이용해, 회로의 각 논리 게이트(특히 NAND)에 고유한 Taproot 스크립트 잎을 부여한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<p>비트 값은 <strong>램포트(Lamport) 서명식 커밋먼트</strong>로 결박한다. 커밋먼트는 두 해시 hash0/hash1을 담고, 프루버가 한쪽 프리이미지를 공개해 비트를 0 또는 1로 설정한다. 만약 양쪽 프리이미지를 모두 공개하면(=equivocation, 모순된 주장) 상대가 예치금을 압류할 수 있다 — 즉 거짓말에 경제적 처벌이 걸린 "인센티브 기반 커밋먼트"다.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> 분쟁은 사전 서명된 챌린지-응답 트랜잭션으로 온체인에서 해소된다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p>BitVM1의 결정적 제약은 <strong>2자 한정</strong>이다. 논문은 "여기서 제안한 모델의 주요 단점은 프루버와 검증자로 이루어진 2자 설정에 국한된다는 점"이라고 명시한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 즉 임의의 제3자가 부정한 프루버를 챌린지할 수 없고, 사전에 짝지어진 검증자만 가능하다. 이 한계가 BitVM2의 핵심 동기가 된다.</p>
+<h2>4. BitVM2 (2024): 퍼미션리스 검증과 브리지</h2>
+<p>BitVM2(Linus·Aumayr·Pelosi·Zamyatin·Maffei)의 가장 큰 진전은 <strong>퍼미션리스 검증</strong>이다. 사전에 지정된 검증자 집합이 아니라 "누구나 검증자가 될 수 있다" — 비트코인 풀노드를 돌리는 임의의 사용자가 부정한 운영자를 챌린지할 수 있다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> 초기 셋업은 여전히 1-of-n 정직성 가정을 쓰지만, 런타임 챌린지는 원래 그룹에 속하지 않아도 된다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></p>
+<p>분쟁 해소는 작은 상수 개의 온체인 트랜잭션으로 끝난다(핵심 흐름은 대략 세 개 — KickOff/Assert/Challenge/Disprove로 명명된 단계). 설계의 묘는 사기 증명 실행 부담을 챌린저에게 떠넘겨, "최악의 총 연산을 검증자가 실행하는 단일 스텝 f_i로 축소"하는 데 있다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 프루버는 출력과 중간 상태들을 커밋하고, 챌린저는 그중 <em>한</em> 스텝의 전이가 틀렸음만 보이면 된다.</p>
+<p>이를 위해 BitVM2는 <strong>Groth16 SNARK 검증기를 비트코인 스크립트로</strong> 구현한다. 이 스크립트는 기가바이트 규모다 — 최적화 전 추정 7 GB에서 출발해 약 1.2 GB(Alpen 분석), 레퍼런스 저장소 기준 약 1 GB까지 줄었다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> _(구체 수치는 출처·시점마다 다르며 최적화로 계속 감소 중 — 단일 값이 아니라 범위로 읽어야 한다.)_ 비트코인의 약 4 MB 한도 때문에 이 검증기는 4 MB 미만의 하위 프로그램 청크로 분할되어 여러 트랜잭션에 나뉜다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> 병목의 근원은 비트코인 스크립트에 네이티브 큰 정수 산술과 타원곡선 페어링용 옵코드가 없다는 점이다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<p>이 기계 위에 <strong>BitVM 브리지</strong>가 올라간다. 핵심 보안 속성은 <strong>1-of-n</strong>이다. 운영자 중 한 명만 정직해도 예치금은 안전하며, "모든 운영자가 부정직해도 예치금을 훔칠 수는 없고 소각만 가능하다."<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> 레퍼런스 구현은 Rust로 작성되었고 BitVM2 브리지(peg-in/peg-out, MuSig2 서명, 청크 분할)를 담지만, 저장소는 "프로덕션에서 사용하지 말 것(DO NOT USE IN PRODUCTION!)"을 명시한 실험적 연구 코드다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<h2>5. BitVMX와 BitVM3: 경쟁·후속 설계</h2>
+<p><strong>BitVMX</strong>(Sergio Demian Lerner 외, 2024년 5월; RootstockLabs·Fairgate)는 비트코인 스크립트로 검증되는 <strong>범용 가상 CPU</strong>를 설계한다. RISC-V나 MIPS 같은 표준 아키텍처로 인스턴스화할 수 있어, BitVM1의 비표준 단일 CPU 설계와 달리 폭넓은 호환성을 갖는다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> 핵심 차별점은 자료구조다. 논문은 "BitVM1과 달리 우리 접근은 CPU 명령어나 메모리 워드를 위한 머클 트리 생성을 요구하지 않는다"고 밝힌다 — 대신 프로그램 트레이스의 <strong>해시 체인</strong>과 메모리 매핑 레지스터를 쓰고, n진 탐색으로 오류 지점을 찾는다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> 또한 서명 모순(equivocation)에 의존하지 않으며, 트랜잭션 간 상태를 공유해 상태를 가진 계약을 흉내 내는 <strong>메시지 연결 프로토콜</strong>을 도입한다. "BitVMX는 트랜잭션 비용 대 라운드 복잡도, 프루버 비용 대 검증자 비용 사이의 균형을 조절하도록 인스턴스화할 수 있다."<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<p><strong>BitVM3</strong>(Robin Linus, 2025년 7월)는 방향을 바꾼다. 이전 두 버전이 비트코인 스크립트로 <em>온체인</em> 연산을 시도한 데 반해, BitVM3는 1980년대 암호 기법인 <strong>가블드 회로</strong>로 연산을 <em>오프체인</em>으로 옮긴다.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> 그 결과 최악의 분쟁 비용이 멀티-메가바이트 트랜잭션에서 약 2.5 kvB(현 수수료로 약 $5)로 떨어져 "거의 1000배 개선"되며, 트랜잭션 그래프도 단순해진다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> 다만 BitVM3는 비교적 신생 설계이며 프로덕션 브리지 배포 증거는 아직 없다.</p>
+<h2>6. 트러스트 모델, 실배포, 그리고 비판</h2>
+<p>BitVM 브리지는 신뢰 가정을 정직 다수(t-of-n)에서 <strong>존재적 정직성(1-of-n)</strong>으로 낮춘다 — 단 한 명의 합리적 운영자만 활성이면 나머지는 악의적이어도 된다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> 그러나 거의 모든 출처가 이를 "트러스트리스"가 아니라 "<strong>트러스트 최소화</strong>"로 규정한다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup></p>
+<p>가장 날카로운 비판은 <strong>자본 형성과 생존성</strong>에 있다. BitVM 브리지는 기술적으로 옵티미스틱 <em>상환(reimbursement)</em> 시스템에 가깝다. 운영자가 사용자 출금을 처리하려면 자기 BTC를 먼저 내어주고, 나중에 예치금에서 회수한다. Decrypt의 독립 취재에서 Tyler Whittle은 "BitVM 브리지는 자본 형성을 사소한 것으로 취급한다. 그러나 이 선대 자본을 <em>어떻게</em> 조달하는지를 기술하기 전까지 브리지 프로토콜은 제대로 정의되지 않는다"고 지적한다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> Taproot Wizards 공동창업자 Eric Wall은 출금 세부를 알게 된 뒤 회의적으로 돌아섰고 "더 질문했다가 BitVM 빌더 채팅에서 밴당했다"고 전했다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> 반대편에서 BitVM 롤업 개발자 Edan Yago는 출금 한도를 운영자 유동성에 맞추고 운영자 집합을 복수화하면 완화된다고 반박한다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> 이 설계는 모든 운영자가 동시에 가동·지급 가능해야 하는 생존성 의존을 만들어, 수요 급증 시 서비스 거부 위험을 낳는다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></p>
+<p>자본 효율 문제는 독립 기술 분석에서도 확인된다. 운영자는 Disprove 비용을 충당할 자금을 <em>선불로</em> 스테이킹해야 하며, 이는 운영자 수×출금 요청 수에 비례해 누적되고 브리지-아웃 완료 전까지 묶인다 — Alpen은 이를 "활발히 연구 중인 영역"으로 규정한다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 보안 본드가 사전 서명된 트랜잭션 그래프 안에서 셋업 시점에 미리 마련되어야 한다는 점이 자본 잠금과 운영 비용을 키운다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> "BitVM Bridges Considered Unsafe"(Whittle·Rijndael) 같은 비판 글도 같은 결을 짚는다.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></p>
+<p>그럼에도 실배포는 진행 중이다. Citrea는 2025년 자사 BitVM 기반 브리지 <strong>Clementine</strong>을 테스트넷에 올렸는데, 이는 "최초의 완전한 BitVM 브리지 설계"로 보도되었다.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup> Bitlayer는 2025년 7월 15일 <strong>BitVM Bridge 메인넷 베타</strong>를 출시하며 "메인넷 베타가 이제 가동되었고 이는 시작에 불과하다"고 밝혔고, 검증자로 Antpool·F2Pool·SpiderPool 등 대형 채굴 풀을 활용한다.<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> 다만 이들은 각각 테스트넷과 메인넷 <em>베타</em> 단계이며, 높은 TVL의 성숙한 프로덕션 브리지로 보기엔 이르다. _(early signal)_</p>
+<h2>7. 한계</h2>
+<ul>
+<li><strong>빠르게 움직이는 대상.</strong> BitVM은 2년이 채 안 되는 기간에 BitVM1→2→X→3로 진화했다. 스크립트 크기·트랜잭션 수·배포 상태 등 "현재 상태" 주장은 수개월 내 낡을 수 있으며, 본 보고서의 수치는 2026년 중반 출처 기준이다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></li>
+<li><strong>수치의 변동성.</strong> Groth16-인-스크립트 크기는 7 GB→약 3 GB→약 1.2 GB→약 1 GB로 인용되어 왔다. 특정 숫자는 근사이며 감소 추세로 읽어야 한다.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></li>
+<li><strong>벤더·프리프린트 의존.</strong> 최강의 기술 세부는 프로젝트 호스팅(bitvm.org), 프리프린트(arXiv, IACR), 벤더 블로그(Bitlayer, Alpen)에서 온다. 동료 심사는 제한적이다. BitVMX arXiv 논문과 독립 취재·비판(Decrypt, Whittle)이 가장 독립적인 앵커다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></li>
+<li><strong>PDF 접근.</strong> BitVM2 브리지 논문(s04)과 BitVM3 논문(s10)은 전문(全文) 텍스트로 읽지 못해 <code>access_limited</code>로 표시했고, 관련 주장은 HTML 프로젝트 페이지(s03)·레퍼런스 저장소(s06)·2차 해설(s07, s11)로 교차 확인했다.</li>
+<li><strong>성숙도.</strong> 확인된 것은 Citrea 테스트넷과 Bitlayer 메인넷 <em>베타</em>까지다. 2026-06 기준 완전 감사를 마친 고-TVL 메인넷 브리지의 존재는 입증되지 않았으며, 프로덕션 준비도 주장은 의도적으로 보수적으로 다루었다.<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Robin Linus</span>. <a href="https://bitvm.org/bitvm.pdf">BitVM: Compute Anything on Bitcoin</a>. <span class="venue">bitvm.org (whitepaper), 2023</span>. <span class="accessed">접근일 2026-06-01.</span></li>
+      <li id="ref-2"><span class="authors">BitVM contributors</span>. <a href="https://github.com/BitVM/BitVM">BitVM/BitVM — A Trust-minimized Bitcoin Bridge (reference implementation)</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">접근일 2026-06-01.</span></li>
+      <li id="ref-3"><span class="authors">Robin Linus, Lukas Aumayr, Andrea Pelosi, Alexei Zamyatin, Matteo Maffei</span>. <a href="https://bitvm.org/bitvm2.html">BitVM 2: Permissionless Verification on Bitcoin</a>. <span class="venue">bitvm.org, 2024</span>. <span class="accessed">접근일 2026-06-01.</span></li>
+      <li id="ref-4"><span class="authors">Sergio Demian Lerner, Ramon Amela, Shreemoy Mishra, Martin Jonas, Javier Álvarez Cid-Fuentes</span>. <a href="https://arxiv.org/abs/2405.06842">BitVMX: A CPU for Universal Computation on Bitcoin</a>. <span class="venue">arXiv:2405.06842, 2024</span>. <span class="accessed">접근일 2026-06-01.</span></li>
+      <li id="ref-5"><span class="authors">Alpen Labs</span>. <a href="https://www.alpenlabs.io/blog/state-of-snark-verification-with-bitvm2">State of SNARK verification with BitVM2</a>. <span class="venue">Alpen Labs blog, 2024</span>. <span class="accessed">접근일 2026-06-01.</span></li>
+      <li id="ref-6"><span class="authors">Decrypt</span>. <a href="https://decrypt.co/225279/bitcoin-bitvm-trust-bridge-liquidi">Is BitVM the Holy Grail of Bitcoin? It&#x27;s Complicated, Developers Say</a>. <span class="venue">Decrypt, 2024</span>. <span class="accessed">접근일 2026-06-01.</span></li>
+      <li id="ref-7"><span class="authors">Robin Linus</span>. <a href="https://fermatslibrary.com/s/bitvm-compute-anything-on-bitcoin">BitVM: Compute Anything on Bitcoin (annotated)</a>. <span class="venue">Fermat&#x27;s Library, 2023</span>. <span class="accessed">접근일 2026-06-01.</span></li>
+      <li id="ref-8"><span class="authors">Robin Linus, Lukas Aumayr, Andrea Pelosi, Alexei Zamyatin, Matteo Maffei</span>. <a href="https://bitvm.org/bitvm_bridge.pdf">BitVM2: Bridging Bitcoin to Second Layers (bridge paper)</a>. <span class="venue">bitvm.org, 2024</span>. <span class="accessed">접근일 2026-06-01.</span> <span class="unverified">[접근 제한]</span></li>
+      <li id="ref-9"><span class="authors">Robin Linus</span>. <a href="https://bitvm.org/bitvm3.pdf">BitVM3: Garbled Circuits for Efficient Computation on Bitcoin</a>. <span class="venue">bitvm.org, 2025</span>. <span class="accessed">접근일 2026-06-01.</span> <span class="unverified">[접근 제한]</span></li>
+      <li id="ref-10"><span class="authors">Yash (OnChain Bitcoin)</span>. <a href="https://onchainbitcoin.substack.com/p/bitvm-3-breaking-down-the-cost-barrier">BitVM 3: Breaking down the cost barrier</a>. <span class="venue">OnChain Bitcoin (Substack), 2025</span>. <span class="accessed">접근일 2026-06-01.</span></li>
+      <li id="ref-11"><span class="authors">Bitlayer</span>. <a href="https://blog.bitlayer.org/bitlayer-summer-launch-2025/">Bitlayer Summer Launch 2025: BitVM Bridge Mainnet</a>. <span class="venue">Bitlayer blog, 2025</span>. <span class="accessed">접근일 2026-06-01.</span></li>
+      <li id="ref-12"><span class="authors">Tyler Whittle, Rijndael</span>. <a href="https://medium.com/@twhittle/bitvm-bridges-considered-unsafe-9e1ce75c8176">BitVM Bridges Considered Unsafe</a>. <span class="venue">Medium, 2024</span>. <span class="accessed">접근일 2026-06-01.</span> <span class="unverified">[접근 제한]</span></li>
+      <li id="ref-13"><span class="authors">CoinDesk</span>. <a href="https://www.coindesk.com/tech/2024/09/24/bitcoin-rollup-citrea-deploys-bitvm-based-clementine-on-testnet">Bitcoin Rollup Citrea Deploys BitVM-Based Bridge &#x27;Clementine&#x27; on Testnet</a>. <span class="venue">CoinDesk, 2024</span>. <span class="accessed">접근일 2026-06-01.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-06-01 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

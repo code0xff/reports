@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BitVM: Universal Computation Verification and Trust-Minimized Bridges on Bitcoin — Deepsearch</title>
+<meta name="description" content="A deep analysis of the BitVM1/BitVM2/BitVMX/BitVM3 evolution, optimistic verification, the 1-of-n trust model, and real deployments and critiques.">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>BitVM: Universal Computation Verification and Trust-Minimized Bridges on Bitcoin</h1>
+    <p class="subtitle">A deep analysis of the BitVM1/BitVM2/BitVMX/BitVM3 evolution, optimistic verification, the 1-of-n trust model, and real deployments and critiques.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-06-01</span>
+      <span><strong>Tags</strong> bitvm, bitcoin, optimistic-verification, fraud-proofs, bridges, taproot, snark, garbled-circuits</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="bitvm-deep-dive.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>BitVM is a paradigm for enabling expressive, effectively Turing-complete contracts on Bitcoin without any change to Bitcoin's consensus rules — no soft fork.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> Its core idea is "verify, don't compute": computations are not executed on Bitcoin but only <em>verified</em>, much like optimistic rollups, with on-chain action required only in case of a dispute.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> This report traces four generations: BitVM1 (2023), built on Boolean (NAND) circuits and a two-party prover/verifier model;<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> BitVM2 (2024), which introduced permissionless verification, a Groth16 SNARK verifier in Bitcoin Script, and the BitVM Bridge;<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> BitVMX (2024), a RISC-V/MIPS virtual CPU built on hash chains instead of Merkle trees;<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> and BitVM3 (2025), which moves computation off-chain via garbled circuits, cutting dispute cost roughly 1000×.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> The resulting BitVM Bridge uses a 1-of-n trust model: if even one operator is honest, deposits cannot be stolen (a fully dishonest set can at worst freeze or burn, not steal).<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> But this is "trust-minimized," not "trustless," and the requirement that operators front their own BTC liquidity for withdrawals leaves capital-formation and liveness as unresolved critiques.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> Real deployments are confirmed at Citrea (Clementine) testnet (2025) and Bitlayer mainnet beta (2025-07-15).<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></p>
+  </section>
+
+  <main class="body">
+<h1>BitVM: Universal Computation Verification and Trust-Minimized Bridges on Bitcoin</h1>
+<h2>1. Introduction</h2>
+<p>Bitcoin Script is deliberately limited: no loops, restricted opcodes, no native big-integer arithmetic or general computation. This made running Ethereum-style smart contracts directly on Bitcoin essentially impossible. BitVM addresses exactly this gap — granting Bitcoin programmability without changing its consensus rules (no soft fork).<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<p>BitVM's answer is indirection. Instead of <em>computing</em> an arbitrary function on Bitcoin, make that computation <em>verifiable</em>. A prover claims that function f on some input yields output y; if the claim is false, a verifier can perform a succinct fraud proof and punish the prover.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> This is isomorphic to optimistic rollups, and the honest path leaves almost no on-chain trace. This report reads BitVM's primary materials (whitepapers, project pages, the reference implementation) alongside independent analyses, journalism, and critique to balance capability against limitation.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></p>
+<h2>2. Background: Bitcoin Script limits, Taproot, and the optimistic idea</h2>
+<p>BitVM is enabled by <strong>Taproot</strong>, activated in 2021. Taproot/Tapscript lets a single output commit to many scripts as tree leaves and reveal only the leaf actually used. BitVM commits a large program as leaves of a Taproot tree, so the on-chain footprint stays minimal no matter how large the off-chain program is.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<p>The second pillar is the <strong>pre-signed transaction graph</strong>. Before any dispute, the prover and verifier pre-sign the sequence of transactions that make up the challenge-response game. As long as cooperation continues, the parties "can perform arbitrarily complex, stateful off-chain computation, without leaving any trace in the chain. On-chain execution is required only in case of a dispute."<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> This pre-signed-graph structure is later generalized by BitVMX's message-linking protocol.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<h2>3. BitVM1 (2023): the original design</h2>
+<p>Robin Linus's original BitVM (2023) represents computation as a <strong>Boolean circuit</strong>. Using the fact that any computable function can be expressed as a Boolean circuit, each logic gate (notably NAND) gets its own Taproot script leaf.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<p>Bit values are committed using <strong>Lamport-style commitments</strong>: the commitment holds two hashes, hash0 and hash1, and the prover reveals one preimage to set a bit to 0 or 1. Revealing <em>both</em> preimages (equivocation) lets the counterparty seize the deposit — an "incentive-based commitment" that puts an economic penalty on lying.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> Disputes are resolved on-chain via the pre-signed challenge-response transactions.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p>BitVM1's defining constraint is its <strong>two-party limitation</strong>. The paper states that "the main drawback of the model proposed here is that it is limited to the two-party setting with a prover and a verifier."<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> An arbitrary third party cannot challenge a dishonest prover; only the pre-paired verifier can. This limitation is the central motivation for BitVM2.</p>
+<h2>4. BitVM2 (2024): permissionless verification and the bridge</h2>
+<p>The headline advance of BitVM2 (Linus, Aumayr, Pelosi, Zamyatin, Maffei) is <strong>permissionless verification</strong>. Rather than a predefined validator set, "anyone can act as verifier" — any user running a Bitcoin full node can challenge a faulty operator.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> The initial setup still uses a 1-of-n honesty assumption, but runtime challenges need not come from the original group.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></p>
+<p>Disputes resolve in a small constant number of on-chain transactions (the core flow is roughly three — named stages KickOff/Assert/Challenge/Disprove). The design's trick is to shift the fraud-proof execution burden onto the challenger, "reducing the total worst-case computation to a single step f_i, executed by the verifier."<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> The prover commits to the output and intermediate states; the challenger need only show that <em>one</em> step's transition is wrong.</p>
+<p>To do this, BitVM2 implements a <strong>Groth16 SNARK verifier in Bitcoin Script</strong>. That script is gigabyte-scale — starting from a ~7 GB estimate before optimization, down to roughly 1.2 GB (Alpen's analysis) and about 1 GB in the reference repository.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> _(The specific figure varies by source and time and is trending down with optimization — read it as a range, not a single number.)_ Because of Bitcoin's ~4 MB limit, the verifier is split into sub-program chunks under 4 MB across multiple transactions.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> The bottleneck stems from Bitcoin Script's lack of native big-integer arithmetic and opcodes for the elliptic-curve pairings.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<p>On top of this machine sits the <strong>BitVM Bridge</strong>, whose key property is <strong>1-of-n</strong> security: one honest operator suffices, and "even if all operators are dishonest, they cannot steal deposits — only burn them."<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> The reference implementation is written in Rust and contains the BitVM2 bridge (peg-in/peg-out, MuSig2 signing, chunk splitting), but the repository is explicitly experimental research code marked "DO NOT USE IN PRODUCTION!".<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<h2>5. BitVMX and BitVM3: competing and successor designs</h2>
+<p><strong>BitVMX</strong> (Sergio Demian Lerner et al., May 2024; RootstockLabs and Fairgate) designs a <strong>general-purpose virtual CPU</strong> verified in Bitcoin Script. It can be instantiated for standard architectures like RISC-V or MIPS, giving broad compatibility unlike BitVM1's non-standard single CPU.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> The key difference is its data structures: the paper states that "unlike BitVM1, our approach does not require the creation of Merkle trees for CPU instructions or memory words" — using <strong>hash chains</strong> of program traces with memory-mapped registers and n-ary search to locate errors.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> It also drops the signature-equivocation requirement and adds a <strong>message-linking protocol</strong> that emulates stateful contracts by sharing state across transactions. "BitVMX can be instantiated to balance transaction cost vs round complexity, prover cost vs verifier cost."<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<p><strong>BitVM3</strong> (Robin Linus, July 2025) changes direction. Where the prior two versions attempted <em>on-chain</em> computation in Bitcoin Script, BitVM3 moves computation <em>off-chain</em> using <strong>garbled circuits</strong>, a cryptographic technique from the 1980s.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> As a result, worst-case dispute cost falls from multi-megabyte transactions to roughly 2.5 kvB (about $5 at current fees) — a "nearly 1000× improvement" — while also simplifying the transaction graph.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> BitVM3 is, however, a relatively new design with no evidenced production bridge deployment yet.</p>
+<h2>6. Trust model, deployments, and critiques</h2>
+<p>BitVM bridges lower the trust assumption from honest-majority (t-of-n) to <strong>existential honesty (1-of-n)</strong> — only one active, rational operator is needed while the rest may be malicious.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> Yet nearly every source frames this as "<strong>trust-minimized</strong>," not "trustless."<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup></p>
+<p>The sharpest critique concerns <strong>capital formation and liveness</strong>. A BitVM bridge is technically closer to an optimistic <em>reimbursement</em> system: operators front their own BTC to process user withdrawals and recover it later from the deposit. In Decrypt's independent reporting, Tyler Whittle argues that "BitVM bridges treat capital formation as trivial. But the bridge protocol is not well defined until it describes HOW this upfront capital is raised."<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> Taproot Wizards co-founder Eric Wall turned skeptical after learning the withdrawal details, reporting "I just got banned from the BitVM builders chat for asking more questions."<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> On the other side, BitVM rollup developer Edan Yago counters that withdrawal limits matched to operator liquidity and multiple operator sets can mitigate the problem.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> The design creates a liveness dependency in which all operators must remain functional and solvent, raising denial-of-service risk during demand spikes.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></p>
+<p>The capital-efficiency problem is corroborated by independent technical analysis: operators must stake funds covering Disprove costs <em>upfront</em>, accumulating with the number of operators × withdrawal requests and locked until bridge-out completes — which Alpen labels "an active area of research."<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> That security bonds must be provisioned at setup time inside pre-signed transaction graphs increases capital lockup and operating cost.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> Critical write-ups such as "BitVM Bridges Considered Unsafe" (Whittle, Rijndael) make the same point.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></p>
+<p>Even so, deployment is underway. Citrea put its BitVM-based bridge <strong>Clementine</strong> on testnet in 2025, reported as "the first complete BitVM bridge design."<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup> Bitlayer launched a <strong>BitVM Bridge mainnet beta</strong> on 2025-07-15, stating "the Mainnet Beta is now live — and this is only the beginning," using major mining pools (Antpool, F2Pool, SpiderPool) as validators.<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> These remain testnet and mainnet <em>beta</em> respectively, however — too early to call a mature, high-TVL production bridge. _(early signal)_</p>
+<h2>7. Limitations</h2>
+<ul>
+<li><strong>Fast-moving target.</strong> BitVM evolved BitVM1→2→X→3 in under two years. Any "current state" claim (script sizes, transaction counts, deployment status) may be stale within months; figures here are pinned to mid-2026 sources.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></li>
+<li><strong>Moving numbers.</strong> The Groth16-in-Script size has been quoted at 7 GB → ~3 GB → ~1.2 GB → ~1 GB. Treat any specific figure as approximate and trending down.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></li>
+<li><strong>Vendor/preprint-heavy evidence.</strong> The strongest technical detail is project-hosted (bitvm.org), preprint (arXiv, IACR), or vendor-blog (Bitlayer, Alpen); peer review is limited. The BitVMX arXiv paper and independent journalism/critique (Decrypt, Whittle) are the most independent anchors.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></li>
+<li><strong>PDF access.</strong> The BitVM2 bridge paper (s04) and BitVM3 paper (s10) were not read as full text (marked <code>access_limited</code>); their claims are cross-checked via the HTML project page (s03), the reference repo (s06), and secondary explainers (s07, s11).</li>
+<li><strong>Maturity.</strong> What is confirmed reaches Citrea testnet and Bitlayer mainnet <em>beta</em>. A fully-audited, high-TVL mainnet BitVM bridge is not established as of 2026-06, and production-readiness claims are treated conservatively.<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Robin Linus</span>. <a href="https://bitvm.org/bitvm.pdf">BitVM: Compute Anything on Bitcoin</a>. <span class="venue">bitvm.org (whitepaper), 2023</span>. <span class="accessed">Accessed 2026-06-01.</span></li>
+      <li id="ref-2"><span class="authors">BitVM contributors</span>. <a href="https://github.com/BitVM/BitVM">BitVM/BitVM — A Trust-minimized Bitcoin Bridge (reference implementation)</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">Accessed 2026-06-01.</span></li>
+      <li id="ref-3"><span class="authors">Robin Linus, Lukas Aumayr, Andrea Pelosi, Alexei Zamyatin, Matteo Maffei</span>. <a href="https://bitvm.org/bitvm2.html">BitVM 2: Permissionless Verification on Bitcoin</a>. <span class="venue">bitvm.org, 2024</span>. <span class="accessed">Accessed 2026-06-01.</span></li>
+      <li id="ref-4"><span class="authors">Sergio Demian Lerner, Ramon Amela, Shreemoy Mishra, Martin Jonas, Javier Álvarez Cid-Fuentes</span>. <a href="https://arxiv.org/abs/2405.06842">BitVMX: A CPU for Universal Computation on Bitcoin</a>. <span class="venue">arXiv:2405.06842, 2024</span>. <span class="accessed">Accessed 2026-06-01.</span></li>
+      <li id="ref-5"><span class="authors">Alpen Labs</span>. <a href="https://www.alpenlabs.io/blog/state-of-snark-verification-with-bitvm2">State of SNARK verification with BitVM2</a>. <span class="venue">Alpen Labs blog, 2024</span>. <span class="accessed">Accessed 2026-06-01.</span></li>
+      <li id="ref-6"><span class="authors">Decrypt</span>. <a href="https://decrypt.co/225279/bitcoin-bitvm-trust-bridge-liquidi">Is BitVM the Holy Grail of Bitcoin? It&#x27;s Complicated, Developers Say</a>. <span class="venue">Decrypt, 2024</span>. <span class="accessed">Accessed 2026-06-01.</span></li>
+      <li id="ref-7"><span class="authors">Robin Linus</span>. <a href="https://fermatslibrary.com/s/bitvm-compute-anything-on-bitcoin">BitVM: Compute Anything on Bitcoin (annotated)</a>. <span class="venue">Fermat&#x27;s Library, 2023</span>. <span class="accessed">Accessed 2026-06-01.</span></li>
+      <li id="ref-8"><span class="authors">Robin Linus, Lukas Aumayr, Andrea Pelosi, Alexei Zamyatin, Matteo Maffei</span>. <a href="https://bitvm.org/bitvm_bridge.pdf">BitVM2: Bridging Bitcoin to Second Layers (bridge paper)</a>. <span class="venue">bitvm.org, 2024</span>. <span class="accessed">Accessed 2026-06-01.</span> <span class="unverified">[access limited]</span></li>
+      <li id="ref-9"><span class="authors">Robin Linus</span>. <a href="https://bitvm.org/bitvm3.pdf">BitVM3: Garbled Circuits for Efficient Computation on Bitcoin</a>. <span class="venue">bitvm.org, 2025</span>. <span class="accessed">Accessed 2026-06-01.</span> <span class="unverified">[access limited]</span></li>
+      <li id="ref-10"><span class="authors">Yash (OnChain Bitcoin)</span>. <a href="https://onchainbitcoin.substack.com/p/bitvm-3-breaking-down-the-cost-barrier">BitVM 3: Breaking down the cost barrier</a>. <span class="venue">OnChain Bitcoin (Substack), 2025</span>. <span class="accessed">Accessed 2026-06-01.</span></li>
+      <li id="ref-11"><span class="authors">Bitlayer</span>. <a href="https://blog.bitlayer.org/bitlayer-summer-launch-2025/">Bitlayer Summer Launch 2025: BitVM Bridge Mainnet</a>. <span class="venue">Bitlayer blog, 2025</span>. <span class="accessed">Accessed 2026-06-01.</span></li>
+      <li id="ref-12"><span class="authors">Tyler Whittle, Rijndael</span>. <a href="https://medium.com/@twhittle/bitvm-bridges-considered-unsafe-9e1ce75c8176">BitVM Bridges Considered Unsafe</a>. <span class="venue">Medium, 2024</span>. <span class="accessed">Accessed 2026-06-01.</span> <span class="unverified">[access limited]</span></li>
+      <li id="ref-13"><span class="authors">CoinDesk</span>. <a href="https://www.coindesk.com/tech/2024/09/24/bitcoin-rollup-citrea-deploys-bitvm-based-clementine-on-testnet">Bitcoin Rollup Citrea Deploys BitVM-Based Bridge &#x27;Clementine&#x27; on Testnet</a>. <span class="venue">CoinDesk, 2024</span>. <span class="accessed">Accessed 2026-06-01.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-06-01. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
