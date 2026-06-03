@@ -1,0 +1,10 @@
+title: MPP (Machine Payments Protocol) 상세 분석 — mpp.dev/protocol 문서 기준
+subtitle: "Payment" HTTP 인증 스킴(draft-ryan-httpauth-payment-01) 기반의 Challenge·Credential·Receipt 플로우, 세 가지 인텐트, 트랜스포트, 결제 레일, 그리고 보안·성숙도에 대한 mpp.dev/protocol 문서 기준 기술 분석
+title_en: MPP (Machine Payments Protocol) — A Documentation-Grounded Technical Analysis
+subtitle_en: The Challenge·Credential·Receipt flow of the "Payment" HTTP authentication scheme (draft-ryan-httpauth-payment-01), its three intents, transports, payment rails, and security/maturity, grounded in the mpp.dev/protocol docs
+slug: mpp-machine-payments-protocol
+lang: ko
+langs: [ko, en]
+date: 2026-06-03
+tags: [mpp, machine-payments-protocol, tempo, stripe, http-402, payment-auth, ietf, challenge-credential-receipt, intents, charge, session, subscription, mcp, websocket, x402, ai-agents]
+status: ready
