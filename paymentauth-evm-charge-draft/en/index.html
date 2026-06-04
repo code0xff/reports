@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Analyzing draft-evm-charge-00: The EVM Charge Intent for HTTP Payment Authentication — Deepsearch</title>
+<meta name="description" content="A close reading of the MPP EVM method-binding Internet-Draft — the charge flow, the four credential types, verification/settlement, security, and its relationship to x402.">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>Analyzing draft-evm-charge-00: The EVM Charge Intent for HTTP Payment Authentication</h1>
+    <p class="subtitle">A close reading of the MPP EVM method-binding Internet-Draft — the charge flow, the four credential types, verification/settlement, security, and its relationship to x402.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-06-04</span>
+      <span><strong>Tags</strong> mpp, http-402, payment-authentication, evm, permit2, eip-3009, x402, internet-draft, agentic-payments</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="paymentauth-evm-charge-draft.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p><code>draft-evm-charge-00</code>, "EVM Charge Intent for HTTP Payment Authentication," is an Internet-Draft dated 3 June 2026, co-authored by Brett DiNovi (MegaETH Labs), Conner Swenberg (Coinbase), and Kyle Scott (Monad Foundation).<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> It is the <strong>EVM method binding</strong> of <strong>Tempo's Machine Payments Protocol (MPP)</strong> — a payment-method-agnostic "Payment" HTTP authentication scheme that operates over HTTP 402 — and it unifies EVM-compatible chains under a single <code>evm</code> method because "the control flow, data structures, and verification logic are identical across these chains."<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> The charge flow runs: server 402 + <code>WWW-Authenticate: Payment</code> challenge → client off-chain signature → <code>Authorization: Payment</code> submission → server on-chain verification/settlement → <code>Payment-Receipt</code> + 200.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> Its core is <strong>four credential types</strong>: <code>permit2</code> (recommended), <code>authorization</code> (EIP-3009 only), <code>transaction</code>, and <code>hash</code> — differing in who pays gas, challenge-binding strength, and split-payment support.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> One author is x402's designer (Coinbase's Conner Swenberg), and an independent explainer calls MPP "backward-compatible with x402 at the charge layer" — so this draft reads as an effort to standardize x402-style EVM payments inside the MPP framework.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> It is, however, a v00 first edition and non-standard, and centralization (Tempo L1) and gatekeeping (Stripe) critiques exist around the broader stack.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+  </section>
+
+  <main class="body">
+<h1>Analyzing draft-evm-charge-00: The EVM Charge Intent for HTTP Payment Authentication</h1>
+<h2>1. Introduction</h2>
+<p>The task of this report is to read and analyze a specific document, <code>https://paymentauth.org/draft-evm-charge-00.txt</code>. Its metadata: title "EVM Charge Intent for HTTP Payment Authentication," identifier <code>draft-evm-charge-00</code>, status Internet-Draft, dated 2026-06-03, expiring 2026-12-05, authored by Brett DiNovi (MegaETH Labs), Conner Swenberg (Coinbase), and Kyle Scott (Monad Foundation).<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p>The problem it solves is explicit: rather than defining a separate payment method per EVM chain, fold the identical control flow, data structures, and verification logic into one <code>evm</code> method.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> This report (1) situates the document in its parent framework (MPP), then analyzes (2) the charge flow and headers, (3) the four credential types, (4) verification/settlement/replay, and (5) security and the x402 relationship. Evidence is the target draft (primary) plus paymentauth.org's base and discovery drafts and an independent MPP explainer.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<h2>2. The parent framework: MPP and the "Payment" HTTP authentication scheme</h2>
+<p><code>paymentauth.org</code> hosts <strong>Tempo's Machine Payments Protocol (MPP)</strong> specifications. The core includes the "Payment" HTTP authentication scheme (<code>draft-httpauth-payment</code>), service discovery (<code>draft-payment-discovery</code>; services publish an OpenAPI document annotated with pricing, payment methods, and intents as a machine-readable contract),<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> and JSON-RPC &amp; MCP transport; above it sit per-method drafts (Card, EVM, Hedera, Lightning, Solana, Stellar, Stripe, Tempo) and session specs. The repository is <code>tempoxyz/mpp-specs</code> on GitHub.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<p>The base "Payment" scheme runs over HTTP 402 "Payment Required" and is "payment-method agnostic, supporting any payment network or currency through registered payment method identifiers."<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> The challenge (<code>WWW-Authenticate: Payment</code>) carries <code>id</code>, <code>realm</code>, <code>method</code>, <code>intent</code>, <code>request</code> (base64url JSON), and optional <code>expires</code>; the credential (<code>Authorization: Payment</code>) carries base64url JSON <code>{challenge, source, payload}</code>.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> Methods and intents are registered in their own specs and IANA registries, extensible without changing the core.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> MPP distinguishes <strong>charge</strong> intent (one-shot) from <strong>session</strong> intent (escrow once, then stream signed vouchers); this draft is the <strong>EVM binding of the charge intent</strong>.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> Accordingly the document registers, with IANA, the payment method <code>evm</code> (ERC-20 transfer on EVM chains) and the intent <code>charge</code> (one-time ERC-20 transfer, applicable to <code>evm</code>).<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<h2>3. The charge flow and HTTP headers</h2>
+<p>The charge flow has six steps.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></p>
+<p>1. Client requests a protected resource. 2. Server responds <code>402 Payment Required</code> with a <code>WWW-Authenticate: Payment</code> challenge (<code>id</code>, <code>realm</code>, <code>method</code>, <code>intent</code>, <code>request</code>, <code>expires</code>). 3. Client signs the authorization in the manner appropriate to the credential type. 4. Client submits a base64url credential via <code>Authorization: Payment</code>. 5. Server verifies and settles on-chain. 6. Server returns a <code>Payment-Receipt</code> header and <code>200 OK</code>.</p>
+<p>The challenge's <code>request</code> carries <code>amount</code> (base units), <code>currency</code> (ERC-20 contract address), <code>recipient</code>, optional <code>description</code>/<code>externalId</code>, and <code>methodDetails</code> with <code>chainId</code> (EIP-155), <code>credentialTypes</code>, and <code>splits</code> (recipient/amount/memo array).<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> The credential contains the echoed <code>challenge</code>, a type-specific <code>payload</code>, and an optional <code>source</code> (<code>did:pkh:eip155:...</code> recommended); the receipt carries <code>method</code>, <code>challengeId</code>, <code>reference</code> (tx hash), <code>status</code>, <code>timestamp</code> (RFC3339), and <code>chainId</code>.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<h2>4. The four credential types</h2>
+<p>The document's design centers on four credential types, trading off token compatibility, gas burden, and binding strength.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<ul>
+<li><strong><code>permit2</code> (recommended)</strong>: the client signs an off-chain EIP-712 Permit2 authorization; the server constructs and broadcasts the transaction and <strong>pays gas</strong>. It supports atomic split payments via batch transfers, with challenge binding via witness data.</li>
+<li><strong><code>authorization</code> (EIP-3009 tokens only)</strong>: the client signs an off-chain <code>transferWithAuthorization</code> message and the server submits it to the token contract. No Permit2 prerequisite (<strong>zero setup</strong>), the server pays gas, and binding uses an on-chain nonce.</li>
+<li><strong><code>transaction</code></strong>: the client signs a complete ERC-20 transfer transaction and the server broadcasts it; the <strong>client pays gas</strong>. A fallback for chains without Permit2.</li>
+<li><strong><code>hash</code></strong>: the client broadcasts the transaction itself and presents the confirmed hash, which the server verifies on-chain. This is the <strong>weakest challenge binding</strong> and does not support splits.</li>
+</ul>
+<p>So the types split along one axis of server-pays-gas (<code>permit2</code>/<code>authorization</code>, gasless client) vs. client-pays-gas (<code>transaction</code>/<code>hash</code>), and another where only <code>permit2</code> fully supports atomic splits.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<h2>5. Verification, settlement, and replay protection</h2>
+<p><strong>Verification (permit2 example).</strong> Before settling, the server MUST verify: (1) a valid EIP-712 signature, (2) the deadline not expired, (3) the signer's balance and Permit2 allowance sufficient, (4) <code>witness.challengeHash</code> matches the value derived from the challenge <code>id</code>/<code>realm</code>, (5) transfer amounts and recipients match the request, and (6) for splits, the <code>transferDetails</code> array matches the permitted and splits arrays.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p><strong>Settlement.</strong> A single permit2 transfer calls <code>Permit2.permitWitnessTransferFrom()</code>; splits call <code>permitBatchWitnessTransferFrom()</code>, making all transfers atomic — the document states "all succeed or all revert."<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> <code>authorization</code> calls the token's <code>transferWithAuthorization()</code>, <code>transaction</code> broadcasts a signed EIP-1559 tx, and <code>hash</code> fetches a receipt via <code>eth_getTransactionReceipt()</code>. All settlement requires a successful receipt (inclusion in a block).<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p><strong>Replay and challenge binding.</strong> The document's key security property is that "the signature cannot be reused against a different challenge, even if the payment parameters are identical."<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> This is realized per type — permit2 via <code>witness.challengeHash</code> in the EIP-712 struct, EIP-3009 via <code>nonce = keccak256(challenge.id || challenge.realm)</code>, and transaction/hash via the server matching on-chain state (weaker).<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> Replay protection likewise differs: permit2/authorization consume an on-chain nonce, transaction uses chainId+nonce, and hash uses hash-deduplication tracking.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<h2>6. Security considerations and the x402 relationship</h2>
+<p><strong>Security.</strong> The document layers several considerations.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> With gas sponsorship (server pays gas for permit2/authorization), it flags <strong>DoS</strong> risk via failed transactions and recommends <code>eth_call</code> simulation before broadcast as mitigation. Split payments use batch atomicity ("all succeed or all revert") to prevent partial failure; it also addresses the weak binding of <code>hash</code>, RPC trust (the server confirms chain state via RPC), and fee-payer risks in dedicated sections.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p><strong>Relationship to x402.</strong> This draft did not appear in a vacuum. One author is <strong>x402's designer (Coinbase's Conner Swenberg)</strong>, and the credentials are built on Permit2 witnesses and EIP-3009 <code>transferWithAuthorization</code> — the same family as x402's EVM payments.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> An independent explainer assesses that "<strong>MPP is backward-compatible with x402 at the charge layer</strong>," and that MPP eliminates the facilitator concept and ships production-ready fiat while x402 prioritizes permissionlessness.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> So evm-charge reads as an attempt to absorb and standardize x402-style EVM payments via MPP's method/intent registry. _(an explainer's assessment — the draft is not confirmed to guarantee x402 compatibility in normative text)_<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p><strong>Critiques.</strong> The broader stack draws centralization critiques — Tempo is a VC-backed L1 with "centralized validator sets at launch," and Stripe dependency raises fintech-gatekeeping concerns, with stablecoin acceptance currently US-centric.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> These are concerns about MPP/Tempo overall rather than defects of the evm-charge draft itself.</p>
+<h2>7. Limitations</h2>
+<ul>
+<li><strong>v00, non-standard.</strong> draft-evm-charge-00 is a first edition dated 2026-06-03, expiring 2026-12-05, and is not an IETF-endorsed standard; fields, credentials, and procedures may change in revisions.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></li>
+<li><strong>Single-document dependence.</strong> Technical statements about the document's <em>content</em> rest on that document (s01) as the sole primary source. It is reproduced faithfully but not validated by independent implementation, audit, or peer review; "the document specifies" does not mean "safe/valid/adopted."<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></li>
+<li><strong>Base-scheme naming difference.</strong> The base "Payment" scheme appears as <code>draft-ryan-httpauth-payment-01</code> on the IETF datatracker and as <code>draft-httpauth-payment-00</code> in MPP commentary — apparently the same lineage, but identity is not asserted with certainty.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></li>
+<li><strong>No deployment/implementation.</strong> No server/client implementation, deployment, or interop of this draft was confirmed.</li>
+<li><strong>x402 compatibility / centralization are external assessments.</strong> The x402 charge-layer compatibility and the Tempo/Stripe critiques are commentators' assessments, not normative guarantees in the draft.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Brett DiNovi, Conner Swenberg, Kyle Scott</span>. <a href="https://paymentauth.org/draft-evm-charge-00.txt">EVM Charge Intent for HTTP Payment Authentication (draft-evm-charge-00)</a>. <span class="venue">paymentauth.org Internet-Draft, 2026</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-2"><span class="authors">Tempo</span>. <a href="https://paymentauth.org/">Machine Payments Protocol (MPP) Specifications — index</a>. <span class="venue">paymentauth.org, 2026</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-3"><span class="authors">Ryan, Moxey, Meagher, Weinstein, Kaliski</span>. <a href="https://datatracker.ietf.org/doc/html/draft-ryan-httpauth-payment-01">The &quot;Payment&quot; HTTP Authentication Scheme (draft-ryan-httpauth-payment-01)</a>. <span class="venue">IETF Datatracker (Internet-Draft), 2026</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-4"><span class="authors">Formo</span>. <a href="https://formo.so/blog/mpp-machine-payments-protocol-explained">What Is MPP? The Machine Payments Protocol by Tempo Explained</a>. <span class="venue">Formo blog, 2026</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-5"><span class="authors">Tempo / MPP contributors</span>. <a href="https://paymentauth.org/draft-payment-discovery-00.html">Service Discovery for HTTP Payment Authentication (draft-payment-discovery-00)</a>. <span class="venue">paymentauth.org Internet-Draft, 2026</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-6"><span class="authors">RobotDomainSearch</span>. <a href="https://www.robotdomainsearch.com/blog/2026/03/19/what-is-mpp-dual-payment-protocol/">What is MPP? Dual Payment Protocol</a>. <span class="venue">RobotDomainSearch blog, 2026</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-06-04. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

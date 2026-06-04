@@ -1,0 +1,10 @@
+title: 'draft-evm-charge-00 분석: HTTP 결제 인증을 위한 EVM Charge Intent'
+subtitle: MPP(Machine Payments Protocol)의 EVM 메서드 바인딩 인터넷 드래프트 정밀 분석 — charge 플로우, 네 가지 크리덴셜(permit2·authorization·transaction·hash), 검증·정산, 보안, 그리고 x402와의 관계.
+title_en: 'Analyzing draft-evm-charge-00: The EVM Charge Intent for HTTP Payment Authentication'
+subtitle_en: A close reading of the MPP EVM method-binding Internet-Draft — the charge flow, the four credential types, verification/settlement, security, and its relationship to x402.
+slug: paymentauth-evm-charge-draft
+lang: ko
+langs: [ko, en]
+date: 2026-06-04
+tags: [mpp, http-402, payment-authentication, evm, permit2, eip-3009, x402, internet-draft, agentic-payments]
+status: ready
