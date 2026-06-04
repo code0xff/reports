@@ -1,0 +1,10 @@
+title: 'draft-httpauth-payment-00 분석: "Payment" HTTP 인증 스킴'
+subtitle: MPP의 코어 인터넷 드래프트 정밀 분석 — HTTP 402 챌린지, WWW-Authenticate/Authorization Payment 크리덴셜, method·intent 레지스트리, 챌린지 바인딩과 보안 모델, IETF 지위, x402 호환.
+title_en: 'Analyzing draft-httpauth-payment-00: The "Payment" HTTP Authentication Scheme'
+subtitle_en: A close reading of the MPP core Internet-Draft — the HTTP 402 challenge, WWW-Authenticate/Authorization Payment credentials, the method/intent registry, challenge binding and the security model, IETF standing, and x402 compatibility.
+slug: httpauth-payment-scheme-draft
+lang: ko
+langs: [ko, en]
+date: 2026-06-04
+tags: [mpp, http-402, payment-authentication, http-auth, tempo, stripe, x402, internet-draft, agentic-payments]
+status: ready

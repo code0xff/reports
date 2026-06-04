@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>draft-httpauth-payment-00 분석: &quot;Payment&quot; HTTP 인증 스킴 — Deepsearch</title>
+<meta name="description" content="MPP의 코어 인터넷 드래프트 정밀 분석 — HTTP 402 챌린지, WWW-Authenticate/Authorization Payment 크리덴셜, method·intent 레지스트리, 챌린지 바인딩과 보안 모델, IETF 지위, x402 호환.">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="en" href="en/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="en/index.html" hreflang="en">English</a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>draft-httpauth-payment-00 분석: &quot;Payment&quot; HTTP 인증 스킴</h1>
+    <p class="subtitle">MPP의 코어 인터넷 드래프트 정밀 분석 — HTTP 402 챌린지, WWW-Authenticate/Authorization Payment 크리덴셜, method·intent 레지스트리, 챌린지 바인딩과 보안 모델, IETF 지위, x402 호환.</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-06-04</span>
+      <span><strong>태그</strong> mpp, http-402, payment-authentication, http-auth, tempo, stripe, x402, internet-draft, agentic-payments</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="httpauth-payment-scheme-draft.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p><code>draft-httpauth-payment-00</code> "The 'Payment' HTTP Authentication Scheme"은 B. Ryan·J. Moxey·T. Meagher(Tempo Labs)와 J. Weinstein·S. Kaliski(Stripe)가 저자인 인터넷 드래프트로, 2026-06-03자(만료 2026-12-05)이며 Standards Track을 <em>의도</em>한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 이 문서는 Tempo의 <strong>Machine Payments Protocol(MPP)</strong> 의 <strong>코어</strong> — RFC 9110의 HTTP 인증을 확장해, 예약만 되고 정의되지 않았던 <strong>HTTP 402 "Payment Required"</strong> 에 의미를 부여하는 결제수단 불가지(agnostic) 인증 스킴이다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 동작은 챌린지-응답이다: 서버가 <code>402</code> + <code>WWW-Authenticate: Payment</code>(id·realm·method·intent·request 등)로 챌린지하면, 클라이언트가 base64url JSON <code>{challenge, source, payload}</code>를 <code>Authorization: Payment</code>로 제출하고, 서버가 검증·정산 후 <code>Payment-Receipt</code>와 함께 자원을 반환한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 결제수단·의도는 <strong>IANA "Specification Required" 레지스트리</strong>로 등록되어 코어 변경 없이 확장되며, 보안 모델은 <strong>HMAC-SHA256 챌린지 바인딩·단일사용 증명·멱등성·TLS 필수</strong>를 중심으로 한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 다만 IETF datatracker는 이 문서를 워킹그룹 <strong>미채택 개인 드래프트("IETF 미보증·공식 지위 없음")</strong>로 분류하며, datatracker 버전·일자와 paymentauth.org 버전·일자가 불일치한다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 생태계로는 두 프로덕션 메서드(Tempo=스테이블코인, Stripe=법정화폐), Cloudflare·Stripe 채택 신호, x402 하위 호환이 보고된다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+  </section>
+
+  <main class="body">
+<h1>draft-httpauth-payment-00 분석: "Payment" HTTP 인증 스킴</h1>
+<h2>1. 서론</h2>
+<p>본 보고서의 과업은 문서 <code>https://paymentauth.org/draft-httpauth-payment-00.txt</code>를 정독·분석하는 것이다. 메타데이터: 제목 "The 'Payment' HTTP Authentication Scheme", 저자 B. Ryan·J. Moxey·T. Meagher(Tempo Labs)·J. Weinstein·S. Kaliski(Stripe), 상태 Internet-Draft(Standards Track 의도), 일자 2026-06-03, 만료 2026-12-05.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 문서가 푸는 문제는 명확하다 — HTTP 402는 오래 <em>예약</em>만 되어 의미가 정의되지 않았는데, 이 스킴이 RFC 9110 HTTP 인증을 확장해 402에 표준적 의미(결제 챌린지 충족 후 접근 허용)를 부여한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 본 보고서는 앞서 분석한 EVM charge intent(<code>draft-evm-charge-00</code>)의 <em>상위 코어</em>인 이 문서를 정독하고, 프로토콜 개요 → 스킴 메커닉 → 레지스트리·협상 → 보안 모델 → IETF 지위·생태계 순으로 분석한다. 자료는 대상 드래프트(1차)와 IETF datatracker, 그리고 생태계 문서·독립 해설이다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<h2>2. 프로토콜 개요와 402의 위치</h2>
+<p>요청 흐름은 단순하다 — 클라이언트가 일반 요청을 보내면 서버가 402로 결제 요건을 알리고, 클라이언트가 결제 증명을 붙여 재시도하면 서버가 검증 후 자원을 반환한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 핵심 규범은 "서버는 결제가 필요하거나 결제 크리덴셜 검증이 <strong>실패</strong>할 때 402와 함께 <code>WWW-Authenticate: Payment</code> 헤더를 MUST 반환한다"는 것이다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p>여기서 일반 HTTP 인증과의 차이가 드러난다. 보통의 인증 스킴은 <em>실패한</em> 크리덴셜에 401 Unauthorized를 쓰지만, 이 스킴은 검증 실패를 포함한 모든 결제 관련 챌린지에 <strong>일관되게 402를 사용</strong>한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 즉 402는 "결제 인증 도메인"의 전용 상태코드로 자리매김하며, 문서는 402를 언제 반환/미반환하는지(4.4절)와 다른 인증 스킴과의 상호작용(4.4.3절)을 별도로 규정한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<h2>3. 챌린지·크리덴셜·리시트</h2>
+<p><strong>챌린지(<code>WWW-Authenticate: Payment</code>).</strong> 필수 파라미터는 <code>id</code>(챌린지 식별자, 파라미터에 바인딩)·<code>realm</code>(RFC 9110 보호 공간)·<code>method</code>(결제수단 식별자)·<code>intent</code>(IANA 등록 의도)·<code>request</code>(base64url·JCS 직렬화 JSON, 메서드별 데이터)다. 선택 파라미터로 <code>expires</code>(RFC 3339)·<code>digest</code>(RFC 9530 콘텐츠 다이제스트)·<code>description</code>(표시 전용)·<code>opaque</code>(서버 상관관계 데이터, 변경 없이 반환)가 있다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p><strong>크리덴셜(<code>Authorization: Payment</code>).</strong> 클라이언트는 base64url JSON <code>{challenge(에코된 챌린지 파라미터), source(선택적 지불자 식별자), payload(메서드별 증명)}</code>를 제출한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p><strong>리시트(<code>Payment-Receipt</code>).</strong> 결제 성공 시 서버는 <code>status("success")·method·timestamp(RFC 3339)·reference(메서드별)</code>를 담은 <code>Payment-Receipt</code> 헤더를 SHOULD 포함한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 중요한 안전장치로, <code>description</code>은 표시 전용이며 결제 검증에 사용해선 안 되고, 클라이언트는 결제 인가 <em>전에</em> 금액을 MUST 검증한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<h2>4. method/intent 레지스트리와 협상</h2>
+<p>이 스킴의 확장성은 <strong>레지스트리 분리</strong>에서 온다. <code>method</code> 식별자는 소문자 ASCII(a–z), <code>intent</code> 식별자는 영숫자+하이픈이며, 둘 다 IANA <strong>"Specification Required"</strong> 정책(RFC 8126)으로 등록된다. 메서드 스펙은 request 스키마·payload 스키마·검증 절차·정산 절차를 정의해야 한다 — 따라서 새 결제수단(EVM·Solana·Card·Stripe 등)은 코어를 건드리지 않고 별도 스펙으로 추가된다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p><strong>협상.</strong> 서버는 서로 다른 method/intent를 제시하는 <strong>복수의 <code>WWW-Authenticate: Payment</code> 헤더</strong>를 반환할 수 있고, 클라이언트는 <code>Accept-Payment</code> 헤더로 q-가중 선호를 선언할 수 있다(예: <code>Accept-Payment: tempo/charge, solana/*;q=0.6, stripe/charge;q=0.2</code>). 서버는 이를 필터·정렬해 SHOULD 제시한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 이 콘텐츠-협상 패턴이 "에이전트가 자신이 지원하는 결제수단을 고르는" MPP의 멀티-레일 동작을 가능케 한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<h2>5. 보안 모델</h2>
+<p>문서의 보안 절(11장)은 위협 모델부터 캐싱까지 다층적이다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p><strong>챌린지 바인딩(HMAC-SHA256).</strong> 스테이트리스 검증을 위해 서버는 챌린지 <code>id</code>를 <code>realm | method | intent | request(base64url) | expires | digest | opaque</code> 7개 고정 슬롯 문자열에 대한 서버 비밀키 HMAC-SHA256로 계산한다. 이로써 클라이언트가 결제 세부(금액·수신자 등)를 변조하는 요청-무결성 공격을 차단한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p><strong>재생방지·동시성.</strong> "본 스펙과 함께 쓰는 결제수단은 단일사용(single-use) 증명 의미론을 MUST 제공"하며, "서버는 동일 Payment 크리덴셜의 동시 요청이 최대 1회의 성공 정산만 일으키도록 MUST 보장"한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p><strong>멱등성.</strong> "서버는 결제되지 않은 요청에 대해 부수효과(DB 쓰기·외부 API 호출)를 수행하지 않아야 한다(MUST NOT)" — 결제 전 부작용 금지.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p><strong>전송·저장·캐싱.</strong> "모든 Payment 인증 흐름에 TLS 1.2 이상을 REQUIRE"하고, "서버·중개자는 Payment 크리덴셜을 로깅·오류메시지·디버깅·분석에 포함하지 않아야 한다(MUST NOT)"며, 402 응답에는 <code>Cache-Control: no-store</code>를 MUST 전송한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 오류 응답은 RFC 9457 Problem Details로 표준화되고, 검증 실패·만료 챌린지·변조 크리덴셜 등은 모두 새 402 챌린지로 회신한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<h2>6. IETF 지위·생태계·x402 관계</h2>
+<p><strong>지위(중요).</strong> 본문은 Standards Track을 <em>의도</em>하지만, IETF datatracker는 이 문서(<code>draft-ryan-httpauth-payment</code>)를 워킹그룹 <strong>미채택 개인 드래프트</strong>로 분류하고 "IETF가 보증하지 않으며 IETF 표준 절차에서 공식 지위가 없다"고 명시한다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 즉 현 시점에서 이것은 "표준"이 아니라 "표준이 되려는 개인 제안"이다. 나아가 datatracker 버전·일자(<code>draft-ryan-httpauth-payment-01</code>, 2026-03-17 갱신·2026-09-19 만료)와 paymentauth.org 버전·일자(<code>draft-httpauth-payment-00</code>, 2026-06-03자·2026-12-05 만료)가 <strong>불일치</strong>한다 — 사이트 배포본과 IETF 제출본의 명명·날짜 체계가 다르며, 본 보고서는 동일 계열로 보되 완전 동일성은 단정하지 않는다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> _(두 출처 간 메타데이터 상충)_</p>
+<p><strong>생태계.</strong> MPP는 두 프로덕션 메서드를 제공한다 — Tempo(스테이블코인)와 Stripe(카드·지갑 등 법정화폐) — 서버가 둘을 동시 광고하면 클라이언트가 지원 수단을 고른다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> 독립 해설은 MPP가 코어 스킴과 메서드별 스펙(Tempo·Stripe·Solana·Card), 그리고 intent(charge·session)를 분리한다고 정리한다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> 채택 신호로는 Cloudflare Agents의 MPP 문서와 Stripe의 MPP 결제 문서가 있다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> 스펙 저장소는 GitHub <code>tempoxyz/mpp-specs</code>로, "'Payment' HTTP 인증 스킴으로 구동되는 MPP 스펙"이라고 기술한다.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></p>
+<p><strong>x402와의 관계.</strong> 독립 비교 분석은 두 프로토콜이 모두 402를 쓰지만 철학이 다르다고 본다 — x402(Coinbase)는 퍼미션리스·무프로토콜수수료이고, MPP는 법정화폐(Stripe) 프로덕션 지원·네이티브 스트리밍 세션·facilitator 개념 제거·IETF 제출을 특징으로 한다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 핵심은 "<strong>MPP가 x402와 하위 호환</strong>으로, x402의 'exact' 결제 흐름이 MPP의 charge intent에 직접 매핑되어 MPP 클라이언트가 기존 x402 서비스를 소비할 수 있다"는 점이다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> _(외부 평가 — 코어 문서가 명문 보장하는 사안은 아님)_ 또한 MPP가 검증 실패에도 402를 쓰는 것은 401을 쓰는 다른 인증 스킴과 구별되는 설계 선택으로 지적된다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<h2>7. 한계</h2>
+<ul>
+<li><strong>v00·미채택.</strong> 본문 Standards Track 의도와 달리 IETF datatracker상 미채택 개인 드래프트("IETF 미보증·공식 지위 없음")다. 필드·절차는 개정에서 바뀔 수 있다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></li>
+<li><strong>버전·일자 불일치.</strong> datatracker(<code>-ryan-…-01</code>, 2026-03-17)와 사이트(<code>-httpauth-…-00</code>, 2026-06-03)의 번호·날짜가 다르며, 동일 문서 관계를 단정하지 않는다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></li>
+<li><strong>단일-문서 의존.</strong> 문서 내용 서술은 그 문서(s01)가 유일 1차 출처다. 충실히 옮겼으나 독립 구현·감사·동료심사 검증은 없으며 "문서가 규정한다"가 "안전·채택됨"을 뜻하지 않는다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></li>
+<li><strong>x402 호환·채택 신호는 외부 평가.</strong> x402 하위호환과 Cloudflare/Stripe 채택은 외부 문서·해설의 서술로, 코어 문서의 명문 보장이나 광범위 프로덕션 사용을 단정하지 않는다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></li>
+<li><strong>이해관계.</strong> 저자가 Tempo Labs·Stripe로, 표준 제안이 이들 상업 제품과 직접 연결된다는 독립성 유의점이 있다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">B. Ryan, J. Moxey, T. Meagher, J. Weinstein, S. Kaliski</span>. <a href="https://paymentauth.org/draft-httpauth-payment-00.txt">The &quot;Payment&quot; HTTP Authentication Scheme (draft-httpauth-payment-00)</a>. <span class="venue">paymentauth.org Internet-Draft, 2026</span>. <span class="accessed">접근일 2026-06-04.</span></li>
+      <li id="ref-2"><span class="authors">Brendan Ryan, Jake Moxey, Tom Meagher, Jeff Weinstein, Steve Kaliski</span>. <a href="https://datatracker.ietf.org/doc/draft-ryan-httpauth-payment/">The &quot;Payment&quot; HTTP Authentication Scheme — IETF Datatracker</a>. <span class="venue">IETF Datatracker (Individual Internet-Draft), 2026</span>. <span class="accessed">접근일 2026-06-04.</span></li>
+      <li id="ref-3"><span class="authors">Cloudflare</span>. <a href="https://developers.cloudflare.com/agents/agentic-payments/mpp/">MPP (Machine Payments Protocol) — Cloudflare Agents docs</a>. <span class="venue">Cloudflare Developer Docs, 2026</span>. <span class="accessed">접근일 2026-06-04.</span></li>
+      <li id="ref-4"><span class="authors">Formo</span>. <a href="https://formo.so/blog/mpp-machine-payments-protocol-explained">What Is MPP? The Machine Payments Protocol by Tempo Explained</a>. <span class="venue">Formo blog, 2026</span>. <span class="accessed">접근일 2026-06-04.</span></li>
+      <li id="ref-5"><span class="authors">Alchemy</span>. <a href="https://www.alchemy.com/blog/x402-vs-mpp-comparing-agent-payment-protocols">x402 vs MPP: Comparing Agent Payment Protocols</a>. <span class="venue">Alchemy blog, 2026</span>. <span class="accessed">접근일 2026-06-04.</span></li>
+      <li id="ref-6"><span class="authors">RobotDomainSearch</span>. <a href="https://www.robotdomainsearch.com/blog/2026/03/19/what-is-mpp-dual-payment-protocol/">What is MPP? Dual Payment Protocol</a>. <span class="venue">RobotDomainSearch blog, 2026</span>. <span class="accessed">접근일 2026-06-04.</span></li>
+      <li id="ref-7"><span class="authors">Stripe</span>. <a href="https://docs.stripe.com/payments/machine/mpp">MPP payments — Stripe Documentation</a>. <span class="venue">Stripe Docs, 2026</span>. <span class="accessed">접근일 2026-06-04.</span></li>
+      <li id="ref-8"><span class="authors">Tempo</span>. <a href="https://github.com/tempoxyz/mpp-specs">tempoxyz/mpp-specs — Specifications for the Machine Payments Protocol</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-06-04.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-06-04 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

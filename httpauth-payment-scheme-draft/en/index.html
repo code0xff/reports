@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Analyzing draft-httpauth-payment-00: The &quot;Payment&quot; HTTP Authentication Scheme — Deepsearch</title>
+<meta name="description" content="A close reading of the MPP core Internet-Draft — the HTTP 402 challenge, WWW-Authenticate/Authorization Payment credentials, the method/intent registry, challenge binding and the security model, IETF standing, and x402 compatibility.">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>Analyzing draft-httpauth-payment-00: The &quot;Payment&quot; HTTP Authentication Scheme</h1>
+    <p class="subtitle">A close reading of the MPP core Internet-Draft — the HTTP 402 challenge, WWW-Authenticate/Authorization Payment credentials, the method/intent registry, challenge binding and the security model, IETF standing, and x402 compatibility.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-06-04</span>
+      <span><strong>Tags</strong> mpp, http-402, payment-authentication, http-auth, tempo, stripe, x402, internet-draft, agentic-payments</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="httpauth-payment-scheme-draft.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p><code>draft-httpauth-payment-00</code>, "The 'Payment' HTTP Authentication Scheme," is an Internet-Draft authored by B. Ryan, J. Moxey, T. Meagher (Tempo Labs) and J. Weinstein, S. Kaliski (Stripe), dated 2026-06-03 (expiring 2026-12-05), with an <em>intended</em> status of Standards Track.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> It is the <strong>core</strong> of Tempo's <strong>Machine Payments Protocol (MPP)</strong> — a payment-method-agnostic authentication scheme that extends HTTP Authentication (RFC 9110) to give meaning to the long-reserved-but-undefined <strong>HTTP 402 "Payment Required"</strong> status code.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> It is challenge-response: the server challenges with <code>402</code> + <code>WWW-Authenticate: Payment</code> (id, realm, method, intent, request, …), the client submits base64url JSON <code>{challenge, source, payload}</code> via <code>Authorization: Payment</code>, and the server verifies/settles and returns the resource with a <code>Payment-Receipt</code>.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> Methods and intents are registered in an <strong>IANA "Specification Required" registry</strong>, extensible without changing the core, and the security model centers on <strong>HMAC-SHA256 challenge binding, single-use proofs, idempotency, and mandatory TLS</strong>.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> However, the IETF datatracker classifies this document as an <strong>unadopted individual draft ("not endorsed by the IETF … no formal standing")</strong>, and the datatracker version/date diverges from the paymentauth.org version/date.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> Ecosystem-wise, it ships two production methods (Tempo = stablecoin, Stripe = fiat), shows Cloudflare/Stripe adoption signals, and is reported backward-compatible with x402.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+  </section>
+
+  <main class="body">
+<h1>Analyzing draft-httpauth-payment-00: The "Payment" HTTP Authentication Scheme</h1>
+<h2>1. Introduction</h2>
+<p>This report's task is to read and analyze the document <code>https://paymentauth.org/draft-httpauth-payment-00.txt</code>. Metadata: title "The 'Payment' HTTP Authentication Scheme," authors B. Ryan, J. Moxey, T. Meagher (Tempo Labs) and J. Weinstein, S. Kaliski (Stripe), status Internet-Draft (intended Standards Track), dated 2026-06-03, expiring 2026-12-05.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> The problem is clear — HTTP 402 was long <em>reserved</em> with undefined semantics, and this scheme extends RFC 9110 HTTP Authentication to give 402 a standard meaning (fulfill a payment challenge before access).<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> This document is the <em>parent core</em> of the EVM charge intent (<code>draft-evm-charge-00</code>) analyzed previously; here it is read directly, in the order protocol overview → scheme mechanics → registry/negotiation → security model → IETF standing/ecosystem. Evidence is the target draft (primary) plus the IETF datatracker and ecosystem docs/independent commentary.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<h2>2. Protocol overview and the place of 402</h2>
+<p>The request flow is simple — the client sends a normal request, the server signals payment requirements with 402, the client retries with proof of payment, and the server verifies and returns the resource.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> The key norm is that "servers MUST return 402 with a <code>WWW-Authenticate: Payment</code> header when payment is required <strong>or when a payment credential fails validation</strong>."<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p>This reveals a distinction from ordinary HTTP authentication: usual schemes use 401 Unauthorized for <em>failed</em> credentials, but this scheme uses <strong>402 consistently</strong> for all payment-related challenges, including verification failure.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> So 402 becomes the dedicated status code for the "payment authentication" domain, and the document separately specifies when to return/not return 402 (§4.4) and interaction with other authentication schemes (§4.4.3).<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<h2>3. Challenge, credential, and receipt</h2>
+<p><strong>Challenge (<code>WWW-Authenticate: Payment</code>).</strong> Required parameters are <code>id</code> (challenge identifier, bound to the parameters), <code>realm</code> (RFC 9110 protection space), <code>method</code> (payment method identifier), <code>intent</code> (IANA-registered intent), and <code>request</code> (base64url, JCS-serialized JSON of method-specific data). Optional parameters are <code>expires</code> (RFC 3339), <code>digest</code> (RFC 9530 content digest), <code>description</code> (display-only), and <code>opaque</code> (server correlation data, returned unchanged).<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p><strong>Credential (<code>Authorization: Payment</code>).</strong> The client submits base64url JSON <code>{challenge (echoed parameters), source (optional payer identifier), payload (method-specific proof)}</code>.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p><strong>Receipt (<code>Payment-Receipt</code>).</strong> On success the server SHOULD include a <code>Payment-Receipt</code> header carrying <code>status ("success"), method, timestamp (RFC 3339), reference (method-specific)</code>.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> A key safeguard: <code>description</code> is display-only and must not be used for payment verification, and the client MUST verify the amount <em>before</em> authorizing payment.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<h2>4. The method/intent registry and negotiation</h2>
+<p>The scheme's extensibility comes from <strong>registry separation</strong>. <code>method</code> identifiers are lowercase ASCII (a–z) and <code>intent</code> identifiers are alphanumeric + hyphens, both registered under IANA <strong>"Specification Required"</strong> policy (RFC 8126). A method spec must define request schema, payload schema, verification procedure, and settlement procedure — so a new method (EVM, Solana, Card, Stripe, …) is added as a separate spec without touching the core.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p><strong>Negotiation.</strong> A server may return <strong>multiple <code>WWW-Authenticate: Payment</code> headers</strong> offering different methods/intents, and the client may declare q-weighted preferences via an <code>Accept-Payment</code> header (e.g., <code>Accept-Payment: tempo/charge, solana/*;q=0.6, stripe/charge;q=0.2</code>). The server SHOULD filter and order accordingly.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> This content-negotiation pattern enables MPP's multi-rail behavior where "the client picks whichever method it supports."<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<h2>5. Security model</h2>
+<p>The security section (§11) is layered, from threat model to caching.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p><strong>Challenge binding (HMAC-SHA256).</strong> For stateless validation, the server computes the challenge <code>id</code> as an HMAC-SHA256 (under a server secret) over a string of seven fixed slots: <code>realm | method | intent | request (base64url) | expires | digest | opaque</code>. This blocks request-integrity attacks where a client modifies payment details (amount, recipient).<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p><strong>Replay and concurrency.</strong> "Payment methods used with this specification MUST provide single-use proof semantics," and "servers MUST ensure that concurrent requests with the same Payment credential result in at most one successful payment settlement."<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p><strong>Idempotency.</strong> "Servers MUST NOT perform side effects (database writes, external API calls) for requests that have not been paid."<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p><strong>Transport, storage, caching.</strong> It "REQUIRES TLS 1.2 or later for all Payment authentication flows," mandates that "servers and intermediaries MUST NOT log Payment credentials or include them in error messages, debugging output, or analytics," and requires <code>Cache-Control: no-store</code> on 402 responses.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> Error responses are standardized via RFC 9457 Problem Details, and verification failures, expired challenges, and malformed credentials all return a fresh 402 challenge.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<h2>6. IETF standing, ecosystem, and the x402 relationship</h2>
+<p><strong>Standing (important).</strong> The body <em>intends</em> Standards Track, but the IETF datatracker classifies this document (<code>draft-ryan-httpauth-payment</code>) as an <strong>unadopted individual draft</strong>, stating it is "not endorsed by the IETF and has no formal standing in the IETF standards process."<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> So at present this is not "a standard" but "an individual proposal to become one." Moreover, the datatracker version/date (<code>draft-ryan-httpauth-payment-01</code>, updated 2026-03-17, expiring 2026-09-19) <strong>diverges</strong> from the paymentauth.org version/date (<code>draft-httpauth-payment-00</code>, dated 2026-06-03, expiring 2026-12-05) — the site distribution and the IETF submission use different naming/date schemes, and this report treats them as the same lineage without asserting identity.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> _(metadata conflict between the two sources)_</p>
+<p><strong>Ecosystem.</strong> MPP ships two production methods — Tempo (stablecoin) and Stripe (cards, wallets, and other fiat) — and when a server advertises both, the client picks the one it supports.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> An independent explainer summarizes that MPP separates the core scheme from per-method specs (Tempo, Stripe, Solana, Card) and intents (charge, session).<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> Adoption signals include Cloudflare Agents' MPP documentation and Stripe's MPP payments documentation.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> The spec repository is GitHub <code>tempoxyz/mpp-specs</code>, described as "specifications for the Machine Payments Protocol — powered by the 'Payment' HTTP authentication scheme."<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></p>
+<p><strong>Relationship to x402.</strong> Independent comparison holds that both protocols use 402 but differ in philosophy — x402 (Coinbase) is permissionless with zero protocol fees, while MPP features production fiat (Stripe), native streaming sessions, removal of the facilitator concept, and IETF submission.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> The key point: "<strong>MPP is backwards compatible with x402</strong>, as the core x402 'exact' payment flow maps directly onto MPP's charge intent, so MPP clients can consume existing x402 services."<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> _(an external assessment — not a normative guarantee in the core document.)_ MPP's use of 402 even for failed credentials is also noted as a design choice distinct from schemes that use 401.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<h2>7. Limitations</h2>
+<ul>
+<li><strong>v00, unadopted.</strong> Despite the body's Standards Track intent, the IETF datatracker shows an unadopted individual draft ("not endorsed by the IETF … no formal standing"); fields and procedures may change.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></li>
+<li><strong>Version/date mismatch.</strong> The datatracker (<code>-ryan-…-01</code>, 2026-03-17) and the site (<code>-httpauth-…-00</code>, 2026-06-03) differ in number and date; identity of the two is not asserted.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></li>
+<li><strong>Single-document dependence.</strong> Content statements rest on that document (s01) as the sole primary source; reproduced faithfully but not validated by independent implementation, audit, or peer review, and "the document specifies" ≠ "safe/adopted."<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></li>
+<li><strong>x402 compatibility / adoption are external.</strong> The x402 backward-compatibility and Cloudflare/Stripe adoption come from external docs/commentary, not a normative guarantee of the core document nor proof of broad production use.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></li>
+<li><strong>Conflict of interest.</strong> The authors are from Tempo Labs and Stripe, so the standards proposal is tied to those firms' commercial products — an independence caveat, not a technical defect.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">B. Ryan, J. Moxey, T. Meagher, J. Weinstein, S. Kaliski</span>. <a href="https://paymentauth.org/draft-httpauth-payment-00.txt">The &quot;Payment&quot; HTTP Authentication Scheme (draft-httpauth-payment-00)</a>. <span class="venue">paymentauth.org Internet-Draft, 2026</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-2"><span class="authors">Brendan Ryan, Jake Moxey, Tom Meagher, Jeff Weinstein, Steve Kaliski</span>. <a href="https://datatracker.ietf.org/doc/draft-ryan-httpauth-payment/">The &quot;Payment&quot; HTTP Authentication Scheme — IETF Datatracker</a>. <span class="venue">IETF Datatracker (Individual Internet-Draft), 2026</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-3"><span class="authors">Cloudflare</span>. <a href="https://developers.cloudflare.com/agents/agentic-payments/mpp/">MPP (Machine Payments Protocol) — Cloudflare Agents docs</a>. <span class="venue">Cloudflare Developer Docs, 2026</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-4"><span class="authors">Formo</span>. <a href="https://formo.so/blog/mpp-machine-payments-protocol-explained">What Is MPP? The Machine Payments Protocol by Tempo Explained</a>. <span class="venue">Formo blog, 2026</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-5"><span class="authors">Alchemy</span>. <a href="https://www.alchemy.com/blog/x402-vs-mpp-comparing-agent-payment-protocols">x402 vs MPP: Comparing Agent Payment Protocols</a>. <span class="venue">Alchemy blog, 2026</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-6"><span class="authors">RobotDomainSearch</span>. <a href="https://www.robotdomainsearch.com/blog/2026/03/19/what-is-mpp-dual-payment-protocol/">What is MPP? Dual Payment Protocol</a>. <span class="venue">RobotDomainSearch blog, 2026</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-7"><span class="authors">Stripe</span>. <a href="https://docs.stripe.com/payments/machine/mpp">MPP payments — Stripe Documentation</a>. <span class="venue">Stripe Docs, 2026</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-8"><span class="authors">Tempo</span>. <a href="https://github.com/tempoxyz/mpp-specs">tempoxyz/mpp-specs — Specifications for the Machine Payments Protocol</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-06-04. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
