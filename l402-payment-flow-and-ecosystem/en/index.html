@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The L402 Payment Flow and Its Ecosystem: Libraries, Lightning Usage, and Multi-Rail/Card Support — Deepsearch</title>
+<meta name="description" content="L402&#x27;s macaroon+invoice flow, reference libraries (Aperture, Boltwall, lsat-js, Fewsats), real Lightning-ecosystem usage, and how the ecosystem approaches Ethereum/Solana and non-Lightning rails such as cards.">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>The L402 Payment Flow and Its Ecosystem: Libraries, Lightning Usage, and Multi-Rail/Card Support</h1>
+    <p class="subtitle">L402&#x27;s macaroon+invoice flow, reference libraries (Aperture, Boltwall, lsat-js, Fewsats), real Lightning-ecosystem usage, and how the ecosystem approaches Ethereum/Solana and non-Lightning rails such as cards.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-06-04</span>
+      <span><strong>Tags</strong> l402, lsat, lightning-network, macaroon, http-402, agentic-payments, x402, stablecoin, fewsats</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="l402-payment-flow-and-ecosystem.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>L402 (formerly LSAT) is an open protocol, published by Lightning Labs in 2020, for paying for and authenticating access to APIs and services over the Lightning Network.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> It works as a four-step exchange that repurposes the HTTP 402 status code to combine a <strong>macaroon</strong> (a cryptographic bearer credential) with a <strong>Lightning invoice</strong>: the server challenges with <code>WWW-Authenticate: L402 macaroon=…, invoice=…</code>, and the client presents the <strong>preimage</strong> obtained by paying the invoice as <code>Authorization: L402 &lt;macaroon&gt;:&lt;preimage&gt;</code>.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> Because the macaroon commits to the invoice's payment_hash, the server verifies statelessly and locally, with no backend node lookup.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> Reference implementations include the server-side <strong>Aperture</strong> (reverse proxy) and <strong>Boltwall</strong>, and client-side <strong>lsat-js, gol402, Fewsats/l402-python</strong>.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> In the Lightning ecosystem, Lightning Loop has used L402 in production via Aperture, and it is used by AI-agent tooling (LangChainBitcoin, MCP) and Fewsats applications.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> Crucially, <strong>L402 as a protocol is Bitcoin/Lightning-only</strong> (blip-0026 calls it "Lightning-native"), and the chain-agnostic space (Ethereum/Solana) is filled by a separate protocol, <strong>x402</strong> (USDC on Base/Solana).<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup> However, an <strong>aggregator layer such as Fewsats</strong> generalizes the L402 "offer" into a USD-denominated <code>payment_methods</code> array, supporting <strong>credit card (Stripe checkout) and Lightning</strong> together, plus a parallel <strong>x402 (USDC)</strong> flow — i.e., card and other-chain support happens at the ecosystem layer, not in the protocol.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+  </section>
+
+  <main class="body">
+<h1>The L402 Payment Flow and Its Ecosystem: Libraries, Lightning Usage, and Multi-Rail/Card Support</h1>
+<h2>1. Introduction</h2>
+<p>L402 is a Lightning-native protocol that merges payment and authentication into a single token; it first appeared in 2020 as LSAT and was later renamed after the HTTP status code it activates.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> This report answers the user's five questions: (1) the payment flow, (2) reference libraries, (3) real Lightning-ecosystem usage, (4) support for other protocols such as Ethereum/Solana, and (5) approaches to non-blockchain payments such as cards. Evidence draws on Lightning Labs' primary spec and blog, major implementation repositories, Fewsats documentation, and neutral landscape/comparison analyses.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<h2>2. The payment flow</h2>
+<p>L402 operates as a four-step payment-and-authentication exchange.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<p>1. <strong>Request</strong> — a client (agent, CLI, or browser) sends a normal HTTP request to a protected endpoint. 2. <strong>Challenge</strong> — the server responds <code>402 Payment Required</code> with <code>WWW-Authenticate: L402 macaroon="&lt;base64&gt;", invoice="&lt;bolt11&gt;"</code>, presenting both a macaroon and a Lightning invoice.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> 3. <strong>Payment</strong> — the client pays the invoice over Lightning and receives a <strong>preimage</strong> as proof.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> 4. <strong>Access</strong> — the client re-sends the request as <code>Authorization: L402 &lt;base64(macaroon)&gt;:&lt;hex(preimage)&gt;</code>; the server verifies the credential and serves the resource.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<p>The key property is <strong>stateless verification</strong>. Because the macaroon commits to the invoice's payment_hash, the server (or reverse proxy) verifies the macaroon+preimage with only a root key and basic cryptography, without querying a backend Lightning node per request.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> Lightning Labs puts it as: "L402 verification is a local computation. The cryptographic artifact is the proof. There is no intermediary to ask, and no one who can fail to confirm."<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> The macaroon is also a bearer token that can carry caveats, so once issued it can be reused on subsequent requests until its caveats expire.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<h2>3. Reference libraries</h2>
+<p>The implementation ecosystem splits into server-side and client-side.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<ul>
+<li><strong>Aperture</strong> (Lightning Labs): the canonical L402 implementation — a <strong>reverse proxy</strong> that forwards gRPC (HTTP/2) and REST requests, issuing macaroons and Lightning invoices to new users and forwarding requests carrying a valid L402.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></li>
+<li><strong>Boltwall</strong> (Tierion): LND/Node.js/TypeScript Lightning paywall and authentication middleware; a server can dictate how long authorization is valid based on a payment, or restrict access to the originating IP.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></li>
+<li><strong>Other server-side</strong>: Go middleware for Gin/Echo (LSAT-middleware), a Rust <code>l402_middleware</code>.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></li>
+<li><strong>Client-side</strong>: <code>lsat-js</code> (JS)<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>, <code>l402-ts</code> (TS), <code>gol402</code> (Go), <code>Fewsats/l402-python</code> (Python).<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></li>
+<li><strong>Agent tooling</strong>: LangChainBitcoin (LangChain agents traversing/paying L402 APIs), an n8n node, MCP server skills.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></li>
+</ul>
+<p>Interoperability is reported — an L402 issued by one implementation (e.g., Aperture) can have a caveat added and still validate against another (e.g., Boltwall).<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<h2>4. Real Lightning-ecosystem usage</h2>
+<p>L402 has run in Lightning Labs' own products since release. Notably, <strong>Lightning Loop</strong> (the Lightning↔on-chain swap service) uses L402 via Aperture.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> In 2026 Lightning Labs positions L402 as "the internet-native payments protocol for agents," framing the core problem as: agents can read docs, write code, and call APIs, but "cannot, by and large, pay for things."<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> Application examples include Fewsats' <strong>Sherlock</strong> (domain purchases), <strong>Amazon-MCP</strong> (product search/purchase), and LangChainBitcoin.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> A proposal, <strong>blip-0026</strong>, aims to standardize L402 as a Lightning protocol spec, describing it as "a standardized way of adding LN micropayments to any existing HTTP-REST or gRPC API," and noting multiple teams already implementing it.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></p>
+<h2>5. Approach to other protocols and non-Lightning payments</h2>
+<p>To answer the user's questions (Ethereum/Solana support, card payments) precisely, two <strong>layers</strong> must be separated.</p>
+<p><strong>(a) The L402 standard — Lightning-only.</strong> blip-0026, the spec, the 2026 positioning post, and the neutral landscape all consistently confirm L402 is Bitcoin/Lightning-only. blip-0026 references BOLT-11 invoices and preimage-based proof; it is "Lightning-native" and does not provide for alternative payment methods.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> The neutral landscape analysis (April 2026) likewise calls L402 "single-rail by design."<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> So <strong>L402 itself does not support Ethereum or Solana.</strong></p>
+<p><strong>(b) The chain-agnostic space belongs to x402.</strong> Paying with USDC on Base/Solana/EVM is filled not by L402 but by <strong>x402</strong>, published by Coinbase in 2025. Per comparison analysis, L402 "settles payments in Bitcoin over the Lightning Network using macaroons … that make verification stateless," while x402 "settles in USDC stablecoins on EVM chains, primarily Base and Solana," with Base completing in 1–3 seconds and Solana under a second.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> L402 and x402 are thus separate, competing/complementary protocols.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<p><strong>(c) Cards and non-Lightning rails live at the aggregator layer.</strong> Non-blockchain (card) payment is approached not by the protocol but by <strong>aggregator products like Fewsats</strong>, which generalize the L402 "offer." A Fewsats L402 offer is a generalized structure with <code>amount</code>, <code>currency</code> ('USD'), and a <code>payment_methods</code> array.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> In Fewsats' <strong>Sherlock</strong>, an offer exposes <code>payment_methods: ['credit_card', 'lightning']</code>, where <strong>credit card returns a Stripe checkout URL</strong> and Lightning returns an invoice, priced in USD cents (e.g., 1105 = $11.05).<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> Fewsats further offers, in the same client, a parallel <strong>x402 purchase flow (USDC on Base, Coinbase CDP)</strong> as a separate mechanism.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> In short, <em>support for cards, USDC, and other chains is not a feature of the L402 protocol but a property of payment aggregators that wrap L402 and run multiple rails in parallel.</em></p>
+<h2>6. Discussion</h2>
+<p><strong>Protocol vs. aggregator.</strong> The most common confusion around L402 is asking, at a single layer, "does L402 support cards/USDC?" Precisely: the L402 standard is Lightning-only (§5a), and multi-rail is achieved by (i) the separate x402 protocol and (ii) aggregators (Fewsats) that speak both.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> In practice, APIs and MCP servers must handle <strong>mixed traffic</strong> because an arriving agent might speak x402, L402, or a card-identity protocol.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<p><strong>Structural difference.</strong> The neutral landscape frames L402's distinguishing feature as: unlike x402/MPP, which authorize a single payment per request, L402 issues a bearer macaroon tied to a Lightning payment hash that can be reused on subsequent requests until its caveats expire.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> This reusable-credential model suits agent workloads with many repeated calls.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<p><strong>Trade-offs.</strong> L402 (BTC/Lightning) offers millisecond settlement and stateless verification but exposes users to Bitcoin's volatility; x402 (USDC) is price-stable but carries on-chain confirmation latency (Base 1–3s).<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> Choosing a rail is therefore a trade-off among volatility, settlement finality, latency, and ecosystem (Lightning nodes vs. EVM wallets).<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup></p>
+<h2>7. Limitations</h2>
+<ul>
+<li><strong>Fast-moving.</strong> Agent payments (L402/x402/MPP) are changing rapidly in 2025–2026; libraries, offer schemas, and integrations may shift within months. This report is pinned to early June 2026.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></li>
+<li><strong>Risk of conflating layers.</strong> The claim "L402 supports cards/USDC" refers to Fewsats' generalized offer, not the protocol; the text separates these.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></li>
+<li><strong>Fewsats offer snapshot differences.</strong> The l402-python example (<code>['onchain']</code>) and Sherlock (<code>['credit_card','lightning']</code>) differ, so whether there is one unified schema or product-specific variants is not certain — only the conclusion of parallel multi-rail support is confirmed by both sources.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></li>
+<li><strong>Primary-source issues.</strong> The <code>introduction.md</code> in <code>lightninglabs/L402</code> returned 404 (path change), so the spec was confirmed via the docs site and repo landing; blip-0026 is still a draft/open PR.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></li>
+<li><strong>Source nature / maintenance.</strong> Most evidence is primary repos, vendor docs, and technical blogs (no peer review), and the current maintenance activity of some libraries (Boltwall, lsat-js) was not verified.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Lightning Labs</span>. <a href="https://lightning.engineering/posts/2020-03-30-lsat/">LSAT: Authentication and Payments for the Lightning-Native Web</a>. <span class="venue">Lightning Labs Blog, 2020</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-2"><span class="authors">Genesis Software Group</span>. <a href="https://github.com/Custena/agent-payment-protocols">Agent Payment Protocols — neutral landscape analysis</a>. <span class="venue">GitHub (Custena), 2026</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-3"><span class="authors">Lightning Labs</span>. <a href="https://docs.lightning.engineering/the-lightning-network/l402">L402: Lightning HTTP 402 Protocol — Builder&#x27;s Guide</a>. <span class="venue">Lightning Engineering Docs, 2024</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-4"><span class="authors">Lightning Labs</span>. <a href="https://github.com/lightninglabs/L402">lightninglabs/L402 — Pay for APIs with Lightning. HTTP 402, realized.</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-5"><span class="authors">Fewsats</span>. <a href="https://github.com/Fewsats/awesome-L402">Fewsats/awesome-L402 — curated list of L402 projects</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-6"><span class="authors">Fewsats</span>. <a href="https://fewsats.github.io/sherlock-python/core.html">Sherlock (Fewsats) — core payment flow</a>. <span class="venue">Fewsats Sherlock docs, 2025</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-7"><span class="authors">Lightning Labs</span>. <a href="https://docs.lightning.engineering/the-lightning-network/l402/protocol-specification">L402 Protocol Specification</a>. <span class="venue">Lightning Engineering Docs, 2024</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-8"><span class="authors">Lightning Labs</span>. <a href="https://lightning.engineering/posts/2026-03-11-L402-for-agents/">Why L402 Is the Internet-Native Payments Protocol for Agents</a>. <span class="venue">Lightning Labs Blog, 2026</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-9"><span class="authors">Lightning Labs</span>. <a href="https://github.com/lightninglabs/aperture">lightninglabs/aperture — L402 (Lightning HTTP 402) Reverse Proxy</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-10"><span class="authors">Tierion</span>. <a href="https://github.com/Tierion/boltwall">Tierion/boltwall — Lightning paywall and authentication using L402</a>. <span class="venue">GitHub, 2023</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-11"><span class="authors">Tierion</span>. <a href="https://github.com/Tierion/lsat-js">Tierion/lsat-js — JS library for working with L402/LSAT</a>. <span class="venue">GitHub, 2023</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-12"><span class="authors">Fewsats</span>. <a href="https://github.com/Fewsats/L402-python">Fewsats/L402-python — Payments for AI agents using L402</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-13"><span class="authors">Olaoluwa Osuntokun (roasbeef)</span>. <a href="https://github.com/lightning/blips/pull/26">blip-0026: L402 — Lightning HTTP 402 Protocol</a>. <span class="venue">GitHub lightning/blips, 2024</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-14"><span class="authors">ln.bot</span>. <a href="https://ln.bot/learn/x402-vs-l402">x402 vs L402: Stablecoins vs Lightning for APIs</a>. <span class="venue">ln.bot, 2025</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-06-04. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

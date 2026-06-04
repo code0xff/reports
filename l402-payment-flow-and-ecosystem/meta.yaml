@@ -1,0 +1,10 @@
+title: 'L402 결제 플로우와 생태계: 라이브러리, 라이트닝 활용, 멀티체인·카드 결제 접근'
+subtitle: L402의 macaroon+인보이스 결제 흐름, 참고 라이브러리(Aperture·Boltwall·lsat-js·Fewsats), 라이트닝 생태계 실사용, 그리고 Ethereum·Solana·카드 등 비(非)라이트닝 결제에 대한 접근 분석.
+title_en: 'The L402 Payment Flow and Its Ecosystem: Libraries, Lightning Usage, and Multi-Rail/Card Support'
+subtitle_en: L402's macaroon+invoice flow, reference libraries (Aperture, Boltwall, lsat-js, Fewsats), real Lightning-ecosystem usage, and how the ecosystem approaches Ethereum/Solana and non-Lightning rails such as cards.
+slug: l402-payment-flow-and-ecosystem
+lang: ko
+langs: [ko, en]
+date: 2026-06-04
+tags: [l402, lsat, lightning-network, macaroon, http-402, agentic-payments, x402, stablecoin, fewsats]
+status: ready
