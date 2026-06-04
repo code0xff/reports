@@ -1,0 +1,10 @@
+title: 'draft-card-charge-00 분석: 카드 네트워크 Charge Intent (MPP)'
+subtitle: MPP의 카드 결제수단 바인딩 인터넷 드래프트 정밀 분석 — 네트워크 토큰·JWE 암호화 크리덴셜, EMV SRC 다이내믹 데이터, Server Enabler 정산, PCI·PAR 보안, 그리고 evm-charge·Visa Intelligent Commerce와의 관계.
+title_en: 'Analyzing draft-card-charge-00: The Card Network Charge Intent for MPP'
+subtitle_en: A close reading of MPP's card method-binding Internet-Draft — network-token JWE credentials, EMV SRC dynamic data, Server Enabler settlement, PCI/PAR security, and its relationship to evm-charge and Visa Intelligent Commerce.
+slug: paymentauth-card-charge-draft
+lang: ko
+langs: [ko, en]
+date: 2026-06-04
+tags: [mpp, http-402, card-payments, network-tokenization, emv-src, jwe, visa, trusted-agent-protocol, agentic-payments]
+status: ready

@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Analyzing draft-card-charge-00: The Card Network Charge Intent for MPP — Deepsearch</title>
+<meta name="description" content="A close reading of MPP&#x27;s card method-binding Internet-Draft — network-token JWE credentials, EMV SRC dynamic data, Server Enabler settlement, PCI/PAR security, and its relationship to evm-charge and Visa Intelligent Commerce.">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>Analyzing draft-card-charge-00: The Card Network Charge Intent for MPP</h1>
+    <p class="subtitle">A close reading of MPP&#x27;s card method-binding Internet-Draft — network-token JWE credentials, EMV SRC dynamic data, Server Enabler settlement, PCI/PAR security, and its relationship to evm-charge and Visa Intelligent Commerce.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-06-04</span>
+      <span><strong>Tags</strong> mpp, http-402, card-payments, network-tokenization, emv-src, jwe, visa, trusted-agent-protocol, agentic-payments</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="paymentauth-card-charge-draft.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p><code>draft-card-charge-00</code>, "Card Network Charge Intent for HTTP Payment Authentication," is an <strong>Informational</strong> Internet-Draft authored by J. Brans (Visa), dated 2026-06-03 (expiring 2026-12-05).<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> It defines how the <code>card</code> payment method implements the <code>charge</code> intent within Tempo and Stripe's <strong>Machine Payments Protocol (MPP)</strong>, operating on top of the base "Payment" HTTP authentication scheme (the 402 challenge-response).<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> Its core design is <strong>network tokenization that never exposes raw PAN data</strong>: the server puts an RSA public key in the challenge, the client enabler encrypts a card-network token as a <strong>JWE (RSA-OAEP-256 key wrapping + AES-256-GCM)</strong> and submits it, and "only encrypted network tokens travel in the credential; the client never has access to decrypted token material."<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> The payload carries token data plus <strong>EMV SRC dynamic data (a one-time cryptogram)</strong> — grounded in the <strong>EMVCo network-tokenization</strong> model that replaces the PAN with a token and protects each transaction with a one-time cryptogram.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> Settlement is performed by a <strong>Server Enabler (PSP/TSP)</strong> holding the private key, which decrypts the JWE and authorizes through existing card rails, returning 200 "immediately after authorization approval, even though final fund settlement is pending."<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> This shares the same 402 scheme and charge intent as evm-charge but runs over <em>traditional card rails</em> rather than on-chain signatures/settlement.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> The document references Visa's <strong>Trusted Agent Protocol (TAP)</strong> and <strong>Intelligent Commerce</strong> for identity assurance and token provenance, but does not normatively define 3-D Secure/SCA or refunds.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+  </section>
+
+  <main class="body">
+<h1>Analyzing draft-card-charge-00: The Card Network Charge Intent for MPP</h1>
+<h2>1. Introduction</h2>
+<p>This report's task is to read and analyze <code>https://paymentauth.org/draft-card-charge-00.txt</code>. Metadata: title "Card Network Charge Intent for HTTP Payment Authentication," author J. Brans (Visa), status Internet-Draft (Informational), dated 2026-06-03, expiring 2026-12-05.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> The problem it solves: let an AI agent make a one-time payment over <em>existing card rails</em> without exposing the raw card number (PAN) to the client or server.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> Following the prior analyses of the base scheme (<code>draft-httpauth-payment</code>) and the EVM method (<code>draft-evm-charge</code>), this report reads MPP's <strong>card (fiat) method binding</strong>. Evidence is the target draft (primary) plus MPP's card doc, EMVCo/Visa primary sources, and independent commentary.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<h2>2. Place in the parent framework</h2>
+<p>The <code>card</code> method is a <strong>payment-method binding</strong> registered in MPP's method/intent registry, operating on the base "Payment" scheme's 402 challenge-response.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> MPP's own documentation says "the Card method enables payments using <strong>encrypted, single-use network payment tokens and dynamic data</strong> provided by a card network … payment tokens, such as those provided by Visa Intelligent Commerce, settle through existing card infrastructure, and the client and server can each use independent payment providers."<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<p>A distinction matters: MPP has both this <code>card</code> method (network-token approach, this Visa draft) and a separate <code>stripe</code> method (Stripe processor). Both can handle cards but are distinct method identifiers.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> This report is scoped to the <em>network-token approach</em> this draft defines.</p>
+<h2>3. Request schema and the card charge flow</h2>
+<p>In the 402 <code>WWW-Authenticate: Payment</code> challenge, the server's <code>request</code> carries: <code>amount</code> (smallest currency unit, e.g. "4999" = $49.99), <code>currency</code> (ISO 4217 lowercase, e.g. "usd"), <code>methodDetails.acceptedNetworks</code> (visa, mastercard, amex, discover), <code>methodDetails.merchantName</code> (display), and an RSA public key for token encryption (<code>encryptionJwk</code> or <code>jwksUri</code>+<code>kid</code>).<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> Here "the key MUST be RSA with a minimum length of 2048 bits" and the algorithm must be "RSA-OAEP-256."<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p>The flow is: (1) the server sends the challenge including its public key, (2) the client enabler encrypts a network token (obtained from a Token Service Provider) under that key, (3) submits it as the <code>Authorization: Payment</code> credential, and (4) the server-side Enabler decrypts and authorizes.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<h2>4. The network-token credential</h2>
+<p>The credential's <code>encryptedPayload</code> is a <strong>JWE compact serialization</strong> using <strong>RSA-OAEP-256 key wrapping + AES-256-GCM</strong> content encryption (confidentiality plus integrity via the GCM auth tag).<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> The decrypted plaintext JSON carries token data (<code>token.paymentToken</code>, token expiry month/year, <code>eci</code>) and dynamic data (<code>dynamicData.dynamicDataValue</code> = one-time cryptogram, <code>dynamicDataType</code> per EMV SRC spec, expiry), while network name, <code>panLastFour</code>, and expiry are <strong>display-only</strong> metadata.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p>The key norm is data isolation: network tokens are provisioned by a TSP, and "only encrypted network tokens travel in the credential; the client never has access to decrypted token material," and "clients and servers MUST NOT parse the <code>encryptedPayload</code> field."<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> The underlying <strong>EMVCo network tokenization</strong> model "replaces the sensitive PAN with a non-sensitive surrogate value (an EMV Payment Token)" and protects "each transaction with a one-time-use cryptogram," with EMV SRC adding "transaction-unique dynamic data such as cryptograms."<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></p>
+<h2>5. Verification and settlement</h2>
+<p><strong>Verification.</strong> The server base64url-decodes and parses the credential, then confirms <code>challenge.id</code> matches an outstanding challenge, the challenge has not expired, <code>method</code> equals 'card', and <code>payload.network</code> is in <code>acceptedNetworks</code>. Challenge IDs SHOULD be HMAC-bound to their parameters (amount, currency, networks, merchant, realm, expiry, kid), and "each credential MUST be usable only once per challenge," with the server using "<code>challenge.id</code> as an idempotency key when forwarding."<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p><strong>Settlement.</strong> A <strong>Server Enabler (PSP/TSP) holding the private key</strong> corresponding to the challenge's public key decrypts the JWE and submits an authorization to the card network using the decrypted network token. On approval it returns 200 with a <code>Payment-Receipt</code> (challengeId, method, status, reference, timestamp, externalId), and "servers SHOULD return 200 immediately after authorization approval, even though final fund settlement is pending" — i.e., the card <em>authorization/capture</em> split.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> The architecture is PSP-agnostic; Visa cites its own token services only as examples while allowing any TSP/PSP.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<h2>6. Security, PCI, and ecosystem comparison</h2>
+<p><strong>Security/PCI.</strong> "All MPP exchanges MUST occur over TLS 1.2 or higher (TLS 1.3 recommended)." The token payload is JWE-encrypted so only the private-key-holding Server Enabler can decrypt, and the client never accesses decrypted tokens.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> Billing address, cardholder name, and <strong>PAR (Payment Account Reference)</strong> travel as plaintext within the credential (protected by TLS); "servers and intermediaries SHOULD NOT log billing data, cardholderFullName, or paymentAccountReference in plaintext," and "SHOULD NOT use PAR for cross-merchant tracking beyond the server's own business relationship."<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> The spec does not mandate PCI-DSS explicitly but stresses that encrypted network tokens and TLS reduce PCI scope by preventing server-side access to raw PAN.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> That PAR is a persistent identifier introduced in EMV Spec Bulletin 167 aligns with external primary sources.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></p>
+<p><strong>Ecosystem.</strong> The document references Visa <strong>Trusted Agent Protocol (TAP)</strong> signature headers for added identity assurance and <strong>Visa Intelligent Commerce</strong> as a token source.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> TAP is an open framework Visa introduced with 10+ partners in October 2025 that "cryptographically verifies that an AI agent is legitimate and truly acting on a user's behalf" using "signed HTTP messages to transmit an agent's intent, verified user identity, and payment details."<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> Visa Intelligent Commerce Connect accepts payments initiated via TAP, MPP, and ACP.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<p><strong>Contrast with evm-charge.</strong> Both share the same 402 Payment scheme and charge intent, but where evm-charge uses Permit2/EIP-3009 <strong>on-chain signatures and on-chain settlement</strong>, card-charge uses <strong>existing card-network authorization and settlement</strong> — MPP's multi-rail design placing blockchain and card side by side on one challenge-response skeleton.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> However, 3-D Secure/SCA and refunds are not normatively defined here; reversibility is left to card-network chargeback rules.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<h2>7. Limitations</h2>
+<ul>
+<li><strong>v00, Informational, unadopted.</strong> A first edition dated 2026-06-03 with Informational status (unlike the base scheme's Standards Track intent); fields/procedures may change, and "the document specifies" ≠ "standardized/safe/adopted."<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></li>
+<li><strong>Single-document dependence.</strong> The detailed schema rests on that document (s01) as the sole primary source; tokenization basis (EMVCo/Boston Fed), the card method (MPP), and Visa context are cross-checked externally, but the schema itself is single-document.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></li>
+<li><strong>3DS/SCA and refunds unspecified.</strong> The draft only notes the cryptogram may satisfy authentication depending on the network, and does not normatively define 3DS/SCA or refunds; actual SCA compliance depends on implementation/jurisdiction.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></li>
+<li><strong>'card' vs 'stripe' distinction.</strong> MPP also has a separate 'stripe' method, so a generic "MPP card payment" claim can conflate the two; this report is scoped to the network-token approach.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></li>
+<li><strong>Single author / conflict of interest.</strong> The sole author is from Visa, and the referenced token source and identity assurance are Visa products. The spec claims PSP-agnosticism, but examples/references are Visa-centric — an independence caveat.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">J. Brans</span>. <a href="https://paymentauth.org/draft-card-charge-00.txt">Card Network Charge Intent for HTTP Payment Authentication (draft-card-charge-00)</a>. <span class="venue">paymentauth.org Internet-Draft, 2026</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-2"><span class="authors">Tempo / Stripe (MPP)</span>. <a href="https://mpp.dev/payment-methods/card">Card — MPP (Machine Payments Protocol)</a>. <span class="venue">mpp.dev, 2026</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-3"><span class="authors">EMVCo</span>. <a href="https://www.emvco.com/emv-technologies/secure-remote-commerce/">EMV Secure Remote Commerce</a>. <span class="venue">EMVCo, 2024</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-4"><span class="authors">Visa</span>. <a href="https://developer.visa.com/capabilities/trusted-agent-protocol">Trusted Agent Protocol — Visa Developer</a>. <span class="venue">Visa Developer, 2026</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-5"><span class="authors">Formo</span>. <a href="https://formo.so/blog/mpp-machine-payments-protocol-explained">What Is MPP? The Machine Payments Protocol by Tempo Explained</a>. <span class="venue">Formo blog, 2026</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-6"><span class="authors">Federal Reserve Bank of Boston</span>. <a href="https://www.bostonfed.org/-/media/Documents/PaymentStrategies/evolution-of-payment-tokenization.pdf">Industry Perspectives on the Evolution of EMV Payment Tokenization</a>. <span class="venue">Boston Fed Payment Strategies, 2023</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-7"><span class="authors">Visa</span>. <a href="https://investor.visa.com/news/news-details/2025/Visa-Introduces-Trusted-Agent-Protocol-An-Ecosystem-Led-Framework-for-AI-Commerce/default.aspx">Visa Introduces Trusted Agent Protocol: An Ecosystem-Led Framework for AI Commerce</a>. <span class="venue">Visa Investor Relations, 2025</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+      <li id="ref-8"><span class="authors">Sam Boboev</span>. <a href="https://www.finextra.com/blogposting/31277/deep-dive-the-machine-payments-protocol">Deep Dive: The Machine Payments Protocol</a>. <span class="venue">Finextra, 2026</span>. <span class="accessed">Accessed 2026-06-04.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-06-04. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
