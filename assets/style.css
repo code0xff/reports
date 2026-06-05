@@ -692,6 +692,27 @@ a.footnote-ref:hover {
   display: block;
 }
 
+.site-header__gh {
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+  text-decoration: none;
+}
+
+.site-header__gh:hover { color: var(--ink); text-decoration: none; }
+
+.site-header__gh svg { display: block; }
+
+.site-footer__link {
+  color: var(--muted);
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-underline-offset: 0.2em;
+}
+
+.site-footer__link:hover { color: var(--ink); text-decoration-color: var(--ink); }
+
 .report-footer-note {
   margin-top: 3rem;
   font-size: 0.78rem;
