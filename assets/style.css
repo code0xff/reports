@@ -497,6 +497,52 @@ a.footnote-ref:hover {
   margin-top: 0.35rem;
 }
 
+/* ---------- Index search ---------- */
+
+.index-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 0 0 1.5rem;
+}
+
+.index-search__icon {
+  position: absolute;
+  left: 0.85rem;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.index-search__input {
+  width: 100%;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem 0.6rem 2.5rem;
+  transition: border-color 0.15s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.index-search__input::placeholder { color: var(--muted); }
+
+.index-search__input:focus {
+  outline: none;
+  border-color: var(--rule-strong);
+}
+
+.index-search__input:hover { border-color: var(--rule-strong); }
+
+.index-no-results {
+  color: var(--muted);
+  font-size: 0.95rem;
+  padding: 0.9rem 0;
+  margin: 0;
+}
+
 /* ---------- Footer ---------- */
 
 .site-footer {
