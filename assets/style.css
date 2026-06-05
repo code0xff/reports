@@ -516,12 +516,12 @@ a.footnote-ref:hover {
 .index-search__input {
   width: 100%;
   font: inherit;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   color: var(--ink);
   background: var(--surface);
   border: 1px solid var(--rule);
   border-radius: 8px;
-  padding: 0.5rem 0.9rem 0.5rem 2.5rem;
+  padding: 0.4rem 0.9rem 0.4rem 2.5rem;
   transition: border-color 0.15s ease;
   -webkit-appearance: none;
   appearance: none;
