@@ -1,0 +1,10 @@
+title: "ERC-8126: AI 에이전트 검증 표준 — 상세 분석과 시사점"
+subtitle: "ERC-8004 신원 위에 쌓은 5대 검증·영지식 리스크 스코어링 표준의 구조, 신뢰 가정, 그리고 향후 적용 전망"
+title_en: "ERC-8126: A Standard for AI Agent Verification — Deep Analysis and Implications"
+subtitle_en: "Structure, trust assumptions, and adoption outlook of the five-mechanism, ZK risk-scoring layer built atop ERC-8004 agent identities"
+slug: erc-8126-ai-agent-verification
+lang: ko
+langs: [ko, en]
+date: 2026-06-08
+tags: [ethereum, erc-8126, erc-8004, ai-agents, zero-knowledge, verification, identity, web3]
+status: ready
