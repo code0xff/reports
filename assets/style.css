@@ -516,12 +516,12 @@ a.footnote-ref:hover {
 .index-search__input {
   width: 100%;
   font: inherit;
-  font-size: 0.95rem;
+  font-size: 0.875rem;
   color: var(--ink);
   background: var(--surface);
   border: 1px solid var(--rule);
   border-radius: 8px;
-  padding: 0.6rem 0.9rem 0.6rem 2.5rem;
+  padding: 0.4rem 0.9rem 0.4rem 2.5rem;
   transition: border-color 0.15s ease;
   -webkit-appearance: none;
   appearance: none;
@@ -542,6 +542,69 @@ a.footnote-ref:hover {
   padding: 0.9rem 0;
   margin: 0;
 }
+
+/* ---------- Index favorites ---------- */
+.index-search { gap: 0.6rem; }
+
+.index-search__input { flex: 1 1 auto; min-width: 0; }
+
+.index-favfilter {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.index-favfilter:hover { border-color: var(--rule-strong); color: var(--ink-soft); }
+
+.index-favfilter:focus-visible {
+  outline: none;
+  border-color: var(--rule-strong);
+}
+
+.index-favfilter[aria-pressed="true"] {
+  color: var(--ink);
+  border-color: var(--rule-strong);
+}
+
+.index-favfilter[aria-pressed="true"] .index-favfilter__icon { fill: currentColor; }
+
+/* Per-entry star toggle, pinned to the top-right of each row. */
+.index-list li { position: relative; padding-right: 2.25rem; }
+
+.entry-fav {
+  position: absolute;
+  top: 0.8rem;
+  right: -0.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  color: var(--muted);
+  cursor: pointer;
+  line-height: 0;
+  transition: color 0.15s ease, transform 0.1s ease;
+}
+
+.entry-fav:hover { color: var(--ink-soft); }
+.entry-fav:active { transform: scale(0.9); }
+.entry-fav:focus-visible { outline: 1px solid var(--rule-strong); outline-offset: 2px; }
+
+.entry-fav[aria-pressed="true"] { color: var(--ink); }
+.entry-fav[aria-pressed="true"] .entry-fav__icon { fill: currentColor; }
 
 /* ---------- Footer ---------- */
 
@@ -628,6 +691,27 @@ a.footnote-ref:hover {
 .site-header__theme-icon {
   display: block;
 }
+
+.site-header__gh {
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+  text-decoration: none;
+}
+
+.site-header__gh:hover { color: var(--ink); text-decoration: none; }
+
+.site-header__gh svg { display: block; }
+
+.site-footer__link {
+  color: var(--muted);
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-underline-offset: 0.2em;
+}
+
+.site-footer__link:hover { color: var(--ink); text-decoration-color: var(--ink); }
 
 .report-footer-note {
   margin-top: 3rem;

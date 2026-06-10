@@ -5,9 +5,18 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ethereum Attestation Service: in-depth analysis and self-implementation architecture — Deepsearch</title>
 <meta name="description" content="EAS operating mechanics and a design for on-chain / off-chain attestation infrastructure">
+<link rel="canonical" href="https://code0xff.github.io/reports/ethereum-attestation-service/">
 <link rel="alternate" hreflang="en" href="./index.html">
 <link rel="alternate" hreflang="ko" href="ko/index.html">
 <link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="Ethereum Attestation Service: in-depth analysis and self-implementation architecture">
+<meta property="og:description" content="EAS operating mechanics and a design for on-chain / off-chain attestation infrastructure">
+<meta property="og:url" content="https://code0xff.github.io/reports/ethereum-attestation-service/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Ethereum Attestation Service: in-depth analysis and self-implementation architecture">
+<meta name="twitter:description" content="EAS operating mechanics and a design for on-chain / off-chain attestation infrastructure">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
@@ -20,6 +29,9 @@
   <a class="site-header__brand" href="../index.html">Deepsearch</a>
   <div class="site-header__controls">
     <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
     <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
       <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
     </button>
@@ -146,7 +158,7 @@ function isPayable() public pure virtual returns (bool);</code></pre>
 <p>Assuming an organisation that wants to implement an attestation service functionally equivalent to EAS, we propose a minimum feature set and a reference architecture.</p>
 <h3>6.1 Feature decomposition</h3>
 <p>A minimum implementation divides into the following nine modules.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></p>
-<p>| # | Module | Main responsibilities | |---|--------|-----------------------| | M1 | Schema Registry (on-chain) | Schema registration and lookup, deterministic UIDs, resolver binding | | M2 | Attestation Core (on-chain) | Attestation issuance and revocation, UID generation, event emission | | M3 | Schema Resolver (optional) | Issuance/revocation hooks, fee collection, external verification | | M4 | Off-chain Signer / Verifier | EIP-712 type definitions, domain separation, signing and verification | | M5 | Delegated Attestation | Delegated signing, nonces, proxy, expiration time | | M6 | Indexer | Chain event ingest, ABI-based data decoding | | M7 | Query API | GraphQL/REST, queries over schemas, attestations, and graphs | | M8 | Off-chain Storage (optional) | Off-chain payload storage (IPFS / Arweave / dedicated DB) | | M9 | SDK | Language bindings (TypeScript, Go, …), signature utilities, encoders |</p>
+<table><thead><tr><th>#</th><th>Module</th><th>Main responsibilities</th></tr></thead><tbody><tr><td>M1</td><td>Schema Registry (on-chain)</td><td>Schema registration and lookup, deterministic UIDs, resolver binding</td></tr><tr><td>M2</td><td>Attestation Core (on-chain)</td><td>Attestation issuance and revocation, UID generation, event emission</td></tr><tr><td>M3</td><td>Schema Resolver (optional)</td><td>Issuance/revocation hooks, fee collection, external verification</td></tr><tr><td>M4</td><td>Off-chain Signer / Verifier</td><td>EIP-712 type definitions, domain separation, signing and verification</td></tr><tr><td>M5</td><td>Delegated Attestation</td><td>Delegated signing, nonces, proxy, expiration time</td></tr><tr><td>M6</td><td>Indexer</td><td>Chain event ingest, ABI-based data decoding</td></tr><tr><td>M7</td><td>Query API</td><td>GraphQL/REST, queries over schemas, attestations, and graphs</td></tr><tr><td>M8</td><td>Off-chain Storage (optional)</td><td>Off-chain payload storage (IPFS / Arweave / dedicated DB)</td></tr><tr><td>M9</td><td>SDK</td><td>Language bindings (TypeScript, Go, …), signature utilities, encoders</td></tr></tbody></table>
 <p>M1, M2, M4, M6, and M7 are the <strong>minimum feature set</strong>; for ecosystem-level utility, M5 and M9 are effectively required as well. M3 and M8 are added when the use case demands them.<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup></p>
 <h3>6.2 Reference architecture (system diagram)</h3>
 <pre><code>                  ┌───────────────────────────────┐

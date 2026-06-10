@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ERC-8126: A Standard for AI Agent Verification — Deep Analysis and Implications — Deepsearch</title>
+<meta name="description" content="Structure, trust assumptions, and adoption outlook of the five-mechanism, ZK risk-scoring layer built atop ERC-8004 agent identities">
+<link rel="canonical" href="https://code0xff.github.io/reports/erc-8126-ai-agent-verification/en/">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="ERC-8126: A Standard for AI Agent Verification — Deep Analysis and Implications">
+<meta property="og:description" content="Structure, trust assumptions, and adoption outlook of the five-mechanism, ZK risk-scoring layer built atop ERC-8004 agent identities">
+<meta property="og:url" content="https://code0xff.github.io/reports/erc-8126-ai-agent-verification/en/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ERC-8126: A Standard for AI Agent Verification — Deep Analysis and Implications">
+<meta name="twitter:description" content="Structure, trust assumptions, and adoption outlook of the five-mechanism, ZK risk-scoring layer built atop ERC-8004 agent identities">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>ERC-8126: A Standard for AI Agent Verification — Deep Analysis and Implications</h1>
+    <p class="subtitle">Structure, trust assumptions, and adoption outlook of the five-mechanism, ZK risk-scoring layer built atop ERC-8004 agent identities</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-06-08</span>
+      <span><strong>Tags</strong> ethereum, erc-8126, erc-8004, ai-agents, zero-knowledge, verification, identity, web3</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="erc-8126-ai-agent-verification.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>ERC-8126 "AI Agent Verification" is a standard for verifying AI agents registered through ERC-8004. It defines five specialized verification mechanisms — Ethereum Token Verification (ETV), Media Content Verification (MCV), Solidity Code Verification (SCV), Web Application Verification (WAV), and Wallet Verification (WV).<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> Verification providers use Private Data Verification (PDV) to generate Zero-Knowledge Proofs (ZKPs), producing a unified 0–100 risk score without storing the underlying data; that score is disclosed only to the agent's wallet holder.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> This report dissects the standard's technical structure, trust assumptions, and its place inside the "three-tier trust framework" built atop ERC-8004. Its central judgment: ERC-8126 responds to genuine demand (autonomous agents transacting and paying on-chain),<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> but simultaneously carries four structural weaknesses — (1) verification reduces to trust in off-chain providers,<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> (2) the risk score is aggregated by arithmetic mean, which can mask a single critical failure,<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> (3) the ERC-8004 it depends on is itself still Draft with an unfinished validation registry,<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> and (4) it is one piece of a three-standard suite self-published by a single author group alongside dedicated marketing sites.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> We therefore read ERC-8126 less as a consensus standard than as a vendor-shaped specification, whose adoption hinges not on the spec's polish but on the maturation of the ERC-8004 ecosystem and the emergence of an independent verification-provider market.</p>
+  </section>
+
+  <main class="body">
+<h2>Introduction</h2>
+<p>As autonomous AI agents move beyond chat to call APIs, move funds, and transact with one another, two questions separate: "who is this agent?" and "can this agent be trusted?" The first is a matter of <strong>identity</strong>, the second of <strong>verification/trust</strong>. Through 2025–2026 the Ethereum ecosystem moved quickly to treat these as distinct layers. ERC-8004 "Trustless Agents" introduced identity, reputation, and validation registries, giving each agent a portable ERC-721-based identifier,<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> while x402 (HTTP-native payments built on EIP-3009) handles agent-to-agent payment, closing an "identity + payment" autonomous transaction loop.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></p>
+<p>ERC-8126 claims the <strong>verification layer</strong> in this flow. If ERC-8004 answers "who," ERC-8126 tries to answer "is this agent's code, wallet, web endpoint, and media technically safe?" as a 0–100 score.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> Notably, the standard does not stand alone: its authors (Leigh Cronian @cybercentry, Chris Johnson @virtuals_io) present it as the middle piece of a <strong>three-tier trust framework</strong> — registration (ERC-8004) → verification (ERC-8126) → execution (ERC-8196).<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></p>
+<p>This report takes the ERC-8126 specification (on eips.ethereum.org and in the ethereum/ERCs repository) as primary source, cross-checks it against the Ethereum Magicians discussion thread and independent technical analysis, and then (1) dissects the technical structure, (2) critically analyzes weaknesses in trust, aggregation, privacy, and standardization, and (3) offers an outlook and the author's own judgment.</p>
+<h2>Background: agent identity and the ERC-8004 stack</h2>
+<p>ERC-8004 "Trustless Agents" is a Standards Track ERC created 2025-08-13 and, at the time of writing, still in <strong>Draft</strong>.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> It comprises three lightweight on-chain registries: an <strong>Identity Registry</strong> built on ERC-721 (URIStorage extension), a <strong>Reputation Registry</strong> recording numerical ratings and tags, and a <strong>Validation Registry</strong> in which validator contracts verify work results with 0–100 scores.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> ERC-8004 is widely described as drawing on Google's A2A (Agent-to-Agent) protocol and adding blockchain-level openness and disintermediation,<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> and was reported to have launched on Ethereum mainnet in January 2026.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> _(unverified — single source)_</p>
+<p>A crucial limitation surfaces here. An independent developer guide states that ERC-8004's validation registry "isn't finished yet" and is closer to "a design space" than shipped infrastructure.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> Moreover, ERC-8004 itself does not mention ERC-8126 or external verification providers — its stance is that trust emerges from the coordination surface ERC-8004 establishes.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> In other words, ERC-8126 is a <strong>third-party augmentation</strong> attempting to fill the "verification" slot the ERC-8004 authors left empty — not an official successor blessed by the ERC-8004 camp. That difference in standing is central to the critique below.</p>
+<p>In the broader frame, ERC-8126 seeks the trust slot of the 2025–2026 "agent economy" infrastructure — A2A, ledger-anchored identity, x402 micropayments.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> The demand, in short, is real.</p>
+<h2>Technical anatomy of ERC-8126</h2>
+<p><strong>The five verification types.</strong> ERC-8126 defines:<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<ul>
+<li><strong>ETV (Ethereum Token Verification)</strong> — confirms bytecode presence via <code>eth_getCode</code> and checks vulnerability patterns against the OWASP Smart Contract Security Verification Standard.</li>
+<li><strong>MCV (Media Content Verification)</strong> — performs deepfake detection, provenance, tamper detection, and watermark validation per C2PA frameworks. (Only "applicable" when the agent has media.)</li>
+<li><strong>SCV (Solidity Code Verification)</strong> — checks bytecode existence and common vulnerabilities (reentrancy, flash-loan) per OWASP.</li>
+<li><strong>WAV (Web Application Verification)</strong> — confirms endpoint security via HTTPS, SSL certificate, and common-vulnerability scanning.</li>
+<li><strong>WV (Wallet Verification)</strong> — confirms wallet legitimacy via transaction history and threat-intelligence databases.</li>
+</ul>
+<p>Each verification is anchored to an external standard (OWASP SCSVS/WSTG, C2PA), so ERC-8126 acts less as an inventor of new security criteria than as a <strong>mapping of existing security standards onto on-chain identity</strong>.</p>
+<p><strong>Privacy model (PDV).</strong> Providers generate ZKPs via Private Data Verification: the underlying data is not stored, only a cryptographic proof of verification completion remains, and the result (the risk score) is disclosed only to the agent's wallet holder.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> The spec frames this as GDPR-friendly.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<p><strong>Risk score.</strong> A 0–100 score is split into five tiers (Low 0–20, Moderate 21–40, Elevated 41–60, High 61–80, Critical 81–100), and the overall score is the <strong>arithmetic mean of applicable verification scores</strong>.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<p><strong>Execution model.</strong> Verification runs <strong>off-chain</strong> by default — to remove gas costs, allow complex and evolving logic, and permit multiple competing providers.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> The on-chain interface is <strong>optional</strong>; when implemented it may emit an <code>AgentVerified</code> event (agentId, overallRiskScore, per-verification proof IDs) and expose a <code>getLatestRiskScore(agentId)</code> query.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<p><strong>Dependencies and optional QCV.</strong> ERC-8126 depends on EIP-155 (chain-ID replay protection), EIP-191/712 (signing), EIP-3009 (gasless stablecoin transfer), EIP-721, and ERC-8004.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> Metadata is obtained by calling <code>tokenURI(agentId)</code> on the ERC-8004 Identity Registry and extracting fields such as <code>agentWallet</code>, <code>contractAddress</code>, <code>imageUrl</code>, <code>solidityCode</code>, and <code>url</code>.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> An optional <strong>QCV (Quantum Cryptography Verification)</strong> path uses AES-256-GCM with quantum-resistant key exchange.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<h2>Critical analysis</h2>
+<p><strong>1) Trust reduces to off-chain providers.</strong> All ERC-8126 verification is performed by off-chain providers, so the credibility of a score ultimately reduces to <strong>provider honesty and independence</strong>. The spec itself lists provider collusion as an attack vector, mitigated only by the recommendation to "use multiple independent providers for high-stakes decisions."<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> This means a ZKP proves that "verification was performed," not that "verification was honest and sufficient." On Ethereum Magicians, @lejuho noted that WAV confirms only endpoint reachability and "doesn't verify what code is actually executing behind that endpoint,"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> crystallizing the semantic limit of off-chain verification.</p>
+<p><strong>2) Arithmetic-mean aggregation can hide critical failures.</strong> If overall risk is a simple average of applicable verification scores,<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> a Critical score on one axis (e.g., a reentrancy bug in the code) can be diluted by good scores on others into a "Moderate" overall. In security scoring, averaging inherently tends to hide the worst axis. The community itself left simple-average-vs-weighted aggregation as an open question.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> In my view, given the nature of security verification, aggregation should be <strong>max (worst axis) or weighted/threshold-based</strong>, not mean — this is a question of the semantics of a safety score, not mere design taste. _(interpretive)_</p>
+<p><strong>3) Privacy vs. accountability tension.</strong> Disclosing the score only to the wallet holder<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> is clean for privacy, but from the perspective of a <strong>counterparty</strong> intending to transact with the agent, the very information needed is hidden. The social utility of verification is "signalling risk to third parties"; restricting disclosure to the holder creates an incentive to reveal the score only selectively. Absent a complement such as selectively proving "the score is below a threshold" via ZKP, this model partly conflicts with verification's social purpose. _(interpretive)_</p>
+<p><strong>4) Maturity of ZK and quantum assumptions.</strong> The ZK tooling PDV assumes (e.g., Groth16) requires trusted-setup MPC ceremonies and audited circuits, which the spec acknowledges as security preconditions.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> Moreover, ECDSA and elliptic-curve-based ZKPs remain vulnerable to Shor's algorithm, and QCV's AES-256-GCM is only a near-term mitigation.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> Some in the community considered QCV premature.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<p><strong>5) Immaturity of the dependency — a structural ceiling.</strong> A verification layer cannot be more stable than the identity layer it stands on. ERC-8004 is still Draft,<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> and its validation registry is described as "unfinished, a design space."<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> The community further noted the <strong>absence of a standardized schema</strong> for extracting fields from ERC-8004's <code>tokenURI</code>.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> The very interface ERC-8126 depends on has not yet set.</p>
+<p><strong>6) Source-independence problem.</strong> ERC-8126 was published by a single author group (@cybercentry, @virtuals_io),<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> as one of a three-standard suite (ERC-8004/8126/8196), with the authors running <strong>dedicated marketing sites</strong> (erc8126.ai, erc8196.ai) that promote ERC-8126 as "a final Ethereum standard."<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> Independent in-depth analysis of ERC-8126 specifically is scarce at the time of writing; most secondary coverage concerns ERC-8004. From a standards-process view, this signals something closer to a "vendor-shaped specification" than "broad consensus." _(interpretive)_</p>
+<p><strong>A conflict over Status.</strong> The <code>master</code> front-matter in the ethereum/ERCs repo and the project site (erc8126.ai) label ERC-8126 <strong>Final</strong>.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> Earlier-cycle general search summaries called it <strong>Draft</strong>, and the Magicians thread describes a path Draft (2026-02-10) → Last Call (late May) → Final.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> However, the status string on the eips.ethereum.org page was not cleanly retrievable with our tool (the same tool retrieved ERC-8004's "⚠️ Draft" fine). We therefore treat ERC-8126 as <strong>"Final per front-matter,"</strong> while recording — as a quality signal — its unusually fast (~5-month) path to Final and the deferral of some unresolved items (e.g., carrier-format standardization) to "post-Final erratum."<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<h2>Discussion: implications &amp; adoption outlook (author's view)</h2>
+<p>From here, these are the author's interpretive judgments built on the gathered evidence.</p>
+<p><strong>What ERC-8126 gets right.</strong> First, separating identity from verification is sound. "Who" and "is it safe" are different questions, and since ERC-8004 left the latter empty,<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> someone has to fill the slot. Second, keeping verification off-chain with an optional on-chain interface is pragmatic for gas, evolvability, and provider competition.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> Third, anchoring to existing security standards (OWASP, C2PA) is a healthy choice not to reinvent the wheel. Fourth, the three-tier <strong>narrative</strong> (register → verify → execute) precisely targets a real market demand — autonomous payments and agent marketplaces.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></p>
+<p><strong>Where I remain skeptical.</strong> A standard's value comes from multi-party adoption, not specification elegance. ERC-8126's biggest weakness is not technical but <strong>political/ecosystemic</strong>. (1) A structure where a single author group publishes and promotes "Final" via its own sites<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> is far from the shape of a standard agreed by many implementers. (2) Declaring "the verification layer Final" while the ERC-8004 it depends on is still Draft and even the extraction schema is unstandardized<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> is sealing the roof before the foundation. (3) Deferring a design choice that runs against safety semantics (mean aggregation) to erratum rather than reopening Last Call<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> suggests release speed was prioritized over procedural caution.</p>
+<p><strong>So how will it actually be applied — three branches.</strong></p>
+<ul>
+<li><em>Optimistic:</em> If ERC-8004 stabilizes to Final and an independent verification-provider market actually forms (multiple providers competing and cross-checking via ZKP), ERC-8126's "0–100 score + events" interface could become <strong>common vocabulary</strong> adopted by agent marketplaces and wallets. The key here is provider diversity, not the spec text.</li>
+<li><em>Realistic (the path I consider most likely):</em> The <strong>concept</strong> (multi-axis verification + privacy-preserving score) survives, but its concrete form changes — specifically (a) aggregation moves from mean to weighted/threshold, (b) disclosure moves from holder-only to ZKP-based selective disclosure, and (c) <code>tokenURI</code> extraction converges on a standard schema. ERC-8126 then functions as a <strong>draft design</strong> for a later standard rather than the final form.</li>
+<li><em>Pessimistic:</em> If the ERC-8004 camp or a more neutral consortium ships its own verification standard, the single-group three-pack stays niche and ERC-8126 is recorded only as an "early proposal." In standards competition, source neutrality and multi-party consensus often beat technical merit.</li>
+</ul>
+<p><strong>Who adopts first.</strong> Primary candidates are (i) <strong>agent marketplaces/directories</strong> that must list and rate agents, (ii) <strong>agent wallets</strong> that want to assess a counterparty's risk before transacting (especially bundled with the ERC-8196 execution layer), and (iii) <strong>agent-issuance platforms</strong> like Virtuals — the last directly tied to a co-author's interest (@virtuals_io),<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> which is both an early-adoption engine and a basis for neutrality concerns.</p>
+<p>In sum, I assess ERC-8126 as a <strong>"right direction, provisional form"</strong> proposal. The premise that the autonomous-agent economy needs a verification layer is correct, but the odds that today's ERC-8126 becomes the <strong>final form</strong> of that layer are low. Its fate depends less on the spec itself than on ① ERC-8004's maturation, ② the emergence of an independent verification-provider market, and ③ acceptance of a redesigned aggregation/disclosure model.</p>
+<h2>Limitations</h2>
+<ul>
+<li>ERC-8126 is a standard roughly five months old; its status and spec text may keep changing. This report's "Final" determination rests on repository front-matter and the project site; we could not independently confirm the eips.ethereum.org rendered status string with our tool.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup></li>
+<li>Independent, third-party in-depth analysis of ERC-8126 specifically is scarce. This report relied on the specification, the Ethereum Magicians thread, and secondary material mostly about ERC-8004 — a scarcity that is itself evidence for the "vendor-shaped" reading.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></li>
+<li>We did not find an independent security audit of the reference implementation.</li>
+<li>The critiques of the aggregation/privacy models (the weakness of averaging, holder-only disclosure) are evidence-based interpretation; we also found no formal analysis refuting them.</li>
+<li>Real production adoption of ERC-8126 (live verification providers, agents carrying scores) was not evidenced in this research. Adoption statements are outlook and opinion, not fact.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-8004">ERC-8004: Trustless Agents</a>. <span class="venue">Ethereum Improvement Proposals, 2025</span>. <span class="accessed">Accessed 2026-06-08.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://www.chainup.com/blog/x402-erc8004-ai-agent-payments-agentic-web/">x402 &amp; ERC-8004: How AI Agents Pay on the Agentic Web</a>. <span class="venue">ChainUp Blog, 2026</span>. <span class="accessed">Accessed 2026-06-08.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://arxiv.org/html/2507.19550v1">Towards Multi-Agent Economies: Enhancing the A2A Protocol with Ledger-Anchored Identities and x402 Micropayments for AI Agents</a>. <span class="venue">arXiv, 2025</span>. <span class="accessed">Accessed 2026-06-08.</span></li>
+      <li id="ref-4"><span class="authors">Leigh Cronian, Chris Johnson</span>. <a href="https://eips.ethereum.org/EIPS/eip-8126">ERC-8126: AI Agent Verification</a>. <span class="venue">Ethereum Improvement Proposals, 2026</span>. <span class="accessed">Accessed 2026-06-08.</span></li>
+      <li id="ref-5"><span class="authors">Fellowship of Ethereum Magicians (community)</span>. <a href="https://ethereum-magicians.org/t/erc-8126-ai-agent-verification/27445">ERC-8126: AI Agent (Registration and) Verification — discussion</a>. <span class="venue">Ethereum Magicians forum, 2026</span>. <span class="accessed">Accessed 2026-06-08.</span></li>
+      <li id="ref-6"><span class="authors">Cybercentry</span>. <a href="https://erc8196.ai/">ERC-8196 | AI Agent Authenticated Wallet (project site)</a>. <span class="venue">erc8196.ai, 2026</span>. <span class="accessed">Accessed 2026-06-08.</span></li>
+      <li id="ref-7"><span class="authors">—</span>. <a href="https://blog.quicknode.com/erc-8004-a-developers-guide-to-trustless-ai-agent-identity/">ERC-8004: A Developer&#x27;s Guide to Trustless AI Agent Identity</a>. <span class="venue">QuickNode Blog, 2026</span>. <span class="accessed">Accessed 2026-06-08.</span></li>
+      <li id="ref-8"><span class="authors">—</span>. <a href="https://eco.com/support/en/articles/13221214-what-is-erc-8004-the-ethereum-standard-enabling-trustless-ai-agents">What is ERC-8004? The Ethereum Standard Enabling Trustless AI Agents</a>. <span class="venue">Eco, 2026</span>. <span class="accessed">Accessed 2026-06-08.</span></li>
+      <li id="ref-9"><span class="authors">Jung-Hua Liu</span>. <a href="https://medium.com/@gwrx2005/erc-8004-and-the-ethereum-ai-agent-economy-technical-economic-and-policy-analysis-3134290b24d1">ERC-8004 and the Ethereum AI Agent Economy: Technical, Economic, and Policy Analysis</a>. <span class="venue">Medium, 2026</span>. <span class="accessed">Accessed 2026-06-08.</span></li>
+      <li id="ref-10"><span class="authors">Leigh Cronian, Chris Johnson</span>. <a href="https://github.com/ethereum/ERCs/blob/master/ERCS/erc-8126.md">ERC-8126 source (ethereum/ERCs repository)</a>. <span class="venue">ethereum/ERCs GitHub, 2026</span>. <span class="accessed">Accessed 2026-06-08.</span></li>
+      <li id="ref-11"><span class="authors">Cybercentry</span>. <a href="https://erc8126.ai/">ERC-8126 | AI Agent Registration and Verification (project site)</a>. <span class="venue">erc8126.ai, 2026</span>. <span class="accessed">Accessed 2026-06-08.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-06-08. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
