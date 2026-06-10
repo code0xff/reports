@@ -1,38 +1,56 @@
 # Critique — x402-evm-settlement-contracts
 
-Adversarial pass. Verdict: **1 must-fix found and resolved; remainder are nits.** No open must-fix.
+Adversarial pass. Revised 2026-06-10 after the repo-move revision.
+Verdict: **no open must-fix.** The prior must-fix (over-strong exact-proxy safety claim) stays resolved;
+this revision's main risk was a *staleness* defect (reporting a now-existing contract as absent), now fixed.
+
+## 0. The staleness defect (this revision's headline)
+- The prior revision's headline finding — "there is no `x402BatchSettlement.sol`" — was correct at its pin
+  (`coinbase/x402@dd927a2`) but went stale when the repo moved to `x402-foundation/x402` and shipped the
+  contract at `dc656bb`. This is a freshness failure, not a reasoning error: the prior draft explicitly
+  hedged ("a future capital-backed binding could introduce an EVM contract"). Fixed by re-pinning the batch
+  material, rewriting §4.4 as a full contract analysis, adding §4.5 (collectors), and updating Abstract/§1/
+  §3/§5/§6/§7. The honest framing (what was true at which pin) is preserved, not erased.
 
 ## 1. Unsupported claims
-Swept every paragraph in `draft.md` for uncited factual assertions.
-- Abstract, §1–§5, §7: every factual/technical sentence carries a `[^s..]` ref or is a structural framing sentence ("This report analyzes…"). OK.
-- §4.2 originally asserted the exact proxy's open caller "is safe" with no qualification — this was a *reasoning* defect, not a missing-citation defect (see §3 below). Fixed.
-- §6 interpretive sentences ("clean separation", "deliberate trade-off") are flagged as interpretation and tied to the source contracts; acceptable for an interpretive discussion section.
-- No remaining uncited factual assertions.
+- Swept every paragraph in `draft.md`. Every factual/technical sentence carries a `[^s..]` ref or is a
+  structural framing sentence. New batch material (§4.4, §4.5, §5 batch bullets, §6) cites s19–s25.
+- Interpretive sentences in §6 ("prediction the codebase fulfilled", "genuinely different security model")
+  are flagged as interpretation and tied to sources. OK.
 
 ## 2. Citation integrity
-- Every `[^s..]` ref in both `draft.md` and `draft.ko.md` ∈ {s01..s17} and exists in `sources.jsonl` (verified by grep diff). OK.
-- All 17 `accessed` dates = 2026-06-01, within 90 days. OK.
-- URL liveness: curl -L on a sample (s01 base proxy, s07 upto spec, s14 foundry.toml, s15 Uniswap docs, s16 Uniswap permit2 iface) → all HTTP 200. OK.
-- Quote spot-check (3+): s01/s02/s03/s11/s14 quotes are verbatim from files read directly in-session (contract source, README, foundry.toml). s15 quote matches the WebFetch extraction of the Uniswap docs. s17 quotes match the WebFetch extraction of the arXiv HTML ("The settlement path does not bind the facilitator identity to authorization"). OK.
+- Every `[^s..]` ref in both drafts ∈ {s01..s25} and exists in `sources.jsonl` (grep diff). OK.
+- s01–s17 accessed 2026-06-01; s18–s25 accessed 2026-06-10. All within window. OK.
+- Quote provenance: s19/s20/s21/s23 quotes are verbatim from foundation-repo files read directly in-session
+  (contract source, collectors, implementer doc). s22 from the EVM binding spec read in-session. s25
+  addresses match the foundation contracts/evm/README read in-session. s18 move-note matches the coinbase/
+  x402 main README WebFetch. OK.
+- Foundation blob URLs use the full commit hash `dc656bb8bcc2a9ba7ef2f054f255175b63e59322`. OK.
 
 ## 3. Reasoning gaps
-- **[MUST-FIX — RESOLVED]** §4.2 claimed the exact proxy's lack of caller restriction "is safe." This generalized from "destination/amount are fixed" to "safe" full stop, ignoring settlement preemption. Counter-evidence (s17, Attack I-B) shows an observer can race the facilitator and burn the nonce. Revised to distinguish *safe against fund theft* from *not safe against preemption*, and to note the upto facilitator binding is the mitigation. Mirrored in §6 and Limitations, and in the Korean draft.
-- No causation-from-correlation defects (analysis is code-structural, not statistical).
-- No "most people / everyone / no one" universals.
-- Numbers: addresses, solc version, gas (~300k) are quoted from primary config/README with context. No orphan statistics.
+- §4.4 distinguishes the spec's "stateless" (no off-chain state) from the contract's on-chain accounting,
+  avoiding a contradiction a careless read would create. OK.
+- §5 separates custody-free proxy properties from the custodial channel's properties rather than implying
+  the batch contract is also "no custody." OK.
+- §6 claims batch "sidesteps" Attack I-B — grounded in concrete contract facts (receiver-restricted claim,
+  no Permit2 nonce, cumulative no-op). Framed as analysis, not as a security guarantee. OK.
+- Liveness-vs-safety distinction for the withdrawal race is stated explicitly (no theft; possible forfeiture
+  of unclaimed value). OK.
 
 ## 4. Missing counter-evidence
-- Sweep run (web): found *Five Attacks on x402* (arXiv 2605.11781, Li/Wang/Wang). It directly disputes the "open caller is fine" framing → added as **s17** and woven into §4.2, §6 (Attack I-B preemption, Attack II replay), claim c24, gaps.md, and Limitations. This was the one must-fix; now represented with attribution and qualified as researcher-stated (not a reproduced on-chain exploit).
-- The upto trust-risk and the dependency-inheritance/audit caveats were already represented from the spec's own text (s06, s07).
+- Five Attacks preprint (s17) retained and extended (batch sidesteps I-B). The upto/batch trust-risk and the
+  audit caveats are represented from the specs' own text (s06, s07, s22). The batch contract's *absent audit*
+  is surfaced as a sharper limitation given its custodial nature.
 
 ## 5. Tone and structure
-- Abstract is faithful to the body: leads with the no-contract correction and the witness-spender design, both central in the body. OK.
-- Limitations honestly mirrors gaps.md (audit not read, no live-bytecode check, first-party sourcing, point-in-time absence, attack-models-are-models). OK.
-- No emoji, no marketing voice. Hedges are deliberate epistemic markers (_vendor-stated_, _independent preprint_) per protocol, not weasel-words.
-- Paragraph length: the long §6 counter-evidence paragraph is ~7 sentences but is a single coherent argument with inline cites — acceptable; could split (nit).
+- Abstract leads with the correction (all four now exist) + repo move, faithful to the body. OK.
+- Limitations mirrors gaps.md (no audit — esp. batch; no live-bytecode; tests read not run; first-party +
+  address churn; attack-models-are-models). OK.
+- No emoji, no marketing voice. Hedges are deliberate epistemic markers. OK.
+- §4.4 is long but is one coherent walkthrough of a 587-line contract with inline cites — acceptable.
 
 ## 6. Must-fix vs nit
-- **must-fix (1):** Missing counter-evidence / over-strong exact-proxy safety claim → **RESOLVED** (s17 added, §4.2/§6/Limitations revised, bilingual).
-- **nit (1):** §6 counter-evidence paragraph slightly long. Deferred.
+- **must-fix:** none open. (Staleness defect resolved; prior exact-proxy must-fix remains resolved.)
+- **nit (1):** §6 counter-evidence paragraph remains long; §4.4 is dense. Deferred.
 
-No open must-fix items. Ready for validate → publish.
+Ready for validate → render → prepublish → publish.

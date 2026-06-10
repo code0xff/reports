@@ -1,10 +1,10 @@
 title: 'x402 EVM Settlement Contracts and Payment Schemes: Permit2 Proxies and Batch Settlement'
-subtitle: A code-level analysis of the x402 Permit2 proxy contracts and the exact, upto, and batch-settlement schemes they serve.
+subtitle: A code-level analysis of the x402 Permit2 proxy contracts and the now-shipped x402BatchSettlement payment-channel contract serving the exact, upto, and batch-settlement schemes.
 title_ko: 'x402 EVM 정산 컨트랙트와 결제 스킴: Permit2 프록시와 배치 정산'
-subtitle_ko: x402 Permit2 프록시 컨트랙트와 이들이 구현하는 exact·upto·batch-settlement 결제 스킴에 대한 코드 수준 분석.
+subtitle_ko: x402 Permit2 프록시 컨트랙트와 이제 출시된 x402BatchSettlement 결제 채널 컨트랙트에 대한 코드 수준 분석으로, exact·upto·batch-settlement 결제 스킴을 다룬다.
 slug: x402-evm-settlement-contracts
 lang: en
 langs: [en, ko]
-date: 2026-06-01
+date: 2026-06-10
 tags: [x402, permit2, evm, payments, smart-contracts, agentic-payments]
 status: ready

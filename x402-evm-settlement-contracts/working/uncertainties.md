@@ -1,15 +1,36 @@
 # Uncertainties
 
 Epistemic register — things that are publishable but remain shaky or could shift.
+Revised 2026-06-10.
 
-1. **Audit status is vendor-stated.** The spec (s06) calls the proxy "audited, battle-tested" and references a "post-audit" change to the Witness type, but no audit report was read. Treat the audit claim as vendor-stated; the *code-level* behavior described in this report is verified directly from source, the *audit outcome* is not.
+1. **Audit status is vendor-stated (proxies) / unknown (batch).** The spec (s06) calls the proxy
+   "audited" and references a post-audit Witness change, but no audit report was read. For the newer,
+   **custodial** `x402BatchSettlement` contract no audit document was located at all. Code-level behavior
+   is verified from source; audit outcomes are not. The custodial batch contract carries more residual
+   risk from this gap than the custody-free proxies.
 
-2. **Live deployment ≠ verified.** Canonical addresses (s11) are taken from the repo. We did not read the deployed bytecode on Base or any chain, so "deploys to the same address on all chains via CREATE2" is verified as *intent and configuration* (foundry.toml + CREATE2 deployer + NatSpec), not as an observed on-chain fact for every chain.
+2. **Live deployment ≠ verified.** Canonical addresses (s11, s25) and "Deployed" status across Base,
+   Arbitrum, World Chain, and Polygon are taken from the repo/README. We did not read deployed bytecode on
+   any chain, so "deploys to the same address on all chains via CREATE2" is verified as *intent +
+   configuration + the project's deployment table*, not as an observed on-chain fact.
 
-3. **Fast-moving spec.** x402 is an actively developed, vendor-led protocol. The pinned commit is `dd927a2` (2026-04-21). Witness struct shapes, scheme names, and canonical addresses may change. The legacy Base Sepolia upto deployment (different bytecode, CBOR metadata) already shows the address scheme has churned once (s11).
+3. **Tests read, not executed.** The batch contract's Foundry unit/fork/gas tests (s24) are cited for the
+   behavior they encode (e.g. `test_finalizeWithdraw_capsIfClaimedDuringDelay`,
+   `test_initiateWithdraw_attackBypass_blocked`, the fork lifecycle). They were read as source, not run.
 
-4. **`upto` trust model.** That a malicious server "could charge up to amount regardless of actual usage" is the spec's own stated security consideration (s07) and an interpretive risk framing, not an exploited vulnerability.
+4. **Fast-moving spec, and the surface already moved.** x402 is an actively developed, vendor-led
+   protocol that relocated repos (coinbase/x402 → x402-foundation/x402) between the two pins, and the
+   canonical **Upto proxy address changed** (`0x4020a4f3…` → `0x402015c7…`). Witness shapes, scheme names,
+   channel parameters, and addresses may change again after `dc656bb` (2026-06-09).
 
-5. **ERC-7710 / EIP-3009 paths are out of code scope.** The exact scheme supports EIP-3009 and ERC-7710 transfer methods that do not touch these four files; this report covers them only as context for *why* the Permit2 proxy path exists.
+5. **`upto` / batch trust model.** That a malicious server "could charge up to amount regardless of actual
+   usage" (s07) and that batch clients "bear risk up to the signed maxClaimableAmount" (s22) are the specs'
+   own stated security considerations and interpretive risk framings, not exploited vulnerabilities.
 
-6. **Batch-settlement contract absence is point-in-time.** True at the pinned commit; a future on-chain batch-settlement binding could add an EVM contract. The report states the absence as of `dd927a2`.
+6. **Batch liveness race is design-acknowledged, not contract-solved.** The claim-vs-finalizeWithdraw race
+   that can forfeit unclaimed value (s19, s23) is mitigated only by integrator policy (claim early, longer
+   withdrawDelay, resilient relays), not by an on-chain reservation. Whether real deployments choose safe
+   `withdrawDelay` values is outside what the source can tell us.
+
+7. **ERC-7710 / EIP-3009 exact paths are out of code scope.** The exact scheme supports transfer methods
+   that do not touch the contracts under study; covered only as context.
