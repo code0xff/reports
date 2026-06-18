@@ -1,0 +1,10 @@
+title: AI Agent Payments 행동 통제 기술 (Behavior Control Techniques for AI Agent Payments)
+subtitle: 자율 에이전트의 결제 행동을 제약하는 암호학·정책·런타임·감사 통제 기법에 대한 구현 중심 서베이.
+title_en: Behavior Control Techniques for AI Agent Payments
+subtitle_en: An implementation-oriented survey of the cryptographic, policy, runtime, and audit controls that constrain how autonomous agents spend money.
+slug: ai-agent-payment-behavior-control
+lang: ko
+langs: [ko, en]
+date: 2026-06-18
+tags: []
+status: ready

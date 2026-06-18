@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Agent Payments 행동 통제 기술 (Behavior Control Techniques for AI Agent Payments) — Deepsearch</title>
+<meta name="description" content="자율 에이전트의 결제 행동을 제약하는 암호학·정책·런타임·감사 통제 기법에 대한 구현 중심 서베이.">
+<link rel="canonical" href="https://code0xff.github.io/reports/ai-agent-payment-behavior-control/">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="en" href="en/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="AI Agent Payments 행동 통제 기술 (Behavior Control Techniques for AI Agent Payments)">
+<meta property="og:description" content="자율 에이전트의 결제 행동을 제약하는 암호학·정책·런타임·감사 통제 기법에 대한 구현 중심 서베이.">
+<meta property="og:url" content="https://code0xff.github.io/reports/ai-agent-payment-behavior-control/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI Agent Payments 행동 통제 기술 (Behavior Control Techniques for AI Agent Payments)">
+<meta name="twitter:description" content="자율 에이전트의 결제 행동을 제약하는 암호학·정책·런타임·감사 통제 기법에 대한 구현 중심 서베이.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="en/index.html" hreflang="en">English</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="GitHub에서 Deepsearch 보기" title="GitHub에서 Deepsearch 보기">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>AI Agent Payments 행동 통제 기술 (Behavior Control Techniques for AI Agent Payments)</h1>
+    <p class="subtitle">자율 에이전트의 결제 행동을 제약하는 암호학·정책·런타임·감사 통제 기법에 대한 구현 중심 서베이.</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-06-18</span>
+      <span><strong>태그</strong> —</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="ai-agent-payment-behavior-control.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>AI 에이전트가 사람의 실시간 클릭 없이 결제를 수행하는 <em>에이전트 결제(agentic payments)</em>가 빠르게 표준화되고 있다. 이 보고서는 "에이전트가 결제하도록 만드는 법"이 아니라 <strong>"에이전트의 결제 행동을 어떻게 통제할 것인가"</strong>라는 관점에서, 구현 시 도입 가능한 기술적 기법을 네 개의 층으로 정리한다: (A) 암호학·자격증명 수준의 의도·범위 제약, (B) 정책·한도 엔진, (C) 에이전트 런타임 가드레일과 휴먼 인 더 루프, (D) 검증·귀속·감사. 핵심 결론은 세 가지다. 첫째, 통제해야 할 행동은 <em>금액·수령자·카테고리·빈도·시간·승인주체</em>라는 차원으로 분해할 수 있고, 상용 인프라가 이 차원들을 따라 통제 수단을 제공한다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 둘째, 통제 기법은 강제력이 서로 다르다 — 암호학적으로 서명·범위 제한된 권한(AP2 Mandate, x402 exact/upto, ERC-7579 세션키)은 가장 강하게 강제되는 반면, LLM 측 가드레일은 확률적이어서 우회 가능하다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 셋째, 따라서 단일 기법이 아니라 <em>심층 방어(defense-in-depth)</em>가 필요하며, 프롬프트 인젝션에 완전한 방어가 없다는 점이 이 결론의 핵심 근거다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 본 보고서는 2026년 6월 시점의 스냅샷이며, 다수 표준이 초안·베타 단계임을 한계로 밝힌다.</p>
+  </section>
+
+  <main class="body">
+<h1>AI Agent Payments의 행동 통제 기술</h1>
+<h2>1. 서론 — 무엇을, 왜 통제하는가</h2>
+<p>에이전트 결제는 사용자가 위임한 목표를 받아 AI 에이전트가 자율적으로 상품·서비스를 탐색하고 결제까지 완료하는 흐름을 말한다. Google의 Agent Payments Protocol(AP2)은 이를 "사용자가 직접 현장에 없을 수도 있는(Human Not Present)" 결제로까지 확장하며, 가격이 사용자가 정한 조건에 도달하면 에이전트가 실시간 확인 없이 사전 승인된 자격증명으로 결제를 완료하는 시나리오를 명시한다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>이 자율성이 통제를 어렵게 만드는 이유는 전통적 결제 자동화(정기결제·구독)와 다른 두 가지 새로운 위협에 있다. 첫째는 LLM의 <strong>비결정성</strong>이고 둘째는 <strong>프롬프트 인젝션</strong>이다. OWASP Gen AI Security Project는 "모델 작동 방식의 본질에 있는 확률적 영향 때문에 프롬프트 인젝션에 대한 완전한(fool-proof) 방어가 존재하는지 불분명하다"고 못박는다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 이 위협은 이론에 그치지 않는다. 2026년 한 사례에서는 X(트위터)상의 AI 지갑이 프롬프트 인젝션으로 약 15만 달러를 탈취당했고, 분석은 그 실패 지점이 블록체인 인프라가 아니라 "의도 파싱(intent parsing)"이었다고 결론지었다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. AP2를 대상으로 한 레드팀 연구 역시 "단순한 적대적 프롬프트가 에이전트의 행동을 신뢰성 있게 전복할 수 있다"고 보고한다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>따라서 통제의 출발점은 <em>무엇을 통제하는가</em>를 분해하는 것이다. 상용 문서들을 종합하면 통제 가능한 행동 차원은 대략 <strong>금액(건당·기간 한도), 수령자/머천트, 카테고리(MCC 등), 빈도/속도(velocity), 시간(만료·기간), 승인 주체(누가 최종 승인하는가)</strong>로 정리된다. Stripe Issuing은 "가맹점 카테고리·국가·가맹점 ID·카드 제시 여부를 차단하고, 승인 건당 또는 월 단위 지출 한도를 설정"할 수 있다고 명시하며<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, Lithic는 여기에 MCC·국가·통화·리스크 점수 기반 규칙과 "일정 기간 동안의 거래 건수·금액을 제한하는" 속도 제한(velocity limit)을 더한다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. 본 보고서는 이 차원들을 강제하는 메커니즘을 네 개 층으로 나눠 분석한다.</p>
+<h2>2. 배경 — 위협 모델과 통제 층위 분류</h2>
+<p>에이전트 결제 파이프라인은 대략 <em>사용자 → 에이전트 → 결제 자격증명 → 정산 네트워크</em>로 흐르며, 각 단계마다 공격면이 다르다. 학술적 체계화도 등장하고 있다. "SoK: Blockchain agent-to-agent payments"는 x402 등 블록체인 기반 A2A 결제를 네 단계 수명주기로 체계화한다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. x402를 정면으로 공격한 연구 "Five Attacks on x402"는 "권한부여(authorization)·바인딩(binding)·재생 방지(replay protection)·웹 계층 처리"에서의 약점을 드러내는 다섯 가지 공격을 제시하며, 이 프로토콜이 결제 워크플로의 여러 단계에서 취약함을 보였다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. 한편 Marino와 Juels는 "AI 에이전트에게 암호화폐와 스마트 컨트랙트 접근권을 주는 것이 가공할 새로운 AI 피해 벡터로 이어질 수 있다"고 경고한다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p>신뢰 경계 관점에서 핵심 문제는 <strong>단일 키·단일 신뢰 모델의 한계</strong>다. Alqithami는 자율 에이전트가 통제하는 단일 EOA(외부 소유 계정)가 "그 계정이 통제하는 자금에 대한 단일 실패 지점(single point of failure)"이라고 지적한다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. 이 때문에 전권을 가진 단일 키 대신, <em>위임(delegation)</em>과 <em>범위 제한(scope)</em>으로 권한을 쪼개는 설계가 권장된다 — 이것이 Layer A의 출발점이다.</p>
+<p>통제 기법은 강제되는 위치와 강제력에 따라 네 층으로 나눌 수 있다:</p>
+<ul>
+<li><strong>Layer A — 암호학·자격증명</strong>: 권한 자체를 금액·수령자·만료로 서명·제한한다(가장 강한 강제).</li>
+<li><strong>Layer B — 정책·한도 엔진</strong>: 한도·allowlist·속도 규칙을 정책으로 평가·차단한다.</li>
+<li><strong>Layer C — 런타임 가드레일·HITL</strong>: 에이전트의 도구 호출을 게이팅하고 임계값에서 사람을 개입시킨다(확률적·우회 가능).</li>
+<li><strong>Layer D — 검증·귀속·감사</strong>: 신원·위임 체인을 검증하고 책임을 귀속하며 사후 감사한다.</li>
+</ul>
+<h2>3. Layer A — 암호학·자격증명 수준 제약</h2>
+<p>가장 강한 통제는 권한 자체를 <em>서명되고 범위가 제한된 객체</em>로 만드는 것이다. 에이전트가 그 범위를 벗어나려 해도 검증자가 서명·범위를 확인하므로 결제가 성립하지 않는다.</p>
+<p><strong>서명된 의도·위임(Mandate/Intent).</strong> AP2의 핵심 설계가 여기에 해당한다. AP2는 세 개의 암호학적으로 서명된 mandate를 연결한다 — 사용자의 의도를 담은 <em>Intent Mandate</em>, 특정 카트를 특정 가격에 승인하는 <em>Cart Mandate</em>, 그리고 <em>Payment Mandate</em> — 그리고 이들을 위변조 불가능한 감사 추적으로서 Verifiable Credential로 서명한다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Intent Mandate 모델은 <code>merchants</code>, <code>skus</code>, <code>requires_refundability</code>, <code>intent_expiry</code> 같은 필드로 범위를 코드 수준에서 제한한다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. Payment Mandate는 Checkout JWT의 암호학적 해시로 특정 체크아웃에 바인딩되어, 다른 결제에 재사용될 수 없다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. 카드 네트워크 측도 유사하다<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. Visa Trusted Agent Protocol은 "가맹점과 목적에 특정되고 시간 제한이 있어 재생·중계가 불가능한 암호학적 메시지 서명"을 사용한다고 밝히며<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup> _(vendor-stated)_, Mastercard Agent Pay는 토큰화 기술로 거래 시 식별정보를 마스킹한다<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</p>
+<p><strong>스코프된 위임·세션 키.</strong> 온체인 스마트 계정 생태계는 동일한 아이디어를 모듈로 구현한다. ERC-4337(계정 추상화), EIP-7702(EOA에 코드 부여), ERC-7579(모듈러 스마트 계정), ERC-7710(스마트 컨트랙트 위임)이 토대를 이루고<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup><sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>, 그 위에서 SmartSessions 모듈이 "세션 키에 대한 세밀한 통제 ... 사용자 오퍼레이션 검증·액션별 정책 등 다양한 정책 유형"을 제공한다<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>. ZeroDev는 세션 키에 "어떤 컨트랙트·어떤 함수·어떤 금액인지와 시간 제한"을 부여하고 그 권한에 부합하는 트랜잭션만 서명할 수 있게 한다고 설명하며<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>, Biconomy는 이를 "주로 봇이나 AI 에이전트를 위한 강력한 가드레일"이라고 명시한다<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>. MetaMask Delegation Toolkit은 ERC-7710/7715로 "제한된 실행 권한을 부여해 AI 에이전트가 사용자를 대신해 거래하도록" 하고<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup>, 지출 한도 스코프는 내부적으로 <code>erc20Streaming</code>·<code>valueLte</code> caveat enforcer를 사용한다<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>. Coinbase의 Spend Permissions 구조는 <code>account, spender, token, allowance, period, start, end</code> 필드로 위임 범위를 표현한다<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>.</p>
+<p><strong>금액 한정 1회성 권한.</strong> 온체인 결제 스킴은 권한을 <em>특정 금액 상한·수령자·만료</em>로 좁힌 1회성 서명으로 만든다. x402의 <code>exact</code> 스킴은 퍼실리테이터가 가스를 내되 "클라이언트(사용자)가 암호학적 서명으로 자금의 정확한 흐름을 통제"하게 하고<sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup>, <code>upto</code> 스킴은 "각 권한은 최대 한 번만 정산되며, 정산 후에는 소비되어 재사용 불가"라고 규정한다<sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup>. 이 권한은 EIP-3009(서명 기반 전송 권한)<sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup> 또는 Permit2(장기 allowance 없는 1회성 서명 전송)<sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup>로 구현되며, Coinbase x402 문서는 "EIP-3009 또는 Permit2로 결제 가능"하다고 명시한다<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup>. 카드/머신 양쪽을 잇는 Stripe의 Shared Payment Token(SPT)은 "판매자에게 고객 결제수단에 대한 범위 제한 접근을 부여하고, 통화·최대 금액·만료 기간 등 사용 한도를 설정"한다<sup class="footnote-ref"><a href="#ref-32" id="cite-32">[32]</a></sup>.</p>
+<p>다만 강제력에는 단서가 붙는다. x402가 "인터넷 네이티브 결제 표준"으로 홍보되는 것과 달리<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup>, "Five Attacks on x402"는 동일 프로토콜의 권한부여·바인딩·재생 방지에서 구체적 공격을 시연했다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> — 암호학적 스킴이라도 설계·구현 결함이 있으면 강제력이 무너진다는 점을 양측 증거로 함께 제시한다.</p>
+<h2>4. Layer B — 정책·한도 엔진</h2>
+<p>자격증명이 "무엇을 서명했는가"를 강제한다면, 정책 엔진은 "이 결제가 규칙에 부합하는가"를 평가해 차단한다. 상용 인프라는 이 통제를 명시적 기능으로 제공한다.</p>
+<p><strong>지출 한도와 속도 제한.</strong> Stripe Issuing은 승인 건당·월 단위 지출 한도를 지원하고<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, Lithic는 카드 단위 단일 한도(연·영구·월·건당)와 계정 단위 다중 동시 한도(일·월·평생)를 제공하며 "일정 기간 거래 건수·금액을 제한"하는 속도 제한을 명시한다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-33" id="cite-33">[33]</a></sup>. 온체인 측 Crossmint는 "건당 한도(단일 결제 상한), 롤링 캡(예: 24시간 등 시간창 내 총지출 제한), 수령자 allowlist(에이전트가 결제 가능한 주소 제한)"를 제공한다<sup class="footnote-ref"><a href="#ref-34" id="cite-34">[34]</a></sup>.</p>
+<p><strong>머천트·카테고리 제약.</strong> Stripe Issuing은 가맹점 카테고리·국가·가맹점 ID를 차단할 수 있으며, "지출 한도는 자체 카테고리에만 적용되므로 <code>allowed_categories</code>/<code>blocked_categories</code>와 함께 써서 특정 업종으로 지출을 제한"하라고 안내한다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Lithic는 MCC·국가·통화·리스크 점수 기반 규칙을 강제한다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<p><strong>강제 위치: 온체인 검증기 vs 오프체인 엔진.</strong> 정책을 어디서 강제하느냐가 강제력을 가른다. 온체인 정책 모듈(SmartSessions의 정책 유형, MetaMask의 caveat enforcer)은 트랜잭션 검증 시점에 스마트 컨트랙트가 직접 강제하므로 오프체인 정책 서버보다 우회가 어렵다<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup><sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>. 오프체인 정책 엔진(예: Privy는 "정책이 에이전트가 동작할 수 있는 경계를 정의한다"고 설명)은 표현력·유연성에서 앞서지만, 애플리케이션 로직 수준의 한도는 에이전트·프롬프트·버그로 우회될 수 있어 강제 지점이 약하다<sup class="footnote-ref"><a href="#ref-35" id="cite-35">[35]</a></sup> _(interpretive)_. Coinbase 문서는 "스마트 계정이 지정된 한도·기간 내에서만 다른 계정에 지출 권한을 위임"하도록 한다고 설명한다<sup class="footnote-ref"><a href="#ref-36" id="cite-36">[36]</a></sup>. 다만 이는 절대적이지 않다 — 온체인 검증기조차 <em>세션 키가 탈취되면 그 범위 안에서는 정상 결제로 통과</em>하므로, 한도 자체가 손실의 상한이 된다 _(interpretive)_. Acharya의 연구는 신뢰 없는 환경에서 진정성·의도 검증을 다루지만 본문이 PDF로만 제공되어 직접 인용은 보류한다<sup class="footnote-ref"><a href="#ref-37" id="cite-37">[37]</a></sup>.</p>
+<p><strong>카드 네트워크 레벨 강제.</strong> 카드 진영은 제약을 발급 토큰·네트워크에 바인딩한다. Visa Intelligent Commerce는 "지출 한도, 승인 워크플로, 인증 요구, 신뢰 신원 신호"를 제공하고<sup class="footnote-ref"><a href="#ref-38" id="cite-38">[38]</a></sup>, 그 후속인 Intelligent Commerce Connect는 "사용자가 달러 한도·가맹점 카테고리·실시간 승인 프롬프트를 미리 설정하면 그 가드레일이 VisaNet에 직접 로드된다"고 보도된다<sup class="footnote-ref"><a href="#ref-39" id="cite-39">[39]</a></sup> _(vendor-stated, 단일 보도)_.</p>
+<h2>5. Layer C — 런타임 가드레일과 휴먼 인 더 루프</h2>
+<p>앞의 두 층이 결제 <em>권한</em>에 대한 통제라면, 이 층은 결제를 <em>유발하는 에이전트 자체</em>에 대한 통제다. 결제는 보통 LLM의 도구 호출(tool call)로 시작되므로, 도구 호출을 게이팅하는 것이 1차 방어선이다.</p>
+<p><strong>가드레일 프레임워크.</strong> OpenAI Agents SDK는 "가드레일 트립와이어가 발동되면 에이전트가 실행되지 않아 토큰 소비와 도구 실행을 막는다"고 명시한다<sup class="footnote-ref"><a href="#ref-40" id="cite-40">[40]</a></sup>. NVIDIA NeMo Guardrails의 실행 레일(execution rails)은 LLM 애플리케이션이 호출할 수 있는 도구·액션을 게이팅하며<sup class="footnote-ref"><a href="#ref-41" id="cite-41">[41]</a></sup>, Guardrails AI는 호출 전 입력 검증기와 호출 후 출력 검증기를 자동 실행한다<sup class="footnote-ref"><a href="#ref-42" id="cite-42">[42]</a></sup>. 결제 도구를 이런 검증 대상에 포함시키면, 정책 위반 결제 호출을 실행 전에 차단할 수 있다.</p>
+<p><strong>프롬프트 인젝션 방어라는 전제.</strong> 그러나 가드레일은 확률적이다. OWASP는 프롬프트 인젝션에 완전한 방어가 없을 수 있음을 명시하고, 권한 있는 작업(privileged operations)에 대해 "무단 행동을 막기 위한 휴먼 인 더 루프 통제"를 권고한다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 결제는 전형적인 권한 있는 작업이다. 외부 입력을 <em>명령이 아니라 데이터로</em> 취급하는 것이 결제 통제의 전제이며, 이를 어겼을 때 Grok 지갑 사례처럼 의도 파싱 단계가 뚫린다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Anthropic은 "Claude가 프롬프트 인젝션 같은 오용을 탐지·방어하는 분류기 시스템을 여러 보안 계층과 함께 이미 사용한다"고 밝힌다<sup class="footnote-ref"><a href="#ref-43" id="cite-43">[43]</a></sup>.</p>
+<p><strong>휴먼 인 더 루프 / step-up.</strong> 임계값을 넘는 결제에 사람을 개입시키는 것은 표준과 프레임워크 양쪽에서 권장된다. AP2는 Human Present 흐름에서 사용자가 닫힌(closed) Checkout·Payment Mandate를 직접 승인하게 하고, Human Not Present 흐름도 가맹점·자격증명 제공자가 <code>unresolved_constraint</code> 오류를 반환하면 Human Present로 되돌릴 수 있다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. LangChain의 HITL 미들웨어는 "에이전트 도구 호출에 인간 감독을 추가하고, 개입이 필요하면 실행을 중단(interrupt)"시킨다<sup class="footnote-ref"><a href="#ref-44" id="cite-44">[44]</a></sup>. Skyfire 사례처럼 "에이전트가 일정 규모 거래에 도달하면 SMS로 사용자 승인을 받고 작업을 이어가는" 실시간 결정 지점도 같은 패턴이다<sup class="footnote-ref"><a href="#ref-45" id="cite-45">[45]</a></sup>. Anthropic은 "특히 고위험 결정 이전에는 인간이 목표 추구 방식에 대한 통제권을 유지해야 한다"고 원칙으로 제시한다<sup class="footnote-ref"><a href="#ref-43" id="cite-43">[43]</a></sup>.</p>
+<p><strong>비결정성 격리.</strong> 마지막으로, 결제의 핵심 파라미터를 LLM의 자연어 출력에서 분리해 <em>결정적 서명 객체</em>로 만드는 것이 비결정성 위험을 줄인다. AP2 문서는 "결제의 신뢰가 사용자로부터의 결정적이고 비부인 가능한 의도 증명에 닻을 내려, 에이전트의 오류나 환각 위험을 직접적으로 해소한다"고 설명한다<sup class="footnote-ref"><a href="#ref-46" id="cite-46">[46]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<h2>6. Layer D — 검증·귀속·감사</h2>
+<p>마지막 층은 통제가 작동했는지를 <em>검증·기록·귀속</em>하는 사후·교차 통제다.</p>
+<p><strong>검증가능 신원·권한.</strong> 에이전트가 누구이고 어떤 권한을 위임받았는지 검증할 수 있어야 위임 체인 통제가 성립한다. ERC-8004(Trustless Agents)는 "사전 신뢰 없이 조직 경계를 넘어 에이전트를 발견·선택·상호작용"하기 위해 블록체인을 사용하도록 제안한다<sup class="footnote-ref"><a href="#ref-47" id="cite-47">[47]</a></sup>. AP2도 두 가지 위임 모델(User Credential, Trusted Agent Provider)을 정의해 검증자가 신뢰할 발행 주체를 명확히 한다<sup class="footnote-ref"><a href="#ref-48" id="cite-48">[48]</a></sup>.</p>
+<p><strong>비부인과 책임 귀속.</strong> 서명된 mandate 체인은 "누가 무엇을 승인했는가"를 사후에 입증한다. AP2는 "모든 거래에 대해 비부인 가능한 암호학적 감사 추적을 제공해 분쟁 해결을 돕는다"고 명시한다<sup class="footnote-ref"><a href="#ref-46" id="cite-46">[46]</a></sup> _(vendor-stated)_. 이는 통제 실패 시 책임을 사용자·에이전트·가맹점 중 누구에게 귀속할지를 가르는 근거가 된다.</p>
+<p><strong>감사 로그·관측성.</strong> 실시간 통제를 보완하는 것이 사후 감사다. 한 엔지니어링 가이드는 "모든 도구 호출을 기록하고 사전 정의된 정책 결정(예: 가드레일)과 대조하면, 에이전트가 권한을 초과하려는 시점을 식별하는 피드백 루프가 만들어진다"고 설명한다<sup class="footnote-ref"><a href="#ref-49" id="cite-49">[49]</a></sup>. Anthropic의 다계층 보안 역시 분류기와 모니터링을 결합한다<sup class="footnote-ref"><a href="#ref-43" id="cite-43">[43]</a></sup>.</p>
+<h2>7. 분석 및 논의 — 기법 조합과 트레이드오프</h2>
+<p><strong>강제력 스펙트럼.</strong> 위 네 층은 강제력이 다르다. 암호학적으로 서명·범위 제한된 권한(Layer A)과 온체인/네트워크 레벨 정책 강제(Layer B)는 결정적으로 강제된다 — 권한을 벗어난 결제는 검증에서 탈락하거나 한도가 손실의 상한이 된다<sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup><sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup><sup class="footnote-ref"><a href="#ref-36" id="cite-36">[36]</a></sup>. 반면 에이전트 측 가드레일(Layer C)은 LLM의 확률적 행동에 의존하므로, OWASP가 명시하듯 완전 방어가 보장되지 않는다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 따라서 <em>가드레일만으로 결제를 통제하려는 설계는 구조적으로 취약</em>하며 — Grok 사례와 AP2 레드팀이 이를 실증한다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> — Anthropic처럼 분류기·HITL·다계층을 결합하는 심층 방어가 권장된다<sup class="footnote-ref"><a href="#ref-43" id="cite-43">[43]</a></sup>.</p>
+<p><strong>위협 → 층위 매핑(심층 방어).</strong> 무단/과다 지출은 Layer A의 금액 한정 권한과 Layer B의 한도로 막고, 잘못된 머천트는 mandate의 <code>merchants</code> 범위·allowlist로 막으며<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, 프롬프트 인젝션 유발 결제는 Layer C 가드레일·HITL이 1차로, Layer A의 서명 범위가 <em>최후의 상한선</em>으로 막는다. 재생 공격은 1회성 권한(x402 upto의 "최대 1회 정산", AP2의 Checkout JWT 바인딩)으로 막고<sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>, 책임 귀속 실패는 Layer D의 mandate 감사 추적으로 보완한다<sup class="footnote-ref"><a href="#ref-46" id="cite-46">[46]</a></sup>. 어느 단일 층도 모든 위협을 막지 못한다는 점이 핵심이다.</p>
+<p><strong>통제 위치의 차이.</strong> 같은 행동 차원도 어느 스택에서 강제하느냐에 따라 신뢰 가정이 달라진다 _(interpretive)_. 온체인 스마트 계정은 통제를 스마트 컨트랙트(탈중앙 검증)에 둔다<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup><sup class="footnote-ref"><a href="#ref-36" id="cite-36">[36]</a></sup>; 카드 네트워크는 통제를 발급사·네트워크(VisaNet)에 둔다<sup class="footnote-ref"><a href="#ref-39" id="cite-39">[39]</a></sup>; 모델 사업자 스택은 통제를 자격증명 토큰과 에이전트 런타임에 둔다<sup class="footnote-ref"><a href="#ref-32" id="cite-32">[32]</a></sup><sup class="footnote-ref"><a href="#ref-40" id="cite-40">[40]</a></sup>. Stripe는 "카드와 머신 네이티브 흐름 모두에서 결제 자격증명을 금액·통화·가맹점 같은 통제로 범위 제한할 수 있다"며 양쪽을 잇는다<sup class="footnote-ref"><a href="#ref-50" id="cite-50">[50]</a></sup>. 구현자는 신뢰하려는 주체(체인·발급사·모델 제공자)에 맞춰 통제 위치를 고르게 된다.</p>
+<p><strong>트레이드오프.</strong> 강한 암호학적 통제일수록 UX 마찰(사전 서명·범위 설정·키 관리)이 커지고, AP2·x402·Stripe ACP·MPP·ERC-8004 등 표준이 모두 초안·베타 단계라 상호운용성과 안정성이 아직 미성숙하다. 독립 비교 분석도 "AP2의 광범위한 카드 기반 구현은 아직 성숙 중"이며 "실제 프로덕션 에이전트 시스템은 (MPP·ACP·AP2·x402) 네 프로토콜의 요소를 모두 필요로 한다"고 지적한다 — 단일 프로토콜이 모든 통제 시나리오를 포괄하지 못한다는 뜻이다<sup class="footnote-ref"><a href="#ref-51" id="cite-51">[51]</a></sup>. 통제력과 자율성·편의성 사이의 균형이 설계의 핵심 결정이 된다.</p>
+<h2>8. 한계 (Limitations)</h2>
+<ul>
+<li><strong>표준 미성숙·변동성.</strong> AP2(v0.2, 2026년 FIDO 기부), x402(v2), Stripe ACP(베타), ERC-8004 등은 모두 빠르게 변하며 본 보고서는 2026년 6월 스냅샷이다. 사양 변경 시 세부 통제 동작이 달라질 수 있다. 또한 이들 통제의 <em>실사용 채택</em>은 아직 검증 중이다 — 독립 분석은 "광범위한 카드 기반 구현이 아직 성숙 중"이라고 본다<sup class="footnote-ref"><a href="#ref-51" id="cite-51">[51]</a></sup>.</li>
+<li><strong>벤더 발표 의존.</strong> Visa의 "재생·중계 불가", Mastercard 토큰화, AP2의 "위변조 불가능·비부인" 같은 표현은 발급사·벤더의 마케팅 언어이며 독립 감사가 아니다 — 본문에서 _(vendor-stated)_로 표시했다<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-46" id="cite-46">[46]</a></sup>.</li>
+<li><strong>단일·약한 출처 구간.</strong> 통제 위치 차이(7장)와 일부 비부인 주장은 합성적 해석에 기대며, VisaNet 가드레일 로딩은 단일 보도(s11)에 근거한다. Acharya 논문(s49)은 PDF 접근 제한으로 직접 인용을 보류했다.</li>
+<li><strong>온체인 강제력의 단서.</strong> "온체인이 더 우회하기 어렵다"는 주장은 키 탈취 시나리오에서 한정적이다 — 탈취된 세션 키는 그 범위 안에서 정상 결제로 통과한다.</li>
+<li><strong>가드레일 효능의 본질적 불확실성.</strong> 프롬프트 인젝션에 완전한 방어가 없다는 점(OWASP)은 Layer C의 통제가 위험을 줄일 뿐 제거하지 못함을 의미한다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Google</span>. <a href="https://github.com/google-agentic-commerce/AP2/blob/main/docs/ap2/flows.md">AP2 Flow Examples — Human Present and Human Not Present</a>. <span class="venue">google-agentic-commerce/AP2, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-2"><span class="authors">OWASP Gen AI Security Project</span>. <a href="https://genai.owasp.org/llmrisk/llm01-prompt-injection/">LLM01:2025 Prompt Injection — OWASP Gen AI Security Project</a>. <span class="venue">OWASP, 2025</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-3"><span class="authors">Giskard</span>. <a href="https://www.giskard.ai/knowledge/how-grok-got-prompt-injected-an-x-user-drained-150-000-from-an-ai-wallet">How Grok got prompt-injected: an X user drained $150,000 from an AI wallet</a>. <span class="venue">Giskard, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-4"><span class="authors">Red-team researchers</span>. <a href="https://arxiv.org/abs/2601.22569">Whispers of Wealth: Red-Teaming Google&#x27;s Agent Payments Protocol</a>. <span class="venue">arXiv, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-5"><span class="authors">Stripe</span>. <a href="https://docs.stripe.com/issuing/controls/spending-controls">Issuing spending controls</a>. <span class="venue">Stripe Documentation, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-6"><span class="authors">Lithic</span>. <a href="https://docs.lithic.com/docs/authorization-rules-v2">Authorization Rules — Lithic</a>. <span class="venue">Lithic Documentation, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-7"><span class="authors">Yuanzhe Zhang, Yuexin Xiang, Qin Wang, Tian Qiu, Tsz Hon Yuen, Jiangshan Yu, Kwok-Yan Lam</span>. <a href="https://arxiv.org/abs/2604.03733">SoK: Blockchain agent-to-agent payments</a>. <span class="venue">arXiv preprint (cs.CR), 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-8"><span class="authors">Zelin Li, Qin Wang, Zhipeng Wang</span>. <a href="https://arxiv.org/abs/2605.11781">Five Attacks on x402 Agentic Payment Protocol</a>. <span class="venue">arXiv preprint (cs.CR), 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-9"><span class="authors">Bill Marino, Ari Juels</span>. <a href="https://arxiv.org/abs/2507.08249">Giving AI Agents Access to Cryptocurrency and Smart Contracts Creates New Vectors of AI Harm</a>. <span class="venue">arXiv, 2025</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-10"><span class="authors">Saad Alqithami</span>. <a href="https://arxiv.org/html/2601.04583v1">Autonomous Agents on Blockchains: Standards, Execution Models, and Trust Boundaries</a>. <span class="venue">arXiv, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-11"><span class="authors">Google Cloud</span>. <a href="https://cloud.google.com/blog/products/ai-machine-learning/announcing-agents-to-payments-ap2-protocol">Announcing Agent Payments Protocol (AP2)</a>. <span class="venue">Google Cloud Blog, 2025</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-12"><span class="authors">Google</span>. <a href="https://github.com/google-agentic-commerce/AP2/blob/main/code/sdk/python/ap2/models/mandate.py">AP2 SDK mandate models (Pydantic)</a>. <span class="venue">google-agentic-commerce/AP2, 2025</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-13"><span class="authors">Google</span>. <a href="https://github.com/google-agentic-commerce/AP2/blob/main/docs/ap2/specification.md">Agent Payments Protocol (AP2) v0.2 — specification</a>. <span class="venue">google-agentic-commerce/AP2 (GitHub), 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-14"><span class="authors">Visa</span>. <a href="https://usa.visa.com/about-visa/newsroom/press-releases.releaseId.21716.html">Visa Introduces Trusted Agent Protocol</a>. <span class="venue">Visa Newsroom, 2025</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-15"><span class="authors">Visa</span>. <a href="https://developer.visa.com/capabilities/trusted-agent-protocol/overview">Trusted Agent Protocol — Visa Developer</a>. <span class="venue">Visa Developer, 2025</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-16"><span class="authors">Mastercard</span>. <a href="https://www.mastercard.com/us/en/business/artificial-intelligence/mastercard-agent-pay.html">Mastercard Agent Pay</a>. <span class="venue">Mastercard, 2025</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-17"><span class="authors">Vitalik Buterin, Yoav Weiss, Dror Tirosh, Shahaf Nacson, Alex Forshtat, Kristof Gazso, Tjaden Hess</span>. <a href="https://eips.ethereum.org/EIPS/eip-4337">ERC-4337: Account Abstraction Using Alt Mempool</a>. <span class="venue">Ethereum Improvement Proposals, 2021</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-18"><span class="authors">Vitalik Buterin, Sam Wilson, Ansgar Dietrichs, lightclient</span>. <a href="https://eips.ethereum.org/EIPS/eip-7702">EIP-7702: Set Code for EOAs</a>. <span class="venue">Ethereum Improvement Proposals, 2024</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-19"><span class="authors">Konrad Kopp, zeroknots, Taek Lee, Fil Makarov, Elim Poon, Yoav Weiss</span>. <a href="https://eips.ethereum.org/EIPS/eip-7579">ERC-7579: Minimal Modular Smart Accounts</a>. <span class="venue">Ethereum Improvement Proposals, 2024</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-20"><span class="authors">Dan Finlay, Ryan McPeck, Idan Aharoni</span>. <a href="https://eips.ethereum.org/EIPS/eip-7710">ERC-7710: Smart Contract Delegation</a>. <span class="venue">Ethereum Improvement Proposals, 2024</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-21"><span class="authors">Rhinestone, Biconomy</span>. <a href="https://github.com/erc7579/smartsessions">SmartSessions (ERC-7579 session key module)</a>. <span class="venue">erc7579/smartsessions (GitHub), 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-22"><span class="authors">ZeroDev</span>. <a href="https://docs.zerodev.app/sdk/permissions/intro">Permissions (Session Keys) — ZeroDev</a>. <span class="venue">ZeroDev Documentation, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-23"><span class="authors">Biconomy</span>. <a href="https://docs.biconomy.io/modules/validators/smartSessions">Smart Sessions | Biconomy Docs</a>. <span class="venue">Biconomy Documentation, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-24"><span class="authors">MetaMask</span>. <a href="https://metamask.io/news/what-is-the-delegation-toolkit-and-what-can-you-build-with-it">What is the Delegation Toolkit</a>. <span class="venue">metamask.io, 2025</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-25"><span class="authors">MetaMask / Consensys</span>. <a href="https://docs.metamask.io/smart-accounts-kit/0.13.0/guides/delegation/use-delegation-scopes/spending-limit/">Use spending limit scopes | MetaMask developer documentation</a>. <span class="venue">MetaMask Developer Documentation, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-26"><span class="authors">Coinbase, Base</span>. <a href="https://docs.base.org/identity/smart-wallet/guides/spend-permissions/">Build with Spend Permissions — Base Docs</a>. <span class="venue">docs.base.org, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-27"><span class="authors">Coinbase</span>. <a href="https://github.com/coinbase/x402/blob/main/specs/schemes/exact/scheme_exact_evm.md">x402 specs: exact scheme (EVM)</a>. <span class="venue">coinbase/x402 (GitHub), 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-28"><span class="authors">Coinbase</span>. <a href="https://github.com/coinbase/x402/blob/main/specs/schemes/upto/scheme_upto.md">x402 specs: upto scheme</a>. <span class="venue">coinbase/x402 (GitHub), 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-29"><span class="authors">Peter Jihoon Kim, Kevin Britz, David Knott</span>. <a href="https://eips.ethereum.org/EIPS/eip-3009">ERC-3009: Transfer With Authorization</a>. <span class="venue">Ethereum Improvement Proposals, 2020</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-30"><span class="authors">Uniswap Labs</span>. <a href="https://developers.uniswap.org/contracts/permit2/reference/signature-transfer">Signature Transfer | Uniswap Developers</a>. <span class="venue">Uniswap Documentation, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-31"><span class="authors">Coinbase Developer Platform</span>. <a href="https://docs.cdp.coinbase.com/x402/welcome">Welcome to x402 — Coinbase Developer Documentation</a>. <span class="venue">docs.cdp.coinbase.com, 2025</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-32"><span class="authors">Stripe</span>. <a href="https://docs.stripe.com/agentic-commerce/concepts/shared-payment-tokens">Shared payment tokens — Stripe</a>. <span class="venue">Stripe Documentation, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-33"><span class="authors">Lithic</span>. <a href="https://docs.lithic.com/docs/spend-limits">Spend Limits — Lithic</a>. <span class="venue">Lithic Documentation, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-34"><span class="authors">Crossmint</span>. <a href="https://www.crossmint.com/solutions/agentic-payments">AI Agent Payments Infrastructure (Wallets, Cards &amp; Payouts)</a>. <span class="venue">Crossmint, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-35"><span class="authors">Privy</span>. <a href="https://docs.privy.io/recipes/agent-integrations/agentic-wallets">Agentic wallets — Privy Docs</a>. <span class="venue">docs.privy.io, 2025</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-36"><span class="authors">Coinbase</span>. <a href="https://docs.cdp.coinbase.com/embedded-wallets/evm-features/smart-accounts">Smart Accounts — Coinbase Developer Documentation</a>. <span class="venue">docs.cdp.coinbase.com, 2025</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-37"><span class="authors">Vivek Acharya</span>. <a href="https://arxiv.org/abs/2511.15712">Secure Autonomous Agent Payments: Verifying Authenticity and Intent in a Trustless Environment</a>. <span class="venue">arXiv, 2025</span>. <span class="accessed">접근일 2026-06-18.</span> <span class="unverified">[접근 제한]</span></li>
+      <li id="ref-38"><span class="authors">Visa</span>. <a href="https://www.visa.com/en-us/solutions/intelligent-commerce">Visa Intelligent Commerce — Enabling AI agents to buy securely</a>. <span class="venue">Visa, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-39"><span class="authors">The Paypers</span>. <a href="https://thepaypers.com/payments/news/visa-launches-intelligent-commerce-connect-for-agentic-payments">Visa launches Intelligent Commerce Connect for agentic payments</a>. <span class="venue">The Paypers, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-40"><span class="authors">OpenAI</span>. <a href="https://openai.github.io/openai-agents-python/guardrails/">Guardrails — OpenAI Agents SDK</a>. <span class="venue">OpenAI Agents SDK Documentation, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-41"><span class="authors">NVIDIA</span>. <a href="https://developer.nvidia.com/nemo-guardrails">NVIDIA NeMo Guardrails Library</a>. <span class="venue">NVIDIA Developer, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-42"><span class="authors">Guardrails AI</span>. <a href="https://guardrailsai.com/docs/concepts/validators">Validators — Guardrails AI</a>. <span class="venue">Guardrails AI Documentation, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-43"><span class="authors">Anthropic</span>. <a href="https://www.anthropic.com/news/our-framework-for-developing-safe-and-trustworthy-agents">Our framework for developing safe and trustworthy agents</a>. <span class="venue">Anthropic, 2025</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-44"><span class="authors">LangChain</span>. <a href="https://docs.langchain.com/oss/python/langchain/human-in-the-loop">Human-in-the-loop — LangChain Docs</a>. <span class="venue">LangChain Documentation, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-45"><span class="authors">PYMNTS</span>. <a href="https://www.pymnts.com/artificial-intelligence-2/2025/skyfire-launches-ai-agent-checkout-to-enable-fully-autonomous-transactions/">Skyfire Agents Mimic Humans to Shop, Sign Up and Pay Alone</a>. <span class="venue">PYMNTS.com, 2025</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-46"><span class="authors">Google Agentic Commerce</span>. <a href="https://ap2-protocol.org/">AP2 — Agent Payments Protocol Documentation</a>. <span class="venue">ap2-protocol.org, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-47"><span class="authors">Marco De Rossi, Davide Crapis, Jordan Ellis, Erik Reppel</span>. <a href="https://eips.ethereum.org/EIPS/eip-8004">ERC-8004: Trustless Agents</a>. <span class="venue">Ethereum Improvement Proposals, 2025</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-48"><span class="authors">Google</span>. <a href="https://github.com/google-agentic-commerce/AP2/blob/main/docs/ap2/agent_authorization.md">AP2 Agent Authorization framework</a>. <span class="venue">google-agentic-commerce/AP2, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-49"><span class="authors">LoginRadius</span>. <a href="https://www.loginradius.com/blog/engineering/auditing-and-logging-ai-agent-activity">Auditing and Logging AI Agent Activity: A Guide for Engineers</a>. <span class="venue">LoginRadius Engineering Blog, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-50"><span class="authors">Stripe</span>. <a href="https://stripe.com/blog/giving-agents-the-ability-to-pay">Giving agents the ability to pay</a>. <span class="venue">Stripe Blog, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+      <li id="ref-51"><span class="authors">Crossmint</span>. <a href="https://www.crossmint.com/learn/agentic-payments-protocols-compared">Agentic payments protocols compared: Which is best for your AI agents? (MPP, ACP, AP2, x402)</a>. <span class="venue">Crossmint, 2026</span>. <span class="accessed">접근일 2026-06-18.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-06-18 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
