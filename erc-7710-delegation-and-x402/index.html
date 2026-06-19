@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ERC-7710 Smart Contract Delegation and its Relationship with x402 — Deepsearch</title>
+<meta name="description" content="A technical study of the smart-contract delegation standard — the DelegationManager / caveat-enforcer model — and how it relates to the x402 agent-payment protocol.">
+<link rel="canonical" href="https://code0xff.github.io/reports/erc-7710-delegation-and-x402/">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="ko" href="ko/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="ERC-7710 Smart Contract Delegation and its Relationship with x402">
+<meta property="og:description" content="A technical study of the smart-contract delegation standard — the DelegationManager / caveat-enforcer model — and how it relates to the x402 agent-payment protocol.">
+<meta property="og:url" content="https://code0xff.github.io/reports/erc-7710-delegation-and-x402/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ERC-7710 Smart Contract Delegation and its Relationship with x402">
+<meta name="twitter:description" content="A technical study of the smart-contract delegation standard — the DelegationManager / caveat-enforcer model — and how it relates to the x402 agent-payment protocol.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>ERC-7710 Smart Contract Delegation and its Relationship with x402</h1>
+    <p class="subtitle">A technical study of the smart-contract delegation standard — the DelegationManager / caveat-enforcer model — and how it relates to the x402 agent-payment protocol.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-06-19</span>
+      <span><strong>Tags</strong> —</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="erc-7710-delegation-and-x402.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>ERC-7710 is an Ethereum standard for letting a smart contract delegate on-chain capabilities to another contract or EOA, centered on a <code>DelegationManager</code> that a delegate invokes through <code>redeemDelegations</code> with a proof of authority<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. This report studies ERC-7710 in technical detail — its delegator/delegate/manager roles, the <code>redeemDelegations</code> flow, caveat-enforcer scoping, and delegation chains (re-delegation)<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> — and then examines its relationship with <strong>x402</strong>, the HTTP-402 agent-payment protocol. The headline finding corrects a common assumption that the two are merely adjacent: x402's canonical exact-EVM scheme lists <strong>ERC-7710 as an explicit third authorization option</strong> ("Smart Account Option"), alongside EIP-3009 and Permit2, in which the x402 payment payload carries <code>delegationManager</code>/<code>permissionContext</code>/<code>delegator</code> and the facilitator redeems the buyer's delegation during <code>/settle</code><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>; MetaMask's Smart Accounts Kit ships a concrete "x402 Payments with Delegations" implementation of exactly this<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Crucially, x402 declares that "the process of obtaining a delegation is outside the scope of x402"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> — so the two <strong>compose</strong> cleanly: ERC-7710 (with ERC-7715) supplies a <em>standing, scoped</em> grant, and x402 redeems it <em>per request</em>. This is a June 2026 snapshot of fast-moving, vendor-led standards.</p>
+  </section>
+
+  <main class="body">
+<h1>ERC-7710 Smart Contract Delegation and its Relationship with x402</h1>
+<h2>1. Introduction — what ERC-7710 is and why it matters for agents</h2>
+<p>A recurring problem in agentic and dapp UX is how to grant software <em>some</em> authority to act on-chain on a user's behalf without handing it the user's keys or full account control. ERC-7710 answers this at the standard level: it "introduces a standard way for smart contracts to delegate capabilities to other smart contracts or Externally Owned Accounts (EOAs)," where "the delegating contract (delegator) must be able to authorize a <code>DelegationManager</code> contract to call the delegator to execute the desired action"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>For AI agents this is precisely the missing primitive: a <em>scoped</em> grant. MetaMask frames the agent use case directly — "Let AI agents trade on your behalf by assigning limited execution permissions via ERC-7710, with ERC-7715 making it easy to approve those permissions through your wallet," giving the example that "an agent can be granted permission to spend 10 USDC per day to buy ETH, without requiring per-transaction approval"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The delegation is a capability shared "entirely offchain in a secure manner," with the on-chain <code>DelegationManager</code> validating and executing it<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> _(interpretive: this is the scoped-authority-without-keys framing)_.</p>
+<h2>2. Background — account abstraction, ERC-7715, and the reference implementation</h2>
+<p>ERC-7710 is built for the account-abstraction world. The spec states it "is compatible with ERC-4337, although its implementation does not necessitate ERC-4337," and that it "Requires EIP-1271, EIP-7579"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> — i.e., it assumes modular smart accounts and the standard contract-signature interface. Its reference lineage is the <strong>MetaMask Delegation Framework</strong>: "A DeleGator Smart Account is a 4337-compatible Smart Account that implements delegation functionality," and "the Delegation Manager includes the logic for validating and executing Delegations"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>ERC-7710 has a sibling, <strong>ERC-7715</strong>, that handles the <em>request</em> side. ERC-7715 "define[s] a new JSON-RPC method <code>wallet_requestExecutionPermissions</code> for [a] DApp to request a Wallet to grant permissions"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The two interlock by design: the ERC-7715 "permission response data will be redeemable … using the interfaces specified in ERC-7710," and redemption "calls its <code>redeemDelegation</code> function using the <code>_permissionContexts</code> parameter set to the returned <code>permissions.context</code>"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. In short, 7715 is how an app <em>asks</em> for a scoped permission; 7710 is how that permission is later <em>exercised</em>.</p>
+<h2>3. ERC-7710 in detail — the delegation model</h2>
+<p><strong>Roles.</strong> The spec defines three: "A Delegator is a smart contract that can create a delegation. A Delegation Manager is a smart contract that validates delegation authority and calls on the Delegator to execute an action. A delegate is a smart contract, smart contract account, or EOA that has authority to redeem a delegation"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p><strong>Redemption.</strong> Authority is exercised through one entry point: "When a delegate wishes to redeem a delegation, they call the <code>redeemDelegations</code> function on the Delegation Manager and pass in the action they want to execute and the proof of authority (ie delegation)"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The framework's manager exposes <code>redeemDelegations(bytes[] _permissionContexts, ModeCode[] _modes, bytes[] _executionCallDatas)</code> and "ensures each delegation has sufficient authority to execute, given by the previous delegation or by being a root delegation"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<p><strong>Caveats and enforcers.</strong> A raw delegation would be unboundedly powerful, so ERC-7710 delegations are restricted by <em>caveats</em>: "Caveats are used to add restrictions and rules for Delegations … managed by Caveat Enforcer contracts"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. The MetaMask toolkit ships enforcers for common patterns — for example the <code>valueLte</code> enforcer (a <code>ValueLteEnforcer.sol</code> accepting a <code>bigint</code> cap) and the <code>allowedTargets</code> enforcer (an <code>AllowedTargetsEnforcer.sol</code> taking a list of permitted target addresses)<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> _(these enforcer names are toolkit implementation detail, not ERC-7710 spec text)_.</p>
+<p><strong>Delegation chains (re-delegation).</strong> A distinguishing feature is that authority can be passed onward, attenuated: "Redelegation … allows a delegate to create a delegation chain, passing on the same or reduced level of authority from the root delegator," so that "if Alice grants Bob permission to spend 10 USDC on her behalf, Bob can further grant Carol permission to spend up to 5 USDC on Alice's behalf"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. The chain is tracked by an <code>authority</code> field that "contains either the hash of the parent delegation, or the constant <code>ROOT_AUTHORITY</code>"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>, and at redemption "delegations are ordered from leaf to root [where] the last delegation in the array must have the root authority"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<h2>4. x402 in detail — the part relevant to delegation</h2>
+<p>x402 is an HTTP-native payment protocol. When payment is required, "the server responds with <code>402 Payment Required</code>, including payment instructions[;] the buyer prepares and submits a payment payload[;] the server verifies and settles the payment independently, or by leveraging an x402 facilitator's /verify and /settle endpoints"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. The facilitator's <code>/verify</code> "confirms that the client's payment payload meets the server's declared payment requirements" and <code>/settle</code> "submits the payment to the blockchain … and waits for the payment to be confirmed"<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. It is explicitly built for machine clients — x402 advertises "native support for machine-to-machine payments, enabling seamless use by AI agents"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<p>On EVM, x402's default authorization is a <em>per-payment signed authorization</em>, not a standing grant. The "exact" scheme "uses token-native <code>transferWithAuthorization</code>, commonly for USDC … the default when supported," and otherwise "uses Uniswap Permit2 plus the x402 exact proxy … to support ERC-20 tokens without EIP-3009"<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. The "upto" scheme keeps the per-request shape while allowing a ceiling: "the buyer signs once for the maximum, and the server chooses a final amount … less than or equal to that maximum," using Permit2 "because the settled amount is not known when the buyer signs"<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. In both, the unit of authorization is a single request's payment _(interpretive)_.</p>
+<h2>5. The relationship between ERC-7710 and x402</h2>
+<p><strong>They are not just adjacent — x402 names ERC-7710 as a settlement option.</strong> The canonical x402 exact-EVM specification lists three authorization methods, the third being "ERC-7710 | Smart accounts with delegation support | Smart Account Option (Paid from ERC-7710 compatible account)," which "uses ERC-7710 smart contract delegation to authorize transfers from accounts that support the standard" and requires that "a <code>DelegationManager</code> contract implementing the <code>ERC7710Manager</code> interface … be deployed on the network"<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. In this mode the x402 payment payload carries <code>delegationManager</code>, <code>permissionContext</code>, and <code>delegator</code> fields<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>, and — per MetaMask's shipped guide — "a buyer's smart account creates a delegation that authorizes the facilitator to transfer tokens on their behalf[;] the buyer doesn't sign a direct token approval[;] instead, they sign a delegation that the facilitator redeems during settlement"<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</p>
+<p><strong>They compose as two layers, by explicit design.</strong> x402 deliberately does not absorb the delegation step: "the process of obtaining a delegation is outside the scope of x402"<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. That standing grant is supplied by the ERC-7710/7715 layer — the same <code>redeemDelegation</code>/<code>permissionContext</code> handshake ERC-7715 defines<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The result is a clean division of labor: <strong>ERC-7710 provides the standing, scoped, revocable capability; x402 provides the per-request HTTP payment that redeems it.</strong> MetaMask makes the standing-grant advantage concrete: buyers "can restrict delegations to specific facilitator addresses, amounts, and time windows using delegation scopes," and "can also create long lived delegations that allow recurring payments without re-signing for each request"<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</p>
+<p><strong>Why this matters.</strong> Against x402's native per-payment model (EIP-3009/Permit2 signatures, one authorization per request)<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>, the ERC-7710 option adds what a per-payment signature cannot express on its own: a persistent, caveat-bounded budget the agent can draw against across many x402 requests without a fresh user signature each time, plus the on-chain enforcement and re-delegation/revocation machinery of the delegation framework<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</p>
+<h2>6. Analysis &amp; Discussion</h2>
+<p><strong>Complementary strengths.</strong> The two standards solve different halves of agentic payment. x402 contributes an HTTP-native, network-agnostic challenge/settle flow usable by any machine client without accounts<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. ERC-7710 contributes the <em>authority model</em>: a scoped, attenuable, on-chain-enforced delegation that a user grants once and an agent reuses<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. The x402 ERC-7710 option is the seam where they meet, and x402's "out of scope" clause is what keeps them cleanly separable rather than entangled<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>.</p>
+<p><strong>Enforcement comparison.</strong> In x402's EIP-3009/Permit2 paths, scope is bound into a single signature (recipient and amount are fixed at signing)<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. In the ERC-7710 path, scope lives in caveat-enforcer contracts evaluated at redemption, which can express standing limits, allowed targets, and time windows across many payments<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup> — a different and broader enforcement surface, at the cost of requiring a deployed <code>DelegationManager</code> and an ERC-7710-capable smart account<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>.</p>
+<p><strong>Maturity and caveats.</strong> Both stacks are young and vendor-led — ERC-7710/7715 and the Delegation Toolkit by MetaMask/Consensys, x402 by Coinbase — and the MetaMask x402-with-delegations guide is versioned against a specific (1.5.0) release<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. The "agent spends 10 USDC/day" framing is a vendor illustration, not an independent adoption metric<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The composition is real and specified today, but standardization of richer delegated/recurring x402 billing is still settling.</p>
+<h2>7. Limitations</h2>
+<ul>
+<li><strong>Vendor-led on both sides.</strong> ERC-7710/7715 and the reference Delegation Framework are MetaMask/Consensys-led; x402 is Coinbase-led. "Designed for agents" language largely originates with those vendors<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</li>
+<li><strong>Implementation detail vs spec.</strong> Caveat-enforcer specifics (<code>valueLte</code>, <code>erc20Streaming</code>, <code>allowedTargets</code>) come from the MetaMask toolkit, not the ERC-7710 spec text; they are attributed to the toolkit accordingly<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</li>
+<li><strong>Single-primary points.</strong> The core ERC-7710 definition rests on the EIP itself (appropriate for a standard, but single-primary)<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, and the x402↔7710 integration is evidenced by the x402 spec plus MetaMask's guide<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>; broader independent implementations were not surveyed here.</li>
+<li><strong>Moving target.</strong> ERC-7710, ERC-7715, and x402 (v2) are actively evolving and the MetaMask redeem-delegations docs are marked experimental; this is a June 2026 snapshot. Formalization of delegated/recurring x402 billing appeared to be in progress but could not be independently confirmed and is not cited.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Ryan McPeck, Dan Finlay, Rob Dawson, Derek Chiang</span>. <a href="https://eips.ethereum.org/EIPS/eip-7710">ERC-7710: Smart Contract Delegation</a>. <span class="venue">Ethereum Improvement Proposals, 2024</span>. <span class="accessed">Accessed 2026-06-19.</span></li>
+      <li id="ref-2"><span class="authors">Kingsley Okonkwo</span>. <a href="https://metamask.io/news/what-is-the-delegation-toolkit-and-what-can-you-build-with-it">What is the Delegation Toolkit and what can you build with it?</a>. <span class="venue">MetaMask News, 2025</span>. <span class="accessed">Accessed 2026-06-19.</span></li>
+      <li id="ref-3"><span class="authors">MetaMask</span>. <a href="https://github.com/MetaMask/delegation-framework">MetaMask Delegation Framework (DeleGator Smart Accounts)</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">Accessed 2026-06-19.</span></li>
+      <li id="ref-4"><span class="authors">Luka Isailovic, Derek Rein, Dan Finlay, Derek Chiang, Fil Makarov</span>. <a href="https://eips.ethereum.org/EIPS/eip-7715">ERC-7715: Request Permissions from Wallets</a>. <span class="venue">Ethereum Improvement Proposals, 2024</span>. <span class="accessed">Accessed 2026-06-19.</span></li>
+      <li id="ref-5"><span class="authors">MetaMask</span>. <a href="https://github.com/MetaMask/delegation-framework/blob/main/documents/DelegationManager.md">DelegationManager — MetaMask Delegation Framework</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">Accessed 2026-06-19.</span></li>
+      <li id="ref-6"><span class="authors">MetaMask</span>. <a href="https://docs.metamask.io/delegation-toolkit/reference/delegation/caveats/">Caveats reference — MetaMask developer documentation</a>. <span class="venue">MetaMask developer documentation, 2025</span>. <span class="accessed">Accessed 2026-06-19.</span></li>
+      <li id="ref-7"><span class="authors">MetaMask</span>. <a href="https://docs.metamask.io/smart-accounts-kit/concepts/delegation/">Delegation — MetaMask developer documentation</a>. <span class="venue">MetaMask developer documentation, 2025</span>. <span class="accessed">Accessed 2026-06-19.</span></li>
+      <li id="ref-8"><span class="authors">Coinbase</span>. <a href="https://docs.x402.org/">x402 Documentation — Overview</a>. <span class="venue">docs.x402.org, 2025</span>. <span class="accessed">Accessed 2026-06-19.</span></li>
+      <li id="ref-9"><span class="authors">Coinbase</span>. <a href="https://docs.x402.org/core-concepts/facilitator">x402 — Facilitator</a>. <span class="venue">docs.x402.org, 2025</span>. <span class="accessed">Accessed 2026-06-19.</span></li>
+      <li id="ref-10"><span class="authors">Coinbase</span>. <a href="https://github.com/coinbase/x402">coinbase/x402 — A payments protocol for the internet. Built on HTTP</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">Accessed 2026-06-19.</span></li>
+      <li id="ref-11"><span class="authors">Coinbase</span>. <a href="https://docs.x402.org/schemes/exact">x402 — Exact Scheme</a>. <span class="venue">docs.x402.org, 2025</span>. <span class="accessed">Accessed 2026-06-19.</span></li>
+      <li id="ref-12"><span class="authors">Peter Jihoon Kim, Kevin Britz, David Knott</span>. <a href="https://eips.ethereum.org/EIPS/eip-3009">ERC-3009: Transfer With Authorization</a>. <span class="venue">Ethereum Improvement Proposals, 2020</span>. <span class="accessed">Accessed 2026-06-19.</span></li>
+      <li id="ref-13"><span class="authors">Coinbase Developer Platform</span>. <a href="https://docs.cdp.coinbase.com/x402/welcome">Welcome to x402 — Coinbase Developer Documentation</a>. <span class="venue">docs.cdp.coinbase.com, 2025</span>. <span class="accessed">Accessed 2026-06-19.</span></li>
+      <li id="ref-14"><span class="authors">Coinbase</span>. <a href="https://docs.x402.org/schemes/upto">x402 — Upto Scheme</a>. <span class="venue">docs.x402.org, 2025</span>. <span class="accessed">Accessed 2026-06-19.</span></li>
+      <li id="ref-15"><span class="authors">Coinbase</span>. <a href="https://github.com/coinbase/x402/blob/main/specs/schemes/exact/scheme_exact_evm.md">x402 spec — Exact scheme (EVM), incl. the ERC-7710 Smart Account Option</a>. <span class="venue">github.com/coinbase/x402, 2025</span>. <span class="accessed">Accessed 2026-06-19.</span></li>
+      <li id="ref-16"><span class="authors">MetaMask</span>. <a href="https://docs.metamask.io/smart-accounts-kit/1.5.0/guides/x402/overview/">x402 Payments with Delegations — MetaMask Smart Accounts Kit 1.5.0</a>. <span class="venue">docs.metamask.io, 2026</span>. <span class="accessed">Accessed 2026-06-19.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-06-19. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

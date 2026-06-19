@@ -1,0 +1,10 @@
+title: ERC-7710 Smart Contract Delegation and its Relationship with x402
+subtitle: A technical study of the smart-contract delegation standard — the DelegationManager / caveat-enforcer model — and how it relates to the x402 agent-payment protocol.
+title_ko: ERC-7710 스마트 컨트랙트 위임과 x402와의 관계
+subtitle_ko: 스마트 컨트랙트 위임 표준(DelegationManager·caveat enforcer 모델)과 x402 에이전트 결제 프로토콜의 관계에 대한 기술 분석.
+slug: erc-7710-delegation-and-x402
+lang: en
+langs: [en, ko]
+date: 2026-06-19
+tags: []
+status: ready
