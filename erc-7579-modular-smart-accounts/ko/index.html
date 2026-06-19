@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ERC-7579: 미니멀 모듈러 스마트 계정 — Deepsearch</title>
+<meta name="description" content="미니멀 모듈러 스마트 계정 표준에 대한 기술 심층 분석 — 인터페이스, 모듈 분류, 생태계, 보안.">
+<link rel="canonical" href="https://code0xff.github.io/reports/erc-7579-modular-smart-accounts/ko/">
+<link rel="alternate" hreflang="en" href="../index.html">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="ERC-7579: 미니멀 모듈러 스마트 계정">
+<meta property="og:description" content="미니멀 모듈러 스마트 계정 표준에 대한 기술 심층 분석 — 인터페이스, 모듈 분류, 생태계, 보안.">
+<meta property="og:url" content="https://code0xff.github.io/reports/erc-7579-modular-smart-accounts/ko/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ERC-7579: 미니멀 모듈러 스마트 계정">
+<meta name="twitter:description" content="미니멀 모듈러 스마트 계정 표준에 대한 기술 심층 분석 — 인터페이스, 모듈 분류, 생태계, 보안.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../ko/index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="en">English</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="GitHub에서 Deepsearch 보기" title="GitHub에서 Deepsearch 보기">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../ko/index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>ERC-7579: 미니멀 모듈러 스마트 계정</h1>
+    <p class="subtitle">미니멀 모듈러 스마트 계정 표준에 대한 기술 심층 분석 — 인터페이스, 모듈 분류, 생태계, 보안.</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-06-19</span>
+      <span><strong>태그</strong> —</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="erc-7579-modular-smart-accounts.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>ERC-7579는 스마트 계정과 그 모듈이 구현해야 할 <em>최소(minimal)</em> 인터페이스를 정의하여, 모듈이 서로 다른 계정 구현체 간에 이식 가능하도록 만드는 이더리움 표준이다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. ERC-4337 계정 추상화 위에 얹히며 EOA를 위한 EIP-7702 경로와도 호환된다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 본 보고서는 기술 심층 분석으로서, 동기(모듈 락인 회피), 표준의 인터페이스 집합, 4종 모듈 분류(validator·executor·fallback·hook)<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, 패킹된 실행 모드 인코딩<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, 그리고 validator 모듈이 ERC-4337 검증 흐름에 어떻게 연결되는지를 설명한다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 이어 생태계 — 공용 레퍼런스 구현과 Safe(Safe7579 어댑터 경유)·ZeroDev(Kernel)·Biconomy(Nexus)·OpenZeppelin의 프로덕션 계정 — 와 그 주변 모듈 도구(ModuleKit, ERC-7484 레지스트리, SmartSessions)를 조망한다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. ERC-7579의 미니멀 인터페이스 철학을 보다 규범적인 ERC-6900과 대비하고<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>, 형제 ERC 스택(ERC-7484/7710/7715/7739/7562) 안에 위치시키며<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>, 핵심 보안 트레이드오프를 검토한다: 설치된 모듈은 고도로 특권적이어서 악성·결함 모듈이 계정을 위협할 수 있고<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, 그래서 attestation 레지스트리(ERC-7484)와 제3자 감사가 중요하다<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup><sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup><sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>. 본 분석은 빠르게 변하고 대체로 저자/벤더 주도인 표준에 대한 2026년 6월 시점의 스냅샷이다.</p>
+  </section>
+
+  <main class="body">
+<h1>ERC-7579: 미니멀 모듈러 스마트 계정</h1>
+<h2>1. 서론 — ERC-7579란 무엇이며 왜 존재하는가</h2>
+<p>ERC-4337은 합의 계층 변경 없이 이더리움에 계정 추상화를 도입해, 스마트 컨트랙트 계정이 자신의 트랜잭션을 스스로 검증하게 했다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 그러나 ERC-4337은 계정의 <em>내부</em> — 서명자·세션키·복구 로직·지출 정책을 어떻게 저장하는지 — 를 의도적으로 표준화하지 않았다. 그 결과 각 벤더가 독자적 모듈/플러그인 포맷을 만들었고, 한 계정용 모듈은 다른 계정에서 동작하지 않았다. ERC-7579는 바로 이 문제를 푼다: "이 표준의 목표는 계정과 모듈 간 상호운용성을 보장하면서도 가능한 한 최소한의 스마트 계정·모듈 인터페이스와 동작을 정의하는 것"이며, 명시적 목표는 "서로 다른 스마트 계정 간에 모듈을 사용할 수 있는 상호운용성"과 "스마트 계정 사용자의 심각한 벤더 락인 방지"다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>"미니멀"이라는 틀은 의도적 설계 선택이다 — <em>구현</em>이 아니라 <em>인터페이스</em>를 표준화한다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. OpenZeppelin은 그 결과 능력을 이렇게 요약한다: 표준은 "계정이 모듈을 설치·제거하고 상호작용하여, 서로 다른 계정 구현체에서 합성 가능한 방식으로 능력을 확장하게 한다"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. ERC-7579는 현재 ERC-4337 검증 흐름 위에 놓이지만 저자들은 분리를 예고한다 — 스펙은 "ERC-4337 의존성을 별도 ERC(확장)로 옮겨 스마트 계정이 선택적으로 구현하게 하는" 업그레이드 경로를 계획한다고 적는다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 한편 ERC-4337 EntryPoint v0.8은 EIP-7702 네이티브 지원을 추가해 일반 EOA가 스마트 계정 코드를 채택할 수 있게 했다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> — 따라서 ERC-7579 계정은 배포된 컨트랙트 계정과 업그레이드된 EOA 양쪽으로 도달 가능하다.</p>
+<h2>2. 배경 — 계정 추상화와 모듈화 문제</h2>
+<p>ERC-4337에서 사용자는 <code>UserOperation</code> 객체를 별도 멤풀로 보내고, 번들러가 이를 묶어 싱글턴 EntryPoint의 <code>handleOps</code>로 호출한다. "이 문서는 합의 계층 프로토콜 변경 필요를 완전히 회피하는 계정 추상화 제안"이다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 이 흐름에 대한 계정의 필수 후크는 <code>validateUserOp(PackedUserOperation calldata userOp, bytes32 userOpHash, uint256 missingAccountFunds) returns (uint256 validationData)</code>이다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 그 위 — <em>어떤</em> 서명자·정책이 유효성을 판단하는가 — 는 구현 정의 영역이며, 이것이 ERC-7579가 표준화하는 이음새다.</p>
+<p>실질적 동기는 이식성이다. 공용 인터페이스가 없던 시절에는 한 계정용으로 만든 세션키·소셜 복구 모듈을 다른 계정에 재사용할 수 없었다. OKX의 개요는 더 제약적인 대안과의 대비를 이렇게 짚는다 — "ERC-6900은 더 규범적이어서 허용되는 계정 동작을 상세히 규정하며, 복잡성과 보안의 균형을 잡을 여지를 제한한다"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> _(interpretive)_. ERC-7579의 베팅은, 얇은 공용 인터페이스가 하나의 모듈 생태계로 여러 계정 벤더를 동시에 지원하게 한다는 것이다.</p>
+<h2>3. 표준 — 인터페이스와 모듈 분류</h2>
+<p><strong>모듈 분류.</strong> ERC-7579는 네 가지 핵심 모듈 타입을 정의하고, 계정·모듈이 식별에 사용하는 증분 타입 ID를 부여한다: "Validation(type id: 1), Execution(type id: 2), Fallback(type id: 3), Hooks(type id: 4)"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. validator는 작업의 인가 여부를 판단하고, executor는 계정으로부터 호출을 트리거하며, fallback 핸들러는 계정의 호출 가능 표면을 확장하고, hook은 실행 전/후 검사를 수행한다.</p>
+<p><strong>계정 인터페이스.</strong> 적합한 계정은 작고 고정된 표면을 노출한다: 실행을 위한 <code>execute(bytes32 mode, bytes executionCalldata)</code>와 <code>executeFromExecutor(...)</code>; 라이프사이클을 위한 <code>installModule</code>/<code>uninstallModule</code>/<code>isModuleInstalled</code>; 그리고 <code>accountId()</code>·<code>supportsExecutionMode(bytes32 encodedMode)</code>·<code>supportsModule(uint256 moduleTypeId)</code>를 통한 능력 탐지다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 능력 탐지 함수는 오프체인 도구와 모듈이 상호작용 전에 해당 계정이 무엇을 지원하는지 발견하게 한다.</p>
+<p><strong>모듈 인터페이스.</strong> 모든 모듈은 <code>onInstall(bytes data)</code>, <code>onUninstall(bytes data)</code>, <code>isModuleType(uint256 moduleTypeId)</code>를 구현해야 하며, 이를 통해 계정이 모듈 라이프사이클을 관리하고 모듈이 주장하는 타입을 검증한다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p><strong>실행 모드.</strong> ERC-7579는 실행 동작을 <code>bytes32</code> 모드 코드로 패킹한다. 첫 바이트는 CallType — "단일 호출 0x00, 배치 호출 0x01, staticcall 0xfe, delegatecall 0xff" — 이고, 둘째 바이트는 ExecType — "실패 시 revert하는 실행 0x00, 실패 시 revert하지 않는 실행 0x01" — 이다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 이로써 하나의 <code>execute</code> 진입점이 단일·배치 호출을 모두 처리하고 revert-on-failure와 best-effort(try) 의미 사이를 고를 수 있다.</p>
+<p><strong>검증 흐름.</strong> validator 모듈은 ERC-7579가 ERC-4337로 다시 연결되는 지점이다: validator는 "IERC7579Module과 IERC7579Validator 인터페이스를 구현해야 하고 모듈 타입 id 1을 가져야" 하며, 그 <code>validateUserOp(...)</code>는 "서명이 userOpHash의 유효한 서명임을 검증해야 하고, 서명 불일치 시 (revert하지 말고) ERC-4337의 SIG_VALIDATION_FAILED를 반환해야 한다(SHOULD)"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 계정은 인가 판단을 UserOperation이 선택한 validator 모듈에 위임한다.</p>
+<h2>4. 생태계와 구현</h2>
+<p>ERC-7579에는 공용 <strong>레퍼런스 구현</strong>이 함께 제공된다 — <code>erc7579/erc7579-implementation</code>은 "미니멀 모듈러 스마트 계정(ERC-7579)의 레퍼런스 구현"으로 설명되며 Rhinestone·ZeroDev·Biconomy 기여자들이 공동 저작했다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. 이는 산문 스펙과 별개이며 정준적 출발점 역할을 한다.</p>
+<p>여러 독립 프로덕션 계정이 서로 다른 벤더에 걸쳐 표준을 구현한다:</p>
+<ul>
+<li><strong>Safe</strong>는 <strong>Safe7579 어댑터</strong>로 ERC-7579를 지원한다. 이는 "Safe 스마트 계정을 ERC-7579에 준수하게 만들기 위해 Rhinestone과 Safe가 개발한 스마트 컨트랙트"로, 데드맨 스위치·플래시론·소셜 복구 등 14개의 감사받은 Rhinestone 모듈을 제공한다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</li>
+<li><strong>ZeroDev Kernel</strong>은 "ERC-4337 호환, 모듈러(ERC-7579 플러그인 지원), 고도로 가스 효율적"이며<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>, Pimlico의 비교는 Kernel을 "가장 널리 쓰이는 모듈러 스마트 계정"이라 칭한다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> _(vendor/third-party-stated)_.</li>
+<li><strong>Biconomy Nexus</strong>는 "향상된 계정 추상화를 위한 ERC-7579 모듈러 스마트 계정"으로 기술된다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</li>
+<li><strong>OpenZeppelin</strong>은 Community Contracts에 <code>AccountERC7579</code> 프리셋을 제공한다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</li>
+</ul>
+<p>계정 주변에는 <strong>모듈 생태계와 도구</strong>가 있다: Rhinestone의 <strong>ModuleKit</strong>, "스마트 계정 모듈을 빌드·테스트하기 위한 개발 키트"<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>; <strong>모듈 레지스트리</strong>, "스마트 계정 모듈을 안전하게 사용하기 위한 attestation 레지스트리"로 "ERC-7484의 레퍼런스 구현 역할"을 한다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>; 그리고 <strong>SmartSessions</strong> 같은 재사용 모듈, "세션키에 대한 세밀한 통제를 가능케 하는 ERC-7579 호환 스마트 계정용 고급 모듈"이다<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. 이것이 미니멀 인터페이스의 결실이다 — 하나의 모듈(예: SmartSessions)이 여러 계정 구현체를 동시에 겨냥한다.</p>
+<h2>5. ERC-7579 vs ERC-6900 (및 형제 ERC 스택)</h2>
+<p>ERC-7579만 모듈러 계정 표준인 것은 아니다. <strong>ERC-6900</strong>은 "합성 가능한 로직을 허용하는 스마트 컨트랙트 계정과 계정 모듈을 표준화"하며 "모듈 개발자와 계정 개발자 간 구현 작업을 조율"한다<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. 차이는 철학과 범위다. ERC-7579는 "가능한 한 최소"를 지향하는<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 반면, ERC-6900은 더 규범적이다 — Eco 가이드는 "6900은 구현을 더 많이 제약하기 때문에 스펙 길이가 7579의 약 3배"라고 관찰하고<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>, OKX도 ERC-6900이 "더 규범적이어서 허용되는 계정 동작을 상세히 규정한다"고 본다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 채택 양상도 이 분기를 따른다: "6900은 Alchemy Modular Account에 구현되었고 … 7579는 Safe·ZeroDev·Biconomy·Rhinestone, 그리고 OpenZeppelin Contracts 모듈러 계정 프리셋에 구현되었다"<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup> _(interpretive — 2026 시점 스냅샷이며 최종 결론이 아니다; 두 표준 모두 계속 진화했다)_. 이 대비는 단순한 승패가 아니라 진짜 트레이드오프다: ERC-6900의 규범성 — 구현을 더 제약하고 모듈·계정 개발자 간 기대를 조율하는 것<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup> — 은 더 많은 안전성을 내장하려는 의도인 반면, ERC-7579의 미니멀리즘은 유연성을 얻는 대가로 스토리지 레이아웃과 상당한 안전 책임을 구현자에게 남긴다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>ERC-7579는 형제 ERC 스택의 닻이기도 하다. <strong>ERC-7484</strong>는 계정이 모듈에 대한 보안 attestation을 조회하게 하는 모듈 <strong>attestation 레지스트리</strong>다<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. <strong>ERC-7710</strong>(스마트 컨트랙트 위임)과 <strong>ERC-7715</strong>(<code>wallet_requestExecutionPermissions</code>)는 범위 제한된 실행 권한의 위임·요청을 표준화한다<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>. <strong>ERC-7739</strong>는 단일 EOA가 소유한 계정들 간의 서명 재생을 방지하고<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>, <strong>ERC-7562</strong>는 번들러가 강제하는 오프체인 검증 범위 규칙을 정의한다<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>. Biconomy는 자사 Nexus "아키텍처가 ERC-7579·ERC-4337·ERC-7739·ERC-7562·ERC-7484 표준을 준수한다"고 밝혀, 이들이 실제로 함께 배포됨을 보여준다<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>.</p>
+<h2>6. 보안 고려사항과 분석</h2>
+<p>모듈러 계정의 결정적 보안 속성은 <strong>설치된 모듈이 고도로 특권적</strong>이라는 점이다. executor가 계정으로부터 호출을 개시할 수 있고 hook이 실행을 게이팅(그리고 <code>delegatecall</code>로 실행될 수)있으므로, 악성·결함 모듈은 계정 전체를 위협할 수 있다. 스펙 자체의 보안 고려사항은 모듈 콜백이 "예기치 않은 콜백(예: 재진입)"을 낳을 수 있고 "악성 Hook이 preCheck/postCheck에서 revert할 수 있으며, 신뢰되지 않은 hook 추가는 계정의 서비스 거부로 이어질 수 있다"고 경고한다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 즉, 모듈 설치는 계정 업그레이드에 견줄 만한 신뢰 결정이다.</p>
+<p>표준의 답은 <strong>attestation을 통한 설치 시점 검증</strong>이다. ERC-7484는 문제와 완화책을 직접 제시한다: "이 보안 문제의 한 해법은, 모듈에 대한 보안 attestation을 저장하고 스마트 계정이 모듈 사용 전에 이를 조회할 수 있게 하는 모듈 레지스트리를 만드는 것"이며<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>, Rhinestone의 레지스트리가 그 레퍼런스 구현이다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+<p>두 번째 방어선은 <strong>구현 자체에 대한 제3자 감사</strong>다. 생태계 전반에 구체적·독립적 감사 증거가 존재한다: Ackee Blockchain Security는 "2024년 6월 3일~14일에 Safe 스마트 계정용 Rhinestone ERC-7579 어댑터에 대한 보안 검토를 수행"했고<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>; Biconomy의 Nexus 저장소에는 Zenith·Cyfrin/CodeHawks·Pashov·Cantina의 감사 보고서가 있으며<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup>; ZeroDev의 Kernel 저장소에는 ChainLight·Kalos 감사와 v3.2/v3.3 증분 보고서가 있다<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>. ZeroDev는 Kernel v3를 "ERC-7579 최초의 감사받은 계정"이라 주장한다<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup> _(vendor-stated)_. Safe7579 어댑터도 "14개의 감사받은 모듈"을 내세운다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 단서는 통상적이다 — 감사받음이 무결을 뜻하지 않으며, 감사 범위·최신성은 구현마다 다르다.</p>
+<h2>7. 한계 (Limitations)</h2>
+<ul>
+<li><strong>표준이 대체로 스스로를 기술한다.</strong> 다수의 인터페이스 수준 주장(모듈 타입 ID, 계정/모듈 인터페이스, 실행 모드 인코딩, 보안 고려사항)은 ERC-7579 스펙을 단일 1차 출처로 삼는다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 이는 적절하나(스펙은 자기 인터페이스의 1차 출처다) 단일-1차이며, 표준에 대한 독립적 정형 분석은 얇다.</li>
+<li><strong>벤더/저자 주도 프레이밍.</strong> 대부분의 "미니멀/통합/비규범적" 표현은 표준의 저자·구현자(Rhinestone·Biconomy·ZeroDev·OpenZeppelin)에게서 나온다. Kernel "가장 널리 쓰임"<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> 같은 채택 최상급은 벤더/제3자 마케팅으로 표시했다.</li>
+<li><strong>빠른 변화·스냅샷 한정.</strong> ERC-7579와 형제들(7484·7739·7710/7715)은 계속 변하며 모듈 타입 ID도 시간이 지나며 확장되었다. 본 분석은 2026년 6월 스냅샷이다. ERC-6900 대 7579 "채택" 구도<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>는 특정 시점의 독해일 뿐 최종 결과가 아니다.</li>
+<li><strong>보안은 조건부다.</strong> attestation 레지스트리(ERC-7484)와 감사는 모듈 위험을 줄일 뿐 제거하지 않으며, 특권 모듈 위협은 모듈러 설계에 내재한다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Vitalik Buterin, Yoav Weiss, Dror Tirosh, Shahaf Nacson, Alex Forshtat, Kristof Gazso, Tjaden Hess</span>. <a href="https://eips.ethereum.org/EIPS/eip-4337">ERC-4337: Account Abstraction Using Alt Mempool</a>. <span class="venue">Ethereum Improvement Proposals, 2021</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-2"><span class="authors">zeroknots, Konrad Kopp, Taek Lee, Fil Makarov, Elim Poon, Lyu Min</span>. <a href="https://eips.ethereum.org/EIPS/eip-7579">ERC-7579: Minimal Modular Smart Accounts</a>. <span class="venue">Ethereum Improvement Proposals, 2024</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-3"><span class="authors">OpenZeppelin</span>. <a href="https://docs.openzeppelin.com/community-contracts/account-modules">Account Modules (OpenZeppelin Community Contracts) — AccountERC7579</a>. <span class="venue">OpenZeppelin Docs, 2025</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-4"><span class="authors">ERC-4337 team</span>. <a href="https://erc4337.substack.com/p/entrypoint-v08-released">EntryPoint v0.8 Released</a>. <span class="venue">erc4337.substack.com, 2025</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-5"><span class="authors">OKX Wallet</span>. <a href="https://web3.okx.com/learn/what-is-erc-7579">What is the ERC-7579 standard? Enhanced smart account interoperability</a>. <span class="venue">OKX Learn, 2024</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-6"><span class="authors">zeroknots (Rhinestone), taek (ZeroDev), filmakarov (Biconomy)</span>. <a href="https://github.com/erc7579/erc7579-implementation">erc7579-implementation: Reference implementation for ERC-7579</a>. <span class="venue">GitHub (erc7579 org), 2024</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-7"><span class="authors">Safe</span>. <a href="https://docs.safe.global/advanced/erc-7579/7579-safe">Safe and ERC-7579</a>. <span class="venue">Safe Docs, 2025</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-8"><span class="authors">Rhinestone</span>. <a href="https://github.com/rhinestonewtf/safe7579">safe7579: An ERC-7579 adapter for Safe accounts</a>. <span class="venue">GitHub (rhinestonewtf), 2024</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-9"><span class="authors">ZeroDev</span>. <a href="https://github.com/zerodevapp/kernel">kernel (ZeroDev Kernel)</a>. <span class="venue">GitHub (zerodevapp), 2024</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-10"><span class="authors">Pimlico</span>. <a href="https://docs.pimlico.io/guides/how-to/accounts/comparison">Difference between various Smart Account types — Pimlico Docs</a>. <span class="venue">docs.pimlico.io, 2025</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-11"><span class="authors">Biconomy</span>. <a href="https://github.com/bcnmy/nexus">Nexus by Biconomy: ERC-7579 Modular Smart Account for Enhanced Account Abstraction</a>. <span class="venue">GitHub (bcnmy), 2024</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-12"><span class="authors">Rhinestone</span>. <a href="https://github.com/rhinestonewtf/modulekit">ModuleKit: A development kit for building and testing smart account modules</a>. <span class="venue">GitHub (rhinestonewtf), 2024</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-13"><span class="authors">Rhinestone</span>. <a href="https://github.com/rhinestonewtf/registry">registry: An Attestation Registry for Smart Account Modules (ERC-7484 reference impl)</a>. <span class="venue">GitHub (rhinestonewtf), 2024</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-14"><span class="authors">Rhinestone, Biconomy</span>. <a href="https://github.com/erc7579/smartsessions">smartsessions: session key module for ERC-7579 accounts</a>. <span class="venue">GitHub (erc7579 org), 2024</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-15"><span class="authors">Adam Egyed, Fangting Liu, Jay Paik, Yoav Weiss, Huawei Gu, Daniel Lim, David Philipson, Howy Ho, Nikita Belenkov, zer0dot, David Kim</span>. <a href="https://eips.ethereum.org/EIPS/eip-6900">ERC-6900: Modular Smart Contract Accounts</a>. <span class="venue">Ethereum Improvement Proposals, 2023</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-16"><span class="authors">Eco</span>. <a href="https://eco.com/support/en/articles/11890018-erc-7579-the-complete-guide-to-modular-smart-accounts">ERC-7579: The Complete Guide to Modular Smart Accounts</a>. <span class="venue">Eco Support, 2025</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-17"><span class="authors">Konrad Kopp, zeroknots</span>. <a href="https://eips.ethereum.org/EIPS/eip-7484">ERC-7484: Registry Extension for ERC-7579</a>. <span class="venue">Ethereum Improvement Proposals, 2023</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-18"><span class="authors">Ryan McPeck, Dan Finlay, Rob Dawson, Derek Chiang</span>. <a href="https://eips.ethereum.org/EIPS/eip-7710">ERC-7710: Smart Contract Delegation</a>. <span class="venue">Ethereum Improvement Proposals, 2024</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-19"><span class="authors">Luka Isailovic, Derek Rein, Dan Finlay, Derek Chiang, Fil Makarov, Pedro Gomes, Conner Swenberg, Lukas Rosario, Idris Bowman, Jeff Smale</span>. <a href="https://eips.ethereum.org/EIPS/eip-7715">ERC-7715: Request Permissions from Wallets</a>. <span class="venue">Ethereum Improvement Proposals, 2024</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-20"><span class="authors">vectorized, Sihoon Lee, Francisco Giordano, Hadrien Croubois, Ernesto García, Im Juno, howydev</span>. <a href="https://eips.ethereum.org/EIPS/eip-7739">ERC-7739: Readable Typed Signatures for Smart Accounts</a>. <span class="venue">Ethereum Improvement Proposals, 2024</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-21"><span class="authors">Yoav Weiss, Dror Tirosh, Alex Forshtat, Shahaf Nacson</span>. <a href="https://eips.ethereum.org/EIPS/eip-7562">ERC-7562: Account Abstraction Validation Scope Rules</a>. <span class="venue">Ethereum Improvement Proposals, 2023</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-22"><span class="authors">Biconomy</span>. <a href="https://www.biconomy.io/post/erc-7579-pioneering-a-unified-standard-for-modular-smart-accounts">ERC-7579: Pioneering a Unified Standard for Modular Smart Accounts</a>. <span class="venue">biconomy.io, 2024</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-23"><span class="authors">Ackee Blockchain Security</span>. <a href="https://ackee.xyz/blog/rhinestone-erc-7579-safe-adapter-audit-summary/">Rhinestone ERC-7579 Safe Adapter Audit Summary</a>. <span class="venue">Ackee Blockchain, 2024</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-24"><span class="authors">Biconomy</span>. <a href="https://github.com/bcnmy/nexus/tree/main/audits">Nexus audits (Zenith, Cyfrin/CodeHawks, Pashov, Cantina)</a>. <span class="venue">GitHub (bcnmy/nexus), 2025</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-25"><span class="authors">ZeroDev</span>. <a href="https://github.com/zerodevapp/kernel/tree/master/audits">Kernel audits (ChainLight, Kalos, incremental reports)</a>. <span class="venue">GitHub (zerodevapp/kernel), 2024</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+      <li id="ref-26"><span class="authors">ZeroDev</span>. <a href="https://x.com/zerodev_app/status/1778783417368527087">ZeroDev announces Kernel v3 — first audited account for ERC-7579</a>. <span class="venue">X (ZeroDev official), 2024</span>. <span class="accessed">접근일 2026-06-19.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-06-19 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

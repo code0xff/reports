@@ -1,0 +1,10 @@
+title: ERC-7579: Minimal Modular Smart Accounts
+subtitle: A technical deep-dive into the minimal modular smart-account standard — interfaces, module taxonomy, ecosystem, and security.
+title_ko: ERC-7579: 미니멀 모듈러 스마트 계정
+subtitle_ko: 미니멀 모듈러 스마트 계정 표준에 대한 기술 심층 분석 — 인터페이스, 모듈 분류, 생태계, 보안.
+slug: erc-7579-modular-smart-accounts
+lang: en
+langs: [en, ko]
+date: 2026-06-19
+tags: []
+status: ready
