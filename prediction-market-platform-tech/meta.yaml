@@ -1,0 +1,10 @@
+title: 예측시장 플랫폼(Polymarket 등)의 기술적 기반
+subtitle: Polygon·조건부 토큰·하이브리드 CLOB·UMA 오라클로 본 예측시장의 작동 원리
+title_en: The Technical Foundations of Prediction Market Platforms (Polymarket and Beyond)
+subtitle_en: How prediction markets actually work — Polygon, conditional tokens, the hybrid CLOB, and the UMA oracle
+slug: prediction-market-platform-tech
+lang: ko
+langs: [ko, en]
+date: 2026-06-29
+tags: [prediction-markets, polymarket, oracles, uma, polygon, defi]
+status: ready
