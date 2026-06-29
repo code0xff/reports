@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hermes Hub and the Agentic Resource Discovery Protocol — Deepsearch</title>
+<meta name="description" content="The technical structure of an AI-agent work board — the ARD standard, HCT, Ed25519 bids, payment rails, and an identity check">
+<link rel="canonical" href="https://code0xff.github.io/reports/hermes-hub-agentic-discovery/en/">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="Hermes Hub and the Agentic Resource Discovery Protocol">
+<meta property="og:description" content="The technical structure of an AI-agent work board — the ARD standard, HCT, Ed25519 bids, payment rails, and an identity check">
+<meta property="og:url" content="https://code0xff.github.io/reports/hermes-hub-agentic-discovery/en/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Hermes Hub and the Agentic Resource Discovery Protocol">
+<meta name="twitter:description" content="The technical structure of an AI-agent work board — the ARD standard, HCT, Ed25519 bids, payment rails, and an identity check">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>Hermes Hub and the Agentic Resource Discovery Protocol</h1>
+    <p class="subtitle">The technical structure of an AI-agent work board — the ARD standard, HCT, Ed25519 bids, payment rails, and an identity check</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-06-29</span>
+      <span><strong>Tags</strong> hermes-hub, agentic-resource-discovery, ai-agents, mcp, x402, ard</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="hermes-hub-agentic-discovery.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>Hermes Hub describes itself as an open-source marketplace — "the work board where AI agents get hired and paid"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Its key distinction is that it is built on top of an emerging industry standard, <strong>Agentic Resource Discovery (ARD)</strong> — a v0.9 draft specification published in May 2026 by authors at Google, Microsoft, and Hugging Face that standardizes how an AI client discovers, before invocation, "what is available for this task"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Hermes Hub declares capabilities via the Hermes Capability Taxonomy (340 capabilities across 28 domains), exposes <code>urn:air</code> identifiers and <code>/.well-known/ai-catalog.json</code>, and combines Ed25519-signed bids with Stripe-based MPP/Link settlement (crypto x402 is Phase 2)<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. This report makes two things explicit, however: (1) almost every Hermes-Hub-specific fact rests on its own primary docs, with essentially no independent third-party verification or adoption data; and (2) the "Hermes Agent by Nous Research" association implied by the repo description is community-level interoperability via open standards rather than an official partnership, and the product itself is a general ARD work board<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+  </section>
+
+  <main class="body">
+<h2>Introduction</h2>
+<p>Hermes Hub is presented, via its official site and GitHub repository (amanning3390/hermeshub), as "an ARD-compatible marketplace that enables AI agents to find work and receive payment"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The basic flow: a requester posts work, capable agents discover it through the open ARD standard, submit Ed25519-signed bids, and settle over Stripe MPP/Link/x402 rails<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>This report dissects Hermes Hub's technical structure from the three primary sources the user supplied — the official site, the GitHub repo, and the underlying <code>agenticresourcediscovery.org</code> specification. Because both sites are client-rendered SPAs whose content is thin under static fetching, the body relies mainly on the repo README, the machine-readable catalog (<code>ai-catalog.json</code>), and the ARD spec's primary text.</p>
+<p>One important caution: the name "Hermes" overlaps with a separate open-source agent, Nous Research's "Hermes Agent"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. As §6 shows, the two are related only by community-level compatibility through open standards, with no official partnership confirmed, so "Hermes Hub" here refers solely to the ARD work board pointed to by the amanning3390 repository.</p>
+<h2>Background — The Agentic Resource Discovery (ARD) Protocol</h2>
+<p>Understanding Hermes Hub requires first looking at its foundation, ARD. The spec "defines how AI artifacts are cataloged, discovered, and searched across federated networks"<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, where an artifact is any "external capability an AI client can call on to do a task — an agent, MCP server, Skill, API, or workflow"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<p>ARD's design principle is a sharp boundary. It "sits entirely before invocation," helping the client find the right resource while the resource is invoked through its own native mechanism<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. It is therefore not an execution runtime (not MCP, A2A, Skills, or an API runtime) and not a centralized catalog — it presumes many decentralized discovery services, each with its own governance, trust, and ranking policies<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. The flow is five steps: "publish an <code>ai-catalog.json</code> at a well-known path on your domain → registries crawl it → an agent searches by intent → it verifies the publisher → then it connects"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Identifiers follow <code>urn:air:&lt;publisher&gt;:&lt;namespace&gt;:&lt;name&gt;</code>, and the <code>&lt;publisher&gt;</code> must be a verifiable FQDN, anchoring trust without central registration<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<p>ARD's status must also be clear. It is a <strong>v0.9 Draft (Proposal)</strong> dated 28 May 2026, authored by Junjie Bu (Google), R.V. Guha (Microsoft), and Shaun Smith (Hugging Face)<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Independent reporting says eleven companies — including Google, Microsoft, GitHub, and Hugging Face, with Nvidia, Salesforce, and Snowflake also contributing — have published ARD<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>, and Hugging Face's Discover tool is offered as the reference implementation<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. Adoption is still early, though: one independent analysis noted that three days after the spec dropped, Hugging Face was the only one of the 11 launch companies serving an actual catalog at <code>/.well-known/ai-catalog.json</code> on its main domain<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<h2>Hermes Hub Architecture and Features</h2>
+<p>Hermes Hub is one marketplace that implements this ARD standard. Workers declare what they can do via the <strong>Hermes Capability Taxonomy (HCT)</strong> — per the README, "340 machine-readable capabilities across 28 domains," exposed at <code>/.well-known/ai-catalog.json</code><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. The deployed catalog declares <code>specVersion: "1.0"</code>, host <code>did:web:hermeshub.xyz</code>, and three URN entries including <code>urn:air:hermeshub.xyz:registry:capabilities</code> ("340+ capabilities across 28 domains")<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<p>Identity and bidding are handled cryptographically. Anonymous sign-in mints a <code>urn:air</code> identifier and an Ed25519 keypair whose private key is held client-side to sign bids and declarations _(unverified — single source)_<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Bids are "Ed25519-signed and verified server-side," and "awards snapshot the platform fee at award time so later fee changes never apply retroactively"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Every agent, work request, and catalog entry uses an RFC 8141 <code>urn:air:&lt;publisher&gt;:&lt;namespace&gt;:&lt;name&gt;</code> URN<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>The tech stack is a conventional serverless web setup. The frontend is a Vite + React + TypeScript SPA (hash routing, Tanstack Query, shadcn/ui, Tailwind); the backend is Vercel serverless functions with Neon Postgres (Drizzle ORM, 16 tables); the repo is 96.7% TypeScript<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Hermes Hub also states that it federates with other ARD registries (GitHub Agent Finder, Hugging Face Discover) so workers reach the whole ecosystem, not just one catalog<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<h2>Payment and Settlement Rails</h2>
+<p>Settlement comes in two tracks. Unattended agent-to-agent settlement uses <strong>MPP (Machine Payments Protocol)</strong>, which the README describes as "unattended agent-to-agent settlement via PaymentIntent + HTTP 402"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Human-supervised flows go through <strong>Stripe Link/Checkout</strong><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. "MPP" here reads less like a separately ratified external spec and more like Hermes Hub's own label for its Stripe-based settlement; this report reproduces it as the project states it _(vendor-defined)_.</p>
+<p>Crypto rails are roadmap-stage. The README and site say "crypto rails (x402) are Phase 2," with on-chain USDC settlement on Base/Solana on the roadmap under the same signed-bid, fee-snapshot guarantees<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. For context, x402 is a real open payment protocol built by Coinbase that embeds stablecoin payments into HTTP using the 402 status code, later donated to the x402 Foundation at the Linux Foundation<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. Finally, on pricing, the first 500 workers ("Founder-500") lock in a 1.5% lifetime fee versus the 5% standard<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<h2>Identity and Relationship Analysis</h2>
+<p>The first obstacle when researching Hermes Hub is an identity confusion. The GitHub repo's description labels the project "HermesHub - The Skills Hub for Hermes Agent by Nous Research. Browse, share, and install community skills"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Yet the product README and official site describe the same project as "an ARD work board where AI agents get hired and paid," with no mention of Nous Research<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. A third-party aggregator (Hermes Atlas) follows the repo description, classifying it under "Hermes Agent Skills &amp; Skill Registries"<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. Because the two self-descriptions conflict, this report presents both rather than resolving them.</p>
+<p>The accurate relationship is "community compatibility intended, but not an official partnership." On one hand, Nous Research's "Hermes Agent" is a distinct open-source self-improving agent that runs on a personal server, installs skills from <code>agentskills.io</code>, and ships under MIT — with no mention in its primary docs of "Hermes Hub" or <code>amanning3390</code>, and the Hermes Hub README does not mention Nous Research either<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. On the other hand, amanning3390 also publishes companion tooling that wires into HermesHub — <code>hermes-ard-capabilities</code> ("a drop-in skill + CLI for agents to publish ARD-compliant ai-catalog.json and interact with HermesHub")<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup> and a <code>hermes-workspace</code> skill that targets Nous's Hermes Agent but explicitly depends on a community fork (<code>outsourc-e/hermes-agent</code>) rather than the upstream repo<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. So Hermes Hub is a <strong>community project designed to interoperate with</strong> Nous's Hermes Agent through open standards (agentskills.io, ARD) — not an official or endorsed Nous Research product, and the product itself is reframed as a general ARD work board _(interpretive)_<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</p>
+<h2>Discussion — Assessing Maturity and Verifiability</h2>
+<p>Hermes Hub's technical design is itself coherent and standard-conformant. It faithfully follows ARD's <code>urn:air</code> / well-known-catalog / federation model<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, and devices like Ed25519 signing, client-held keys, and fee snapshots are reasonable pieces for an agent marketplace<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Putting an external payment standard like x402 on the roadmap also aligns with where the ecosystem is heading<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<p>On verifiability, though, there is a clear limit. Almost every Hermes-Hub-specific fact — capability counts, signature verification, settlement behavior, user numbers — is confirmable only from the project's own sources (site, README, catalog); no independent third-party audit or adoption/usage data was found _(interpretive)_. The underlying ARD is likewise very early as a v0.9 draft, with Hugging Face essentially the only live registry<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. The repo itself shows early-stage activity at the scale of tens of commits<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. In short, Hermes Hub is best read as "a faithful early implementation of a promising industry standard," with insufficient independent evidence to treat it as proven production infrastructure.</p>
+<h2>Limitations</h2>
+<ul>
+<li><strong>Reliance on self-sourcing.</strong> Hermes-Hub-specific facts rest almost entirely on the project's own site, README, and catalog. No independent audit, security review, or usage statistics were found.</li>
+<li><strong>Identity.</strong> The repo's "Skills Hub for Hermes Agent by Nous Research" description superficially conflicts with the product's "ARD work board" framing. This report reconciles them as "community interoperability via open standards (not an official partnership)," but could not obtain confirmation from Nous Research.</li>
+<li><strong>Version inconsistency.</strong> The README cites ARD v0.9 while the deployed <code>ai-catalog.json</code> declares <code>specVersion 1.0</code>; which the live deployment honors was not verified.</li>
+<li><strong>Status of MPP.</strong> "Machine Payments Protocol" appears to be Hermes Hub's label for its Stripe-based settlement rather than an external standard, and is reproduced as the project describes it.</li>
+<li><strong>A fast-moving target.</strong> Repo metrics (293 stars, 98 forks, 67 commits) and the spec/roadmap are as of 2026-06-29 and will drift.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://www.hermeshub.xyz/">HermesHub — The Work Board Where AI Agents Get Hired and Paid</a>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://github.com/amanning3390/hermeshub">GitHub — amanning3390/hermeshub</a>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://raw.githubusercontent.com/amanning3390/hermeshub/main/README.md">HermesHub README</a>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://hermes-agent.org/">Hermes Agent — Open-Source AI Agent with Persistent Memory (Nous Research)</a>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://github.com/nousresearch/hermes-agent">GitHub — NousResearch/hermes-agent: The agent that grows with you</a>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-6"><span class="authors">Junjie Bu, R.V. Guha, Shaun Smith</span>. <a href="https://agenticresourcediscovery.org/spec">Agentic Resource Discovery Specification (v0.9 Draft)</a>. <span class="venue">agenticresourcediscovery.org, 2026</span>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-7"><span class="authors">—</span>. <a href="https://developers.googleblog.com/announcing-the-agentic-resource-discovery-specification/">Announcing the Agentic Resource Discovery specification</a>. <span class="venue">Google Developers Blog, 2026</span>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-8"><span class="authors">—</span>. <a href="https://www.searchenginejournal.com/google-microsoft-back-draft-ai-agent-discovery-spec/579894/">Google, Microsoft Back Draft AI Agent Discovery Spec</a>. <span class="venue">Search Engine Journal, 2026</span>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-9"><span class="authors">—</span>. <a href="https://huggingface.co/blog/agentic-resource-discovery-launch">Agentic Resource Discovery: Let agents search</a>. <span class="venue">Hugging Face, 2026</span>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-10"><span class="authors">—</span>. <a href="https://www.synscribe.com/blog/google-agentic-resource-discovery-ard-specification">Google Just Standardized Agentic Discovery. Here&#x27;s What It Means (and What It Misses)</a>. <span class="venue">Synscribe, 2026</span>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-11"><span class="authors">—</span>. <a href="https://www.hermeshub.xyz/.well-known/ai-catalog.json">HermesHub ai-catalog.json (ARD manifest)</a>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-12"><span class="authors">—</span>. <a href="https://www.coinbase.com/developer-platform/discover/launches/x402">Introducing x402: a new standard for internet-native payments</a>. <span class="venue">Coinbase, 2025</span>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-13"><span class="authors">—</span>. <a href="https://www.theblock.co/learn/391983/what-is-coinbases-x402-protocol">What is Coinbase&#x27;s x402 protocol?</a>. <span class="venue">The Block, 2025</span>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-14"><span class="authors">—</span>. <a href="https://hermesatlas.com/projects/amanning3390/hermeshub">hermeshub — Hermes Agent Skills &amp; Skill Registries | Hermes Atlas</a>. <span class="venue">Hermes Atlas, 2026</span>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-15"><span class="authors">—</span>. <a href="https://github.com/amanning3390/hermes-ard-capabilities">GitHub — amanning3390/hermes-ard-capabilities</a>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-16"><span class="authors">—</span>. <a href="https://lobehub.com/skills/amanning3390-hermeshub-hermes-workspace">hermes-workspace — Skills Marketplace (LobeHub)</a>. <span class="venue">LobeHub, 2026</span>. <span class="accessed">Accessed 2026-06-29.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-06-29. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
