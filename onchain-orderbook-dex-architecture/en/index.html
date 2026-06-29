@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How On-Chain Order Book Exchanges Work — Deepsearch</title>
+<meta name="description" content="From hybrid matching to fully on-chain CLOBs — dYdX, Serum, Injective, and Hyperliquid compared">
+<link rel="canonical" href="https://code0xff.github.io/reports/onchain-orderbook-dex-architecture/en/">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="How On-Chain Order Book Exchanges Work">
+<meta property="og:description" content="From hybrid matching to fully on-chain CLOBs — dYdX, Serum, Injective, and Hyperliquid compared">
+<meta property="og:url" content="https://code0xff.github.io/reports/onchain-orderbook-dex-architecture/en/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="How On-Chain Order Book Exchanges Work">
+<meta name="twitter:description" content="From hybrid matching to fully on-chain CLOBs — dYdX, Serum, Injective, and Hyperliquid compared">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>How On-Chain Order Book Exchanges Work</h1>
+    <p class="subtitle">From hybrid matching to fully on-chain CLOBs — dYdX, Serum, Injective, and Hyperliquid compared</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-06-29</span>
+      <span><strong>Tags</strong> dex, orderbook, clob, dydx, hyperliquid, injective, solana, mev</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="onchain-orderbook-dex-architecture.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>An on-chain order book exchange is an attempt to implement a central limit order book (CLOB) on a blockchain — and that is itself a hard engineering problem. Order books demand frequent order placement and cancellation plus low-latency matching, which is fundamentally mismatched to Ethereum L1's low throughput and high gas costs<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. This report dissects the four technical families that emerged to sidestep that problem: (A) hybrid off-chain matching with on-chain settlement (0x, dYdX v3)<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>, (B) app-specific chains with a validator in-memory order book (dYdX v4)<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, (C) on-chain CLOBs atop parallel-execution general-purpose L1s (Solana's Serum/OpenBook, Injective, Sei)<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>, and (D) a fully on-chain CLOB on a purpose-built trading L1 (Hyperliquid)<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Each family picks a different point on the spectrum between decentralization/verifiability and performance/latency, and the MEV / fair-ordering problem is handled with mechanisms such as frequent batch auctions (FBA)<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. In the 2025 on-chain derivatives market the fully on-chain model (Hyperliquid) took a dominant share, demonstrating the commercial viability of the approach — though that share swung sharply as rivals appeared<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+  </section>
+
+  <main class="body">
+<h2>Introduction</h2>
+<p>The mainstream of decentralized exchanges (DEXs) was long the automated market maker (AMM). AMMs set prices via a bonding curve and liquidity pools, which makes on-chain implementation simple. A <strong>central limit order book (CLOB)</strong>, by contrast, matches buy and sell limit orders on <strong>price-time priority</strong> — the same mechanism traditional finance exchanges use<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. CLOBs offer finer price discovery and market making, but have been known as a model "usually difficult to implement on-chain due to its high scalability and throughput requirements"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>"On-chain order book" is in fact a spectrum. At one end is the <strong>fully on-chain</strong> model, where order placement, cancellation, and matching all happen on the blockchain; at the other is the <strong>hybrid</strong> model, where matching is done off-chain and only the resulting fills settle on-chain<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. This report walks that spectrum, analyzing which technical breakthroughs enabled each point and what strengths and weaknesses each choice carries.</p>
+<h2>Background — Why On-Chain Order Books Are Hard</h2>
+<p>The crux is the workload of running an order book. In a fully on-chain book, "every single component of the trading process, from order to matching to settlement, must be executed as a transaction onchain"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. In particular, when a large order fills against multiple price levels, "each fill requires updating the order book state, transferring assets between parties, calculating weighted average prices, and potentially triggering cascading orders, all in one transaction," so compute and gas costs balloon<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. Worse, active market makers continually re-quote as prices move, so an order book demands roughly 100× the throughput of trades<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Ethereum L1's throughput and gas cannot bear this — dYdX itself cited the lack of any chain that "can handle even close to the throughput needed to run a first class orderbook and matching engine" as the core reason for leaving<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<p>The second challenge is <strong>control over transaction ordering</strong>. If a block producer (or sequencer) can choose the order of transactions in a block, MEV (maximal extractable value) such as front-running and sandwiching arises. An academic survey notes that "consensus protocols adopted in many blockchains do not enforce rules on the ordering of transactions," and that the simplest single-sequencer alternative, First-Come-First-Serve, "orders transactions according to their arrival time at the sequencer, ensuring fairness in processing and reducing front-running by limiting sequencers' ability to order transactions arbitrarily"<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Because in an order book ordering is execution, these venues are especially sensitive to the fair-ordering problem.</p>
+<h2>Technical Architecture Taxonomy</h2>
+<h3>(A) Hybrid: off-chain matching + on-chain settlement</h3>
+<p>The first workaround was to move the expensive work — matching — off the chain. 0x calls this "off-chain order relay with on-chain settlement": cryptographically signed orders are broadcast over arbitrary off-chain channels, and an interested counterparty injects them into 0x's Exchange contract to execute and settle on-chain<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Order creation and cancellation happen gaslessly off-chain; on-chain cost is incurred only on a fill<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. dYdX v3 belonged to the same family — core trade logic settled to the StarkEx rollup, but the order book and matching engine ran on servers operated by the dYdX team<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<h3>(B) App-specific chain: a validator in-memory order book</h3>
+<p>dYdX v4 took a different road — making the exchange itself a blockchain. The dYdX Chain is "an L1 blockchain built on top of CometBFT and using CosmosSDK"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>, and its key innovation is how it handles the order book. "Validators are responsible for storing orders in an in-memory orderbook (i.e. off chain and not committed to consensus)," with orders and cancels gossiped across the network so the validators' books become eventually consistent<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. Matching happens in real time, and "the resulting trades are then committed on-chain each block"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. That is, orders never touch chain state; only fills go through consensus. The matching logic lives in a Cosmos module called <code>x/clob</code><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<h3>(C) On-chain CLOB atop a parallel-execution general-purpose L1</h3>
+<p>The third family lets a high-performance general-purpose L1 host the book directly. <strong>Serum</strong> was the first exchange to make a fully on-chain CLOB work on Solana, implementing "the CLOB execution model... usually difficult to implement on-chain" on top of Solana's parallel execution<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Because transactions touching disjoint state (accounts) run concurrently, each market could be processed in parallel as independent program state. When FTX's collapse jeopardized Serum's upgrade keys, the community forked it into <strong>OpenBook</strong>, and OpenBook v2 was rewritten to "decouple order matching from settlement through an event heap system"<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<p><strong>Injective</strong> embeds the order book at the chain-protocol level and blocks MEV by design. Injective's order book "employs Frequent Batch Auctions (FBA), processing all transactions within discrete intervals simultaneously at a uniform clearing price, effectively mitigating MEV exploits like front-running and sandwich attacks"<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Since all orders in a block clear at the same price, arrival order within the block confers no advantage<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. Injective reports ~0.65s block times and up to 25,000 TPS on Tendermint consensus _(vendor-stated)_<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<p><strong>Sei</strong> began as a Cosmos-SDK trading chain "optimized to run an on-chain orderbook"<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. But with v2 it abandoned the "orderbook-based trading" focus to become "the first production-ready, fully parallelized EVM blockchain"<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. So "built-in order book + parallel execution" is accurate for Sei v1's design intent, but after v2 the native order book is no longer the chain's central narrative _(early signal / partly historical)_<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<h3>(D) Fully on-chain CLOB on a purpose-built trading L1</h3>
+<p><strong>Hyperliquid</strong> represents the fully on-chain end of the spectrum. Its trading engine, HyperCore, runs on the chain itself rather than as a separate contract, and the docs state that "HyperCore does not rely on the crutch of off-chain order books" and achieves "full decentralization with one consistent order of transactions achieved through HyperBFT consensus"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Every order, cancel, fill, and liquidation is an L1 transaction with consensus-level finality. Throughput is documented at "200k orders / second," with median end-to-end latency of 0.2 seconds for a co-located client _(vendor-stated)_<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>The "full decentralization" self-claim is strongly contested, however. Critics note the network runs only ~16–30 validators with a large share of stake concentrated in Foundation nodes, and that the node software ships as a signed single binary rather than full source<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. One critic (Kyle Samani) argued the Foundation can jail validators without justification and force software upgrades, and Singapore's MAS added Hyperliquid to its Investor Alert List on 26 June 2026<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. In other words, "on-chain" in the sense that the order book lives in consensus state is distinct from "decentralized" in the sense that the validator set and governance are distributed; Hyperliquid is strong on the former while the latter is disputed _(interpretive)_.</p>
+<h2>Strengths and Weaknesses by Technology</h2>
+<p><strong>Hybrid off-chain matching (0x, dYdX v3).</strong> Strength: performance and cost — order management is gasless and only fills go on-chain<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Weakness: trust enters at the matching step. dYdX v3 required users "to trust the dYdX server to match orders fairly and not front-run or censor," and the rollup's single sequencer was itself a centralization point<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> _(interpretive)_.</p>
+<p><strong>App-specific chain (dYdX v4).</strong> Strength: sovereignty and performance customization — own validators, fee structure, and MEV handling. The cost is twofold. First, instead of borrowing Ethereum's security you must "trust an entirely new set of validators"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Second, the move to a standalone chain drew criticism for fragmenting the user base and complicating bridging<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> _(interpretive)_.</p>
+<p><strong>Parallel-execution general-purpose L1 (Serum/OpenBook, Injective, Sei).</strong> Strength: composability — other DeFi on the same chain can share the book's liquidity, and they share general-purpose security. Weakness: the exchange is hostage to the chain's performance, congestion, and governance, and — as on Solana — liquidity can fragment across multiple order books (OpenBook, Phoenix, etc.) _(interpretive)_.</p>
+<p><strong>Fully on-chain dedicated L1 (Hyperliquid).</strong> Strength: verifiability — because the book itself is consensus state, no one can secretly reorder matches<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The cost is twofold. First, infrastructure specialization: matching that performance requires consensus (HyperBFT) and an execution engine designed for trading from scratch<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>, and "most viable implementations require their own dedicated chain" rather than L1 deployment<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. Second, execution-level decentralization does not guarantee governance decentralization: Hyperliquid's small validator set, Foundation stake control, and closed-source binary have drawn sustained criticism that the network is effectively permissioned<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> _(interpretive)_.</p>
+<h2>Discussion — Trade-offs and Convergence</h2>
+<p>The axis running through all four families is "<strong>where does matching happen?</strong>" Off-chain matching buys performance but imports operator trust; fully on-chain matching buys trustlessness but demands dedicated infrastructure. dYdX v4 chose an interesting middle — matching in validator memory (off-chain), settlement in consensus (on-chain)<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. So even under the single label "on-chain order book," the trust models differ fundamentally.</p>
+<p>On the MEV / fair-ordering problem, one technique stands out. The <strong>frequent batch auction (FBA)</strong> turns continuous matching (CLOB) into discrete-time batched clearing, removing the advantage of arrival order<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. Academic work compares FBA and its continuous counterpart, the CLOB, on welfare loss and liquidity provision, showing the two are a trade-off rather than a simple ranking<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>.</p>
+<p>Commercial fortunes moved somewhat independently of this technical debate. In the 2025 on-chain derivatives market the fully on-chain Hyperliquid surpassed $3 trillion in cumulative volume and held a dominant position<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. That share was not stable, however — from ~70–80% in spring–summer 2025 it briefly cratered when an incentive-driven rival (Aster) appeared, then recovered to ~44% of volume and over 70% of open interest by April 2026<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. In short, the fully on-chain order book is commercially proven, but share leadership is driven far more by liquidity and incentive flows than by technology _(interpretive)_.</p>
+<h2>Limitations</h2>
+<ul>
+<li><strong>Vendor-stated numbers.</strong> Hyperliquid's 200k orders/sec and Injective's 25,000 TPS come from project docs; no independent benchmark was obtained. Read them as design targets / self-reported capacity.</li>
+<li><strong>Fast-moving market share.</strong> Hyperliquid's dominance swung 80%→10%→44% within a year, so this report gives a range rather than a single figure.</li>
+<li><strong>Sei's shifting identity.</strong> "Order-book trading L1" fits v1's design intent, but after v2 Sei became a general-purpose parallel EVM and the native order book is no longer central.</li>
+<li><strong>Matching-engine internals.</strong> Core code paths (HyperCore, dYdX <code>x/clob</code> memclob) are documented but not independently audited within this report's sources.</li>
+<li><strong>Definitional ambiguity.</strong> "Fully on-chain" is a spectrum; dYdX v4 (validator memory) and Hyperliquid (consensus state) carry different trust models under the same label.</li>
+<li><strong>On-chain ≠ decentralized.</strong> Even when the order book lives in consensus state (Hyperliquid), the validator set and governance can be centralized; the two must be assessed separately<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://consensys.io/blog/serum-a-decentralized-on-chain-central-limit-order-book">Serum: A Decentralized On-Chain Central Limit Order Book</a>. <span class="venue">Consensys, 2021</span>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://hyperliquid.gitbook.io/hyperliquid-docs/hypercore/overview">HyperCore Overview — Hyperliquid Docs</a>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://github.com/0xProject/0x-protocol-specification/blob/master/v2/v2-specification.md">0x Protocol v2 Specification</a>. <span class="venue">0x Project, 2019</span>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://www.conduit.xyz/blog/onchain-order-books-guide/">Onchain Order Books: Bringing CEX-Grade Trading to DeFi</a>. <span class="venue">Conduit, 2024</span>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://cryptoslate.com/why-dydx-is-leaving-ethereum-and-starkware-for-a-native-chain-on-cosmos/">Why dYdX is leaving Ethereum and StarkWare for a native chain on Cosmos</a>. <span class="venue">CryptoSlate, 2022</span>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-6"><span class="authors">—</span>. <a href="https://arxiv.org/html/2407.19572v1">Maximal Extractable Value Mitigation Approaches in Ethereum and Layer-2 Chains: A Comprehensive Survey</a>. <span class="venue">arXiv, 2024</span>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-7"><span class="authors">—</span>. <a href="https://docs.dydx.xyz/concepts/architecture/overview">Intro to dYdX Chain Architecture — dYdX Documentation</a>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-8"><span class="authors">—</span>. <a href="https://www.dydx.xyz/blog/v4-technical-architecture-overview">dYdX v4 Technical Architecture Overview</a>. <span class="venue">dYdX, 2022</span>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-9"><span class="authors">—</span>. <a href="https://medium.com/@gwrx2005/decentralized-order-book-design-in-dydx-v4-625ac0152e80">Decentralized Order Book Design in dYdX v4</a>. <span class="venue">2024</span>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-10"><span class="authors">—</span>. <a href="https://deepwiki.com/openbook-dex/openbook-v2">OpenBook v2 — Architecture (DeepWiki)</a>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-11"><span class="authors">—</span>. <a href="https://injective.com/blog/understanding-injective-architecture-and-consensus">Understanding Injective Architecture and Consensus</a>. <span class="venue">Injective, 2024</span>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-12"><span class="authors">—</span>. <a href="https://blog.sei.io/sei-v2-the-first-parallelized-evm/">Sei v2 — The First Parallelized EVM Blockchain</a>. <span class="venue">Sei, 2024</span>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-13"><span class="authors">—</span>. <a href="https://cryptobriefing.com/hyperliquid-validator-concerns/">Hyperliquid addresses concerns over validator selection and network centralization</a>. <span class="venue">Crypto Briefing, 2024</span>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-14"><span class="authors">—</span>. <a href="https://beincrypto.com/hyperliquid-criticized-singapore-regulatory-alert/">Hyperliquid Criticized Over Permissionless Claims After MAS Alert</a>. <span class="venue">BeInCrypto, 2026</span>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-15"><span class="authors">Gong, Kate</span>. <a href="https://arxiv.org/pdf/2302.01177v3">Order but Not Execute in Order</a>. <span class="venue">arXiv, 2023</span>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-16"><span class="authors">—</span>. <a href="https://phemex.com/news/article/hyperliquid-exceeds-3-trillion-in-trading-volume-dominates-2025-perp-dex-market-48981">Hyperliquid Surpasses $3T in Trading Volume in 2025</a>. <span class="venue">Phemex News, 2025</span>. <span class="accessed">Accessed 2026-06-29.</span></li>
+      <li id="ref-17"><span class="authors">—</span>. <a href="https://www.ainvest.com/news/hyperliquid-44-share-flow-analysis-perp-dex-power-shift-2604/">Hyperliquid&#x27;s 44% Share: A Flow Analysis of the Perp DEX Power Shift</a>. <span class="venue">AInvest, 2026</span>. <span class="accessed">Accessed 2026-06-29.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-06-29. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

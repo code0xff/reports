@@ -1,0 +1,10 @@
+title: 온체인 오더북 거래소의 기술 구조
+subtitle: 하이브리드 매칭부터 완전 온체인 CLOB까지 — dYdX·Serum·Injective·Hyperliquid 비교 분석
+title_en: How On-Chain Order Book Exchanges Work
+subtitle_en: From hybrid matching to fully on-chain CLOBs — dYdX, Serum, Injective, and Hyperliquid compared
+slug: onchain-orderbook-dex-architecture
+lang: ko
+langs: [ko, en]
+date: 2026-06-29
+tags: [dex, orderbook, clob, dydx, hyperliquid, injective, solana, mev]
+status: ready
