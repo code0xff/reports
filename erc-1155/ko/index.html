@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ERC-1155 멀티 토큰 표준 — Deepsearch</title>
+<meta name="description" content="Deepsearch 하니스로 생성된 리서치 리포트.">
+<link rel="canonical" href="https://code0xff.github.io/reports/erc-1155/ko/">
+<link rel="alternate" hreflang="en" href="../index.html">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="ERC-1155 멀티 토큰 표준">
+<meta property="og:description" content="Deepsearch 하니스로 생성된 리서치 리포트.">
+<meta property="og:url" content="https://code0xff.github.io/reports/erc-1155/ko/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ERC-1155 멀티 토큰 표준">
+<meta name="twitter:description" content="Deepsearch 하니스로 생성된 리서치 리포트.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../ko/index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="en">English</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="GitHub에서 Deepsearch 보기" title="GitHub에서 Deepsearch 보기">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../ko/index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>ERC-1155 멀티 토큰 표준</h1>
+    <p class="subtitle">Deepsearch 하니스로 생성된 리서치 리포트.</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-06-30</span>
+      <span><strong>태그</strong> ethereum, erc-1155, token-standard, smart-contracts, nft</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="erc-1155.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>ERC-1155는 이더리움의 "멀티 토큰 표준(Multi Token Standard)"으로, 하나의 배포된 컨트랙트가 대체 가능(fungible)·대체 불가능(non-fungible)·준대체(semi-fungible) 토큰을 임의로 조합해 관리하며 각 토큰은 숫자 <code>id</code>로 식별된다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> EIP-1155로 확정(Final)되었고 Enjin의 Witek Radomski가 이끄는 팀이 작성했으며,<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> ERC-20·ERC-721에서 토큰 종류마다 별도의 컨트랙트를 배포해야 하는 비효율 — 특히 블록체인 게임에서 두드러진 문제 — 을 해결하려는 동기에서 출발했다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> 핵심 특징은 <code>id</code> 기반 잔액, 여러 토큰에 걸쳐 가스를 분산하는 배치 전송, 필수 세이프 전송 수신자 훅, 그리고 간결한 <code>{id}</code> 템플릿 메타데이터 방식이다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 본 리포트는 표준의 인터페이스와 동작, 보안 표면(수신자 훅 재진입과 전부-아니면-전무 방식의 오퍼레이터 승인), 그리고 생태계 위상(OpenZeppelin 레퍼런스 구현, OpenSea 지원)을 살펴본 뒤 ERC-20·ERC-721과 비교한다. 효율 이득은 실재하지만 작업량에 좌우되며, 안전성과 의미론의 상당 부분은 표준 자체가 아니라 구현자에게 위임되어 있다.</p>
+  </section>
+
+  <main class="body">
+<h2>서론</h2>
+<p>ERC-1155는 확정된 이더리움 표준(EIP-1155, Standards Track: ERC, 상태 "Final")으로 2018년 Witek Radomski, Andrew Cooke, Philippe Castonguay, James Therien, Eric Binet, Ronan Sandford가 작성했으며 초기 작업은 Enjin 팀이 주도했다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 동기는 명세에 직설적으로 서술되어 있다: "ERC-20이나 ERC-721 같은 토큰 표준은 토큰 종류나 컬렉션마다 별도의 컨트랙트를 배포해야 한다."<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 수천 종의 아이템을 발행하는 블록체인 게임에게 이 모델은 수천 번의 컨트랙트 배포와 수천 번의 개별 승인을 의미하며, 이는 비싸고 다루기 어렵다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></p>
+<p>ERC-1155의 답은 "대체 가능 토큰, 대체 불가능 토큰 또는 그 밖의 구성을 임의로 조합해" 담을 수 있는 단일 컨트랙트다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 하나의 주소가 대체 가능한 게임 내 골드 토큰, 고유한 검 세트, 이벤트 티켓을 동시에 보유하고 각각을 <code>id</code>로만 구분할 수 있다. OpenZeppelin은 설계 목표를 "대체 가능성에 구애받지 않고 가스 효율적인 토큰 컨트랙트"이자 "단일 스마트 컨트랙트로 여러 토큰을 한꺼번에 표현"하는 것이라고 요약한다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<h2>기술 설계와 인터페이스</h2>
+<p>이전 표준과의 핵심 차이는 잔액이 토큰 <code>id</code>로 색인된다는 점이다. ERC-20의 <code>balanceOf</code>가 주소만 받고 ERC-721이 컬렉션 전체 개수를 반환하는 데 반해, ERC-1155의 <code>balanceOf(address _owner, uint256 _id)</code>는 "특정 계정 주소에 대해 특정 토큰 ID의 잔액을 조회"한다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 짝을 이루는 <code>balanceOfBatch</code>는 여러 잔액을 한 번의 호출로 반환한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p>필수 인터페이스는 간결하다:<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<pre><code>function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes calldata _data) external;
+function safeBatchTransferFrom(address _from, address _to, uint256[] calldata _ids, uint256[] calldata _values, bytes calldata _data) external;
+function balanceOf(address _owner, uint256 _id) external view returns (uint256);
+function balanceOfBatch(address[] calldata _owners, uint256[] calldata _ids) external view returns (uint256[] memory);
+function setApprovalForAll(address _operator, bool _approved) external;
+function isApprovedForAll(address _owner, address _operator) external view returns (bool);</code></pre>
+<p>네 개의 이벤트가 전송과 승인을 관측 가능하게 만든다: <code>TransferSingle</code>, <code>TransferBatch</code>, <code>ApprovalForAll</code>, 그리고 특정 <code>id</code>의 메타데이터 변경을 알리는 <code>URI</code> 이벤트.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 컨트랙트는 ERC-165를 통해 준수 여부를 광고한다. 메인 ERC-1155 인터페이스 식별자는 <code>0xd9b67a26</code>, 수신자 인터페이스는 <code>0x4e2312e0</code>, 선택적 메타데이터-URI 확장은 <code>0x0e89341c</code>이다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p>메타데이터는 토큰별 저장 대신 템플릿을 쓴다. 컨트랙트의 <code>uri(id)</code>는 <code>{id}</code> 부분 문자열을 포함할 수 있으며, 명세는 "URI에 <code>{id}</code> 문자열이 존재하면 클라이언트는 반드시 이를 실제 토큰 ID의 16진수 형태로 치환해야 한다"고 요구한다 — 소문자 <code>[0-9a-f]</code>, <code>0x</code> 접두사 없음, 64자리로 0 패딩.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 따라서 <code>https://token-cdn-domain/{id}.json</code>은 토큰 ID 314592에 대해 <code>...0004cce0.json</code>으로 끝나는 URL로 해석된다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 이렇게 하나의 URI가 컬렉션 전체를 서비스할 수 있다.</p>
+<h2>핵심 동작</h2>
+<p><strong>배치 연산.</strong> 대표 기능은 <code>safeBatchTransferFrom</code>으로, 토큰마다 한 번씩 호출하는 대신 <code>_ids</code>와 <code>_values</code> 배열을 한 트랜잭션에 옮긴다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> calldata, 함수 프레임, 서명 검증이 배치 전체에 공유되므로 토큰당 오버헤드가 줄어든다. 한 독립 벤치마크는 <code>safeBatchTransferFrom</code>을 132,437 가스로 측정했는데, 이는 개별 <code>safeTransferFrom</code> 3회의 189,861 가스와 대비되며 배치 크기가 커질수록 절감폭이 늘어난다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<p><strong>세이프 전송 수신자 훅.</strong> 토큰이 컨트랙트로 전송될 때 해당 컨트랙트는 수신을 확인해야 하며 그렇지 않으면 전송이 되돌려져, 토큰이 묶여버리는 것을 방지한다. 단일 전송 시 수신자는 <code>onERC1155Received</code>를 구현하고 매직 값 <code>0xf23a6e61</code>을, 배치 시 <code>onERC1155BatchReceived</code>를 구현하고 <code>0xbc197c81</code>을 반환해야 하며, "컨트랙트가 다른 값을 반환하거나 되돌리면 전송은 반드시 되돌려져야 한다."<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> OpenZeppelin 구현은 수신 컨트랙트가 ERC-1155 인지를 등록하지 않은 경우 <code>ERC1155InvalidReceiver</code>로 되돌려 "토큰이 영원히 잠기는 것"을 막는다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<p><strong>승인.</strong> ERC-1155에는 id별 허용량(allowance)이 없다. 대신 <code>setApprovalForAll</code>이 소유자로 하여금 "제3자('오퍼레이터')가 호출자의 모든 토큰을 관리하도록 승인하거나 해제"하게 한다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 이는 컨트랙트 내 모든 <code>id</code>에 대한 전부-아니면-전무 방식으로, 마켓플레이스에는 편리하지만 거칠다(보안 고려사항 참조). 이 간극은 후속 제안 ERC-5216이 "기본 표준의 전부-아니면-전무 setApprovalForAll 오퍼레이터 모델을 보완"하는 id별 허용량을 표준화할 만큼 두드러졌다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></p>
+<p><strong>발행·소각·공급량.</strong> 기본 표준은 의도적으로 최소한이다. 발행, 소각, 총공급량 추적을 정의하지 않는다. OpenZeppelin은 <code>_mint</code> 같은 내부 함수를 구현자가 원하는 방식으로 노출하도록 제공하며, "기본 구현에는 포함되지 않은 totalSupply 추적을 추가"하는 확장으로 <code>ERC1155Supply</code>를, 그리고 <code>ERC1155Burnable</code>, <code>ERC1155Pausable</code>, <code>ERC1155URIStorage</code>를 함께 제공한다.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<h2>보안 고려사항</h2>
+<p>EIP-1155 문서에는 별도의 "Security Considerations" 절이 없지만, 설계에는 잘 알려진 두 가지 위험 표면이 있다.</p>
+<p><strong>수신자 훅 재진입.</strong> 컨트랙트로의 전송이 반환 전에 그 컨트랙트를 다시 호출하기 때문에, 악의적이거나 재진입하는 수신자가 전송 도중 토큰 컨트랙트로 재진입을 시도할 수 있다. 명세는 이를 예상하여 순서를 강제한다: "유효한 재진입(예: 수신자 컨트랙트가 수신 시 토큰을 전달하는 경우)에서 이벤트 순서를 올바르게 유지하려면, 외부 컨트랙트를 호출하기 전에 상태 잔액과 이벤트 잔액이 반드시 일치해야 한다."<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 독립 기술 문헌은 안전하지 않은 발행·전송 로직이 추가되면 ERC-1155 컨트랙트가 "재진입 공격에 취약"하다고 경고하며 "checks-effects-interactions 패턴 및/또는 재진입 락 구현"을 권한다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 기본 표준은 순서 규칙을 정의할 뿐, 견고한 보호는 구현자의 책임이다. _(해석적)_</p>
+<p><strong>전부-아니면-전무 오퍼레이터 승인.</strong> <code>setApprovalForAll</code>은 오퍼레이터에게 해당 컨트랙트 내 사용자의 전체 잔액에 대한 통제권을 준다. MetaMask는 그러한 승인이 "그 컬렉션의 모든 NFT에 대한 접근 권한을 준다"고 지적하며 "사용 후 승인 취소"를 권한다.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> 표준 커뮤니티는 이 광범위함을 보안 부채로 본다. ERC-6464는 <code>setApprovalForAll</code>이 "승인된 주소에 모든 자산에 대한 통제권을 부여하여 불필요하게 광범위한 보안 위험을 만들며, 이는 이미 다수의 피싱 공격에서 악용되었다"고 서술한다.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> 기본 ERC-1155 모델은 더 세밀한 단위를 제공하지 않으며, ERC-5216은 바로 그 위에 id별 허용량을 더하기 위해 존재한다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> _(해석적)_</p>
+<h2>도입과 생태계</h2>
+<p>ERC-1155는 주류 도구에서 잘 지원된다. OpenZeppelin Contracts는 감사받은 레퍼런스 구현 — 기본 <code>ERC1155</code> 컨트랙트와 <code>IERC1155</code>, <code>IERC1155Receiver</code>, 앞서 언급한 확장들 — 을 제공하며, 이는 새로운 배포의 사실상 출발점이다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> 마켓플레이스 측면에서 OpenSea는 ERC-1155 컬렉션을 직접 읽는다: "OpenSea가 ERC721 및 ERC1155 자산의 메타데이터를 가져오려면 컨트랙트가 URI를 반환해야 한다 … OpenSea는 ERC721에서는 tokenURI 메서드를, ERC1155에서는 uri 메서드를 사용한다."<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> _(검증되지 않음 — 단일 출처)_ OpenSea는 <code>uri</code>가 반환하는 base64 인코딩 JSON을 통한 온체인 메타데이터와 이벤트로 신호되는 메타데이터 갱신도 지원한다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<h2>논의 — ERC-1155 대 ERC-20 / ERC-721</h2>
+<p>ERC-1155는 이전 표준들의 역할을 포괄하는 일반화로 이해하는 것이 가장 좋다. ethereum.org는 그것이 "ERC-20과 ERC-721 토큰이 하는 일을 모두, 심지어 동시에 할 수 있다"고 언급한다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></p>
+<p><strong>대체 가능성은 종류가 아니라 공급량의 문제.</strong> 대체 가능한 집합을 만들려면 하나의 <code>id</code> 아래 여러 단위를 발행하고, 대체 불가능한 것을 만들려면 정확히 하나만 발행한다 — "공급량이 하나뿐일 때 그 토큰은 본질적으로 대체 불가능 토큰이다."<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 여기서 "준대체" 패턴이 나온다. 동일한 여러 단위가 존재하는 동안에는 교환 가능하다가 공급량이 하나로 줄면 사실상 고유해진다(이벤트 티켓 예: 공연 전에는 동일하지만 이후에는 각기 다른 반쪽 티켓).<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> 다만 "준대체"는 <code>id</code>/공급량 모델 위의 사용 패턴일 뿐, EIP가 정의한 별도의 온체인 종류가 아니다. _(해석적)_</p>
+<p><strong>효율.</strong> 아이템 종류마다 ERC-721 컨트랙트를 하나씩 배포하고 하나씩 전송하는 것에 비해, ERC-1155는 단일 컨트랙트의 배포·스토리지를 공유하고 전송을 배치화하여 비용을 낮춘다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 절감폭은 작업량에 좌우된다 — 배치가 클수록 비례해 더 절감되고 단일 전송은 거의 절감되지 않는다 — 따라서 ERC-1155가 보편적으로 "더 싼" 것이 아니라 규모에서만 더 싸다. _(해석적)_</p>
+<p><strong>포기하는 것.</strong> ERC-1155는 ERC-20이 단일 토큰에 대해 하는 것처럼 컨트랙트 수준에서 <code>id</code>별 <code>name</code>, <code>symbol</code>, <code>decimals</code>를 표준화하지 않는다. RareSkills는 "대체 가능 토큰 수량을 해석할 decimals가 없다"고 지적하며, 토큰별 표현은 전적으로 메타데이터로 밀려난다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> ERC-20의 자기소개용 필드를 기대하는 애플리케이션은 스스로 그것을 얹어야 한다.</p>
+<p><strong>반대 논거.</strong> ERC-1155가 보편적 업그레이드는 아니다. 일반 해설은 그것이 "더 단순한 토큰 표준보다 구현·관리가 더 복잡할 수 있으며" "지갑, 거래소, 기타 인프라에서 ERC-721만큼 널리 지원되지 않을 수 있다"고 주장한다.<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> _(검증되지 않음 — 단일 출처)_ 단일 1/1 예술품이나 순수 대체 가능 자산에는 더 좁은 ERC-721이나 ERC-20이 더 단순하고 호환성이 넓을 수 있다. 따라서 선택은 트레이드오프다 — ERC-1155의 유연성·배치 효율 대 추가되는 구현 복잡성과 고르지 않은 하위 지원 — 엄격한 우위가 아니다. _(해석적)_</p>
+<h2>한계</h2>
+<ul>
+<li><strong>독립적 도입 지표 없음.</strong> OpenSea(s07)와 OpenZeppelin(s02, s06)의 지원은 1차 출처로 확인되지만, 본 리포트는 온체인 배포 수나 전체 생태계 침투율을 정량화하지 않는다. 이는 여기서 수집하지 않은 인덱서/분석 데이터가 필요하다.</li>
+<li><strong>가스 수치는 예시적.</strong> 인용된 유일한 재현 가능 벤치마크는 3개 배치(s05)다. 자주 회자되는 "약 60% 절감" 수치는 1차 벤치마크로 추적할 수 없어 의도적으로 제외했다. 모든 절감 주장은 작업량에 좌우되는 것으로 취급하라.</li>
+<li><strong>"Final" 날짜는 독립적으로 확증되지 않음.</strong> 본 리포트는 EIP 헤더에 표시된 "Final" 상태(s01)만을 주장하며, 흔히 인용되는 2019년 6월 확정 날짜는 주장하지 않는다.</li>
+<li><strong>보안은 위임됨.</strong> 표준은 잔액/이벤트 순서 규칙(s04)을 고정하지만 재진입 보호와 승인 위생은 구현자와 사용자에게 남긴다. 따라서 안전성에 대한 결론은 특정 배포가 아니라 기본 설계에 관한 것이다.</li>
+<li><strong>단일 출처 생태계 주장.</strong> OpenSea 지원은 OpenSea 자체 문서(s07)에 근거하며, 1차이지만 단일 출처다.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Witek Radomski, Andrew Cooke, Philippe Castonguay, James Therien, Eric Binet, Ronan Sandford</span>. <a href="https://eips.ethereum.org/EIPS/eip-1155">ERC-1155: Multi Token Standard</a>. <span class="venue">Ethereum Improvement Proposals, 2018</span>. <span class="accessed">접근일 2026-07-01.</span></li>
+      <li id="ref-2"><span class="authors">Witek Radomski, Andrew Cooke, Philippe Castonguay, James Therien, Eric Binet, Ronan Sandford</span>. <a href="https://github.com/ethereum/ERCs/blob/master/ERCS/erc-1155.md">ERCs/ERCS/erc-1155.md (canonical EIP-1155 source)</a>. <span class="venue">ethereum/ERCs GitHub, 2018</span>. <span class="accessed">접근일 2026-07-01.</span></li>
+      <li id="ref-3"><span class="authors">ethereum.org contributors</span>. <a href="https://ethereum.org/developers/docs/standards/tokens/erc-1155/">ERC-1155 Multi Token Standard</a>. <span class="venue">ethereum.org, 2024</span>. <span class="accessed">접근일 2026-07-01.</span></li>
+      <li id="ref-4"><span class="authors">OpenZeppelin</span>. <a href="https://docs.openzeppelin.com/contracts/5.x/erc1155">ERC-1155 — OpenZeppelin Contracts Docs</a>. <span class="venue">OpenZeppelin, 2025</span>. <span class="accessed">접근일 2026-07-01.</span></li>
+      <li id="ref-5"><span class="authors">RareSkills</span>. <a href="https://rareskills.io/post/erc-1155">ERC-1155 Multi Token Standard</a>. <span class="venue">RareSkills, 2024</span>. <span class="accessed">접근일 2026-07-01.</span></li>
+      <li id="ref-6"><span class="authors">Iván Mañús, Juan Ignacio Pérez</span>. <a href="https://eips.ethereum.org/EIPS/eip-5216">ERC-5216: ERC-1155 Allowance Extension</a>. <span class="venue">Ethereum Improvement Proposals, 2022</span>. <span class="accessed">접근일 2026-07-01.</span></li>
+      <li id="ref-7"><span class="authors">OpenZeppelin</span>. <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/tree/master/contracts/token/ERC1155">OpenZeppelin Contracts — ERC1155 module</a>. <span class="venue">OpenZeppelin GitHub, 2025</span>. <span class="accessed">접근일 2026-07-01.</span></li>
+      <li id="ref-8"><span class="authors">MetaMask</span>. <a href="https://support.metamask.io/stay-safe/safety-in-web3/what-is-a-token-approval/">What is a token approval? — MetaMask Help Center</a>. <span class="venue">MetaMask, 2024</span>. <span class="accessed">접근일 2026-07-01.</span></li>
+      <li id="ref-9"><span class="authors">Arran Schlosberg, et al.</span>. <a href="https://eips.ethereum.org/EIPS/eip-6464">ERC-6464: Multi-operator, per-token ERC-721 approvals</a>. <span class="venue">Ethereum Improvement Proposals, 2023</span>. <span class="accessed">접근일 2026-07-01.</span></li>
+      <li id="ref-10"><span class="authors">OpenSea</span>. <a href="https://docs.opensea.io/docs/metadata-standards">Metadata Standards — OpenSea Developer Documentation</a>. <span class="venue">OpenSea, 2024</span>. <span class="accessed">접근일 2026-07-01.</span></li>
+      <li id="ref-11"><span class="authors">CoinTracker</span>. <a href="https://www.cointracker.io/learn/erc-1155">What is ERC-1155? Understanding its role in blockchain</a>. <span class="venue">CoinTracker, 2024</span>. <span class="accessed">접근일 2026-07-01.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-06-30 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

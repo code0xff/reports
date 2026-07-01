@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ERC-1155 Multi Token Standard — Deepsearch</title>
+<meta name="description" content="Research report generated via the Deepsearch harness.">
+<link rel="canonical" href="https://code0xff.github.io/reports/erc-1155/">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="ko" href="ko/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="ERC-1155 Multi Token Standard">
+<meta property="og:description" content="Research report generated via the Deepsearch harness.">
+<meta property="og:url" content="https://code0xff.github.io/reports/erc-1155/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ERC-1155 Multi Token Standard">
+<meta name="twitter:description" content="Research report generated via the Deepsearch harness.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>ERC-1155 Multi Token Standard</h1>
+    <p class="subtitle">Research report generated via the Deepsearch harness.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-06-30</span>
+      <span><strong>Tags</strong> ethereum, erc-1155, token-standard, smart-contracts, nft</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="erc-1155.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>ERC-1155 is Ethereum's "Multi Token Standard": a single deployed contract that can manage any combination of fungible, non-fungible, and semi-fungible tokens, each addressed by a numeric <code>id</code>.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> Finalized as EIP-1155 and authored by a team led by Witek Radomski of Enjin,<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> it was motivated by the inefficiency of deploying a separate contract for every token type under ERC-20 and ERC-721 — a pain point acute in blockchain gaming.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> Its signature features are <code>id</code>-indexed balances, batch transfers that amortize gas across many tokens, mandatory safe-transfer receiver hooks, and a compact <code>{id}</code>-templated metadata scheme.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> This report walks through the standard's interface and mechanics, its security surface (receiver-hook reentrancy and all-or-nothing operator approvals), and its ecosystem standing (OpenZeppelin's reference implementation, OpenSea support), then contrasts it with ERC-20 and ERC-721. The efficiency gains are real but workload-dependent, and much of the safety and semantics are delegated to implementers rather than fixed by the standard itself.</p>
+  </section>
+
+  <main class="body">
+<h2>Introduction</h2>
+<p>ERC-1155 is a finalized Ethereum standard (EIP-1155, Standards Track: ERC, status "Final") created in 2018 by Witek Radomski, Andrew Cooke, Philippe Castonguay, James Therien, Eric Binet, and Ronan Sandford, with the initial work driven by the Enjin team.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> The motivation is stated plainly in the specification: "Tokens standards like ERC-20 and ERC-721 require a separate contract to be deployed for each token type or collection."<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> For a blockchain game issuing thousands of item types, that model means thousands of contract deployments and thousands of separate approvals — expensive and unwieldy.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></p>
+<p>ERC-1155's answer is a single contract that "may include any combination of fungible tokens, non-fungible tokens or other configurations."<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> One address can hold a fungible in-game gold token, a set of unique swords, and event tickets simultaneously, each distinguished only by its <code>id</code>. OpenZeppelin summarizes the design goal as "a fungibility-agnostic and gas-efficient token contract" that "uses a single smart contract to represent multiple tokens at once."<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<h2>Technical Design &amp; Interface</h2>
+<p>The central departure from earlier standards is that balances are indexed by token <code>id</code>. Where ERC-20's <code>balanceOf</code> takes only an address and ERC-721's returns a whole-collection count, ERC-1155's <code>balanceOf(address _owner, uint256 _id)</code> "retrieves the token balance of a specific token ID for a particular account address."<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> A companion <code>balanceOfBatch</code> returns many balances in one call.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p>The required interface is compact:<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<pre><code>function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes calldata _data) external;
+function safeBatchTransferFrom(address _from, address _to, uint256[] calldata _ids, uint256[] calldata _values, bytes calldata _data) external;
+function balanceOf(address _owner, uint256 _id) external view returns (uint256);
+function balanceOfBatch(address[] calldata _owners, uint256[] calldata _ids) external view returns (uint256[] memory);
+function setApprovalForAll(address _operator, bool _approved) external;
+function isApprovedForAll(address _owner, address _operator) external view returns (bool);</code></pre>
+<p>Four events make transfers and approvals observable: <code>TransferSingle</code>, <code>TransferBatch</code>, <code>ApprovalForAll</code>, and a <code>URI</code> event signalling a metadata change for a given <code>id</code>.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> Contracts advertise conformance through ERC-165: the main ERC-1155 interface identifier is <code>0xd9b67a26</code>, the receiver interface is <code>0x4e2312e0</code>, and the optional metadata-URI extension is <code>0x0e89341c</code>.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p>Metadata uses a template rather than per-token storage. A contract's <code>uri(id)</code> may contain the substring <code>{id}</code>, and the spec requires that "if the string <code>{id}</code> exists in any URI, clients MUST replace this with the actual token ID in hexadecimal form" — lowercase <code>[0-9a-f]</code>, no <code>0x</code> prefix, zero-padded to 64 characters.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> Thus <code>https://token-cdn-domain/{id}.json</code> resolves, for token ID 314592, to a URL ending in <code>...0004cce0.json</code>.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> This lets one URI serve an entire collection.</p>
+<h2>Core Mechanics</h2>
+<p><strong>Batch operations.</strong> The defining capability is <code>safeBatchTransferFrom</code>, which moves arrays of <code>_ids</code> and <code>_values</code> in a single transaction instead of one call per token.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> Because the calldata, function frame, and signature verification are shared across the whole batch, per-token overhead falls. An independent benchmark measured <code>safeBatchTransferFrom</code> at 132,437 gas versus 189,861 gas for three separate <code>safeTransferFrom</code> calls — a saving that grows with batch size.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<p><strong>Safe-transfer receiver hooks.</strong> When tokens are sent to a contract, that contract must acknowledge receipt or the transfer reverts, preventing tokens from being stranded. On a single transfer the recipient must implement <code>onERC1155Received</code> and return the magic value <code>0xf23a6e61</code>; on a batch it must implement <code>onERC1155BatchReceived</code> and return <code>0xbc197c81</code>; "if a contract returns any other value or reverts, the transfer MUST be reverted."<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> OpenZeppelin's implementation reverts with <code>ERC1155InvalidReceiver</code> when a recipient contract has not registered ERC-1155 awareness, which "prevents tokens from being locked forever."<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+<p><strong>Approvals.</strong> ERC-1155 has no per-id allowance. Instead <code>setApprovalForAll</code> lets an owner "enable or disable approval for a third party ('operator') to manage all of the caller's tokens."<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> This is all-or-nothing over every <code>id</code> in the contract — convenient for marketplaces, but coarse (see Security Considerations). The gap was pronounced enough that a later proposal, ERC-5216, standardizes per-<code>id</code> allowances "complementing the all-or-nothing setApprovalForAll operator model of the base standard."<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></p>
+<p><strong>Minting, burning, supply.</strong> The base standard is deliberately minimal: it does not define minting, burning, or total-supply tracking. OpenZeppelin exposes internal functions such as <code>_mint</code> for implementers to expose as they prefer, and ships <code>ERC1155Supply</code> as the extension that "adds totalSupply tracking, which is not included in the base implementation," alongside <code>ERC1155Burnable</code>, <code>ERC1155Pausable</code>, and <code>ERC1155URIStorage</code>.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<h2>Security Considerations</h2>
+<p>The EIP-1155 document does not carry a dedicated "Security Considerations" section, but the design has two well-understood risk surfaces.</p>
+<p><strong>Receiver-hook reentrancy.</strong> Because a transfer to a contract calls back into that contract before returning, a malicious or reentrant recipient can attempt to re-enter the token contract mid-transfer. The specification anticipates this and mandates ordering: "to make sure event order is correct in the case of valid re-entry (e.g. if a receiver contract forwards tokens on receipt) state balance and events balance MUST match before calling an external contract."<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> Independent technical writing warns that ERC-1155 contracts are "susceptible to re-entrancy attacks" when unsafe mint or transfer logic is added, and recommends "the checks-effects-interactions pattern and/or implementing reentrancy locks."<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> The base standard defines the ordering rule; robust protection is the implementer's responsibility. _(interpretive)_</p>
+<p><strong>All-or-nothing operator approval.</strong> <code>setApprovalForAll</code> grants an operator control over a user's entire balance in that contract. MetaMask notes such an approval "gives access to every NFT in that collection" and advises "revoking approvals after use."<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> The standards community regards this breadth as a security liability: ERC-6464 states that <code>setApprovalForAll</code> "affords the approved address control over all assets and creates an unnecessarily broad security risk that has already been exploited in a multitude of phishing attacks."<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> The base ERC-1155 model offers no finer granularity; ERC-5216 exists specifically to add per-<code>id</code> allowances on top.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> _(interpretive)_</p>
+<h2>Adoption &amp; Ecosystem</h2>
+<p>ERC-1155 is well supported by mainstream tooling. OpenZeppelin Contracts ships an audited reference implementation — the base <code>ERC1155</code> contract plus <code>IERC1155</code>, <code>IERC1155Receiver</code>, and the extensions noted above — which is the de facto starting point for new deployments.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> On the marketplace side, OpenSea reads ERC-1155 collections directly: "for OpenSea to pull metadata for ERC721 and ERC1155 assets, your contract will need to return a URI … OpenSea uses the tokenURI method in ERC721 and the uri method in ERC1155."<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> _(unverified — single source)_ OpenSea also supports on-chain metadata via base64-encoded JSON returned from <code>uri</code>, and metadata refreshes signalled through events.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<h2>Discussion — ERC-1155 vs ERC-20 / ERC-721</h2>
+<p>ERC-1155 is best understood as a generalization that subsumes the earlier standards' jobs. ethereum.org notes it "can do the same functions as an ERC-20 and ERC-721 token, and even both at the same time."<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup></p>
+<p><strong>Fungibility is a matter of supply, not type.</strong> To create a fungible set you mint many units under one <code>id</code>; to create a non-fungible you mint exactly one — "when the supply is just one, the token is essentially a non-fungible token."<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> This yields the "semi-fungible" pattern: a token can be interchangeable while many identical units exist and become effectively unique once supply collapses to one (the event-ticket example — identical before the show, a distinct stub after).<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> Importantly, "semi-fungible" is a usage pattern over the <code>id</code>/supply model, not a distinct on-chain type defined by the EIP. _(interpretive)_</p>
+<p><strong>Efficiency.</strong> Relative to deploying one ERC-721 contract per item type and transferring them one at a time, ERC-1155 shares a single contract's deployment and storage and batches transfers, lowering cost.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> The magnitude is workload-dependent — larger batches save proportionally more, and a single transfer saves little — so ERC-1155 is not universally "cheaper," only cheaper at scale. _(interpretive)_</p>
+<p><strong>What it gives up.</strong> ERC-1155 does not standardize a per-<code>id</code> <code>name</code>, <code>symbol</code>, or <code>decimals</code> at the contract level the way ERC-20 does for its single token; RareSkills notes "there is no decimals with which to interpret fungible token quantities," and per-token presentation is pushed entirely into metadata.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> Applications that expect ERC-20's introspective fields must layer them on themselves.</p>
+<p><strong>The case against.</strong> ERC-1155 is not a universal upgrade. Generalist commentary argues it "can be more complex to implement and manage than simpler token standards" and "may not be as widely supported by wallets, exchanges, and other infrastructure as ERC-721."<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> _(unverified — single source)_ For a single 1-of-1 artwork, or for a purely fungible asset, the narrower ERC-721 or ERC-20 can be simpler and more broadly compatible. The choice is therefore a trade-off — ERC-1155's flexibility and batch efficiency against added implementation complexity and uneven downstream support — not a strict dominance. _(interpretive)_</p>
+<h2>Limitations</h2>
+<ul>
+<li><strong>No independent adoption metrics.</strong> Support by OpenSea (s07) and OpenZeppelin (s02, s06) is confirmed from first-party sources, but this report does not quantify on-chain deployment counts or overall ecosystem penetration, which would require indexer/analytics data not gathered here.</li>
+<li><strong>Gas figures are illustrative.</strong> The only reproducible benchmark cited is a 3-item batch (s05). Frequently repeated "~60% savings" figures could not be traced to a primary benchmark and are deliberately excluded; treat all savings claims as workload-dependent.</li>
+<li><strong>"Final" date not independently timestamped.</strong> The report asserts only the "Final" status shown in the EIP header (s01), not the commonly cited June 2019 finalization date.</li>
+<li><strong>Security is delegated.</strong> The standard fixes the balance/event ordering rule (s04) but leaves reentrancy protection and approval hygiene to implementers and users; conclusions about safety are therefore about the base design, not any specific deployment.</li>
+<li><strong>Single-source ecosystem claim.</strong> OpenSea support rests on OpenSea's own documentation (s07), a first-party but single source.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Witek Radomski, Andrew Cooke, Philippe Castonguay, James Therien, Eric Binet, Ronan Sandford</span>. <a href="https://eips.ethereum.org/EIPS/eip-1155">ERC-1155: Multi Token Standard</a>. <span class="venue">Ethereum Improvement Proposals, 2018</span>. <span class="accessed">Accessed 2026-07-01.</span></li>
+      <li id="ref-2"><span class="authors">Witek Radomski, Andrew Cooke, Philippe Castonguay, James Therien, Eric Binet, Ronan Sandford</span>. <a href="https://github.com/ethereum/ERCs/blob/master/ERCS/erc-1155.md">ERCs/ERCS/erc-1155.md (canonical EIP-1155 source)</a>. <span class="venue">ethereum/ERCs GitHub, 2018</span>. <span class="accessed">Accessed 2026-07-01.</span></li>
+      <li id="ref-3"><span class="authors">ethereum.org contributors</span>. <a href="https://ethereum.org/developers/docs/standards/tokens/erc-1155/">ERC-1155 Multi Token Standard</a>. <span class="venue">ethereum.org, 2024</span>. <span class="accessed">Accessed 2026-07-01.</span></li>
+      <li id="ref-4"><span class="authors">OpenZeppelin</span>. <a href="https://docs.openzeppelin.com/contracts/5.x/erc1155">ERC-1155 — OpenZeppelin Contracts Docs</a>. <span class="venue">OpenZeppelin, 2025</span>. <span class="accessed">Accessed 2026-07-01.</span></li>
+      <li id="ref-5"><span class="authors">RareSkills</span>. <a href="https://rareskills.io/post/erc-1155">ERC-1155 Multi Token Standard</a>. <span class="venue">RareSkills, 2024</span>. <span class="accessed">Accessed 2026-07-01.</span></li>
+      <li id="ref-6"><span class="authors">Iván Mañús, Juan Ignacio Pérez</span>. <a href="https://eips.ethereum.org/EIPS/eip-5216">ERC-5216: ERC-1155 Allowance Extension</a>. <span class="venue">Ethereum Improvement Proposals, 2022</span>. <span class="accessed">Accessed 2026-07-01.</span></li>
+      <li id="ref-7"><span class="authors">OpenZeppelin</span>. <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/tree/master/contracts/token/ERC1155">OpenZeppelin Contracts — ERC1155 module</a>. <span class="venue">OpenZeppelin GitHub, 2025</span>. <span class="accessed">Accessed 2026-07-01.</span></li>
+      <li id="ref-8"><span class="authors">MetaMask</span>. <a href="https://support.metamask.io/stay-safe/safety-in-web3/what-is-a-token-approval/">What is a token approval? — MetaMask Help Center</a>. <span class="venue">MetaMask, 2024</span>. <span class="accessed">Accessed 2026-07-01.</span></li>
+      <li id="ref-9"><span class="authors">Arran Schlosberg, et al.</span>. <a href="https://eips.ethereum.org/EIPS/eip-6464">ERC-6464: Multi-operator, per-token ERC-721 approvals</a>. <span class="venue">Ethereum Improvement Proposals, 2023</span>. <span class="accessed">Accessed 2026-07-01.</span></li>
+      <li id="ref-10"><span class="authors">OpenSea</span>. <a href="https://docs.opensea.io/docs/metadata-standards">Metadata Standards — OpenSea Developer Documentation</a>. <span class="venue">OpenSea, 2024</span>. <span class="accessed">Accessed 2026-07-01.</span></li>
+      <li id="ref-11"><span class="authors">CoinTracker</span>. <a href="https://www.cointracker.io/learn/erc-1155">What is ERC-1155? Understanding its role in blockchain</a>. <span class="venue">CoinTracker, 2024</span>. <span class="accessed">Accessed 2026-07-01.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-06-30. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
