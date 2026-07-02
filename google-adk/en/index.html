@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Google ADK (Agent Development Kit) — Deepsearch</title>
+<meta name="description" content="Concepts, architecture, implementation, and usage of ADK per the official adk.dev docs — through the 2.0 graph-engine transition">
+<link rel="canonical" href="https://code0xff.github.io/reports/google-adk/en/">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="Google ADK (Agent Development Kit)">
+<meta property="og:description" content="Concepts, architecture, implementation, and usage of ADK per the official adk.dev docs — through the 2.0 graph-engine transition">
+<meta property="og:url" content="https://code0xff.github.io/reports/google-adk/en/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Google ADK (Agent Development Kit)">
+<meta name="twitter:description" content="Concepts, architecture, implementation, and usage of ADK per the official adk.dev docs — through the 2.0 graph-engine transition">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>Google ADK (Agent Development Kit)</h1>
+    <p class="subtitle">Concepts, architecture, implementation, and usage of ADK per the official adk.dev docs — through the 2.0 graph-engine transition</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-07-02</span>
+      <span><strong>Tags</strong> google-adk, ai-agents, agent-framework, mcp, a2a</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="google-adk.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>Google ADK (Agent Development Kit) is an open-source agent development framework Google unveiled at Cloud NEXT in April 2025; its official site, adk.dev, presents it as a code-first toolkit for "build[ing], debug[ging], and deploy[ing] reliable AI agents at enterprise scale." This report takes the adk.dev documentation as its primary source to describe what ADK is, how it works, its technical characteristics, and how to implement and use it, cross-checked against GitHub repositories, launch announcements, and independent comparisons. ADK's execution model is an event-driven structure built around Agents (LlmAgent plus deterministic workflow agents), Tools, a Runner, and Events; it layers context into Session/State/Memory, integrates the MCP and A2A protocols bidirectionally, ships a built-in evaluation framework, and offers deployment paths from Cloud Run and GKE to a managed Agent Runtime. ADK 2.0 (2026) replaces the hierarchical executor with a graph-based execution engine, introducing graph workflows that mix deterministic code and LLM reasoning at the node level. Independent analyses credit ADK's multi-language SDKs, enterprise integration, and native A2A support, while flagging its younger ecosystem and Google Cloud lock-in risk.</p>
+  </section>
+
+  <main class="body">
+<h1>Google ADK (Agent Development Kit)</h1>
+<h2>1. Introduction</h2>
+<p>Moving LLM-based agents from prototype to production requires solving orchestration, state management, tool integration, evaluation, and deployment. Google ADK attempts to cover that whole span in one framework: the official site (the user-designated <code>https://adk.dev/</code>) defines ADK as "the open-source agent development framework that lets you build, debug, and deploy reliable AI agents at enterprise scale"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. All SDKs are published under the GitHub <code>google</code> organization with the Apache-2.0 license<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>, and Google states that this is "the same framework powering agents within Google products like Agentspace and the Google Customer Engagement Suite (CES)"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>This report describes what ADK is (Section 2), how it works (Section 3), and how to implement and use it (Section 4), based on the official documentation, and discusses its ecosystem position and limits in Section 5.</p>
+<h2>2. Background: history and position</h2>
+<p>ADK debuted as a Python SDK on April 9, 2025 at Google Cloud NEXT 2025<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. Language support then expanded in stages: when the Go SDK arrived in November 2025 the lineup was Python, Java, and Go<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, and as of July 2026 adk.dev advertises five languages — Python (<code>pip install google-adk</code>), TypeScript/JavaScript (<code>npm install @google/adk</code>), Go (<code>go get google.golang.org/adk</code>), Java, and Kotlin<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Google Cloud's own documentation still lists four (Python, TypeScript, Go, Java)<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, and the Kotlin SDK is at an early v0.1.0 stage<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p>On the version axis, 2026 is the inflection point. ADK 2.0 reached GA for Python on May 19, 2026 and for Go on June 30, 2026, transitioning "from a hierarchical agent executor to a graph-based execution engine"<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. By GitHub metrics, adk-python has 20,400 stars (v2.3.0), adk-go 8,325 (v2.0.0), and the adk-samples collection 9,807<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> — placing ADK among the mainstream agent frameworks fifteen months after release.</p>
+<h2>3. Architecture and how it works</h2>
+<h3>3.1 Primitives: Agent, Tool, Runner, Event</h3>
+<p>ADK's foundational execution unit is the Agent, defined as "a self-contained execution unit designed to act autonomously to achieve specific goals," combining an AI model, task instructions, and optionally a set of tools<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Agents split into two families: <code>LlmAgent</code> for reasoning-heavy work, and workflow agents — deterministic controllers that "determine the execution sequence according to their type without consulting an AI model"<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. The workflow templates are <code>SequentialAgent</code> (executes sub-agents one after another), <code>ParallelAgent</code> (executes them in parallel), and <code>LoopAgent</code> (repeats until a termination condition), yielding "deterministic and predictable execution patterns"<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+<p>Tools give agents "abilities beyond conversation" — external API calls, retrieval, code execution<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. Execution is coordinated by the Runner, the engine that "manages the execution flow, orchestrates agent interactions based on Events, and coordinates with backend services"<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. An Event is "the basic unit of communication representing things that happen during a session" (user messages, agent replies, tool invocations); the event stream is the conversation history<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<h3>3.2 Context layers: Session, State, Memory</h3>
+<p>Context management is layered. A Session "represents a single, ongoing interaction between a user and your agent system," holding its Event sequence and State (key-value data scoped to the current conversation)<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Memory "represents a store of information that might span multiple past sessions or include external data sources"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Each layer is abstracted behind services (SessionService, MemoryService) with swappable backends, from in-memory implementations for local development — "all data … is lost when your application restarts" — to database and managed cloud options<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<h3>3.3 ADK 2.0: graph-based workflows</h3>
+<p>The core change in ADK 2.0 is graph workflows: "define your agent logic as a graph of execution nodes and edges, combining AI-powered agent reasoning with deterministic tools and code," where a node can be an agent, a tool invocation, or a custom code function<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. Conditional branching uses route matching (<code>workflow.StringRoute</code>, <code>IntRoute</code>, <code>BoolRoute</code>), and you can "run chains of functions without AI: call agent tools and your own code without invoking a generative AI model"<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. Version 2.0 adds dynamic workflows (code-based loops and branching) and collaborative workflows (a coordinator agent with multiple subagents), with breaking changes including an expanded Event schema (<code>node_info</code>, <code>output</code> fields)<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. Graph workflows are currently supported in Python v2.0.0 and Go v2.0.0<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</p>
+<h3>3.4 Tools and model support</h3>
+<p>Tools arrive through several channels: function tools that register plain functions directly (like the quickstart's <code>get_current_time</code> passed via <code>tools=[...]</code>)<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>; built-ins and Google Cloud integrations such as Google Search and code execution; OpenAPI-spec tools; and MCP tools<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. The adk.dev integrations catalog lists dozens of MCP/partner tools (BigQuery, GitHub, Atlassian, …) and observability integrations (Datadog, Arize, …)<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>On models, ADK "is designed for flexibility, allowing you to integrate various Large Language Models into your agents"<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. Gemini, Claude, and Agent Platform endpoints take the native path, where "ADK's internal registry resolves this string"; Ollama, vLLM, LiteRT-LM, and the LiteLLM proxy take the connector path via wrapper classes (<code>LiteLlm</code>, <code>ApigeeLlm</code>)<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. Model-agnosticism is real, but native integration centers on the Google ecosystem<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>.</p>
+<h3>3.5 Protocol integrations: MCP and A2A</h3>
+<p>ADK integrates two open protocols bidirectionally. For MCP, "an ADK agent can act as an MCP client and use tools provided by external MCP servers," and conversely you can "build an MCP server that wraps ADK tools, making them accessible to any MCP client"<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. The Python implementation leans on FastMCP — "in most cases, decorating a function is all you need"<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</p>
+<p>A2A (Agent2Agent) is a protocol for collaboration between agents on different runtimes. The docs cover both exposing your agent over A2A and consuming a remote A2A agent, with an example combining a root agent, a local sub-agent, and a remote A2A agent (supported in Python, Go, Java)<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>. InfoQ reports that "with A2A, a primary agent can seamlessly orchestrate and delegate tasks to specialized sub-agents"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Multi-agent composition itself rests on hierarchical parent-child delegation and LLM-driven routing — "when processing a user message, the LLM considers the query, the current agent's description, and the description fields of related agents"<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<h2>4. Implementation and usage</h2>
+<h3>4.1 Installation and a minimal agent</h3>
+<p>For Python, installation is one line: <code>pip install google-adk</code><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. Running <code>adk create my_agent</code> scaffolds a package with <code>agent.py</code> (the agent), <code>.env</code> (API keys / project IDs), and <code>__init__.py</code><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. Every ADK agent must expose a <code>root_agent</code>; the official quickstart's minimal example<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>:</p>
+<pre><code>from google.adk.agents.llm_agent import Agent
+
+def get_current_time(city: str) -&gt; dict:
+    &quot;&quot;&quot;Returns the current time in a specified city.&quot;&quot;&quot;
+    return {&quot;status&quot;: &quot;success&quot;, &quot;city&quot;: city, &quot;time&quot;: &quot;10:30 AM&quot;}
+
+root_agent = Agent(
+    model=&#x27;gemini-flash-latest&#x27;,
+    name=&#x27;root_agent&#x27;,
+    description=&quot;Tells the current time in a specified city.&quot;,
+    instruction=&quot;You are a helpful assistant that tells the current time in cities.&quot;,
+    tools=[get_current_time],
+)</code></pre>
+<p>A plain Python function becomes a tool as-is; declaratively binding model, instruction, and tools is ADK's core grammar<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>.</p>
+<h3>4.2 Running and debugging: the adk CLI and dev UI</h3>
+<p>The adk CLI drives execution: <code>adk run my_agent</code> opens an interactive terminal interface, and <code>adk web --port 8000</code> serves a development web UI at <code>localhost:8000</code><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. The web UI is a debugging surface with execution tracing, but the docs state it is "not meant for use in production deployments"<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<h3>4.3 Evaluation</h3>
+<p>Evaluation is built into the framework. "Due to the probabilistic nature of models, deterministic 'pass/fail' assertions are often unsuitable for evaluating agent performance," so evaluation splits into trajectory/tool-use and final-response dimensions<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. Development uses per-session test files (<code>.test.json</code>); integration testing uses multi-turn EvalSets; <code>adk eval &lt;AGENT_MODULE&gt; &lt;EVAL_SET_FILE&gt;</code> slots into CI/CD<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. Defaults are <code>tool_trajectory_avg_score: 1.0</code> and <code>response_match_score: 0.8</code>, with criteria including ROUGE similarity, LLM-judged equivalence, rubrics, hallucination detection, and safety checks<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>.</p>
+<h3>4.4 Deployment</h3>
+<p>Four deployment paths are documented<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>: ① Agent Runtime on Agent Platform — "a fully managed auto-scaling service on Google Cloud specifically designed for deploying, managing, and scaling AI agents"; ② Cloud Run, the container-based auto-scaling platform; ③ GKE for "more control over the deployment as well as for running Open Models"; ④ any container-friendly infrastructure via manual packaging. The managed runtime was called "Vertex AI Agent Engine" at the 2025 launch<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>; current Google Cloud docs present ADK under the Gemini Enterprise Agent Platform alongside managed session and Memory Bank services<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> — the naming is mid-rebrand _(naming in flux)_.</p>
+<h3>4.5 Safety and guardrails</h3>
+<p>The official safety documentation names as risk sources "vague instructions, model hallucination, jailbreaks and prompt injections from adversarial users, and indirect prompt injections via tool use," and prescribes mitigations: a Before Tool Callback for pre-validating tool calls, deterministic in-tool policy enforcement via Tool Context, sandboxed execution of model-generated code, Gemini's built-in content filters, and VPC-SC perimeters against data exfiltration<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>. On identity it distinguishes Agent-Auth (one service account for all users) from User-Auth, which uses OAuth so that "agents only perform actions that the user could have performed themselves"<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>.</p>
+<h2>5. Discussion</h2>
+<h3>5.1 ADK among its competitors</h3>
+<p>Independent comparisons locate ADK's edge in multi-language SDKs and enterprise integration. One 2026 comparison calls ADK the "best enterprise option, especially for teams that need multi-language SDKs," noting that while all three frameworks support MCP, "A2A: only ADK has native support"<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>. Another highlights the interoperability A2A buys — "an ADK agent can discover and invoke an agent built with LangGraph or CrewAI" — and its use of Gemini's multimodal API<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>.</p>
+<p>The weaknesses cited are consistent: a steeper learning curve than CrewAI, "fewer third-party tutorials, integrations, and production case studies compared to LangGraph or CrewAI," and Google Cloud lock-in risk from its optimization for Gemini and Vertex AI<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. One analysis rates ADK's production readiness as "early"<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. On orchestration models, ADK's hierarchical tree has been contrasted with LangGraph's conditional-edge graphs<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>; ADK 2.0's move to a graph engine changes that framing _(interpretive)_<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<h3>5.2 Adoption signals and open questions</h3>
+<p>GitHub metrics (adk-python at 20.4k stars in fifteen months) and the breadth of the partner-integration catalog indicate rapid ecosystem formation<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Governance questions surfaced from the start, however: commentary relayed by InfoQ asked "what happens when systems begin to act with autonomy … who defines the orchestration logic?" and called for metrics covering "bias, resilience, and emergent behavior" beyond task success<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>Upgrade-path friction is confirmed by field reports. One practitioner account of the 2.0 transition describes a symptomless failure mode — without two newly required JSONB columns on the events table, "the container boots fine, /health returns 200 — but every chat turn 500s" — plus a connection-URL conflict caused by the forced async driver, and a storage restructuring (pickled bytea to unified JSONB) that "cannot be performed in-place"<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup>. The absence of automatic schema migration predates 2.0: an open adk-python issue reports that "we as the users are obliged to manually update the schema" and that "required changes were not even mentioned and I had to manually find out"<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>.</p>
+<h2>6. Limitations</h2>
+<p>First, the architecture and usage descriptions rely mostly on adk.dev official documentation (vendor primary sources) — appropriate for technical claims, but quality claims like "reliable at enterprise scale" lack independent verification _(vendor-stated)_. Second, the Runner's event loop was verified only at the level of the technical-overview page, not via source-code analysis. Third, the managed runtime's name is mid-rebrand between "Vertex AI Agent Engine" (2025) and "Agent Runtime on Agent Platform" / "Gemini Enterprise Agent Platform" (2026), so documents disagree. Fourth, the language count differs between adk.dev (five, including Kotlin) and Google Cloud docs (four), and the Kotlin SDK is at v0.1.0. Fifth, ADK 2.0 (Python GA 2026-05, Go GA 2026-06) is recent enough that independent assessment is limited to a few early field reports (§5.2); systematic post-GA evaluation of the graph-engine transition and the 2.0 roadmap for TypeScript, Java, and Kotlin remain unconfirmed. Sixth, the competitive comparison in Section 5.1 relies on practitioner blogs whose quantitative figures (e.g. star counts) were already stale, so only their qualitative judgments are cited.</p>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Google</span>. <a href="https://adk.dev/">Agent Development Kit (ADK) — official site</a>. <span class="venue">adk.dev, 2026</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+      <li id="ref-2"><span class="authors">google</span>. <a href="https://github.com/google/adk-python">google/adk-python</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+      <li id="ref-3"><span class="authors">Google</span>. <a href="https://developers.googleblog.com/en/agent-development-kit-easy-to-build-multi-agent-applications/">Agent Development Kit: Making it easy to build multi-agent applications</a>. <span class="venue">Google Developers Blog, 2025</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+      <li id="ref-4"><span class="authors">InfoQ</span>. <a href="https://www.infoq.com/news/2025/04/agent-development-kit/">Google Releases Open-Source Agent Development Kit for Multi-Agent AI Applications</a>. <span class="venue">InfoQ, 2025</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+      <li id="ref-5"><span class="authors">InfoQ</span>. <a href="https://www.infoq.com/news/2025/11/go-agent-development-kit/">Google Launches Agent Development Kit for Go</a>. <span class="venue">InfoQ, 2025</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+      <li id="ref-6"><span class="authors">Google Cloud</span>. <a href="https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/adk">Agent Development Kit — Gemini Enterprise Agent Platform docs</a>. <span class="venue">Google Cloud Documentation, 2026</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+      <li id="ref-7"><span class="authors">Google</span>. <a href="https://adk.dev/sessions/">Conversational Context: Session, State, and Memory — ADK docs</a>. <span class="venue">adk.dev, 2026</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+      <li id="ref-8"><span class="authors">google</span>. <a href="https://github.com/google/adk-samples">google/adk-samples (+ sibling SDK repos)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+      <li id="ref-9"><span class="authors">Google</span>. <a href="https://adk.dev/2.0/">Welcome to ADK 2.0 — ADK docs</a>. <span class="venue">adk.dev, 2026</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+      <li id="ref-10"><span class="authors">google</span>. <a href="https://github.com/google/adk-go">google/adk-go</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+      <li id="ref-11"><span class="authors">Google</span>. <a href="https://adk.dev/agents/">Agents — ADK docs</a>. <span class="venue">adk.dev, 2026</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+      <li id="ref-12"><span class="authors">Google</span>. <a href="https://adk.dev/get-started/about/">Technical Overview — ADK docs</a>. <span class="venue">adk.dev, 2026</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+      <li id="ref-13"><span class="authors">Google</span>. <a href="https://adk.dev/agents/workflow-agents/">Template agent workflows — ADK docs</a>. <span class="venue">adk.dev, 2026</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+      <li id="ref-14"><span class="authors">Google</span>. <a href="https://adk.dev/graphs/">Graph-based agent workflows — ADK docs</a>. <span class="venue">adk.dev, 2026</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+      <li id="ref-15"><span class="authors">Google</span>. <a href="https://adk.dev/get-started/python/">Python quickstart — ADK docs</a>. <span class="venue">adk.dev, 2026</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+      <li id="ref-16"><span class="authors">Google</span>. <a href="https://adk.dev/mcp/">Model Context Protocol (MCP) — ADK docs</a>. <span class="venue">adk.dev, 2026</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+      <li id="ref-17"><span class="authors">Google</span>. <a href="https://adk.dev/agents/models/">AI Models for ADK agents — ADK docs</a>. <span class="venue">adk.dev, 2026</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+      <li id="ref-18"><span class="authors">GuruSup</span>. <a href="https://gurusup.com/blog/best-multi-agent-frameworks-2026">Best Multi-Agent Frameworks in 2026: LangGraph, CrewAI, ...</a>. <span class="venue">gurusup.com, 2026</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+      <li id="ref-19"><span class="authors">Google</span>. <a href="https://adk.dev/a2a/">ADK with Agent2Agent (A2A) Protocol — ADK docs</a>. <span class="venue">adk.dev, 2026</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+      <li id="ref-20"><span class="authors">Google</span>. <a href="https://adk.dev/evaluate/">Why evaluate agents — ADK docs</a>. <span class="venue">adk.dev, 2026</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+      <li id="ref-21"><span class="authors">Google</span>. <a href="https://adk.dev/deploy/">Deploy agents — ADK docs</a>. <span class="venue">adk.dev, 2026</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+      <li id="ref-22"><span class="authors">Google</span>. <a href="https://adk.dev/safety/">Safety and Security for AI Agents — ADK docs</a>. <span class="venue">adk.dev, 2026</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+      <li id="ref-23"><span class="authors">Andrew</span>. <a href="https://andrew.ooo/answers/google-adk-vs-langgraph-vs-crewai-2026/">Google ADK vs LangGraph vs CrewAI: Agent Frameworks Compared (2026)</a>. <span class="venue">andrew.ooo, 2026</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+      <li id="ref-24"><span class="authors">toyama0919</span>. <a href="https://dev.to/toyama0919/upgrading-google-adk-to-20-on-a-cloud-sql-postgres-backend-the-three-things-that-bit-us-43ff">Upgrading Google ADK to 2.0 on a Cloud SQL Postgres Backend: The Three Things That Bit Us</a>. <span class="venue">DEV Community, 2026</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+      <li id="ref-25"><span class="authors">google/adk-python community</span>. <a href="https://github.com/google/adk-python/issues/3343">google/adk-python · Issue #3343: Update database schema automatically</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">Accessed 2026-07-02.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-07-02. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

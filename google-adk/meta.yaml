@@ -1,0 +1,10 @@
+title: Google ADK (Agent Development Kit)
+subtitle: adk.dev 공식 문서 기준으로 본 ADK의 개념·아키텍처·구현·사용법 — 그래프 엔진으로 전환한 2.0까지
+title_en: Google ADK (Agent Development Kit)
+subtitle_en: Concepts, architecture, implementation, and usage of ADK per the official adk.dev docs — through the 2.0 graph-engine transition
+slug: google-adk
+lang: ko
+langs: [ko, en]
+date: 2026-07-02
+tags: [google-adk, ai-agents, agent-framework, mcp, a2a]
+status: ready
