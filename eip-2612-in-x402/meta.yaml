@@ -1,0 +1,10 @@
+title: "EIP-2612 Permit and Its Role in x402"
+subtitle: "How signed ERC-20 approvals power gasless, HTTP-native stablecoin payments"
+title_ko: "EIP-2612 Permit과 x402에서의 활용"
+subtitle_ko: "서명 기반 ERC-20 승인이 가스리스 HTTP 스테이블코인 결제를 구동하는 방식"
+slug: eip-2612-in-x402
+lang: en
+langs: [en, ko]
+date: 2026-07-02
+tags: [ethereum, eip-2612, x402, payments, stablecoins, permit2]
+status: ready
