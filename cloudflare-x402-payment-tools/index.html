@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cloudflare x402 기반 결제 도구 — Deepsearch</title>
+<meta name="description" content="Cloudflare Agents 문서 트리의 x402 결제 도구 전수 조사 — 판매자·구매자 양면 툴킷의 구조와 리스크">
+<link rel="canonical" href="https://code0xff.github.io/reports/cloudflare-x402-payment-tools/">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="en" href="en/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="Cloudflare x402 기반 결제 도구">
+<meta property="og:description" content="Cloudflare Agents 문서 트리의 x402 결제 도구 전수 조사 — 판매자·구매자 양면 툴킷의 구조와 리스크">
+<meta property="og:url" content="https://code0xff.github.io/reports/cloudflare-x402-payment-tools/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Cloudflare x402 기반 결제 도구">
+<meta name="twitter:description" content="Cloudflare Agents 문서 트리의 x402 결제 도구 전수 조사 — 판매자·구매자 양면 툴킷의 구조와 리스크">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="en/index.html" hreflang="en">English</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="GitHub에서 Deepsearch 보기" title="GitHub에서 Deepsearch 보기">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>Cloudflare x402 기반 결제 도구</h1>
+    <p class="subtitle">Cloudflare Agents 문서 트리의 x402 결제 도구 전수 조사 — 판매자·구매자 양면 툴킷의 구조와 리스크</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-07-02</span>
+      <span><strong>태그</strong> x402, cloudflare, agent-payments, mcp, stablecoin</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="cloudflare-x402-payment-tools.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>Cloudflare는 개발자 문서 <code>/agents/tools/payments/x402/</code> 트리 아래에 x402 프로토콜 기반 에이전트 결제 도구를 공식 문서화하고 있다. 본 보고서는 해당 문서와 공개 코드 저장소, 독립 보도를 교차 검증하여 Cloudflare가 제공하는 x402 도구 전체를 목록화하고 분석한다. Cloudflare의 x402 툴킷은 판매자 측 과금 도구(x402-proxy Worker 템플릿, x402-hono 미들웨어, MCP 서버용 <code>withX402</code>/<code>paidTool</code>)와 구매자 측 지불 도구(Agents SDK의 <code>withX402Client</code>, OpenCode 플러그인, Claude Code 훅)를 모두 포괄하는 양면 구조다. 여기에 2025년 9월 Coinbase와의 x402 Foundation 공동 설립 발표, 자체 스테이블코인 NET Dollar, 2026년 7월 발표된 Monetization Gateway가 더해져, x402는 Cloudflare의 에이전트 경제 전략의 결제 계층으로 자리잡고 있다. 다만 기본 facilitator의 Coinbase 의존, 에이전트에 개인키를 위임하는 보안 모델, 밈코인 주도로 부풀려진 초기 채택 지표는 문서화된 한계로 남아 있다.</p>
+  </section>
+
+  <main class="body">
+<h1>Cloudflare x402 기반 결제 도구</h1>
+<h2>1. 서론</h2>
+<p>AI 에이전트가 웹에서 자율적으로 자원을 소비하려면 계정 생성·API 키 발급·구독 계약이라는 인간 중심 결제 관문이 병목이 된다. x402는 HTTP 표준에 예약만 되어 있던 <code>402 Payment Required</code> 상태 코드를 되살려, 계정이나 세션 토큰 없이 요청 단위로 스테이블코인을 지불하는 개방형 프로토콜이다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Cloudflare는 2025년 9월 23일 x402 지원을 발표하면서 Coinbase와 함께 x402 Foundation 설립 의사를 밝혔고<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>, 이후 Agents SDK와 개발자 문서에 x402 통합을 단계적으로 확장해 왔다.</p>
+<p>본 보고서는 사용자가 지정한 Cloudflare 공식 문서 경로(<code>developers.cloudflare.com/agents/tools/payments/x402/</code>)를 1차 소스로 삼아, 그 아래 문서화된 네 가지 도구 묶음 — HTTP 콘텐츠 과금, MCP 도구 과금, Agents SDK 결제, 코딩 도구 플러그인 — 을 상세히 기술한다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 각 도구는 GitHub의 실제 소스 코드(cloudflare/agents, cloudflare/templates, x402-foundation/x402)와 npm 레지스트리 메타데이터로 실재를 검증했다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<h2>2. 배경: x402 프로토콜</h2>
+<p>x402의 결제 흐름은 3자 구조다. 클라이언트는 암호화폐 지갑만 있으면 되고 "관리할 계정, 자격증명, 세션 토큰이 없다"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 서버(판매자)는 보호된 자원에 대한 요청에 402 응답과 결제 요구사항을 반환하고, 클라이언트가 서명된 결제 페이로드를 첨부해 재시도하면 검증 후 자원을 전달한다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 검증(verify)과 온체인 정산(settle)은 facilitator라는 제3자 서비스에 위임할 수 있는데, Cloudflare 문서가 안내하는 기본 facilitator는 Coinbase가 운영하는 <code>https://x402.org/facilitator</code>이며 자금을 보관하지 않고 검증과 블록체인 제출만 수행한다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p>Cloudflare 문서는 두 가지 결제 스킴을 기술한다. <code>exact</code>는 고정 금액 — 통상 EVM 체인의 ERC-20 USDC — 을 판매자 주소로 이전하며 EVM, Solana, Aptos, Stellar, Hedera, Sui를 지원한다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. <code>upto</code>는 최대 금액을 승인한 뒤 실제 사용량만큼 동적으로 정산하며 EVM에 한정된다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 표준 모노레포에는 이 둘에 더해 에스크로와 오프체인 바우처로 소액 결제를 묶어 온체인 정산하는 <code>batch-settlement</code> 스킴(EVM)도 문서화되어 있다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Cloudflare 문서 기준 지원 네트워크는 Base, Ethereum, Polygon, Optimism, Arbitrum, Avalanche, Solana, Aptos, Stellar, Sui 등이고, 테스트는 <code>base-sepolia</code> 테스트넷과 Circle faucet의 테스트 USDC를 사용한다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 표준 자체는 x402-foundation 조직의 모노레포에서 관리되며, 스펙 v1/v2와 다국어 SDK(@x402/core, @x402/evm, @x402/fetch, @x402/hono, @x402/mcp 등)가 여기서 배포된다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<h2>3. Cloudflare가 제공하는 x402 도구</h2>
+<p>Cloudflare 문서 트리는 네 개의 하위 페이지로 구성된다: HTTP 콘텐츠 과금, MCP 도구 호출 과금, Agents SDK에서의 지불, 코딩 도구 플러그인<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h3>3.1 HTTP 콘텐츠 과금 — x402-proxy 템플릿과 x402-hono</h3>
+<p>판매자 측 첫 번째 도구는 <strong>x402-proxy 템플릿</strong>으로, "임의의 HTTP 백엔드 앞단에 배치되는 Cloudflare Worker"다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. <code>wrangler.jsonc</code>에서 수취 지갑 주소(<code>PAY_TO</code>), 네트워크(<code>NETWORK</code>, 테스트는 base-sepolia, 프로덕션은 base), 보호 경로와 가격(<code>PROTECTED_PATTERNS</code>, 예: <code>/api/premium/*</code>에 $0.10)을 선언하면 보호 경로 요청에 402와 결제 지시가 반환되고, 결제 후 프록시가 검증을 거쳐 오리진으로 요청을 전달한다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. 실제 템플릿은 cloudflare/templates 저장소의 <code>x402-proxy-template</code> 디렉터리에 존재하며, x402 결제와 무상태 쿠키(JWT) 인증을 결합한 투명 프록시로 구현되어 있다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<p>더 세밀한 제어가 필요하면 <strong>x402-hono</strong> 패키지의 <code>paymentMiddleware</code>를 Hono 기반 Worker에 직접 삽입한다. 미들웨어는 지갑 주소, 경로별 가격 설정, facilitator 엔드포인트 세 요소를 받는다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. x402-hono는 x402-foundation/x402 모노레포에서 배포되는 npm 패키지로, 템플릿 소스(<code>src/auth.ts</code>)에서도 동일한 import가 확인된다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<p>주목할 만한 고급 기능은 <strong>Bot Management 연동</strong>이다. <code>bot_score_threshold</code> 설정으로 인간 사용자와 자동화 크롤러를 구분해 봇 트래픽에만 선별 과금할 수 있으며<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>, 템플릿에는 Google, Microsoft, OpenAI, Anthropic, Perplexity, Meta 등 AI 운영사의 봇 식별자 레지스트리가 포함되어 있다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. 이는 Cloudflare의 pay-per-crawl(AI 크롤러 과금) 전략과 직접 연결되는 지점이다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<h3>3.2 MCP 도구 과금 — withX402와 paidTool</h3>
+<p>MCP(Model Context Protocol) 서버 운영자를 위한 도구는 Agents SDK의 <code>agents/x402</code> 모듈이다. <code>withX402(new McpServer({...}), X402_CONFIG)</code>로 서버를 감싸면 <code>paidTool</code> 메서드가 추가되는데, 문서는 이를 "기존 <code>tool</code>의 드롭인 대체(drop-in replacement)"로 설명한다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. <code>X402Config</code>는 네트워크(base/base-sepolia), 수취 지갑 주소, facilitator URL 세 필드를 받고, <code>paidTool</code>은 도구 이름·설명·USD 가격·입력 스키마·핸들러를 받아 호출 단위 과금을 선언한다(예: 제곱 계산 도구에 $0.01)<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p>무결제 호출 시 서버는 402와 결제 요구사항을 반환하고, 클라이언트가 x402로 결제한 뒤 증빙을 첨부해 재시도하면 결과를 반환한다. 무료 <code>tool</code>과 유료 <code>paidTool</code>을 한 서버에 혼합할 수 있다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 완전한 동작 예제는 cloudflare/agents 저장소의 <code>examples/x402-mcp</code>에 공개되어 있으며<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>, 같은 저장소의 <code>examples/x402</code>는 MCP 래퍼 없이 <code>@x402/*</code> 라이브러리로 HTTP 엔드포인트를 직접 과금하는 대조 예제다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<h3>3.3 Agents SDK에서 지불 — withX402Client</h3>
+<p>구매자 측 도구는 <code>withX402Client</code>다. Durable Objects 기반 Agent 클래스 안에서 MCP 클라이언트를 감싸면 402 응답을 만났을 때 결제를 자동 처리한다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. 지갑은 viem의 <code>privateKeyToAccount(this.env.MY_PRIVATE_KEY)</code>로 구성하며, 개인키는 로컬에서는 <code>.dev.vars</code>, 프로덕션에서는 <code>wrangler secret put</code>으로 관리하도록 안내된다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. 실제 구현은 cloudflare/agents의 <code>packages/agents/src/mcp/x402.ts</code>에 있으며, <code>confirmationCallback?: (payment: PaymentRequirements[]) =&gt; Promise&lt;boolean&gt;</code> 시그니처가 확인된다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<p>결제 승인은 human-in-the-loop 패턴이다. <code>callTool</code>의 첫 번째 인자로 승인 콜백을 전달하는데, 문서는 "null로 설정하면 에이전트가 자동으로 지불한다"고 명시한다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. 개발자는 <code>onPaymentRequired(paymentRequirements)</code>를 구현해 불리언 프로미스를 반환하는 승인 워크플로를 정의할 수 있다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<h3>3.4 코딩 도구 플러그인 — OpenCode와 Claude Code</h3>
+<p>마지막 페이지는 AI 코딩 도구가 유료 리소스를 만났을 때 결제하는 플러그인을 다룬다. <strong>OpenCode 플러그인</strong>은 <code>.opencode/plugins/x402-payment.ts</code>에 <code>@x402/fetch</code>, <code>@x402/evm</code>, viem 세 패키지로 커스텀 도구를 등록하며, 도구 설명은 "webfetch가 402를 반환할 때 x402 결제로 URL을 가져오라"고 되어 있다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. <strong>Claude Code 통합</strong>은 <code>.claude/scripts/handle-x402.mjs</code> 스크립트를 <code>.claude/settings.json</code>의 PostToolUse 훅(WebFetch matcher)에 등록하는 방식으로, 402 응답을 감지하면 결제 후 재시도하고 결과를 <code>additionalContext</code>로 주입한다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+<p>두 방식 모두 <code>X402_PRIVATE_KEY</code> 환경 변수로 지갑을 구성한다. 흥미로운 점은 결제 전 승인 로직이 문서 코드에 <code>// Your human-in-the-loop confirmation flow...</code>라는 placeholder 주석으로만 남아 있어, 지출 통제의 실질 구현이 개발자 몫으로 넘겨져 있다는 것이다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+<h2>4. 분석</h2>
+<h3>4.1 양면 툴킷 구조</h3>
+<p>Cloudflare의 x402 도구를 역할 축으로 정리하면 판매자 측(수익화)과 구매자 측(지불)의 양면 구조가 드러난다. 판매자 측은 x402-proxy 템플릿과 x402-hono(HTTP 자원), <code>withX402</code>/<code>paidTool</code>(MCP 도구)이고, 구매자 측은 <code>withX402Client</code>(에이전트)와 OpenCode/Claude Code 플러그인(코딩 도구)이다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. 하나의 벤더 문서 트리가 결제의 수요·공급 양쪽 SDK를 모두 제공하는 것은, 에이전트 간 상거래(M2M)의 폐루프를 자사 플랫폼(Workers, Durable Objects, Bot Management) 위에서 완성하려는 설계로 읽힌다 _(해석)_.</p>
+<h3>4.2 생태계 내 위치: 소비자이자 공동 설계자</h3>
+<p>npm 메타데이터 기준 x402-hono, @x402/fetch, @x402/evm은 Coinbase 소속 개발자(x402 창시자 Erik Reppel 포함)가 유지·배포하고, 저장소는 x402-foundation/x402 모노레포를 가리킨다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 즉 Cloudflare는 프로토콜 계층 패키지의 소비자다. 동시에 GitHub API 기준 coinbase/x402가 x402-foundation/x402의 포크로 전환된 것이 확인되는데<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>, 이는 2025년 9월 발표된 재단 이관 — "인터넷 핵심 프로토콜은 독립 거버넌스로 움직여야 한다"는 Cloudflare CEO Matthew Prince의 발언<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> — 이 코드 거버넌스 수준에서 실행됐음을 보여준다. Cloudflare 자체 기여로는 암호학적 핸드셰이크와 정산을 분리해 배치 처리와 전통 결제 수단을 수용하는 deferred 결제 스킴 제안이 있으며, 이는 pay-per-crawl 베타의 일 단위 합산 청구에 통합될 예정이라고 발표됐다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<h3>4.3 문서 트리 밖의 연장선: Monetization Gateway와 NET Dollar</h3>
+<p>x402 문서 트리는 Cloudflare 결제 전략의 일부다. 2025년 9월 25일 Cloudflare는 에이전트 웹을 위한 달러 담보 스테이블코인 <strong>NET Dollar</strong>를 발표하면서 AP2와 x402 표준 기여를 함께 언급했고<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>, 2026년 7월 1일에는 <strong>Monetization Gateway</strong>를 공개했다. 이 게이트웨이는 "Cloudflare가 보호하는 모든 자산 — 웹 페이지, 데이터셋, API, MCP 도구 — 에 과금"할 수 있게 하고 결제는 x402로 정산되며, 출시 시점에는 Open USD와 USDC 등 스테이블코인만 지원하고 대기자 명단 단계다<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. 독립 보도는 결제 검증이 오리진 도달 전 엣지에서 수행된다는 점과, Amazon Bedrock AgentCore(Base 체인 x402 USDC) 등 경쟁 구도를 함께 전한다<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. pay-per-crawl이 AI 크롤러 과금이라는 단일 시나리오였다면, Monetization Gateway는 이를 범용 자원 수익화로 확장한 것이다<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>.</p>
+<h2>5. 논의</h2>
+<h3>5.1 표준 경쟁 속의 x402</h3>
+<p>x402는 고립된 표준이 아니다. Google의 Agent Payments Protocol(AP2)은 카드·계좌이체 등 전통 레일과 함께 "x402 확장을 통한 스테이블코인·암호화폐"를 지원한다고 명시하며, Google은 Coinbase·Ethereum Foundation 등과 A2A x402 확장을 별도 저장소로 공개했다<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. 즉 x402는 AP2와 경쟁하는 동시에 그 암호화폐 결제 레일로 편입되는 보완 관계다. Cloudflare가 NET Dollar 발표에서 AP2와 x402를 나란히 언급한 것도 같은 맥락이다<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</p>
+<h3>5.2 채택 신호와 그 한계</h3>
+<p>온체인 데이터는 급성장과 거품을 동시에 보여준다. Chainalysis에 따르면 Base 체인의 x402 거래는 2025년 중반 사실상 0에서 2026년 1분기까지 누적 1억 건을 돌파했으나, 2025년 4분기 급증분의 상당 부분은 "1 USDC를 내면 토큰을 민팅해 주는" 밈코인 PING이 주도했고(첫 달에만 15만 건 이상), 이후 투기 활동이 식으며 성장세가 완만해졌다<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>. 같은 분석은 1달러 이상 거래 비중이 49%에서 95%로 늘어난 점, 테스터→결제자 전환율 4배 개선 등을 실사용 신호로 제시하면서도 "지속 가능한 채택인지 다른 사용자 코호트인지는 지켜봐야 한다"고 유보한다<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>.</p>
+<p>더 비판적인 시각도 있다. CoinDesk가 2026년 3월 전한 Artemis 분석에 따르면 x402의 일일 결제 규모는 약 2만 8천 달러, 일일 거래 약 13만 1천 건, 평균 결제액 0.20달러 수준에 그치고 관측 활동의 약 절반이 자전거래성 인위적 활동으로 추정되어, 약 70억 달러로 평가되는 생태계 밸류에이션과 대비된다 — "에이전트 결제 붐은 아직 대부분 신기루"라는 평가다<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. x402 창시자 Erik Reppel조차 "팀들이 테스트에서 프로덕션으로 이동하면 이 비율은 자연히 낮아질 것"이라고 인정했고, 기사는 "x402가 겨냥하는 판매자가 아직 드물다"고 지적한다<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. Cloudflare의 Monetization Gateway 같은 판매자 측 도구는 정확히 이 공급 부족을 겨냥한 것으로 볼 수 있다 _(해석)_.</p>
+<h3>5.3 리스크: facilitator 집중과 키 위임</h3>
+<p>보안 관점의 한계도 문서화되어 있다. 보안 감사 기업 Halborn은 facilitator가 검증·정산을 중앙에서 처리하는 구조적 집중 위험을 지적하며 복수 facilitator 또는 직접 온체인 검증을 권고하고, 에이전트에는 지출 한도·수취인 허용목록·고액 거래 인간 승인을 요구한다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. 학술 연구도 같은 방향이다. arXiv에 공개된 "Five Attacks on x402"는 동기식 HTTP 승인과 비동기 블록체인 정산의 결합이 "기존 웹·온체인 결제에 없던 교차 계층 공격 표면"을 만든다는 것을 Base Sepolia와 실제 엔드포인트에서 재현 가능한 다섯 가지 공격으로 입증했다<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>. Cloudflare 도구의 설계 — <code>withX402Client</code>의 승인 콜백을 null로 두면 자동 결제, 코딩 플러그인의 승인 흐름 placeholder — 는 이런 통제의 구현 책임이 최종 개발자에게 있음을 보여준다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+<h2>6. 한계</h2>
+<p>본 보고서의 한계는 다음과 같다. 첫째, Monetization Gateway는 조사 시점 기준 발표 하루 뒤의 waitlist 단계 제품으로, 지원 토큰("Open USD" 포함)과 facilitator 구조 등 세부가 벤더 발표에만 의존하며 변경될 수 있다 _(vendor-stated)_<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. Cloudflare가 엣지에서 수행한다는 "결제 검증·집행"이 자체 facilitator 운영을 의미하는지도 문서상 불명확하다. 둘째, Cloudflare가 제안한 deferred 스킴이 x402 표준 스킴으로 병합 완료됐는지는 확인하지 못했다 — 모노레포에는 유사한 batch-settlement 스킴이 문서화되어 있으나 동일성은 검증되지 않았다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 셋째, 채택 지표의 정량 데이터는 Chainalysis(누적 거래)와 CoinDesk가 인용한 Artemis 분석(일일 규모·인위적 활동 비중)에 의존하며, 두 소스의 측정 방법론 차이로 직접 비교는 어렵다. 2026년 일일 거래량의 정점 대비 하락 폭(-92% 등)을 다룬 일부 기사는 본문 추출에 실패해 인용하지 못했다. 넷째, Cloudflare 문서는 x402-hono(v1.x)를 안내하지만 표준 모노레포에는 @x402/hono(v2.x) 계열이 병존해, 버전 전환기의 문서 지연 가능성이 있다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 다섯째, 조사 과정에서 Cloudflare 문서 경로가 <code>agents/agentic-payments/x402/</code>로도 노출되는 것이 관찰되어 문서 트리 재편 중일 수 있다.</p>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Cloudflare</span>. <a href="https://developers.cloudflare.com/agents/tools/payments/x402/">x402 — Cloudflare Agents docs</a>. <span class="venue">Cloudflare Developers, 2026</span>. <span class="accessed">접근일 2026-07-02.</span></li>
+      <li id="ref-2"><span class="authors">x402-foundation</span>. <a href="https://github.com/x402-foundation/x402">x402-foundation/x402 — A payments protocol for the internet. Built on HTTP.</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-07-02.</span></li>
+      <li id="ref-3"><span class="authors">Cloudflare</span>. <a href="https://blog.cloudflare.com/x402/">Launching the x402 Foundation with Coinbase, and support for x402 transactions</a>. <span class="venue">Cloudflare Blog, 2025</span>. <span class="accessed">접근일 2026-07-02.</span></li>
+      <li id="ref-4"><span class="authors">Disruption Banking</span>. <a href="https://www.disruptionbanking.com/2025/09/25/cloudflare-and-coinbase-will-launch-x402-foundation/">Cloudflare and Coinbase Will Launch x402 Foundation</a>. <span class="venue">Disruption Banking, 2025</span>. <span class="accessed">접근일 2026-07-02.</span></li>
+      <li id="ref-5"><span class="authors">cloudflare</span>. <a href="https://github.com/cloudflare/agents/blob/main/packages/agents/src/mcp/x402.ts">cloudflare/agents · packages/agents/src/mcp/x402.ts</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-07-02.</span></li>
+      <li id="ref-6"><span class="authors">cloudflare</span>. <a href="https://github.com/cloudflare/templates/tree/main/x402-proxy-template">cloudflare/templates · x402-proxy-template</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-07-02.</span></li>
+      <li id="ref-7"><span class="authors">Coinbase</span>. <a href="https://www.npmjs.com/package/x402-hono">x402-hono — npm registry metadata</a>. <span class="venue">npm, 2026</span>. <span class="accessed">접근일 2026-07-02.</span></li>
+      <li id="ref-8"><span class="authors">Halborn</span>. <a href="https://www.halborn.com/blog/post/x402-explained-security-risks-and-controls-for-http-402-micropayments">x402 Explained: Security Risks &amp; Controls for HTTP 402 Micropayments</a>. <span class="venue">Halborn Blog, 2025</span>. <span class="accessed">접근일 2026-07-02.</span></li>
+      <li id="ref-9"><span class="authors">Cloudflare</span>. <a href="https://developers.cloudflare.com/agents/tools/payments/x402/charge-for-mcp-tools/">Charge for MCP tool calls — Cloudflare Agents docs</a>. <span class="venue">Cloudflare Developers, 2026</span>. <span class="accessed">접근일 2026-07-02.</span></li>
+      <li id="ref-10"><span class="authors">Cloudflare</span>. <a href="https://developers.cloudflare.com/agents/tools/payments/x402/charge-for-http-content/">Charge for HTTP content — Cloudflare Agents docs</a>. <span class="venue">Cloudflare Developers, 2026</span>. <span class="accessed">접근일 2026-07-02.</span></li>
+      <li id="ref-11"><span class="authors">cloudflare</span>. <a href="https://github.com/cloudflare/agents/blob/main/examples/x402-mcp/README.md">cloudflare/agents · examples/x402-mcp/README.md</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-07-02.</span></li>
+      <li id="ref-12"><span class="authors">Cloudflare</span>. <a href="https://developers.cloudflare.com/agents/tools/payments/x402/pay-from-agents-sdk/">Pay from the Agents SDK — Cloudflare Agents docs</a>. <span class="venue">Cloudflare Developers, 2026</span>. <span class="accessed">접근일 2026-07-02.</span></li>
+      <li id="ref-13"><span class="authors">Cloudflare</span>. <a href="https://developers.cloudflare.com/agents/tools/payments/x402/pay-with-tool-plugins/">Pay with coding-tool plugins — Cloudflare Agents docs</a>. <span class="venue">Cloudflare Developers, 2026</span>. <span class="accessed">접근일 2026-07-02.</span></li>
+      <li id="ref-14"><span class="authors">CoinDesk</span>. <a href="https://www.coindesk.com/business/2025/09/25/cloudflare-unveils-u-s-dollar-stablecoin-for-ai-powered-internet-economy">Cloudflare (NET) Unveils NET Dollar for AI-Powered Internet Economy</a>. <span class="venue">CoinDesk, 2025</span>. <span class="accessed">접근일 2026-07-02.</span></li>
+      <li id="ref-15"><span class="authors">Cloudflare</span>. <a href="https://blog.cloudflare.com/monetization-gateway/">Announcing the Monetization Gateway: charge for any resource behind Cloudflare via x402</a>. <span class="venue">Cloudflare Blog, 2026</span>. <span class="accessed">접근일 2026-07-02.</span></li>
+      <li id="ref-16"><span class="authors">crypto.news</span>. <a href="https://crypto.news/cloudflare-opens-waitlist-for-x402-stablecoin-monetization-gateway/">Cloudflare opens waitlist for x402 stablecoin monetization gateway</a>. <span class="venue">crypto.news, 2026</span>. <span class="accessed">접근일 2026-07-02.</span></li>
+      <li id="ref-17"><span class="authors">Google Cloud</span>. <a href="https://cloud.google.com/blog/products/ai-machine-learning/announcing-agents-to-payments-ap2-protocol">Announcing Agent Payments Protocol (AP2)</a>. <span class="venue">Google Cloud Blog, 2025</span>. <span class="accessed">접근일 2026-07-02.</span></li>
+      <li id="ref-18"><span class="authors">google-agentic-commerce</span>. <a href="https://github.com/google-agentic-commerce/a2a-x402">google-agentic-commerce/a2a-x402 — A2A x402 Extension</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-07-02.</span></li>
+      <li id="ref-19"><span class="authors">Chainalysis</span>. <a href="https://www.chainalysis.com/blog/x402-agentic-payments-adoption/">Inside x402: 100M Agentic Payments on Base</a>. <span class="venue">Chainalysis Blog, 2026</span>. <span class="accessed">접근일 2026-07-02.</span></li>
+      <li id="ref-20"><span class="authors">CoinDesk</span>. <a href="https://www.coindesk.com/markets/2026/03/11/coinbase-backed-ai-payments-protocol-wants-to-fix-micropayment-but-demand-is-just-not-there-yet">Coinbase-backed AI payments protocol wants to fix micropayments but demand is just not there yet</a>. <span class="venue">CoinDesk, 2026</span>. <span class="accessed">접근일 2026-07-02.</span></li>
+      <li id="ref-21"><span class="authors">Zelin Li, Qin Wang, Zhipeng Wang</span>. <a href="https://arxiv.org/abs/2605.11781">Five Attacks on x402 Agentic Payment Protocol</a>. <span class="venue">arXiv, 2026</span>. <span class="accessed">접근일 2026-07-02.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-07-02 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

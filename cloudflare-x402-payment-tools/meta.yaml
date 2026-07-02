@@ -1,0 +1,10 @@
+title: Cloudflare x402 기반 결제 도구
+subtitle: Cloudflare Agents 문서 트리의 x402 결제 도구 전수 조사 — 판매자·구매자 양면 툴킷의 구조와 리스크
+title_en: Cloudflare's x402-Based Payment Tools
+subtitle_en: A survey of the x402 payment tools in Cloudflare's Agents docs — a two-sided toolkit, its architecture, and its risks
+slug: cloudflare-x402-payment-tools
+lang: ko
+langs: [ko, en]
+date: 2026-07-02
+tags: [x402, cloudflare, agent-payments, mcp, stablecoin]
+status: ready
