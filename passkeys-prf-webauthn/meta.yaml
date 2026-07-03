@@ -1,0 +1,10 @@
+title: WebAuthn PRF 확장과 패스키 기반 종단간 암호화 심층 분석
+subtitle: Corbado 아티클 검증을 출발점으로 한 스펙·구현·생태계 교차 분석
+title_en: The WebAuthn PRF Extension and Passkey-Based End-to-End Encryption
+subtitle_en: A cross-verified analysis of the spec, implementations, and ecosystem, starting from Corbado's explainer
+slug: passkeys-prf-webauthn
+lang: ko
+langs: [ko, en]
+date: 2026-07-03
+tags: [webauthn, passkeys, prf, e2ee, fido2]
+status: ready

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WebAuthn PRF 확장과 패스키 기반 종단간 암호화 심층 분석 — Deepsearch</title>
+<meta name="description" content="Corbado 아티클 검증을 출발점으로 한 스펙·구현·생태계 교차 분석">
+<link rel="canonical" href="https://code0xff.github.io/reports/passkeys-prf-webauthn/">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="en" href="en/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="WebAuthn PRF 확장과 패스키 기반 종단간 암호화 심층 분석">
+<meta property="og:description" content="Corbado 아티클 검증을 출발점으로 한 스펙·구현·생태계 교차 분석">
+<meta property="og:url" content="https://code0xff.github.io/reports/passkeys-prf-webauthn/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="WebAuthn PRF 확장과 패스키 기반 종단간 암호화 심층 분석">
+<meta name="twitter:description" content="Corbado 아티클 검증을 출발점으로 한 스펙·구현·생태계 교차 분석">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="en/index.html" hreflang="en">English</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="GitHub에서 Deepsearch 보기" title="GitHub에서 Deepsearch 보기">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>WebAuthn PRF 확장과 패스키 기반 종단간 암호화 심층 분석</h1>
+    <p class="subtitle">Corbado 아티클 검증을 출발점으로 한 스펙·구현·생태계 교차 분석</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-07-03</span>
+      <span><strong>태그</strong> webauthn, passkeys, prf, e2ee, fido2</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="passkeys-prf-webauthn.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>WebAuthn PRF(pseudo-random function) 확장은 패스키를 "로그인 수단"에서 "암호화 키 유도 수단"으로 확장하는 W3C WebAuthn Level 3의 클라이언트 확장이다. 본 리포트는 Corbado의 해설 아티클(Vincent Delitz, 초판 2025-04-16, 수정 2026-05-19)을 출발점으로 삼아, 그 주장을 W3C 스펙 원문, CTAP2 기술 문서, 브라우저 벤더 릴리스 노트, 패스워드 매니저들의 상용 구현, 학술 문헌과 대조해 검증했다. 핵심 확인 사항은 다음과 같다. (1) PRF 확장은 CTAP2 hmac-secret 확장을 웹에 노출하는 표준 통로이며, 입력 salt는 "WebAuthn PRF" 컨텍스트 문자열로 도메인 분리 해싱된 뒤 인증기에서 HMAC 연산된다. (2) 지원 매트릭스는 2024–2026년 사이 급격히 개선되어 Android(Google Password Manager), Apple(Safari 18+/iOS 18+), Windows(11 25H2 + Chrome 147/Firefox 148)에서 플랫폼 인증기 PRF가 순차적으로 열렸다. (3) Dashlane, Bitwarden, 1Password가 PRF로 마스터 패스워드 없는 볼트 복호화를 상용화했다. (4) 반면 패스키 분실 시 데이터 영구 손실, 동기화 패브릭에 대한 신뢰 집중, 플랫폼별 잔존 버그(iOS 18.0–18.3 CDA 불일치, Safari 보안 키 경로)는 여전히 실질적 제약이며, Corbado의 "핵심 의존성이 아닌 향상 기능으로 취급하라"는 권고는 2026년 중반 현재도 유효하다. 아울러 W3C 스펙 공동 편집자 Tim Cappalli가 2026년 2월 제기한 "패스키로 사용자 데이터를 암호화하지 마라"는 공개 반론 — 볼트 잠금 해제는 정당하나 일반 데이터 암호화는 위험하다는 구분 — 이 아티클에 반영되어 있지 않음을 확인했고, 이를 본 리포트의 논의에 포함했다. 아티클이 미해결이라고 서술한 WebKit 보안 키 버그 중 하나(311099)는 조사 시점에 이미 수정되어 있었는데, 이는 이 분야 문헌의 유통기한이 얼마나 짧은지 보여주는 사례다.</p>
+  </section>
+
+  <main class="body">
+<h1>WebAuthn PRF 확장과 패스키 기반 종단간 암호화 심층 분석</h1>
+<h2>서론</h2>
+<p>패스키(passkey)는 FIDO2/WebAuthn 표준 위에서 비밀번호를 대체하는 공개키 크리덴셜로 자리 잡았지만, 전통적으로 한 가지 일 — 인증 — 만 할 수 있었다. WebAuthn 서명은 재전송 공격을 막기 위해 의도적으로 비결정적이어서, 서명값 자체를 암호화 키 재료로 쓸 수 없다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 사용자의 데이터를 종단간 암호화(E2EE)하려는 서비스는 결국 별도의 지식 기반 비밀(마스터 패스워드 등)을 요구해야 했고, 이는 패스워드리스 전환의 마지막 걸림돌로 남았다.</p>
+<p>WebAuthn PRF 확장은 이 간극을 메운다. 크리덴셜마다 결부된 의사난수 함수를 인증 시점에 평가해, 같은 입력에는 언제나 같은 32바이트 출력을 돌려주는 결정적 비밀을 얻게 해 준다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Corbado의 블로그 아티클 "Passkeys &amp; WebAuthn PRF for End-to-End Encryption"은 이 확장의 동작 원리, 지원 현황, 활용 패턴을 정리한 실무 지향 해설로, 2025년 4월 초판 이후 지속 갱신되고 있다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. 본 리포트는 해당 아티클을 분석 대상으로 삼되 그대로 요약하지 않는다. 아티클의 개별 주장을 검증 가능한 클레임으로 분해한 뒤, W3C/FIDO 1차 사료, 브라우저 벤더 문서, 상용 구현체의 공개 코드와 이슈 트래커, 학술 논문으로 각각을 교차 검증하고, 아티클과 다른 결론에 도달한 지점을 명시한다.</p>
+<h2>배경: WebAuthn, 패스키, CTAP2 hmac-secret</h2>
+<p>WebAuthn은 확장(extension) 메커니즘을 통해 기본 인증 셀레머니에 부가 기능을 얹을 수 있게 설계됐다. PRF 확장(확장 식별자 <code>prf</code>)은 W3C WebAuthn Level 3 스펙 §10.1.4에 정의된 클라이언트 확장이다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Chromium 프로젝트가 2023년 blink-dev의 Intent-to-Ship을 거쳐 가장 먼저 출하했고, 당시 Dashlane과 1Password가 지지 의견을 냈다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<p>PRF 확장은 무에서 만들어진 것이 아니라, FIDO CTAP2 프로토콜에 이미 존재하던 hmac-secret 확장을 웹 API로 노출하는 표준화 계층이다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. hmac-secret은 본래 "컴퓨터에 로그인할 때 보안 키가 로컬 저장소를 복호화할 수 있게" 하려고 설계된 확장으로<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, Microsoft 역시 Windows의 오프라인 시나리오(네트워크 없이 Microsoft 계정으로 로그인)를 가능하게 하는 기능으로 문서화해 왔다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 인증기는 크리덴셜별 내부 비밀(credRandom)과 클라이언트가 제공한 salt에 대해 HMAC-SHA-256을 계산해 32바이트 비밀을 돌려준다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p>한편 패스키의 등장으로 크리덴셜 자체가 iCloud Keychain, Google Password Manager 같은 클라우드 패브릭을 통해 기기 간 동기화되기 시작했다. 동기화 패스키에서는 PRF의 기반 비밀도 크리덴셜과 함께 프로바이더 인프라에 저장·동기화되므로, "동기화 패스키의 보안은 주로 패스키 프로바이더에 집중된다"는 학술적 지적이 PRF 파생 키에도 그대로 적용된다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<h2>PRF 확장 기술 분석</h2>
+<h3>API 형태와 평가 시점</h3>
+<p>RP(relying party)는 <code>navigator.credentials.get()</code> 호출 시 <code>extensions.prf.eval</code>에 <code>first</code>(필수)와 <code>second</code>(선택) 두 salt를 넣어 평가를 요청한다. 응답의 <code>getClientExtensionResults().prf.results</code>에 salt당 32바이트 출력이 담긴다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. <code>evalByCredential</code>을 쓰면 credential ID별로 서로 다른 salt를 지정할 수 있는데, 스펙은 이를 <code>allowCredentials</code>가 비어 있지 않을 때만 허용한다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 등록(<code>create()</code>) 시점의 평가도 스펙상 가능해 등록과 동시에 출력을 받을 수 있지만, MDN이 지적하듯 "크리덴셜 생성 시 출력 생성을 지원하는 인증기는 더 적다"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 미지원 환경에서는 <code>enabled: true</code>만 확인하고 등록 직후 <code>get()</code>을 한 번 더 수행해 첫 출력을 받는 것이 통용되는 우회다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<h3>도메인 분리: 컨텍스트 해싱</h3>
+<p>PRF 확장의 가장 중요한 설계 결정은 웹이 제공한 salt를 hmac-secret에 그대로 넘기지 않는다는 점이다. 클라이언트(브라우저)는 <code>actualSalt = SHA-256(UTF8Encode("WebAuthn PRF") || 0x00 || developerSalt)</code>를 계산해 인증기에 전달한다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. 익스플레이너는 이를 "PRF 평가점을 고정 접두사로 해싱해 PRF 공간을 분할(partition)"하는 조치로 설명한다 — 운영체제 네이티브 계층에서 hmac-secret을 이미 쓰고 있는 애플리케이션(예: 디스크 복호화)의 출력을 웹 페이지가 재현할 수 없게 만드는 것이다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. 이 변환 덕분에 플랫폼은 기존 네이티브 HMAC 오라클을 명시적 opt-in 없이 웹에 노출하지 않게 된다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 1Password의 오픈소스 <code>passkey-rs</code> 라이브러리에는 이 계층이 그대로 드러나 있어, WebAuthn <code>prf</code> 입력을 받아 해싱한 뒤 CTAP2 <code>hmac_secret</code> 기계에 넘기는 구조와, 이미 해싱된 입력을 받는 Windows 특화 <code>prf_already_hashed</code> 변형을 모두 확인할 수 있다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<h3>UV 여부에 따른 출력 분기</h3>
+<p>CTAP 계층에서 인증기는 크리덴셜당 두 개의 비밀 — credRandomWithUV와 credRandomWithoutUV — 을 보유하며, 해당 셀레머니에서 사용자 검증(PIN·생체)이 수행됐는지에 따라 어느 쪽으로 HMAC을 계산할지 결정한다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. 따라서 같은 salt라도 UV 유무가 다르면 다른 출력이 나온다. E2EE 용도로 PRF를 쓰는 RP가 <code>userVerification</code> 요구 수준을 일관되게 유지해야 하는 이유가 여기에 있다 _(unverified — single source)_<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<h3>두 개의 salt와 키 회전</h3>
+<p>두 salt 입력은 키 회전을 한 번의 셀레머니로 처리하기 위한 장치다. 서버가 "현재" 평가점과 "다음" 평가점을 무작위로 생성해 두 키를 동시에 받아내면, 재암호화 기간에도 사용자 경험을 끊지 않고 자동 키 회전이 가능하다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Yubico는 이를 "단일 사용자 인증 이벤트에서 같은 키로부터 서로 다른 두 비밀을 유도"하는 명시적 설계 목표로 문서화한다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<h3>출력에서 암호화 키까지</h3>
+<p>PRF 출력은 그 자체로 최종 키가 아니라 입력 키 재료(IKM)로 취급하는 것이 권장 패턴이다. SimpleWebAuthn 저자 Matthew Miller의 선구적 데모와 Yubico 가이드 모두 WebCrypto의 HKDF-SHA-256으로 목적 구속(purpose-bound) 대칭 키를 유도한 뒤 AES-GCM으로 암복호화하는 흐름을 제시한다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. 실무 아키텍처의 표준형은 봉투 암호화(envelope encryption)다: 데이터는 무작위 DEK로 암호화하고, 각 등록 크리덴셜의 PRF 유도 키(KEK)로 DEK를 랩핑해 두면, 등록된 어떤 패스키로도 같은 볼트를 열 수 있고 크리덴셜 추가·폐기도 DEK 재암호화 없이 처리된다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. 최근 학술 작업들도 같은 구성을 채택한다 — MFKDF2는 PRF 확장을 다중 인자 키 유도의 한 인자로 편입했고<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, SUDP는 크리덴셜별 salt로 독립 랩핑 키를 만드는 에이전트 위임 프로토콜을 설계했다<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</p>
+<h2>플랫폼·브라우저 지원 현황 (2026-07 기준)</h2>
+<p>지원 매트릭스는 이 주제에서 가장 빨리 부패하는 정보다. 아래는 1차 소스로 확인된 이정표이며, 세부 버전 경계는 변동 가능성이 있다.</p>
+<p><strong>보안 키(로밍 인증기).</strong> YubiKey 5 시리즈 등 CTAP2 hmac-secret을 구현한 하드웨어 키는 PRF의 원조 경로로, Chromium 계열 브라우저에서 가장 먼저(Chrome 116, 2023) 동작했다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. Bitwarden이 2025년 초 시점에 "PRF는 현재 Chromium 계열 브라우저에서 가용하며, 플랫폼 인증기 다수가 미지원이라 하드웨어 키가 주된 호환 수단"이라고 쓴 것이 당시 상황을 정확히 반영한다<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>.</p>
+<p><strong>Apple.</strong> WebKit은 Safari 18.0에서 "패스키로부터 사용자 데이터 암호화용 대칭 키를 꺼내는 WebAuthn prf 확장" 지원을 공식 발표했다(macOS 15, iOS/iPadOS 18)<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. iCloud Keychain 패스키가 대상이며, iOS/iPadOS에서 외부 보안 키로는 확장 데이터가 전달되지 않는다 — "Apple의 현행 iOS/iPadOS WebAuthn 구현은 로밍 인증기와의 확장 데이터 교환을 지원하지 않는다"는 것이 Yubico의 공식 서술이다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. 초기 릴리스에는 실질적 함정이 있었다. iOS 18.0–18.3에서 크로스 디바이스 인증(하이브리드/QR)으로 같은 패스키를 쓰면 로컬 평가와 다른 PRF 값이 반환되는 버그가 있었고, Apple 개발자 포럼에서 "18.4/macOS 15.4 베타에서 수정"이 확인됐다<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. PRF 값이 달라진다는 것은 그 값으로 암호화해 둔 데이터를 열 수 없다는 뜻이므로, Corbado는 이를 데이터 손실 버그로 분류한다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. macOS Safari의 CTAP2 보안 키 경로에도 결함이 있었다: WebKit이 hmac-secret 응답을 복호화하지 않은 채 그대로 돌려줘 크로스 브라우저 호환이 깨지는 버그(311099)로, Corbado 아티클(2026-05 수정판)은 이를 미해결로 기록했으나<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>, WebKit Bugzilla는 본 조사 시점에 수정 완료(Safari Technology Preview 241에서 동작 확인)로 표시하고 있다<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. 두 서술의 차이는 아티클 스냅샷 이후 수정이 반영된 결과로 보이며, 안정판 Safari 전파 시점은 별도 확인이 필요하다.</p>
+<p><strong>Android.</strong> Google Password Manager에 저장되는 패스키는 PRF를 기본 지원하며, 이 때문에 Android가 가장 넓고 일관된 지원을 제공한다는 것이 Corbado의 평가다 _(vendor-stated)_<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. Chromium의 출하 노트도 Android를 초기 지원 플랫폼으로 포함하되 "Android 14의 일부 (서드파티) 패스키 프로바이더는 hmac_secret 미지원일 수 있다"는 단서를 남겼다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Google 1차 문서에서 "모든 GPM 패스키의 PRF 지원"을 명시한 페이지는 확인하지 못했다. Android용 Firefox는 데스크톱과 달리 PRF를 지원하지 않는다<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p><strong>Windows.</strong> Windows Hello는 오랫동안 hmac-secret 능력 자체가 없어 플랫폼 인증기 PRF의 최대 공백이었다. 2024년 4월 Microsoft Q&amp;A에 올라온 지원 요청("Bitwarden 같은 패스워드 매니저가 암호화에 필요로 한다")에 공식 로드맵 답변이 없었던 것이 당시 상태를 보여준다<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. 전환점은 Windows 11 25H2다: 2026년 2월 누적 업데이트가 Windows Hello에 hmac-secret을 패치했고(Corbado는 KB5077181, 빌드 26200.7840+로 특정)<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>, 플랫폼 API가 WEBAUTHN_API_VERSION_8로 올라가면서 생성·인증 양 시점의 PRF가 노출됐다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. 독립 확인도 존재한다: Bitwarden 이슈 트래커의 2026년 3월 보고는 Windows 11 25H2(빌드 26200.8117)+Chrome 147 환경에서 Windows Hello 등록이 <code>prfEnabled: true, prfValueOnCreation: true</code>를 반환함을 보여주고, "Chrome 147 이상에서만 테스트 가능"이라는 브라우저 측 경계도 함께 기록한다<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>. Firefox는 148+에서 이 경로를 지원한다고 Corbado는 서술한다 _(unverified — single source)_<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p><strong>서드파티 크리덴셜 매니저.</strong> 1Password는 2024년 7월 자사 저장 패스키의 PRF 지원을 발표했고(Android 베타 8.10.38, 브라우저 확장 베타 2.26.1, iOS 18)<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>, 구현을 오픈소스 <code>passkey-rs</code>로 공개했다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Bitwarden 문서는 "브라우저와 인증기 양쪽 모두 PRF 지원이어야 한다"는 실무 제약과 함께 "Chrome은 PRF 지원이지만 Chrome 프로필은 아니다", "Windows 10은 PRF 지원 패스키에 문제가 있는 것으로 알려져 있다" 같은 세부 함정을 나열한다<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>.</p>
+<p>요약하면, 2023년 "사실상 보안 키 전용"이던 PRF는 2026년 중반 현재 3대 플랫폼 인증기 모두에서 동작하는 단계에 도달했다. 다만 버전 경계(Chrome 147, Firefox 148, iOS 18.4, 25H2+KB)가 촘촘해서, 실서비스는 여전히 기능 감지와 폴백 설계를 전제해야 한다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>.</p>
+<h2>활용 사례와 생태계 채택</h2>
+<p><strong>패스워드 매니저의 마스터 패스워드 대체.</strong> 가장 성숙한 활용처다. Bitwarden은 PRF 대칭 키를 로컬에서 재생성해 계정 개인키 → 계정 암호화 키 순으로 복호화하는 체인을 문서화했고, "마스터 패스워드 없이 볼트를 복호화"하는 로그인 방식을 제공한다<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>. Dashlane은 Yubico와의 파트너십으로 이를 상용화했다 — "YubiKey로 인증뿐 아니라 마스터 패스워드 없는 볼트 암호화까지" 제공하며, PRF 유도 비밀이 최종 볼트 암복호화 키를 만드는 KDF의 핵심 입력이 된다<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>. 1Password도 저장 패스키를 통한 서비스 데이터 E2EE("패스키로 로그인하는 어떤 서비스든, 그 패스키가 1Password에 있으면 같은 패스키로 종단간 암호화를 할 수 있다")를 내놨다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<p><strong>브라우저 기반 E2EE 일반.</strong> RP가 로그인 셀레머니에서 크리덴셜별 고유 키를 유도해 서버에 암호문만 저장하는 패턴은 Miller의 2023년 데모 이래 표준 레시피(PRF → HKDF → AES-GCM)로 굳었다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 서버가 PRF 출력을 받지 않는 한, 저장 데이터는 해당 패스키로 인증한 사용자만 복호화할 수 있다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<p><strong>논커스터디얼 키 관리와 아이덴티티.</strong> PRF의 결정성은 시드 문구 없는 암호화폐 지갑, 분산 아이덴티티 비밀의 재유도 같은 영역으로 확장되고 있다. 공개 구현체로는 패스키 PRF만으로 계정을 생성·관리하는 브라우저 지갑 portkey-client, 동기화 패스키 PRF 출력에서 Nostr 아이덴티티 키를 결정적으로 유도하는 PoC 등이 있다 _(early signal)_<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup><sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>. 학술 쪽에서도 MFKDF2(다중 인자 키 유도의 PRF 인자화)<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>와 SUDP(에이전트 시스템에서 인증기 구속 키 유도)<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>가 PRF를 구성 요소로 채택해, 원저자들이 의도한 "인증과 비밀 방출의 결합"<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>이 인증 바깥의 프로토콜 설계로 번지는 흐름이 관찰된다.</p>
+<h2>보안 고려사항과 논의</h2>
+<p><strong>분실 = 영구 손실.</strong> PRF 유도 키로 암호화한 데이터는 그 패스키에 배타적으로 묶인다. Corbado와 Miller 모두 같은 경고를 반복한다: "패스키를 지우면 그 PRF로 보호된 데이터 전부에 영구히 접근 불능이 된다"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. 따라서 복구 설계는 선택이 아니라 전제다. 실무 해법은 봉투 암호화로 여러 크리덴셜(추가 패스키, 별도 보안 키, 오프라인 복구 코드)이 같은 DEK를 랩핑하게 하는 것이며<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>, Bitwarden·Dashlane의 상용 구현도 계정 복구 경로를 함께 유지한다<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup><sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>.</p>
+<p><strong>신뢰의 이동: 지식 비밀에서 동기화 패브릭으로.</strong> 마스터 패스워드를 PRF로 대체하는 것은 위협 모델의 교환이다. 지식 비밀의 위험(피싱, 재사용, 약한 엔트로피)은 제거되지만, 동기화 패스키의 경우 암호화 키 재료의 뿌리가 Apple/Google/1Password의 동기화 인프라로 이동한다. ICISSP 2025 연구가 정식화했듯 "동기화 패스키의 보안은 주로 패스키 프로바이더에 집중"되며, 이는 가용성(복구 용이)과 기밀성(프로바이더 침해 시 노출 면적) 사이의 구조적 트레이드오프다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 하드웨어 바운드 키(YubiKey)는 반대편 극단으로, 키 유출 면적은 최소지만 분실 리스크를 사용자가 전부 진다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. E2EE 설계자는 "어느 신뢰 모델의 PRF인가"를 구분해서 다뤄야 한다.</p>
+<p><strong>출력 취급 규율.</strong> PRF 출력이 서버로 전송되는 순간 E2EE 보장은 무너진다 — 확장의 존재 이유가 "지식 기반 비밀 없이 사용자 데이터를 암호화"하는 것이므로<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, 출력은 클라이언트 메모리에서만 소비되어야 한다. 스펙 설계도 이를 뒷받침한다: 평가에는 항상 WebAuthn 셀레머니(사용자 제스처)가 필요해 조용히 호출될 수 없고, PRF는 크리덴셜별로 격리되어 크리덴셜 간 상관관계 추적에 쓸 수 없다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. 반면 클라이언트 자체가 오염된 경우(악성 확장, XSS)에는 키 재료가 유출될 수 있다는 한계도 초기 분석부터 지적되어 왔다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+<p><strong>생태계 내부의 반대: "인증 크리덴셜로 사용자 데이터를 암호화하지 마라".</strong> PRF 기반 E2EE에는 표준 진영 내부의 공개된 반대가 존재하며, 이는 Corbado 아티클이 다루지 않는 지점이다. W3C WebAuthn Level 3 스펙 공동 편집자 Tim Cappalli는 2026년 2월 "인증에 쓰는 크리덴셜에 암호화까지 겹치면 그 크리덴셜을 잃을 때의 폭발 반경(blast radius)이 걷잡을 수 없이 커진다"며 패스키로 사용자 데이터를 암호화하는 관행을 중단하라고 촉구했다 — 사용자는 패스키를 로그인 도구로 인식하므로, 크리덴셜 매니저에서 패스키를 정리하는 행위가 암호화된 사진·메시지의 영구 파괴로 이어질 수 있음을 알지 못하고, Apple Passwords나 Google Password Manager는 삭제 시 그런 경고를 주지 않는다는 것이다<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>. 같은 맥락에서 SimpleWebAuthn 문서는 PRF를 "footgun"으로 규정하고 라이브러리 차원의 단순화 지원을 의도적으로 거부한다<sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup>. 주목할 점은 Cappalli도 PRF의 모든 용도를 부정하지는 않는다는 것이다 — 견고한 보호·복구 장치를 갖춘 크리덴셜 매니저의 볼트 잠금 해제는 "정당하고 더 내구성 있는 용도"로 인정한다<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>. 이 구분을 적용하면, Bitwarden·Dashlane류의 볼트 잠금 해제(§활용 사례)는 논쟁의 안전한 쪽에 있고, 일반 웹 서비스가 사용자 데이터를 PRF 유도 키로 직접 암호화하는 패턴이 논쟁의 중심에 있다.</p>
+<p><strong>"향상 기능이지 의존성이 아니다"라는 권고의 평가.</strong> Corbado는 지원 불균일을 이유로 PRF를 미션 크리티컬 기능의 필수 요건으로 삼지 말라고 권고한다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. 본 조사 결과 이 권고는 2026년 중반에도 타당하다. 3대 플랫폼이 모두 열렸음에도 (1) 버전 경계가 최근이라 구형 환경 비중이 크고, (2) Bitwarden 이슈가 보여주듯 지원 플랫폼 안에서도 브라우저·프로바이더 조합별 실패 모드가 남아 있으며<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup><sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>, (3) iOS CDA 버그처럼 "지원한다"는 매트릭스 뒤에 값 불일치라는 더 위험한 실패(조용한 데이터 손실)가 숨어 있었기 때문이다<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. 특히 세 번째 유형은 기능 감지로 걸러지지 않으므로, PRF 기반 암호화를 도입하는 서비스는 키 검증 절차(암호화 전에 알려진 평문으로 유도 키를 확인)와 대체 복구 경로를 함께 설계하는 것이 합리적이다.</p>
+<h2>한계 (Limitations)</h2>
+<ul>
+<li><strong>CTAP2.1 스펙 원문 미대조</strong>: FIDO Alliance의 CTAP2.1 스펙 HTML은 대용량으로 스크립트 페치가 잘려, credRandomWithUV/WithoutUV 등 hmac-secret의 규범 문구는 Yubico 기술 문서로 대체 확인했다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. 규범 세부(예: PIN/UV auth 프로토콜을 통한 salt 암호화)는 원문 재확인이 필요하다.</li>
+<li><strong>지원 매트릭스의 시효</strong>: 본 리포트의 버전 경계는 2026-07-03 스냅샷이다. WebKit 보안 키 버그처럼 조사 중에도 상태가 바뀐 항목이 있었으며<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>, 수개월 내 무효화될 수 있는 세부가 포함되어 있다.</li>
+<li><strong>단일 소스 항목</strong>: Windows KB5077181/빌드 경계, Firefox 148의 Windows PRF 지원, "모든 GPM 패스키 PRF 지원"은 Corbado 서술에 의존하며 본문에 해당 표기를 남겼다. Corbado의 "synced provider 100% PRF-on-create" 커뮤니티 테스트도 자사 데모 데이터로 독립 재현이 없다.</li>
+<li><strong>학술 레인 제약</strong>: arXiv/Semantic Scholar API가 요청 제한(429)으로 실패해 도메인 한정 웹 검색으로 폴백했다. PRF 확장 자체를 형식 분석한 논문은 확인하지 못했으며, 인접 주제(패스키 동기화 보안, PRF의 응용) 문헌으로 보완했다.</li>
+<li><strong>비공개 구현 세부</strong>: Apple/Google/Microsoft의 PRF 비밀 저장·동기화 내부 구조는 공개 문서가 없어 검증 범위 밖이다.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Colin Roberts, Vivek Nair, Dawn Song</span>. <a href="https://arxiv.org/abs/2509.05893">Wrangling Entropy: Next-Generation Multi-Factor Key Derivation, Credential Hashing, and Credential Generation Functions (MFKDF2)</a>. <span class="venue">arXiv:2509.05893, 2025</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-2"><span class="authors">W3C Web Authentication Working Group</span>. <a href="https://www.w3.org/TR/webauthn-3/#prf-extension">Web Authentication: An API for accessing Public Key Credentials Level 3 — §10.1.4 Pseudo-random function extension (prf)</a>. <span class="venue">W3C, 2025</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-3"><span class="authors">MDN contributors</span>. <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API/WebAuthn_extensions">Web Authentication extensions — prf</a>. <span class="venue">MDN Web Docs, 2026</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-4"><span class="authors">Vincent Delitz</span>. <a href="https://www.corbado.com/blog/passkeys-prf-webauthn">Passkeys &amp; WebAuthn PRF for End-to-End Encryption (2026)</a>. <span class="venue">Corbado Blog, 2026</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-5"><span class="authors">Adam Langley, Chromium project</span>. <a href="https://groups.google.com/a/chromium.org/g/blink-dev/c/iTNOgLwD2bI">Intent to Ship: WebAuthn PRF extension (blink-dev)</a>. <span class="venue">blink-dev mailing list, 2023</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-6"><span class="authors">W3C WebAuthn WG</span>. <a href="https://github.com/w3c/webauthn/blob/main/explainers/prf-extension.md">Explainer: PRF extension (WebAuthn)</a>. <span class="venue">GitHub w3c/webauthn, 2024</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-7"><span class="authors">Microsoft</span>. <a href="https://learn.microsoft.com/en-us/windows/security/identity-protection/hello-for-business/webauthn-apis">WebAuthn APIs for passwordless authentication on Windows</a>. <span class="venue">Microsoft Learn, 2025</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-8"><span class="authors">Yubico</span>. <a href="https://developers.yubico.com/WebAuthn/Concepts/PRF_Extension/CTAP2_HMAC_Secret_Deep_Dive.html">CTAP2 HMAC Secret Deep Dive</a>. <span class="venue">Yubico Developers, 2025</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-9"><span class="authors">Andre Büttner, Nils Gruschka</span>. <a href="https://arxiv.org/abs/2501.07380">Device-Bound vs. Synced Credentials: A Comparative Evaluation of Passkey Authentication</a>. <span class="venue">ICISSP 2025 (arXiv:2501.07380), 2025</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-10"><span class="authors">1Password</span>. <a href="https://1password.com/blog/encrypt-data-saved-passkeys">1Password can now encrypt data using your saved passkeys</a>. <span class="venue">1Password Blog, 2024</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-11"><span class="authors">1Password</span>. <a href="https://github.com/1Password/passkey-rs/blob/main/passkey-types/src/ctap2/extensions/prf.rs">1Password/passkey-rs · passkey-types/src/ctap2/extensions/prf.rs</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-12"><span class="authors">Yubico</span>. <a href="https://developers.yubico.com/WebAuthn/Concepts/PRF_Extension/Developers_Guide_to_PRF.html">Developer&#x27;s Guide to PRF — WebAuthn</a>. <span class="venue">Yubico Developers, 2025</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-13"><span class="authors">Matthew Miller</span>. <a href="https://blog.millerti.me/2023/01/22/encrypting-data-in-the-browser-using-webauthn/">Encrypting Data in the Browser Using WebAuthn</a>. <span class="venue">Matt&#x27;s Headroom, 2023</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-14"><span class="authors">Xiaohang Yu, Hejia Geng, Xinmeng Zeng, William Knottenbelt</span>. <a href="https://arxiv.org/abs/2604.24920">SUDP: Secret-Use Delegation Protocol for Agentic Systems</a>. <span class="venue">arXiv:2604.24920, 2026</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-15"><span class="authors">Bitwarden</span>. <a href="https://bitwarden.com/blog/prf-webauthn-and-its-role-in-passkeys/">PRF WebAuthn and its role in passkeys</a>. <span class="venue">Bitwarden Blog, 2025</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-16"><span class="authors">WebKit team</span>. <a href="https://webkit.org/blog/15865/webkit-features-in-safari-18-0/">WebKit Features in Safari 18.0</a>. <span class="venue">webkit.org, 2024</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-17"><span class="authors">Apple Developer Forums</span>. <a href="https://developer.apple.com/forums/thread/764730">Different PRF output when using platform authenticator vs cross-device (Apple Developer Forums)</a>. <span class="venue">Apple Developer Forums, 2025</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-18"><span class="authors">WebKit contributors</span>. <a href="https://bugs.webkit.org/show_bug.cgi?id=311099">WebKit Bug 311099 — PRF extension returns encrypted hmac-secret output for CTAP2 security keys</a>. <span class="venue">WebKit Bugzilla, 2026</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-19"><span class="authors">Mozilla</span>. <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Firefox/Releases/139">Firefox 139 release notes for developers</a>. <span class="venue">MDN, 2025</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-20"><span class="authors">Microsoft Q&amp;A</span>. <a href="https://learn.microsoft.com/en-us/answers/questions/4035587/windows-hello-support-for-webauthn-prf-extension">Windows Hello support for WebAuthn PRF extension — Microsoft Q&amp;A</a>. <span class="venue">Microsoft Learn Q&amp;A, 2024</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-21"><span class="authors">Bitwarden community</span>. <a href="https://github.com/bitwarden/clients/issues/19858">Unable to create/store a PRF-capable login-passkey with encryption on Windows Hello · bitwarden/clients #19858</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-22"><span class="authors">Bitwarden</span>. <a href="https://bitwarden.com/help/login-with-passkeys/">Log in with passkeys — Bitwarden Help</a>. <span class="venue">Bitwarden Help Center, 2026</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-23"><span class="authors">Yubico</span>. <a href="https://www.yubico.com/blog/goodbye-master-passwords-dashlane-and-yubico-enhance-credential-vault-encryption-and-login-with-yubikeys/">Goodbye master passwords: Dashlane and Yubico enhance credential vault encryption and login with YubiKeys</a>. <span class="venue">Yubico Blog, 2025</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-24"><span class="authors">Boole-Digital</span>. <a href="https://github.com/Boole-Digital/portkey-client">Boole-Digital/portkey-client — native crypto wallet using passkey PRF</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-25"><span class="authors">schjonhaug</span>. <a href="https://github.com/schjonhaug/nostr-passkey-poc">schjonhaug/nostr-passkey-poc — deterministic Nostr identity secrets from synced passkey PRF output</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-26"><span class="authors">Tim Cappalli</span>. <a href="https://blog.timcappalli.me/p/passkeys-prf-warning/">Please, please, please stop using passkeys for encrypting user data</a>. <span class="venue">Timbits (blog.timcappalli.me), 2026</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+      <li id="ref-27"><span class="authors">Matthew Miller</span>. <a href="https://simplewebauthn.dev/docs/advanced/prf">PRF — SimpleWebAuthn documentation</a>. <span class="venue">SimpleWebAuthn Docs, 2026</span>. <span class="accessed">접근일 2026-07-03.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-07-03 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
