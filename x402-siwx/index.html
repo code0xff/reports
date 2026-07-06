@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>x402 Sign-In with X (SIWX) 확장 — 메커니즘·구현·동작 분석 — Deepsearch</title>
+<meta name="description" content="CAIP-122 지갑 인증을 x402 결제 흐름에 결합하는 확장의 코드 수준 해부">
+<link rel="canonical" href="https://code0xff.github.io/reports/x402-siwx/">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="en" href="en/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="x402 Sign-In with X (SIWX) 확장 — 메커니즘·구현·동작 분석">
+<meta property="og:description" content="CAIP-122 지갑 인증을 x402 결제 흐름에 결합하는 확장의 코드 수준 해부">
+<meta property="og:url" content="https://code0xff.github.io/reports/x402-siwx/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="x402 Sign-In with X (SIWX) 확장 — 메커니즘·구현·동작 분석">
+<meta name="twitter:description" content="CAIP-122 지갑 인증을 x402 결제 흐름에 결합하는 확장의 코드 수준 해부">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="en/index.html" hreflang="en">English</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="GitHub에서 Deepsearch 보기" title="GitHub에서 Deepsearch 보기">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>x402 Sign-In with X (SIWX) 확장 — 메커니즘·구현·동작 분석</h1>
+    <p class="subtitle">CAIP-122 지갑 인증을 x402 결제 흐름에 결합하는 확장의 코드 수준 해부</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-07-06</span>
+      <span><strong>태그</strong> x402, siwx, caip-122, siwe, wallet-authentication, web3</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="x402-siwx.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>Sign-In-With-X(SIWX)는 x402 결제 프로토콜의 공식 확장으로, CAIP-122 표준에 기반한 체인 불가지론적 지갑 인증을 x402로 보호된 리소스에 결합한다. 본 리포트는 docs.x402.org의 SIWX 문서를 출발점으로, CAIP-122·EIP-4361·Sign-In-With-Solana 표준 원문과 x402-foundation/x402 모노레포의 TypeScript 구현 소스를 정독해 메커니즘과 동작을 코드 수준에서 재구성했다. 핵심 확인 사항은 다음과 같다. (1) SIWX는 402 응답에 서버가 담아 보내는 챌린지(fresh nonce, issuedAt, 도메인, 지원 체인)를 클라이언트가 지갑으로 서명해 <code>SIGN-IN-WITH-X</code> 헤더로 되돌려 보내는 서버↔클라이언트 확장이며, facilitator는 인증 경로에 관여하지 않는다. (2) 서명은 EVM에서 EIP-4361 메시지 + EIP-191/1271/6492 검증, Solana에서 SIWS 메시지 + Ed25519 검증으로 처리되고, 검증 성공 시 인증 전용 라우트는 즉시, 유료 라우트는 <code>SIWxStorage.hasPaid</code> 조회를 거쳐 접근이 부여된다. (3) 결제 이력은 정산 성공 후 훅이 facilitator가 반환한 payer 주소를 기록하는 방식으로 쌓인다. (4) 도메인 바인딩·5분 시간 경계·체인별 서명 분리는 기본 제공되지만, 논스 재사용 추적은 옵셔널이어서 기본 설정에서는 탈취된 헤더의 시간 창 내 재사용이 가능하다 — 이는 ERC-1271 크로스 계정 리플레이 같은 실제 사례가 보여준 서명 재사용 위험의 축소판으로, 프로덕션 배포는 영속 스토리지와 논스 추적을 함께 구현해야 한다. SIWX는 x402가 단발 결제 프로토콜에서 "결제 이력이 곧 세션"인 신원 계층으로 확장되는 신호이나, 확장 자체가 신규(2026)라 독립적 보안 리뷰와 채택 지표는 아직 없다.</p>
+  </section>
+
+  <main class="body">
+<h1>x402 Sign-In with X (SIWX) 확장: 메커니즘·구현·동작 분석</h1>
+<h2>서론</h2>
+<p>x402는 HTTP 402 Payment Required 상태 코드를 되살려 API 호출 단위의 스테이블코인 결제를 웹 요청 흐름에 심는 프로토콜로, Coinbase가 2025년 5월 공개했다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 프로토콜의 기본 단위는 "요청 1건 = 결제 1건"이다. 이 단순함은 AI 에이전트의 기계 간 결제에는 적합하지만, 사람이 쓰는 서비스의 자연스러운 기대 — 한 번 산 콘텐츠는 다시 볼 수 있어야 한다 — 와는 충돌한다. 또 하나의 공백은 결제가 필요 없는 지갑 인증이다: 리소스 서버가 "이 지갑의 주인"에게만 응답을 주고 싶을 때, x402 코어에는 그 수단이 없었다.</p>
+<p>Sign-In-With-X(SIWX) 확장은 이 두 공백을 메운다. 공식 문서의 정의로는 "CAIP-122를 구현한 체인 불가지론적 지갑 인증으로, 이전에 리소스를 결제한 지갑의 통제권을 증명해 재구매 없이 접근할 수 있게 한다"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 본 리포트는 이 문서를 요약하는 데 그치지 않고, (a) SIWX가 딛고 선 표준 계보(EIP-4361 → CAIP-122 → SIWS)를 원문으로 확인하고, (b) x402-foundation/x402 모노레포의 TypeScript 구현 전체(서버 챌린지 생성, 메시지 포매팅, 검증, 스토리지, 훅)를 정독해 "어떤 메커니즘으로 어떻게 구현되어 동작하는지"를 코드 수준에서 재구성하며, (c) SIWE/ERC-1271 계열에서 이미 보고된 서명 재사용 위험이 SIWX 설계에 어떻게 반영됐고 무엇이 남았는지 평가한다.</p>
+<h2>배경: x402 확장 모델과 지갑 인증 표준 계보</h2>
+<p><strong>x402와 확장 메커니즘.</strong> x402는 리소스 서버가 402 응답으로 결제 요구사항(<code>accepts</code>)을 선언하고, 클라이언트가 서명된 결제 페이로드를 헤더로 재제시하면, 서버가 facilitator를 통해 검증·정산하는 3자 구조다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 2025년 9월 Cloudflare와 Coinbase가 x402 재단 설립을 발표했고<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>, 2026년에는 Google·Stripe·Visa·Mastercard 등이 참여한 가운데 Linux Foundation 산하의 벤더 중립 표준으로 이관됐다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. x402 V2의 402 응답에는 코어 결제 흐름을 건드리지 않는 부가 기능을 선언하는 <code>extensions</code> 필드가 있으며, SIWX는 이 자리에 등재된 공식 확장 중 하나다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p><strong>지갑 인증 표준 계보.</strong> SIWX가 딛고 선 것은 세 층의 표준이다. 첫째, EIP-4361(Sign-In with Ethereum)은 domain, address, statement, uri, version, chain-id, nonce, issued-at 등의 필드를 가진 구조화 평문 메시지를 정의하고, EOA는 ERC-191(personal_sign)로 서명해야 하며(MUST) 컨트랙트 계정은 ERC-1271로 검증해야 한다(SHOULD)고 규정한다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 둘째, CAIP-122는 이를 체인 불가지론적으로 일반화한 ChainAgnostic 표준으로, 스스로를 "EIP-4361을 이 스펙의 특정 구현으로 만드는 일반화·추상화 작업"이라 규정하고, 각 체인 네임스페이스(CAIP-104)가 서명 알고리즘·type 문자열·서명 입력 생성 절차를 프로파일로 정의하도록 요구한다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. 셋째, Sign-In-With-Solana(SIWS)는 Phantom이 표준화한 Solana판으로, "EIP-4361을 모델로 하되 그 능력을 확장"했으며 기본 서명 타입은 Ed25519다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. SIWS 저장소 자체는 CAIP-122를 언급하지 않지만<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>, x402 문서는 SIWS를 CAIP-122 우산 아래의 solana 네임스페이스 구현으로 취급한다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> — 계보 서술의 이 미세한 차이는 본문 충돌로 기록해 둔다.</p>
+<p>같은 "SIWX"라는 이름을 쓰는 별개 구현도 있다. WalletConnect 후신인 Reown의 AppKit은 CAIP-122를 따르는 자체 SIWX 인터페이스(SIWE의 후속, Ethereum·Solana·Bitcoin 지원)를 제공한다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. x402의 SIWX 확장과 Reown SIWX는 같은 CAIP-122 기반이지만 프로토콜 표면(HTTP 402 확장 vs 지갑 연결 SDK)이 다른 독립 구현물이다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<h2>SIWX 메커니즘 분석</h2>
+<h3>전체 흐름</h3>
+<p>공식 문서가 요약하는 동작은 4단계다: (1) 서버가 402 응답의 <code>sign-in-with-x</code> 확장에 챌린지 파라미터를 담아 반환하고, (2) 클라이언트가 CAIP-122 메시지를 지갑으로 서명하고, (3) 서명 증명을 <code>SIGN-IN-WITH-X</code> HTTP 헤더로 전송하면, (4) 서버가 서명을 검증해 인증 전용 라우트이거나 지갑이 과거에 해당 리소스를 결제한 경우 접근을 부여한다. 이는 서버↔클라이언트 확장이며 "facilitator는 인증 흐름에 관여하지 않는다"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 결제 검증·정산을 facilitator에 위임하는 x402 코어와 달리, SIWX 검증은 리소스 서버 프로세스 안에서 끝난다(스마트 월렛 검증 시 RPC 호출만 예외)<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<h3>챌린지 생성 (서버)</h3>
+<p>TypeScript 구현의 <code>enrichSIWxPaymentRequiredResponse</code>가 챌린지 생성부다. 라우트가 고정 도메인/URI를 선언하지 않으면 요청 URL에서 도출하고, 지원 네트워크는 명시 옵션이 없을 때 해당 라우트의 결제 요구사항(<code>accepts[].network</code>)에서 중복 제거로 도출한다. 논스는 매 응답마다 <code>crypto.getRandomValues</code>로 16바이트를 뽑아 hex 인코딩한 fresh 값이고, <code>issuedAt</code>도 응답 시각으로 갱신되며, <code>expirationSeconds</code> 옵션이 있으면 <code>expirationTime</code>이 추가된다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. 챌린지에는 체인별 서명 타입을 명시한 <code>supportedChains</code> 배열(예: <code>{chainId: "eip155:8453", type: "eip191"}</code>)과 메시지 필드 스키마가 함께 실린다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 확장 등록 시 <code>dynamicInfoFields: ["nonce", "issuedAt", "expirationTime"]</code>로 선언되어, 이 세 필드는 캐시되지 않고 매 응답 갱신됨이 프로토콜 수준에서 표시된다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<h3>메시지 구성과 서명 (클라이언트)</h3>
+<p>클라이언트 확장은 402 응답에서 SIWX 확장을 감지하면, 등록된 signer들의 서명 타입(EVM이면 <code>eip191</code>, Solana면 <code>ed25519</code>)과 일치하는 첫 번째 체인을 <code>supportedChains</code>에서 골라 메시지를 구성한다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 메시지 포매팅은 체인 네임스페이스로 라우팅된다: <code>eip155:<em></code>는 <code>@signinwithethereum/siwe</code> 라이브러리의 <code>SiweMessage.prepareMessage()</code>로 EIP-4361 형식을(CAIP-2 chainId <code>eip155:8453</code>에서 숫자 8453을 추출해 사용), <code>solana:</em></code>는 SIWS 형식을 생성한다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 서명된 페이로드(메시지 필드 + address + signature + chainId + type)는 JSON 직렬화 후 Base64로 인코딩되어 <code>SIGN-IN-WITH-X</code> 헤더에 실린다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 클라이언트 훅은 서명 생성에 실패하면 조용히 반환해 일반 결제 흐름으로 폴백한다 — 문서 표현으로는 "SIWX 인증이 실패하면 결제로 폴백"이다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<h3>검증 파이프라인 (서버)</h3>
+<p>수신 측 검증은 2단 구조다. 1단계 <code>validateSIWxMessage</code>는 암호 검증 전의 필드 검증으로, 코드 기준 규칙은 다음과 같다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>:</p>
+<ul>
+<li><strong>도메인 바인딩</strong>: 페이로드의 <code>domain</code>이 서버 도메인의 hostname(EIP-4361 관례에 따라 포트 제외)과 정확히 일치해야 한다.</li>
+<li><strong>URI</strong>: 페이로드 <code>uri</code>가 기대 리소스의 origin으로 시작해야 한다.</li>
+<li><strong>시간 경계</strong>: <code>issuedAt</code>은 기본 5분(<code>DEFAULT_MAX_AGE_MS = 5 <em> 60 </em> 1000</code>) 이내의 과거여야 하고 미래이면 거부, <code>expirationTime</code>은 미래여야 하고, <code>notBefore</code>는 과거여야 한다.</li>
+<li><strong>논스</strong>: 옵셔널 <code>checkNonce</code> 콜백이 제공된 경우에만 재사용 검사를 수행한다.</li>
+</ul>
+<p>2단계 <code>verifySIWxSignature</code>는 체인 네임스페이스로 라우팅되는 암호 검증이다. EVM 경로는 페이로드 필드로 SIWE 메시지를 서버가 재구성한 뒤 서명을 검증하는데, verifier 옵션이 없으면 viem의 <code>verifyMessage</code>(EOA 전용, RPC 불필요)로, verifier(예: <code>publicClient.verifyMessage</code>)가 주어지면 EIP-1271(배포된 스마트 컨트랙트 지갑)과 EIP-6492(미배포 카운터팩추얼 지갑)까지 RPC 경유로 검증한다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. Solana 경로는 SIWS 메시지를 재구성하고 Base58 디코딩한 서명(64바이트)과 공개키(32바이트)로 tweetnacl의 Ed25519 검증을 수행한다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 서버가 메시지를 페이로드 필드에서 재구성한다는 점이 중요하다 — 클라이언트가 서명한 문자열을 그대로 믿는 것이 아니라, 검증을 통과한 필드 조합에서 파생된 메시지에 대해서만 서명이 성립하므로, 필드와 서명 대상의 불일치가 구조적으로 차단된다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<h3>접근 부여와 결제 이력</h3>
+<p>요청 훅의 최종 판정은 한 줄로 요약된다: <code>shouldGrant = isAuthOnly || storage.hasPaid(path, address)</code><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 라우트가 <code>accepts: []</code>로 선언된 인증 전용 라우트면 유효 서명만으로 접근을 부여하고(이때 결제망은 전혀 개입하지 않는다), 유료 라우트면 검증된 지갑 주소의 결제 이력을 조회한다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 결제 이력은 <code>createSIWxSettleHook</code>이 만든 <code>onAfterSettle</code> 훅이 쌓는다: 정산이 성공한 경우에만, facilitator의 정산 결과가 반환한 <code>payer</code> 주소를 리소스 경로(pathname)에 대해 <code>storage.recordPayment</code>로 기록한다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 즉 "결제 주체 식별"은 클라이언트 자기 신고가 아니라 정산 레이어의 산출물이며, 이후의 SIWX 인증은 같은 주소의 서명 증명과 이 기록을 대조하는 구조다.</p>
+<p><code>SIWxStorage</code> 인터페이스는 <code>hasPaid</code>/<code>recordPayment</code> 두 필수 메서드와 <code>hasUsedNonce</code>/<code>recordNonce</code> 두 옵셔널 메서드로 구성된다. 옵셔널 쌍은 반드시 함께 구현해야 하며, 하나만 구현하면 훅 생성 시점에 예외를 던진다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 기본 제공되는 <code>InMemorySIWxStorage</code>는 리소스→소문자화된 주소 집합의 Map으로, 개발·단일 인스턴스용이다. 프로덕션 다중 인스턴스 배포에는 영속 스토리지(데이터베이스, Redis 등) 구현이 요구된다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<h2>구현과 동작 (코드 수준)</h2>
+<p><strong>저장소 구조.</strong> SIWX는 x402-foundation/x402 모노레포에서 세 언어로 병행 구현되어 있다: TypeScript(<code>typescript/packages/extensions/src/sign-in-with-x/</code> — client/declare/encode/evm/fetch/hooks/message/parse/schema/server/sign/solana/storage/types/validate/verify), Python(<code>python/x402/extensions/sign_in_with_x/</code> — 동일 구성), Go(<code>go/v2/extensions/signinwithx</code>), 그리고 각 언어별 클라이언트·서버 예제가 <code>examples/</code> 아래에 있다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. 본 리포트의 코드 인용은 TypeScript 구현 기준이며, Go/Python은 문서 예제와 파일 트리로 존재를 확인했다 _(vendor-stated — 동작 동등성 미정독)_<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p><strong>서버 통합.</strong> 권장 경로는 확장 팩토리다. <code>createSIWxResourceServerExtension({ storage })</code>가 챌린지 생성(<code>enrichPaymentRequiredResponse</code>), 정산 후 기록(<code>hooks.onAfterSettle</code>), HTTP 요청 검증(<code>transportHooks.http.onProtectedRequest</code>)을 하나로 묶은 <code>ResourceServerExtension</code>을 반환하고, 라우트 선언에는 <code>declareSIWxExtension({ statement, expirationSeconds, ... })</code>을 넣는다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 인증 전용 라우트는 <code>accepts: []</code>에 확장 선언을 결합하되, 결제 요구사항이 없어 네트워크를 유추할 수 없으므로 <code>network</code> 옵션이 필수다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 저수준 제어가 필요하면 팩토리 대신 <code>createSIWxSettleHook</code>/<code>createSIWxRequestHook</code>을 기존 서버의 훅 포인트에 직접 붙일 수 있고, 완전 수동 경로(<code>parseSIWxHeader</code> → <code>validateSIWxMessage</code> → <code>verifySIWxSignature</code>)도 공개되어 있다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p><strong>클라이언트 통합.</strong> <code>createSIWxClientExtension({ signers: [...] })</code>는 등록된 signer들로 훅 배열을 만들어 순서대로 시도하고, 첫 성공의 헤더를 채택한다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. signer 타입 판별은 덕 타이핑이다: <code>signMessages</code>(복수형) 메서드나 Base58 형태의 publicKey가 있으면 Solana로, <code>0x</code> 접두 주소를 가지면 EVM으로 분류한다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. 멀티체인 클라이언트는 EVM·Solana signer를 함께 등록해 서버 챌린지의 <code>supportedChains</code>와 교차 매칭시킨다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 문서는 다중 체인 챌린지에서 "같은 nonce가 모든 체인에 공유되어 서로 다른 지갑으로 인증할 때의 리플레이를 방지한다"고 명시한다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p><strong>동작 시나리오.</strong> 종합하면 두 시나리오가 성립한다. (a) <em>결제 후 재접근</em>: 첫 요청 → 402 + SIWX 챌린지 → 클라이언트가 결제 선택 → 정산 성공 → settle 훅이 payer 기록 → 이후 요청에서 클라이언트가 SIWX 헤더 제시 → 검증 + <code>hasPaid</code> 통과 → 재결제 없이 200. (b) <em>인증 전용</em>: 402 + 챌린지(<code>accepts: []</code>) → 서명 제시 → 검증만으로 200. 두 경로 모두에서 클라이언트 확장은 SIWX 실패 시 자동으로 결제로 폴백하므로, SIWX는 코어 흐름을 깨지 않는 순수 부가 계층으로 동작한다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<h2>보안 분석</h2>
+<p><strong>설계에 반영된 방어.</strong> SIWX는 SIWE 계열이 축적한 방어를 대부분 상속한다. 도메인 바인딩은 "다른 서비스에서 받은 서명의 재사용"을 막는 EIP-4361의 핵심 요구("지갑 구현자는 scheme·domain 필드로 요청 출처를 검증해 피싱을 방지해야 한다(MUST)")를 서버 측 hostname 일치 검사로 구현했고<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>, 시간 경계(5분 maxAge + expiration/notBefore)와 매 응답 fresh nonce가 신선도를 강제하며<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>, 체인별 서명 알고리즘 분리가 크로스 체인 재사용을 차단한다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p><strong>남은 창: 논스 추적의 옵셔널성.</strong> 그러나 코드 기준으로, 논스 재사용 검사는 스토리지가 <code>hasUsedNonce</code>/<code>recordNonce</code>를 구현한 경우에만 수행된다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 기본 <code>InMemorySIWxStorage</code>는 이를 구현하지 않으므로, 기본 설정의 서버에서는 탈취된 <code>SIGN-IN-WITH-X</code> 헤더가 <code>issuedAt</code> 기준 5분 창 안에서 재사용될 수 있다. 문서도 이를 인지하고 "가로챈 SIWX 헤더의 재사용을 막으려면 두 메서드를 구현하라"고 권고하며, 미구현 시의 위험을 명시한다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. TLS가 전송 중 탈취를 막는 일반 환경에서 이 창의 실질 위험은 로그·프록시 등 배포 환경에 좌우되지만, EIP-4361이 논스를 "리플레이 방지를 위해 충분한 엔트로피로 세션마다 선택해야 한다(SHOULD)"고 둔 것과 비교하면<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, SIWX의 기본값은 스펙의 권고보다 느슨한 지점에 있다.</p>
+<p><strong>서명 재사용은 이론적 위험이 아니다.</strong> 인접 표준의 실사례가 이를 보여준다. 2023년 공개된 ERC-1271 서명 리플레이 취약점에서는, 같은 소유자가 여러 스마트 컨트랙트 계정(SCA)을 가질 때 애플리케이션이 계정 주소를 서명 대상에 포함하지 않으면 "동일 서명이 두 계정 모두에서 유효"해져, 하나의 permit 서명이 소유자의 모든 SCA에서 반복 청구될 수 있었다 — LightAccount, OKX SmartAccount, Kernel, Safe(EIP4337Fallback), Argent 등 다수 지갑과 Permit2, Cowswap, OpenSea 같은 애플리케이션이 영향권이었다<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. SIWX의 EIP-1271/6492 검증 경로도 같은 표준 위에 서 있으므로, 이 계열의 교훈 — 서명 대상에 컨텍스트(도메인, 계정, 논스)를 빠짐없이 바인딩하고 검증자가 이를 강제할 것 — 은 SIWX 배포자에게 그대로 유효하다. ERC-1271 스펙 자체도 "구현 컨트랙트가 서명 유효성을 보장할 책임이 있으며, 그렇지 않으면 파국적 결과가 예상된다"고 경고하고, <code>isValidSignature</code> 호출의 가스 상한 부재를 별도 위험으로 명시한다<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. EIP-6492 검증은 여기에 배포 시뮬레이션이 더해져, 검증자가 <code>STATICCALL</code>이 아닌 <code>CALL</code>을 요구받는 데서 오는 재진입 우려까지 상속한다<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</p>
+<p><strong>신뢰 모델의 이동.</strong> SIWX의 접근 판정은 "지갑 키 보유 = 결제 주체 = 접근 권한자"라는 등식 위에 서 있다. 이는 암호화폐 지갑 인증 일반의 속성으로, 지갑 인증 요인 분류 연구가 정식화하듯 블록체인에 대해 검증되는 인증 요인은 키 관리 체계에 보안이 집중된다<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. 지갑 키가 유출·양도되면 결제 이력에 결부된 접근권도 함께 넘어가며, 서버는 이를 구별할 수 없다. 또한 결제 이력 저장소는 리소스 서버 로컬 계약이므로(스토리지 인터페이스가 리소스 경로 문자열 기준), 서버 간 이력 공유, 재시작 내구성, 이력 만료 정책은 전적으로 구현자 몫이다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 인메모리 기본값으로 배포하면 서버 재시작이 곧 전체 고객의 "구매 기록 소실"이 된다는 점은 운영상 함정이다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<h2>논의</h2>
+<p><strong>세션 대안과의 비교.</strong> 결제 후 재접근 문제의 전통적 해법은 서버 발급 토큰(API 키, JWT 세션, 서명된 영수증)이다. SIWX의 차별점은 서버가 비밀을 발급·보관하지 않는다는 것이다 — 클라이언트가 이미 가진 지갑 키가 곧 재인증 수단이고, 결제 주체(정산 결과의 payer)와 접근 주체(서명 검증된 주소)가 같은 식별자로 묶인다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 이는 Web3 식별자를 기존 인증 프로토콜(OpenID Connect 등)과 잇는 학술 작업들이 지향하는 "지갑 = 자기 주권적 인증 수단" 노선과 정합적이다<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. 반면 대가도 명확하다: 세션 취소(revocation) 개념이 없고 — 결제 이력은 삭제 전까지 영구 유효 — 지갑 서명 UX가 매 세션마다 필요하며, 스마트 월렛 검증은 RPC 의존성을 서버에 끌어들인다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p><strong>x402 생태계에서의 위치.</strong> x402는 출시 6개월 만에 1억 건 이상의 결제를 처리했다고 밝혔고 _(vendor-stated)_<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, V2 스펙 정비와 Linux Foundation 이관(Google·Stripe·Visa 등 참여)으로 벤더 중립 표준화 단계에 들어섰다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. SIWX는 이 성숙 과정에서 나온 확장으로, 프로토콜이 "단발 결제"에서 "결제 이력을 상태로 갖는 세션·신원 계층"으로 확장되는 공식 신호라는 점에서 의미가 있다. 다만 이 해석에는 한계가 있다: SIWX를 실제로 켠 프로덕션 서비스의 공개 지표는 아직 없으며, 확장 자체에 대한 독립 보안 리뷰도 확인되지 않았다 _(early signal)_<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>x402 수준에서는 외부 보안 분석이 이미 존재하며, SIWX 평가에 직접 관련된다. Halborn의 2026년 분석은 "서버가 결제 증명을 single-use로 구성하지 않으면 공격자가 같은 결제로 리소스에 여러 번 접근할 수 있다"며 트랜잭션별 고유 논스와 짧은 만료 창을 권고했는데<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>, 이는 본 리포트가 지적한 SIWX 논스 추적의 옵셔널성과 정확히 같은 계열의 위험이다. GoPlus의 2025년 11월 감사는 x402 생태계 프로젝트들에서 과도한 승인, 서명 리플레이, 허니팟 등의 리스크를 실측으로 보고했고, 402bridge 브리지는 키 유출로 17,000 USDC 이상을 잃는 사고를 겪었다<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. 즉 "프로토콜 스펙은 견고하나 개별 구현·운영이 약한 고리"라는 패턴이 x402 생태계에서 이미 관찰되고 있으며, SIWX처럼 보안 속성의 최종 책임을 리소스 서버 구현자에게 넘기는 확장은 이 패턴에 특히 노출된다.</p>
+<p><strong>설계 트레이드오프 평가.</strong> SIWX 설계에서 가장 눈에 띄는 선택은 facilitator 비관여다. 결제 검증은 외부화하면서 인증 검증은 서버 로컬에 둔 것은, 인증이 결제와 달리 온체인 정산을 필요로 하지 않고 지연에 민감하기 때문으로 읽히지만, 그 대가로 리플레이 방지·이력 내구성 같은 보안 속성의 최종 책임이 개별 리소스 서버 구현자에게 넘어갔다. "안전한 기본값" 관점에서 보면 — 논스 추적 옵셔널, 인메모리 스토리지 기본 — 현재의 SIWX는 올바르게 쓰기 쉬운 라이브러리라기보다 올바르게 쓸 수 있는 라이브러리에 가깝고, 이 간극은 문서의 권고 사항을 읽지 않은 배포자에게 위험으로 남는다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<h2>한계 (Limitations)</h2>
+<ul>
+<li><strong>코드 정독 범위</strong>: TypeScript 구현만 정독했다. Go/Python 구현은 파일 트리와 문서 예제로 존재를 확인했으나 검증 규칙의 동등성은 미확인이다.</li>
+<li><strong>스냅샷 시효</strong>: 코드 인용은 2026-07-06의 main 브랜치 기준이다. SIWX는 x402 V2와 함께 정비된 신규 표면이라 필드·API가 변할 수 있다.</li>
+<li><strong>채택 데이터 부재</strong>: SIWX를 활성화한 프로덕션 리소스 서버의 공개 목록·지표를 확인하지 못했다. 생태계 서술은 x402 프로토콜 전체 지표(벤더 발표 기준, 독립 감사 없음)에 의존한다.</li>
+<li><strong>접근 제한 문헌</strong>: ACM DLT의 Web3 식별자 브리징 논문(10.1145/3719661)은 403으로 원문을 열람하지 못해 초록 수준으로만 인용했다. arXiv/Semantic Scholar API도 일부 요청 제한(429)으로 도메인 한정 웹 검색으로 폴백했다.</li>
+<li><strong>보안 분석의 성격</strong>: SIWX 자체에 대한 공개 취약점·감사 보고는 아직 없다. 본 리포트의 보안 분석은 스펙·코드 정독과 인접 표준(SIWE, ERC-1271)의 알려진 사례로부터의 유추이며, 실제 공격 가능성은 배포 환경에 따라 다르다.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Coinbase</span>. <a href="https://www.coinbase.com/developer-platform/discover/launches/x402">Introducing x402: a new standard for internet-native payments</a>. <span class="venue">Coinbase, 2025</span>. <span class="accessed">접근일 2026-07-06.</span> <span class="unverified">[접근 제한]</span></li>
+      <li id="ref-2"><span class="authors">x402 Foundation</span>. <a href="https://docs.x402.org/extensions/sign-in-with-x">Sign-In-With-X (SIWX) — x402 Documentation</a>. <span class="venue">docs.x402.org, 2026</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-3"><span class="authors">Cloudflare</span>. <a href="https://blog.cloudflare.com/x402/">Launching the x402 Foundation with Coinbase, and support for x402 transactions</a>. <span class="venue">Cloudflare Blog, 2025</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-4"><span class="authors">The Defiant</span>. <a href="https://thedefiant.io/news/infrastructure/coinbase-x402-payment-protocol-moves-to-linux-foundation">Coinbase&#x27;s x402 Payment Protocol Moves to Linux Foundation With Backing From Google, Stripe, and Visa</a>. <span class="venue">The Defiant, 2026</span>. <span class="accessed">접근일 2026-07-06.</span> <span class="unverified">[접근 제한]</span></li>
+      <li id="ref-5"><span class="authors">Wayne Chang, Gregory Rocco, Brantly Millegan, Nick Johnson, Oliver Terbu</span>. <a href="https://eips.ethereum.org/EIPS/eip-4361">ERC-4361: Sign-In with Ethereum</a>. <span class="venue">Ethereum Improvement Proposals, 2021</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-6"><span class="authors">Haardik, Sergey Ukustov, ChainAgnostic</span>. <a href="https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-122.md">CAIP-122: Sign in With X (SIWx)</a>. <span class="venue">Chain Agnostic Improvement Proposals, 2022</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-7"><span class="authors">Phantom</span>. <a href="https://github.com/phantom/sign-in-with-solana">Sign In With Solana (SIWS) — specification and reference implementation</a>. <span class="venue">GitHub, 2023</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-8"><span class="authors">Reown</span>. <a href="https://docs.reown.com/appkit/authentication/siwx/default">Sign In With X (SIWX) — Reown AppKit documentation</a>. <span class="venue">docs.reown.com, 2026</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-9"><span class="authors">x402 Foundation</span>. <a href="https://github.com/x402-foundation/x402/blob/main/typescript/packages/extensions/src/sign-in-with-x/verify.ts">x402-foundation/x402 · sign-in-with-x/verify.ts (chain-routed verification)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-10"><span class="authors">x402 Foundation</span>. <a href="https://github.com/x402-foundation/x402/blob/main/typescript/packages/extensions/src/sign-in-with-x/server.ts">x402-foundation/x402 · sign-in-with-x/server.ts (challenge enrichment)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-11"><span class="authors">x402 Foundation</span>. <a href="https://github.com/x402-foundation/x402/blob/main/typescript/packages/extensions/src/sign-in-with-x/hooks.ts">x402-foundation/x402 · sign-in-with-x/hooks.ts (settle/request/client hooks)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-12"><span class="authors">x402 Foundation</span>. <a href="https://github.com/x402-foundation/x402/blob/main/typescript/packages/extensions/src/sign-in-with-x/evm.ts">x402-foundation/x402 · sign-in-with-x/evm.ts (SIWE formatting and EVM verification)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-13"><span class="authors">x402 Foundation</span>. <a href="https://github.com/x402-foundation/x402/blob/main/typescript/packages/extensions/src/sign-in-with-x/validate.ts">x402-foundation/x402 · sign-in-with-x/validate.ts (message validation)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-14"><span class="authors">Alchemy</span>. <a href="https://www.alchemy.com/blog/erc-1271-signature-replay-vulnerability">ERC-1271 Signature Replay Vulnerability</a>. <span class="venue">Alchemy Blog, 2023</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-15"><span class="authors">Francisco Giordano, Matt Condon, Philippe Castonguay, et al.</span>. <a href="https://eips.ethereum.org/EIPS/eip-1271">ERC-1271: Standard Signature Validation Method for Contracts</a>. <span class="venue">Ethereum Improvement Proposals, 2019</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-16"><span class="authors">Ivo Georgiev, Agustin Aguilar</span>. <a href="https://eips.ethereum.org/EIPS/eip-6492">ERC-6492: Signature Validation for Predeploy Contracts</a>. <span class="venue">Ethereum Improvement Proposals, 2023</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-17"><span class="authors">Ivan Homoliak, Martin Perešíni</span>. <a href="https://arxiv.org/abs/2402.17659">SoK: Cryptocurrency Wallets — A Security Review and Classification based on Authentication Factors</a>. <span class="venue">arXiv:2402.17659, 2024</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-18"><span class="authors">ACM DLT authors</span>. <a href="https://dl.acm.org/doi/10.1145/3719661">Aggregating Digital Identities through Bridging: An Integration of Open Authentication Protocols for Web3 Identifiers</a>. <span class="venue">ACM Distributed Ledger Technologies, 2025</span>. <span class="accessed">접근일 2026-07-06.</span> <span class="unverified">[접근 제한]</span></li>
+      <li id="ref-19"><span class="authors">Halborn</span>. <a href="https://www.halborn.com/blog/post/x402-explained-security-risks-and-controls-for-http-402-micropayments">x402 Explained: Security Risks &amp; Controls for HTTP 402 Micropayments</a>. <span class="venue">Halborn Blog, 2026</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-20"><span class="authors">The Crypto Times</span>. <a href="https://www.cryptotimes.io/2025/11/17/goplus-security-highlights-key-risks-in-x402-crypto-projects/">GoPlus Security Audit Flags Key Risks in x402 Crypto Projects</a>. <span class="venue">cryptotimes.io, 2025</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-07-06 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

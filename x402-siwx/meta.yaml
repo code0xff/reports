@@ -1,0 +1,10 @@
+title: x402 Sign-In with X (SIWX) 확장 — 메커니즘·구현·동작 분석
+subtitle: CAIP-122 지갑 인증을 x402 결제 흐름에 결합하는 확장의 코드 수준 해부
+title_en: The x402 Sign-In with X (SIWX) Extension — Mechanism, Implementation, and Operation
+subtitle_en: A code-level dissection of the extension that attaches CAIP-122 wallet authentication to the x402 payment flow
+slug: x402-siwx
+lang: ko
+langs: [ko, en]
+date: 2026-07-06
+tags: [x402, siwx, caip-122, siwe, wallet-authentication, web3]
+status: ready
