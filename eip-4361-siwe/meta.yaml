@@ -1,0 +1,10 @@
+title: EIP-4361 (Sign-In with Ethereum) 표준 심층 분석
+subtitle: 스펙 규범·표준화 이력·생태계·보안 위험의 1차 사료 기반 재구성
+title_en: A Deep Dive into EIP-4361 (Sign-In with Ethereum)
+subtitle_en: A primary-source reconstruction of the spec's norms, standardization history, ecosystem, and security risks
+slug: eip-4361-siwe
+lang: ko
+langs: [ko, en]
+date: 2026-07-06
+tags: [eip-4361, siwe, ethereum, wallet-authentication, web3, identity]
+status: ready

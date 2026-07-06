@@ -1,0 +1,10 @@
+title: CAIP-122 (Sign in With X) — 체인 불가지론적 지갑 인증 표준 분석
+subtitle: 추상 데이터 모델·네임스페이스 프로파일·CACAO 스택과 구현 생태계의 1차 사료 분석
+title_en: CAIP-122 (Sign in With X) — The Chain-Agnostic Wallet Authentication Standard
+subtitle_en: A primary-source analysis of the abstract data model, namespace profiles, the CACAO stack, and the implementation ecosystem
+slug: caip-122
+lang: ko
+langs: [ko, en]
+date: 2026-07-06
+tags: [caip-122, siwx, caip, wallet-authentication, web3, identity, cacao]
+status: ready

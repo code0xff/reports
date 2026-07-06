@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CAIP-122 (Sign in With X) — The Chain-Agnostic Wallet Authentication Standard — Deepsearch</title>
+<meta name="description" content="A primary-source analysis of the abstract data model, namespace profiles, the CACAO stack, and the implementation ecosystem">
+<link rel="canonical" href="https://code0xff.github.io/reports/caip-122/en/">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="CAIP-122 (Sign in With X) — The Chain-Agnostic Wallet Authentication Standard">
+<meta property="og:description" content="A primary-source analysis of the abstract data model, namespace profiles, the CACAO stack, and the implementation ecosystem">
+<meta property="og:url" content="https://code0xff.github.io/reports/caip-122/en/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CAIP-122 (Sign in With X) — The Chain-Agnostic Wallet Authentication Standard">
+<meta name="twitter:description" content="A primary-source analysis of the abstract data model, namespace profiles, the CACAO stack, and the implementation ecosystem">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>CAIP-122 (Sign in With X) — The Chain-Agnostic Wallet Authentication Standard</h1>
+    <p class="subtitle">A primary-source analysis of the abstract data model, namespace profiles, the CACAO stack, and the implementation ecosystem</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-07-06</span>
+      <span><strong>Tags</strong> caip-122, siwx, caip, wallet-authentication, web3, identity, cacao</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="caip-122.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>CAIP-122 (Sign in With X, SIWx) is a CASA (Chain Agnostic Standards Alliance) standard that specifies, in a chain-agnostic way, how blockchain accounts authenticate and authorize with off-chain services. This report reconstructs CAIP-122 from primary sources: the specification itself, its foundational standards (CAIP-2, CAIP-10, CAIP-74/CACAO), the namespace profiles (eip155, solana, and peers), and the production implementations (Reown AppKit SIWX, the x402 SIWX extension, Ceramic did-session). Key findings: (1) CAIP-122 is an explicit generalization of EIP-4361 (Sign-In with Ethereum) — "making EIP-4361 a specific implementation of this specification" — separating an abstract data model from per-chain signing profiles, each of which MUST provide a signing algorithm, a type string, and a signing-input procedure. (2) A signed SIWx message can be serialized as a CAIP-74 CACAO (an IPLD-based capability object), turning an "event receipt of an authentication" into "a composable and replay-able authorization receipt," and combining with did:pkh to power production session systems such as Ceramic's did-session. (3) Generalization has a price: the nonce, mandatory (8+ alphanumeric) in EIP-4361, becomes an optional field in CAIP-122, and the security section thins to a domain-matching MUST, delegating detailed defenses to profiles and implementers. (4) The standard has sat in Review status since 2022 and namespace profiles cover only six chains, yet implementations (Reown, x402, Ceramic) are spreading without waiting for finalization — a textbook case of de facto standardization outrunning de jure.</p>
+  </section>
+
+  <main class="body">
+<h1>CAIP-122 (Sign in With X): The Chain-Agnostic Wallet Authentication Standard</h1>
+<h2>Introduction</h2>
+<p>Wallet-signature login was standardized on Ethereum as EIP-4361, but the web is not made of Ethereum alone. If Solana, Tezos, Stacks, and every other ecosystem grows its own sign-in convention, multi-chain services and wallets must maintain one authentication stack per chain. CAIP-122 answers that fragmentation, describing "how blockchain accounts should authenticate and authorize with off-chain services by signing a chain-agnostic message parameterized by scope, session details, and security mechanisms"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Its stated goal is unambiguous: "This work is meant to generalize and abstract the Sign in With Ethereum specification, thereby making EIP-4361 a specific implementation of this specification"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>This report analyzes CAIP-122 in four layers: (a) the CASA/CAIP system the standard stands on; (b) the abstract data model and the namespace-profile structure; (c) the upper stack leading to CACAO and did:pkh, and the real implementations; (d) what the generalization gained and what it gave up. EIP-4361 itself is analyzed in detail in the companion report (<code>eip-4361-siwe</code>).</p>
+<h2>Background: the CAIP System and the ChainAgnostic Standards Stack</h2>
+<p>CASA, which publishes CAIPs, is "a self-organized alliance of blockchain developers creating standards that support interoperability and facilitate communication between protocols, software, and companies," with proposals "debated, drafted, and published" in open working groups<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. CAIP-122 rests on three prior CAIPs. CAIP-2 — a Final standard — defines blockchain identifiers in <code>namespace:reference</code> form (e.g., <code>eip155:1</code>), solving the problem that "with an Ethereum chain ID you cannot reference e.g. a Bitcoin or Cosmos chain"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. CAIP-10 extends this into account identifiers; CAIP-122's account_address field is defined as the CAIP-10 address segment and its chain_id field as a CAIP-2 identifier<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Finally, CAIP-104 establishes the per-namespace profile system that gives each chain family a place to concretize common CAIPs in its own terms<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>That structure is CAIP-122's design language: the common part (what is signed) rises into an abstract data model; the chain-specific part (how it is signed and verified) descends into namespace profiles.</p>
+<h2>Analysis of the CAIP-122 Data Model</h2>
+<h3>The abstract data model</h3>
+<p>The mandatory fields of a CAIP-122 message are domain (RFC 4501 dnsauthority), account_address (a CAIP-10 segment), chain_id (CAIP-2), uri (RFC 3986), version, type (a namespace-defined signature type), and signature<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Optional fields are statement (no newlines), nonce, issued-at, expiration-time, not-before, request-id, and resources<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Human readability of the signing input is a normative concern: the spec provides a plaintext template with the same skeleton as EIP-4361 (<code>${domain} wants you to sign in with your <strong>blockchain</strong> account:</code> …) and states that "the string should be human-readable, so that the signing represents the fully-informed consent of a user"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>One normative difference stands out. In EIP-4361 the nonce is required, with its grammar pinned to at least eight alphanumeric characters<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>; in CAIP-122 the nonce — described as a "randomized token to prevent signature replay attacks" — is <strong>optional</strong><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The normative strength of replay defense dropped one level in the generalization. The implications are taken up in the Assessment section.</p>
+<h3>Namespace profile requirements</h3>
+<p>CAIP-122 requires each CAIP-104 namespace to provide three things (MUST) in an implementation profile: (1) a signing algorithm or a finite set of them; (2) a <code>type</code> string designating each algorithm; (3) a procedure for creating a signing input from the abstract data model — covering both how to sign and how to verify<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Two live profiles illustrate the structure.</p>
+<p>The <strong>eip155 profile</strong> designates ECDSA with types <code>eip191</code> (personal signatures) and <code>eip1271</code> (contract signatures), uses the EIP-4361 plaintext format as the signing input, and adopts "signature verification techniques from EIP-191 and EIP-1271 as specified as well as any additional steps specified in EIP-4361." The profile itself states that "EIP-4361 ... was the inspiration for CAIP-122" and that the document "highlights how EIP-4361 conforms with CAIP-122"<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<p>The <strong>solana profile</strong> proposes Ed25519 with type <code>solana:ed25519</code>, requiring that "the abstract data model must be converted into a string representation in an unambiguous format, and then the string converted to a byte array to be signed over," with verification against the Solana address — a base58-encoded Ed25519 public key<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. In the wallet ecosystem, Phantom-led Sign-In-With-Solana (SIWS) exists in parallel: the SIWS repository describes itself as "modeled after EIP-4361 ... but extends beyond its capabilities" while never referencing CAIP-122<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. In the solana namespace, then, the CASA profile and the wallet-led standard sit side by side, and practical implementations (e.g., x402's SIWX) treat the SIWS format as the implementation under the CAIP-122 umbrella<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p>As of July 2026, caip122 profiles exist for exactly six namespaces: arweave, eip155, solana, stacks, tezos, and xrpl<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. For a standard named chain-agnostic, coverage remains narrow, and the profile documents themselves are Draft-status<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<h3>CACAO: from signature to capability</h3>
+<p>CAIP-122's upper stack is CACAO (Chain-Agnostic CApability Object), defined by CAIP-74. A CACAO "represent[s] a chain-agnostic Object Capability (OCAP), created using CAIP-122, as an IPLD object," with a three-part structure — header (payload format: <code>caip122</code> or <code>eip4361</code>), payload (domain, issuer as did:pkh, audience, timestamps, nonce, resources), and signature (with type) — deterministically serialized with CBOR<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. In the spec's words, this creates "not just an event receipt of an authentication, but also a composable and replay-able authorization receipt": one signature becomes not a one-shot login proof but a portable, chainable authority object supporting delegation<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. That the CACAO header accepts <code>eip4361</code> directly is a telling detail of the two standards' practical compatibility<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<p>The production consumer of this stack is Ceramic's did-session. It treats a blockchain account as a DID of the form <code>did:pkh:&lt;chain_id&gt;:&lt;address&gt;</code>; after one wallet sign-in (SIWE/SIWx), a temporary browser session key acts for the user's DID under CACAO authorization — the library "supports did:pkh for blockchain accounts with Sign-In with Ethereum and CACAO for authorization," with sessions defaulting to one week and write-access resources explicitly scoped at authorization time<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. One wallet signature → a scoped, expiring delegated session: the pattern shows CAIP-122 was designed as the entrance to an authorization system, not merely a login standard.</p>
+<h2>Implementations and Ecosystem</h2>
+<p><strong>Reown AppKit SIWX.</strong> Reown, WalletConnect's successor, migrated AppKit's sign-in layer from a SIWE-specific configuration to CAIP-122-based SIWX — stating that "the Sign In With X feature is designed in accordance with the CAIP-122 standard," migrating siweConfig users from AppKit 1.5.0 onward, and supporting Ethereum, Solana, and Bitcoin<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. The default sign-in layer of the largest wallet-connection SDK family declaring CAIP-122 conformance is the weightiest adoption signal available.</p>
+<p><strong>The x402 SIWX extension.</strong> SIWX, an official extension of the HTTP 402 payment protocol x402, "implements CAIP-122 for chain-agnostic wallet authentication" for x402-protected resources — repeat access for wallets with payment history and auth-only routes. EVM signs the EIP-4361 format and Solana the SIWS format, with servers verifying via chain-appropriate algorithms<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. A payment protocol filling its session layer with CAIP-122 shows the standard's reach extending beyond login screens into machine-to-machine protocols.</p>
+<p><strong>Ceramic did-session.</strong> As covered above, the decentralized data network Ceramic has used CAIP-122-family sign-in and CACAO as its default session infrastructure for years<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<p>What the three implementations share: all adopted the standard while it remains in Review. CAIP-122's status has not changed since its creation in June 2022 and update in July 2022<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h2>Assessment and Discussion</h2>
+<p><strong>What the abstraction gained.</strong> CAIP-122's separation — common data model plus per-chain profiles — reduces adding a new chain to the problem of writing one profile document. In practice the eip155 profile amounted to re-declaring the existing EIP-4361<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, and the solana profile only had to define the signing algorithm and byte-conversion rule<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. On the implementation side there is evidence the abstraction yields real code reuse: Reown binds three chains under one interface<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>, and x402 routes verifiers by chain-namespace prefix<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p><strong>What it gave up.</strong> The cost is a downward leveling of normative strength. The nonce becoming optional is the emblematic case<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. CAIP-122's security section is terse, centered on "Wallet implementers MUST prevent phishing attacks by matching on the domain term when processing a signing request"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>; the detailed norms EIP-4361 spelled out — the wallet's mandatory field display, binding sessions to the address, channel security (HTTPS), session invalidation on ERC-1271 state changes — are absent at the abstract layer<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The actual security level therefore depends on choices by profile authors and implementers. Implementations tend to behave more strictly than the spec (x402's SIWX, for instance, generates a fresh nonce for every challenge<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>), but that is implementers' good practice, not a guarantee of the standard.</p>
+<p><strong>Implementers' public criticism.</strong> Implementer feedback sits as open issues in the standard's own repository. In 2024 Pedro Gomes, the architect of WalletConnect, pointed at the single-chain design: "if you would like to authenticate yourself with SIWx for multiple chains then you need to sign multiple messages," arguing that in a multi-chain-by-default Web3, "if a user wants to authenticate for chain A, B and C then it should sign a single message rather than 3 messages" — wildcard and ReCap alternatives were discussed but remain unresolved<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. Contemporaneous implementer feedback reported a required/optional mismatch on the resources field between CAIP-122 and EIP-4361<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>; as of July 2026 the main-branch field table marks resources optional, suggesting the text was amended after the report. That a Review-status standard's norms move without version markers is itself a practical cost of the "diffusion without finalization" discussed next<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p><strong>De jure vs. de facto standardization.</strong> CAIP-122 has been in Review for four years and its profiles cover six namespaces<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>, yet the implementation ecosystem above it has already moved. The gap reads two ways: positively — the direction was right enough that no one needed to wait for finalization; negatively — once implementations harden around an unfinalized norm, future spec revisions (say, making the nonce mandatory) become practically impossible. Either way, services adopting CAIP-122 should recognize that "standard conformance" does not automatically include EIP-4361-level security norms, and the safe course is to adopt EIP-4361's additional steps explicitly, as the eip155 profile does<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<p><strong>Position in the identity stack.</strong> The combination with CACAO and did:pkh makes CAIP-122 a bridge to the W3C DID world<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Wallet signatures becoming the root authority of DID sessions — together with the SIWE-OIDC bridge covered in the companion report — forms the two paths by which wallet authentication is being absorbed into existing identity infrastructure (OIDC and DID). If CAIP-122's role is the chain-agnostic abstraction, holding the security floor remains the job of each profile and implementation.</p>
+<h2>Limitations</h2>
+<ul>
+<li><strong>No quantitative adoption metrics</strong>: we could not quantify usage of Reown AppKit or Ceramic did-session (app counts, session counts). Adoption statements rest on official conformance declarations.</li>
+<li><strong>CAIP-10 not directly examined</strong>: CAIP-10 was confirmed indirectly through CAIP-122's field definitions and the CAIP-2 text.</li>
+<li><strong>Not an exhaustive profile review</strong>: of the six profiles, only eip155 and solana were read closely; the normative quality of the arweave, stacks, tezos, and xrpl profiles is unverified.</li>
+<li><strong>No academic literature</strong>: we found no peer-reviewed paper analyzing CAIP-122 (a new, niche standard). The analysis rests on close reading of primary sources.</li>
+<li><strong>Implementations' nonce handling not exhaustively verified</strong>: the "implementations stricter than spec" tendency rests on a limited sample (x402 SIWX); Reown's and Ceramic's nonce policies were not verified at code level.</li>
+<li><strong>Snapshot staleness</strong>: standard status and the profile list are as of 2026-07-06.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Haardik, Sergey Ukustov</span>. <a href="https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-122.md">CAIP-122: Sign in With X (SIWx)</a>. <span class="venue">ChainAgnostic CAIPs, 2022</span>. <span class="accessed">Accessed 2026-07-06.</span></li>
+      <li id="ref-2"><span class="authors">CASA</span>. <a href="https://chainagnostic.org/">Chain Agnostic Standards Alliance (CASA)</a>. <span class="venue">chainagnostic.org, 2026</span>. <span class="accessed">Accessed 2026-07-06.</span></li>
+      <li id="ref-3"><span class="authors">Simon Warta, Pedro Gomes, et al.</span>. <a href="https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md">CAIP-2: Blockchain ID Specification</a>. <span class="venue">ChainAgnostic CAIPs, 2019</span>. <span class="accessed">Accessed 2026-07-06.</span></li>
+      <li id="ref-4"><span class="authors">ChainAgnostic contributors</span>. <a href="https://github.com/ChainAgnostic/namespaces">ChainAgnostic/namespaces — per-namespace CAIP profiles</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-07-06.</span></li>
+      <li id="ref-5"><span class="authors">Wayne Chang, Gregory Rocco, Brantly Millegan, Nick Johnson, Oliver Terbu</span>. <a href="https://eips.ethereum.org/EIPS/eip-4361">ERC-4361: Sign-In with Ethereum</a>. <span class="venue">Ethereum Improvement Proposals, 2021</span>. <span class="accessed">Accessed 2026-07-06.</span></li>
+      <li id="ref-6"><span class="authors">ChainAgnostic namespaces contributors</span>. <a href="https://github.com/ChainAgnostic/namespaces/blob/main/eip155/caip122.md">eip155 namespace — CAIP-122 profile</a>. <span class="venue">ChainAgnostic namespaces, 2023</span>. <span class="accessed">Accessed 2026-07-06.</span></li>
+      <li id="ref-7"><span class="authors">ChainAgnostic namespaces contributors</span>. <a href="https://github.com/ChainAgnostic/namespaces/blob/main/solana/caip122.md">solana namespace — CAIP-122 profile</a>. <span class="venue">ChainAgnostic namespaces, 2023</span>. <span class="accessed">Accessed 2026-07-06.</span></li>
+      <li id="ref-8"><span class="authors">Phantom</span>. <a href="https://github.com/phantom/sign-in-with-solana">Sign In With Solana (SIWS) — specification and reference implementation</a>. <span class="venue">GitHub, 2023</span>. <span class="accessed">Accessed 2026-07-06.</span></li>
+      <li id="ref-9"><span class="authors">x402 Foundation</span>. <a href="https://docs.x402.org/extensions/sign-in-with-x">Sign-In-With-X (SIWX) — x402 Documentation</a>. <span class="venue">docs.x402.org, 2026</span>. <span class="accessed">Accessed 2026-07-06.</span></li>
+      <li id="ref-10"><span class="authors">Sergey Ukustov, Haardik</span>. <a href="https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-74.md">CAIP-74: CACAO — Chain-Agnostic Capability Object</a>. <span class="venue">ChainAgnostic CAIPs, 2022</span>. <span class="accessed">Accessed 2026-07-06.</span></li>
+      <li id="ref-11"><span class="authors">Ceramic/3Box Labs</span>. <a href="https://did.js.org/docs/api/modules/did_session/">did-session — DID session key management (Ceramic js-did)</a>. <span class="venue">did.js.org, 2025</span>. <span class="accessed">Accessed 2026-07-06.</span></li>
+      <li id="ref-12"><span class="authors">Reown</span>. <a href="https://docs.reown.com/appkit/authentication/siwx/default">Sign In With X (SIWX) — Reown AppKit documentation</a>. <span class="venue">docs.reown.com, 2026</span>. <span class="accessed">Accessed 2026-07-06.</span></li>
+      <li id="ref-13"><span class="authors">pedrouid (Pedro Gomes)</span>. <a href="https://github.com/ChainAgnostic/CAIPs/issues/262">Supporting multiple chains with CAIP-122 · ChainAgnostic/CAIPs #262</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">Accessed 2026-07-06.</span></li>
+      <li id="ref-14"><span class="authors">bumblefudge</span>. <a href="https://github.com/ChainAgnostic/CAIPs/issues/264">Implementer Feedback: CAIP-122&lt;&gt;EIP-4361 mismatch · ChainAgnostic/CAIPs #264</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">Accessed 2026-07-06.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-07-06. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

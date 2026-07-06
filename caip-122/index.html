@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CAIP-122 (Sign in With X) — 체인 불가지론적 지갑 인증 표준 분석 — Deepsearch</title>
+<meta name="description" content="추상 데이터 모델·네임스페이스 프로파일·CACAO 스택과 구현 생태계의 1차 사료 분석">
+<link rel="canonical" href="https://code0xff.github.io/reports/caip-122/">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="en" href="en/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="CAIP-122 (Sign in With X) — 체인 불가지론적 지갑 인증 표준 분석">
+<meta property="og:description" content="추상 데이터 모델·네임스페이스 프로파일·CACAO 스택과 구현 생태계의 1차 사료 분석">
+<meta property="og:url" content="https://code0xff.github.io/reports/caip-122/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CAIP-122 (Sign in With X) — 체인 불가지론적 지갑 인증 표준 분석">
+<meta name="twitter:description" content="추상 데이터 모델·네임스페이스 프로파일·CACAO 스택과 구현 생태계의 1차 사료 분석">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="en/index.html" hreflang="en">English</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="GitHub에서 Deepsearch 보기" title="GitHub에서 Deepsearch 보기">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>CAIP-122 (Sign in With X) — 체인 불가지론적 지갑 인증 표준 분석</h1>
+    <p class="subtitle">추상 데이터 모델·네임스페이스 프로파일·CACAO 스택과 구현 생태계의 1차 사료 분석</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-07-06</span>
+      <span><strong>태그</strong> caip-122, siwx, caip, wallet-authentication, web3, identity, cacao</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="caip-122.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>CAIP-122(Sign in With X, SIWx)는 블록체인 계정이 오프체인 서비스에 인증·인가하는 방법을 체인 불가지론적으로 규정한 CASA(Chain Agnostic Standards Alliance) 표준이다. 본 리포트는 CAIP-122 원문과 그 기반 표준(CAIP-2, CAIP-10, CAIP-74/CACAO), 네임스페이스 프로파일(eip155, solana 등), 그리고 실제 구현(Reown AppKit SIWX, x402 SIWX 확장, Ceramic did-session)을 1차 사료로 재구성했다. 핵심 확인 사항은 다음과 같다. (1) CAIP-122는 EIP-4361(Sign-In with Ethereum)을 "자신의 특정 구현으로 만드는" 명시적 일반화로, 추상 데이터 모델과 체인별 서명 프로파일을 분리한다 — 각 네임스페이스는 서명 알고리즘, type 문자열, 서명 입력 생성 절차를 MUST로 제공해야 한다. (2) 서명된 SIWx 메시지는 CAIP-74의 CACAO(IPLD 기반 캐퍼빌리티 오브젝트)로 직렬화되어 "인증 영수증"을 넘어 "합성 가능하고 재생 가능한 인가 영수증"이 되며, did:pkh와 결합해 Ceramic did-session 같은 프로덕션 세션 시스템을 구동한다. (3) 그러나 일반화에는 대가가 있다: EIP-4361에서 필수(8자 이상)였던 nonce가 CAIP-122에서는 선택 필드로 내려갔고, 보안 섹션도 도메인 매칭 MUST 중심으로 간결해져 세부 방어는 프로파일과 구현자에게 위임됐다. (4) 표준 자체는 2022년 이후 Review 상태에 머물러 있고 네임스페이스 프로파일은 6개 체인에 그치지만, 구현(Reown, x402, Ceramic)은 표준 확정을 기다리지 않고 확산 중이다 — 사실상의 표준화가 문서상의 표준화를 앞지르는 전형적 사례다.</p>
+  </section>
+
+  <main class="body">
+<h1>CAIP-122 (Sign in With X): 체인 불가지론적 지갑 인증 표준 분석</h1>
+<h2>서론</h2>
+<p>지갑 서명 로그인은 이더리움에서 EIP-4361로 표준화됐지만, 웹은 이더리움만으로 이루어져 있지 않다. Solana, Tezos, Stacks 등 각 생태계가 저마다의 사인인 관행을 만들면, 다중 체인을 지원하려는 서비스와 지갑은 체인 수만큼의 인증 코드를 유지해야 한다. CAIP-122는 이 파편화에 대한 응답으로, "블록체인 계정이 스코프·세션 세부·보안 장치로 매개변수화된 체인 불가지론적 메시지를 서명해 오프체인 서비스에 인증·인가하는 방법"을 규정한다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 스스로 밝히는 목표는 명확하다: "이 작업은 Sign in With Ethereum 스펙을 일반화·추상화해, EIP-4361을 이 스펙의 특정 구현으로 만들기 위한 것이다"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>본 리포트는 CAIP-122를 네 겹으로 분석한다: (a) 표준이 서 있는 CASA/CAIP 체계, (b) 추상 데이터 모델과 네임스페이스 프로파일 구조, (c) CACAO·did:pkh로 이어지는 상위 스택과 실제 구현들, (d) 일반화 과정에서 얻은 것과 잃은 것. EIP-4361 자체의 상세 분석은 자매 리포트(<code>eip-4361-siwe</code>)에서 다룬다.</p>
+<h2>배경: CAIP 체계와 ChainAgnostic 표준 스택</h2>
+<p>CAIP를 발행하는 CASA는 "프로토콜·소프트웨어·회사 간 상호운용성과 소통을 뒷받침하는 표준을 만드는 블록체인 개발자들의 자기 조직적 연합"이며, 제안은 공개 워킹그룹에서 "토론·초안·발행"된다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. CAIP-122가 딛고 선 기반은 세 개의 선행 CAIP다. CAIP-2는 블록체인 자체의 식별자를 <code>namespace:reference</code> 형식(예: <code>eip155:1</code>)으로 정의한 Final 표준으로, "이더리움 체인 ID로는 비트코인이나 코스모스 체인을 지칭할 수 없다"는 문제를 푼다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. CAIP-10은 여기에 계정 주소를 결합한 계정 식별자이며, CAIP-122의 account_address 필드는 CAIP-10의 주소 세그먼트로, chain_id 필드는 CAIP-2 식별자로 정의된다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 마지막으로 CAIP-104가 네임스페이스별 프로파일 문서 체계를 규정해, 각 체인 계열이 공통 CAIP를 자기 방식으로 구체화할 자리를 만든다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>이 구조가 CAIP-122의 설계 언어다: 공통 부분(무엇을 서명하는가)은 추상 데이터 모델로 올리고, 체인 고유 부분(어떻게 서명·검증하는가)은 네임스페이스 프로파일로 내린다.</p>
+<h2>CAIP-122 데이터 모델 분석</h2>
+<h3>추상 데이터 모델</h3>
+<p>CAIP-122 메시지의 필수 필드는 domain(RFC 4501 dnsauthority), account_address(CAIP-10 세그먼트), chain_id(CAIP-2), uri(RFC 3986), version, type(네임스페이스가 정의한 서명 타입), signature다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. statement(개행 금지), nonce, issued-at, expiration-time, not-before, request-id, resources는 선택 필드다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 서명 입력의 사람 가독성은 규범적 관심사다 — 스펙은 EIP-4361과 같은 골격의 평문 템플릿(<code>${domain} wants you to sign in with your <strong>blockchain</strong> account:</code> …)을 제시하며 "서명이 사용자의 충분한 정보에 근거한 동의를 나타내도록 문자열은 사람이 읽을 수 있어야 한다"고 명시한다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>주목할 규범 차이가 하나 있다. EIP-4361에서 nonce는 필수이며 최소 8자 영숫자로 문법까지 규정되지만<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, CAIP-122에서 nonce는 "서명 리플레이 공격을 막기 위한 무작위 토큰"이라는 설명과 함께 <strong>선택</strong> 필드다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 일반화 과정에서 리플레이 방어의 규범 강도가 한 단계 내려간 것이다. 이 함의는 §평가에서 다룬다.</p>
+<h3>네임스페이스 프로파일 요구</h3>
+<p>CAIP-122는 각 CAIP-104 네임스페이스가 구현 프로파일로 세 가지를 MUST로 제공하도록 요구한다: (1) 서명 알고리즘(복수 가능), (2) 각 알고리즘을 지정하는 type 문자열, (3) 추상 데이터 모델에서 서명 입력을 만드는 절차 — 서명 방법과 검증 방법을 포함해서<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 실제 프로파일 두 개가 이 구조를 보여준다.</p>
+<p><strong>eip155 프로파일</strong>은 ECDSA 서명에 type <code>eip191</code>(개인 서명)과 <code>eip1271</code>(컨트랙트 서명)을 지정하고, 서명 입력은 EIP-4361과 동일한 평문 형식을 쓰며, "EIP-191·EIP-1271에 명시된 검증 기법과 EIP-4361에 명시된 추가 단계"를 그대로 채택한다. 프로파일 스스로 "EIP-4361이 CAIP-122의 영감이었고, 이 문서는 EIP-4361이 CAIP-122에 어떻게 부합하는지 보여준다"고 밝힌다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<p><strong>solana 프로파일</strong>은 Ed25519 서명에 type <code>solana:ed25519</code>를 제안하고, 추상 모델을 "모호하지 않은 형식의 문자열 표현으로 변환한 뒤 바이트 배열로 변환해 서명"하도록 규정한다. 검증에는 base58 인코딩된 Ed25519 공개키인 Solana 주소를 쓴다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 한편 지갑 생태계에는 Phantom이 주도한 Sign-In-With-Solana(SIWS)가 병렬로 존재하는데, SIWS 저장소는 "EIP-4361을 모델로 하되 그 능력을 확장"했다고 밝히면서도 CAIP-122는 언급하지 않는다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. 즉 solana 네임스페이스에서는 CASA 프로파일과 지갑 주도 표준이 나란히 있고, 실무 구현(예: x402 SIWX)은 SIWS 형식을 CAIP-122 우산 아래의 구현으로 취급한다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p>2026년 7월 기준 caip122 프로파일이 존재하는 네임스페이스는 arweave, eip155, solana, stacks, tezos, xrpl 여섯 개다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. 체인 불가지론이라는 이름에 비해 커버리지는 아직 좁고, 프로파일 문서들 자체도 Draft 상태다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<h3>CACAO: 서명에서 캐퍼빌리티로</h3>
+<p>CAIP-122의 상위 스택은 CAIP-74가 정의하는 CACAO(Chain-Agnostic CApability Object)다. CACAO는 "CAIP-122로 생성된 체인 불가지론적 오브젝트 캐퍼빌리티(OCAP)를 IPLD 오브젝트로 표현"하며, 헤더(페이로드 형식: <code>caip122</code> 또는 <code>eip4361</code>)·페이로드(도메인, did:pkh 형식의 발급자, 대상, 타임스탬프, 논스, 리소스)·서명(type 포함)의 3부 구조로 CBOR 직렬화된다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. 스펙의 표현을 빌리면 이는 "인증의 이벤트 영수증일 뿐 아니라, 합성 가능하고 재생 가능한 인가 영수증"이다 — 서명 한 번이 일회성 로그인 증거가 아니라, 체이닝·위임 가능한 이식성 있는 권한 오브젝트가 된다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. CACAO 헤더가 <code>eip4361</code>을 그대로 수용한다는 점은 두 표준의 실질적 호환성을 보여주는 세부다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<p>이 스택의 프로덕션 소비자가 Ceramic의 did-session이다. 블록체인 계정을 <code>did:pkh:&lt;chain_id&gt;:&lt;address&gt;</code> 형식의 DID로 취급하고, 사용자가 지갑으로 한 번 사인인(SIWE/SIWx)하면 CACAO 인가를 통해 브라우저의 임시 세션 키가 사용자의 DID를 대행한다 — "did:pkh를 Sign-In with Ethereum과 CACAO 인가와 함께 지원"하며 기본 세션은 1주일, 쓰기 접근 리소스는 인가 시점에 명시적으로 스코프된다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 지갑 서명 1회 → 스코프·만료가 있는 위임 세션이라는 이 패턴은, CAIP-122가 단순 로그인 표준이 아니라 인가 체계의 입구로 설계됐음을 보여준다.</p>
+<h2>구현과 생태계</h2>
+<p><strong>Reown AppKit SIWX.</strong> WalletConnect의 후신 Reown은 AppKit의 사인인 기능을 SIWE 전용 설정에서 CAIP-122 기반 SIWX로 이행시켰다 — "Sign In With X 기능은 CAIP-122 표준에 따라 설계됐다"고 명시하며, AppKit 1.5.0 이후 기존 siweConfig 사용자를 SIWX로 마이그레이션하고 Ethereum·Solana·Bitcoin을 지원한다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. 지갑 연결 SDK 최대 계열의 기본 사인인 계층이 CAIP-122 준거를 선언했다는 점은 채택 신호 중 가장 무겁다.</p>
+<p><strong>x402 SIWX 확장.</strong> HTTP 402 결제 프로토콜 x402의 공식 확장 SIWX는 "x402 보호 리소스에 대한 CAIP-122 지갑 인증"을 구현해, 결제 이력이 있는 지갑의 재접근과 인증 전용 라우트를 제공한다. EVM은 EIP-4361 형식, Solana는 SIWS 형식으로 서명하고 서버가 체인별 알고리즘으로 검증한다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 결제 프로토콜이 세션 계층을 CAIP-122로 채웠다는 점에서, 표준의 적용 범위가 "로그인 화면"을 넘어 기계 간 프로토콜로 확장되고 있음을 보여준다.</p>
+<p><strong>Ceramic did-session.</strong> 위 §CACAO에서 본 대로, 분산 데이터 네트워크 Ceramic은 CAIP-122 계열 사인인과 CACAO를 세션 인프라의 기본으로 수년째 사용해 왔다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<p>세 구현의 공통점은 모두 표준이 Review 상태인 채로 채택했다는 것이다. CAIP-122는 2022년 6월 생성·같은 해 7월 갱신 이후 상태가 바뀌지 않았다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h2>평가와 논의</h2>
+<p><strong>추상화의 득.</strong> CAIP-122의 분리 설계 — 공통 데이터 모델 + 체인별 프로파일 — 는 새 체인 추가를 프로파일 문서 하나의 문제로 축소한다. 실제로 eip155 프로파일은 기존 EIP-4361을 사실상 재선언하는 것으로 충분했고<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, solana 프로파일은 서명 알고리즘과 바이트 변환 규칙만 새로 정의했다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 구현 쪽에서도 Reown이 세 체인을 한 인터페이스로 묶고<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>, x402가 체인 네임스페이스 프리픽스로 검증기를 라우팅하는<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> 등, 추상화가 실질 코드 재사용으로 이어진 증거가 있다.</p>
+<p><strong>추상화의 실.</strong> 대가는 규범 강도의 하향 평준화다. nonce가 선택 필드가 된 것이 대표적이다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. CAIP-122의 보안 섹션은 "지갑 구현자는 서명 요청 처리 시 domain 항을 대조해 피싱 공격을 방지해야 한다(MUST)"를 중심으로 간결하며<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, EIP-4361이 명시하던 지갑의 필드 표시 의무, 세션의 주소 바인딩, 채널 보안(HTTPS), ERC-1271 상태 변화 시 세션 무효화 같은 세부 규범이 추상 계층에는 없다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 결과적으로 보안 속성의 실제 수준은 프로파일 작성자와 구현자의 선택에 좌우된다. 실무 구현들이 스펙보다 엄격하게 동작하는 경향은 있으나(예: x402 SIWX는 매 챌린지마다 fresh nonce를 생성한다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>), 이는 표준이 보장하는 바가 아니라 구현의 선의다.</p>
+<p><strong>구현자들의 공개 비판.</strong> 표준 저장소 자체에 구현자 피드백이 이슈로 남아 있다. WalletConnect 설계자 Pedro Gomes는 2024년 "SIWx로 여러 체인에 인증하려면 여러 메시지를 서명해야 한다"며, 멀티체인이 기본값이 된 Web3에서 "사용자가 체인 A·B·C에 인증하려면 세 번이 아니라 한 번 서명해야 한다"고 단일 체인 설계의 한계를 지적했다 — 와일드카드·ReCap 등 대안이 논의됐으나 미해결 상태다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. 같은 시기 또 다른 구현자 피드백은 resources 필드의 필수/선택이 CAIP-122와 EIP-4361 간에 불일치한다고 보고했는데<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>, 2026년 7월 현재 main 브랜치 필드 표에서 resources는 선택으로 표기되어 있어 보고 이후 본문이 수정된 것으로 보인다. Review 상태 표준의 규범이 버전 표기 없이 움직인다는 것 자체가, 아래에서 논할 "확정 없는 확산"의 실무 비용을 보여준다<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p><strong>문서상 표준화 vs 사실상 표준화.</strong> CAIP-122는 4년째 Review 상태이고 프로파일은 6개 네임스페이스에 그치지만<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>, 그 위의 구현 생태계는 이미 움직였다. 이 간극은 두 가지로 읽을 수 있다. 표준의 방향이 옳아서 확정을 기다릴 필요가 없었다는 긍정적 독해와, 규범이 확정되지 않은 채 구현이 굳어지면 향후 스펙 개정(예: nonce 필수화)이 사실상 불가능해진다는 부정적 독해다. 어느 쪽이든, CAIP-122를 채택하는 서비스는 "표준 준수"가 EIP-4361 수준의 보안 규범을 자동으로 포함하지 않음을 인지하고, eip155 프로파일처럼 EIP-4361의 추가 단계를 명시적으로 채택하는 것이 안전하다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<p><strong>정체성 스택에서의 위치.</strong> CACAO·did:pkh와의 결합은 CAIP-122를 W3C DID 세계와 잇는 다리로 만든다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 지갑 서명이 DID 세션의 루트 권한이 되는 이 구성은, 자매 리포트에서 본 SIWE-OIDC 브리지와 함께, 지갑 인증이 기존 신원 인프라(OIDC, DID)에 흡수되는 두 갈래 경로를 이룬다. 체인 불가지론적 추상화를 맡는 것이 CAIP-122의 역할이라면, 그 보안 하한을 지키는 것은 여전히 각 프로파일과 구현의 몫이다.</p>
+<h2>한계 (Limitations)</h2>
+<ul>
+<li><strong>채택 정량 지표 부재</strong>: Reown AppKit·Ceramic did-session의 사용 규모(앱 수, 세션 수)를 정량 확인하지 못했다. 채택 서술은 공식 문서의 준거 선언에 근거한 정성 판단이다.</li>
+<li><strong>CAIP-10 원문 미직접 대조</strong>: CAIP-10은 CAIP-122 원문의 필드 정의와 CAIP-2 원문을 통해 간접 확인했다.</li>
+<li><strong>프로파일 전수 검토 아님</strong>: 6개 프로파일 중 eip155·solana만 정독했다. arweave·stacks·tezos·xrpl 프로파일의 규범 품질은 미확인이다.</li>
+<li><strong>학술 문헌 부재</strong>: CAIP-122를 단독 분석한 피어리뷰 논문을 확인하지 못했다(신규·니치 표준). 분석은 1차 사료 정독에 기반한다.</li>
+<li><strong>구현의 nonce 처리 전수 미확인</strong>: "구현이 스펙보다 엄격한 경향"은 x402 SIWX 사례 등 제한된 표본에 근거하며, Reown·Ceramic의 nonce 정책은 코드 수준으로 확인하지 않았다.</li>
+<li><strong>스냅샷 시효</strong>: 표준 상태·프로파일 목록은 2026-07-06 기준이다.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Haardik, Sergey Ukustov</span>. <a href="https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-122.md">CAIP-122: Sign in With X (SIWx)</a>. <span class="venue">ChainAgnostic CAIPs, 2022</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-2"><span class="authors">CASA</span>. <a href="https://chainagnostic.org/">Chain Agnostic Standards Alliance (CASA)</a>. <span class="venue">chainagnostic.org, 2026</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-3"><span class="authors">Simon Warta, Pedro Gomes, et al.</span>. <a href="https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-2.md">CAIP-2: Blockchain ID Specification</a>. <span class="venue">ChainAgnostic CAIPs, 2019</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-4"><span class="authors">ChainAgnostic contributors</span>. <a href="https://github.com/ChainAgnostic/namespaces">ChainAgnostic/namespaces — per-namespace CAIP profiles</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-5"><span class="authors">Wayne Chang, Gregory Rocco, Brantly Millegan, Nick Johnson, Oliver Terbu</span>. <a href="https://eips.ethereum.org/EIPS/eip-4361">ERC-4361: Sign-In with Ethereum</a>. <span class="venue">Ethereum Improvement Proposals, 2021</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-6"><span class="authors">ChainAgnostic namespaces contributors</span>. <a href="https://github.com/ChainAgnostic/namespaces/blob/main/eip155/caip122.md">eip155 namespace — CAIP-122 profile</a>. <span class="venue">ChainAgnostic namespaces, 2023</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-7"><span class="authors">ChainAgnostic namespaces contributors</span>. <a href="https://github.com/ChainAgnostic/namespaces/blob/main/solana/caip122.md">solana namespace — CAIP-122 profile</a>. <span class="venue">ChainAgnostic namespaces, 2023</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-8"><span class="authors">Phantom</span>. <a href="https://github.com/phantom/sign-in-with-solana">Sign In With Solana (SIWS) — specification and reference implementation</a>. <span class="venue">GitHub, 2023</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-9"><span class="authors">x402 Foundation</span>. <a href="https://docs.x402.org/extensions/sign-in-with-x">Sign-In-With-X (SIWX) — x402 Documentation</a>. <span class="venue">docs.x402.org, 2026</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-10"><span class="authors">Sergey Ukustov, Haardik</span>. <a href="https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-74.md">CAIP-74: CACAO — Chain-Agnostic Capability Object</a>. <span class="venue">ChainAgnostic CAIPs, 2022</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-11"><span class="authors">Ceramic/3Box Labs</span>. <a href="https://did.js.org/docs/api/modules/did_session/">did-session — DID session key management (Ceramic js-did)</a>. <span class="venue">did.js.org, 2025</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-12"><span class="authors">Reown</span>. <a href="https://docs.reown.com/appkit/authentication/siwx/default">Sign In With X (SIWX) — Reown AppKit documentation</a>. <span class="venue">docs.reown.com, 2026</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-13"><span class="authors">pedrouid (Pedro Gomes)</span>. <a href="https://github.com/ChainAgnostic/CAIPs/issues/262">Supporting multiple chains with CAIP-122 · ChainAgnostic/CAIPs #262</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+      <li id="ref-14"><span class="authors">bumblefudge</span>. <a href="https://github.com/ChainAgnostic/CAIPs/issues/264">Implementer Feedback: CAIP-122&lt;&gt;EIP-4361 mismatch · ChainAgnostic/CAIPs #264</a>. <span class="venue">GitHub, 2024</span>. <span class="accessed">접근일 2026-07-06.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-07-06 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
