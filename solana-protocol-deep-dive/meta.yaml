@@ -1,0 +1,10 @@
+title: Solana Protocol: A Detailed Technical Deep Dive
+subtitle: How Proof of History, Tower BFT, Gulf Stream, Turbine, and Sealevel combine into a single global state machine
+title_ko: 솔라나 프로토콜 상세 기술 심층 분석
+subtitle_ko: Proof of History, Tower BFT, Gulf Stream, Turbine, Sealevel이 하나의 글로벌 상태 머신으로 결합되는 방식
+slug: solana-protocol-deep-dive
+lang: en
+langs: [en, ko]
+date: 2026-07-22
+tags: [solana, consensus, proof-of-history, blockchain, distributed-systems]
+status: ready

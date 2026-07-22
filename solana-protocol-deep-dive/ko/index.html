@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>솔라나 프로토콜 상세 기술 심층 분석 — Deepsearch</title>
+<meta name="description" content="Proof of History, Tower BFT, Gulf Stream, Turbine, Sealevel이 하나의 글로벌 상태 머신으로 결합되는 방식">
+<link rel="canonical" href="https://code0xff.github.io/reports/solana-protocol-deep-dive/ko/">
+<link rel="alternate" hreflang="en" href="../index.html">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="솔라나 프로토콜 상세 기술 심층 분석">
+<meta property="og:description" content="Proof of History, Tower BFT, Gulf Stream, Turbine, Sealevel이 하나의 글로벌 상태 머신으로 결합되는 방식">
+<meta property="og:url" content="https://code0xff.github.io/reports/solana-protocol-deep-dive/ko/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="솔라나 프로토콜 상세 기술 심층 분석">
+<meta name="twitter:description" content="Proof of History, Tower BFT, Gulf Stream, Turbine, Sealevel이 하나의 글로벌 상태 머신으로 결합되는 방식">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../ko/index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="en">English</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="GitHub에서 Deepsearch 보기" title="GitHub에서 Deepsearch 보기">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../ko/index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>솔라나 프로토콜 상세 기술 심층 분석</h1>
+    <p class="subtitle">Proof of History, Tower BFT, Gulf Stream, Turbine, Sealevel이 하나의 글로벌 상태 머신으로 결합되는 방식</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-07-22</span>
+      <span><strong>태그</strong> solana, consensus, proof-of-history, blockchain, distributed-systems</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="solana-protocol-deep-dive.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>솔라나(Solana)는 단일 샤드 구조의 고처리량 레이어 1 블록체인으로, 그 설계의 핵심 베팅은 <em>검증 가능한 시계(verifiable clock)</em>가 고전적인 비잔틴 장애 허용(BFT) 원장의 처리량을 제한하는 "이벤트마다 발생하는 통신 비용"을 제거할 수 있다는 것이다. 솔라나는 상태를 여러 샤드로 분할하는 대신 하나의 글로벌 상태 머신을 운영하며, 검증자 하드웨어 성능에 비례해 확장된다. 이 보고서는 2017년 백서, 솔라나 랩스/안자(Anza) 문서, 개선 제안 문서 등 1차 자료로부터 프로토콜을 재구성하고, 각 메커니즘을 독립적인 기술 문헌과 대조한다. 순차적 SHA-256 시계로서의 Proof of History(PoH)<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, PoH에 고정된 PBFT 변형이자 지수적 투표 락아웃을 갖는 Tower BFT<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>, 멤풀 없는 전달을 수행하는 Gulf Stream<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>과 소거 부호화(erasure coding) 기반 블록 전파를 수행하는 Turbine<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>, 스테이크 가중 QoS를 적용한 QUIC 인그레스<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, 계정 모델과 Sealevel 병렬 런타임<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>, 그리고 수수료·소각·인플레이션 경제<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>까지 전체 파이프라인을 추적한다. 이어서 솔라나가 마케팅하는 처리량과 실제 지속 처리량 사이의 격차<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>, 전면적 네트워크 중단의 이력<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>, Firedancer와 검증자 하드웨어를 둘러싼 클라이언트 다양성 및 중앙화 논쟁<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>을 정면으로 다룬다. 마지막으로, Tower BFT와 PoH 기반 투표를 모두 폐기하도록 예정된 거버넌스 승인 합의 재작성인 Alpenglow(SIMD-0326)를 다룬다<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. 관통하는 주제는 의도된 트레이드오프다. 솔라나는 강력한 하드웨어와 영리한 순서화에 작업을 밀어넣어 지연 시간과 처리량을 사들이고, 그 대가를 운영상의 취약성과 하드웨어 기반 중앙화 압력으로 치른다.</p>
+  </section>
+
+  <main class="body">
+<h2>서론</h2>
+<p>솔라나는 대다수 동시대 프로젝트와 정반대 방향에서 블록체인 확장을 접근한다. 이더리움의 로드맵이 부하를 레이어 2 롤업과 (역사적으로는) 샤드로 분할하는 반면, 솔라나는 하나의 글로벌 상태 머신을 유지하고 각 검증자에게 더 높은 성능을 요구한다. 솔라나 랩스는 이 아키텍처를 하나의 대표 혁신이 아니라 여덟 가지 명명된 기술로 구성된 "최초의 웹 스케일 블록체인"으로 규정한다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 그 여덟 가지 — Proof of History, Tower BFT, Turbine, Gulf Stream, Sealevel, Pipelining, Cloudbreak, Archivers — 는 독립된 기능이 아니라, 백서가 지목한 단일 병목, 즉 <em>시간과 순서</em>에 대한 합의를 향한 협응된 공략으로 읽는 것이 가장 정확하다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>출처를 정확히 해 둘 가치가 있다. 브랜드화된 "8대 혁신" 목록은 사후에 발행된 솔라나 블로그의 마케팅 시기 서술이며, 2017년 백서 자체는 (PoH 생성기, 상태, 검증자 같은) 일반적 구성요소만 서술하고 후대의 제품명을 사용하지 않는다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 따라서 이 보고서는 백서를 Proof of History의 <em>메커니즘</em>에 대한 권위로, 블로그/문서 자료군을 <em>배포된 시스템</em>에 대한 권위로 취급한다.</p>
+<p>여기서 다루는 범위는 애플리케이션 생태계, 토큰 가격, 개발자 툴링이 아니라 프로토콜 그 자체 — 합의, 네트워킹, 실행, 경제 — 다. 어떤 주장이 벤더 자료에만 의존할 경우 그렇다고 명시하며, 독립적 증거가 마케팅과 배치될 경우 양쪽을 모두 제시한다.</p>
+<h2>배경: 설계 문제</h2>
+<p>백서의 출발점은 평범하지만 중대하다. 분산 노드에는 공유 시계가 없다. "각 노드는 대개 네트워크의 다른 참가자 시계를 알지 못한 채 자신의 로컬 시계에 의존"하므로, 메시지에 붙은 타임스탬프는 다른 참가자들이 그것을 동일하게 수락하거나 거부하리라는 보장을 제공하지 못한다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 원장에서 "이것이 언제, 어떤 순서로 일어났는가"는 바로 합의가 답해야 하는 질문이며, 전통적 BFT 시스템은 이를 메시지 교환으로 답한다 — 검증자 집합과 트랜잭션 처리율이 커질수록 통신 라운드는 처리량 상한이 된다.</p>
+<p>솔라나의 명제는, 노드들이 합의를 <em>실행하기 전에</em> 시간의 경과에 합의할 수 있다면 순서를 확립하기 위해 통신할 필요가 없고 검증만 하면 된다는 것이다. 백서는 PoH를 정확히 이 사전-합의 프리미티브로 위치시킨다. "작업 증명(PoW)이나 지분 증명(PoS) 같은 합의 알고리즘과 함께 사용될 때, PoH는 비잔틴 장애 허용 복제 상태 머신에서 메시징 오버헤드를 줄여 1초 미만의 파이널리티를 낼 수 있다"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 나머지 아키텍처는 신뢰 없는 시계를 주어진 것으로 삼는 데서 따라 나온다.</p>
+<h2>Proof of History와 검증 가능한 시계</h2>
+<p>Proof of History는 순차적 해시 체인이다. 임의의 값에서 시작해, 노드는 암호학적 해시 함수의 출력을 다음 입력으로 반복해서 되먹이며, 현재 출력과 함수가 호출된 횟수를 주기적으로 기록한다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. SHA-256의 출력은 실제로 함수를 실행하지 않고는 예측할 수 없으므로, 기록된 두 출력 사이의 반복 횟수는 그 사이에 일정량의 연산 — 따라서 실제 시간 — 이 경과했다는 증명이 된다. 솔라나 자신의 서술은 이를 "SHA-256 순차 해싱 검증 가능 지연 함수(VDF)"라고 부른다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>PoH를 단순한 해시 체인이 아니라 <em>시계</em>로 만드는 성질은 생성과 검증 사이의 비대칭성이다. 생성은 "이전 출력을 현재 입력으로 삼아 단일 코어에서 순차적으로 실행"되며 병렬화할 수 없다 — 단계 <em>n</em>은 단계 <em>n−1</em> 없이 계산할 수 없다. 반면 검증은 분할할 수 있어 "각 시퀀스 구간을 별도 코어에서 확인함으로써 외부 컴퓨터들이 병렬로 재계산하고 검증"할 수 있다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 한 기계가 실제 시간을 들여 시퀀스를 깔면, 네트워크의 나머지가 병렬로 확인한다. 솔라나가 붙인 "VDF" 라벨은 바로 이 지점에서 논쟁의 대상이다. 암호학자 Victor Shoup은 "proof of history는 사실 검증 가능 지연 함수(VDF)가 아니다. PoH 검증은 진짜 VDF의 검증과 달리 연산적으로 비싸기 때문"이라고 주장한다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> — 진짜 VDF(예: 반복 제곱)는 <em>간결한(succinct)</em> 검증을 허용하는 반면, PoH는 해싱 작업을 여러 코어에 분산할 뿐 여전히 다시 수행해야 한다. PoH는 엄밀한 암호학적 의미의 VDF라기보다, 시계로 사용되는 <em>순차 작업 증명(proof of sequential work)</em>으로 이해하는 편이 낫다. 트랜잭션과 이벤트를 이 시퀀스에 끼워 넣으면 모든 관찰자가 투표 없이 동일한 전체 순서를 얻는다.</p>
+<p>솔라나 마케팅에서 놓치기 쉬운 중요한 단서: PoH는 합의 메커니즘이 <em>아니다</em>. 그것은 합의가 그 위에 얹히는 순서·시간의 원천이다. 예컨대 리더 스케줄은 "PoH 틱 높이를 안정적 의사난수 알고리즘의 시드로" 사용하며, 어느 포크가 정본인지 결정하는 것은 PoH가 아니라 Tower BFT다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h2>합의: Tower BFT와 리더 순환</h2>
+<p>Tower BFT는 솔라나의 합의 계층으로, 솔라나 랩스는 이를 "PBFT의 파생이지만 한 가지 근본적 차이가 있다. Proof of History가 합의 이전에 전역 시간 원천을 제공한다"고 설명한다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 구체적으로 "우리의 PBFT 구현은 PoH를 네트워크 시간 시계로 사용하며, PBFT에서 복제본들이 사용하는 지수적으로 증가하는 타임아웃을 PoH 자체 안에서 계산하고 강제할 수 있다"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 타임아웃이 공유 시계 안에 존재하므로 "네트워크의 모든 참가자는 어떤 P2P 통신 없이도 다른 모든 참가자의 타임아웃을 계산할 수 있다" — PBFT가 통상 요구하는 메시징이 PoH 원장에 대한 로컬 연산으로 대체된다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<p>Tower BFT의 경제적 이빨은 투표 락아웃이다. 검증자가 한 포크에 던지는 각 투표는 지수적으로 커지는 기간 동안 그 포크에서 이탈하지 않도록 스스로를 묶는다. "400ms마다 네트워크에는 잠재적 롤백 지점이 있지만, 이후의 모든 투표는 그 투표를 되돌리려면 네트워크가 멈춰 있어야 하는 실제 시간을 두 배로 늘린다"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 따라서 깊이 묻힌 블록을 되돌리는 일은 지수적으로 비싸진다.</p>
+<p>시간은 <strong>슬롯(slot)</strong> — 각각 고정된 PoH 틱 구간으로, 대략 400ms를 목표로 한다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> — 으로 분할되고 <strong>에폭(epoch)</strong>으로 묶인다. 스테이크 가중 <strong>리더 스케줄</strong>은 슬롯마다 블록 생산 리더 한 명을 지정하며, "그것이 사용하는 원장 상태가 확정되도록 배정 대상 슬롯보다 훨씬 앞서 계산"된다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. 리더 스케줄을 미리 아는 것이 아래의 네트워킹 계층을 가능케 한다. _(에폭당 슬롯 수 — 흔히 약 이틀에 해당하는 432,000으로 인용됨 — 는 여기서 1차 자료로 확인하지 못했고, ~400ms 슬롯 목표만 출처가 있다.)_</p>
+<p>파이널리티는 즉각적이지 않고 등급이 있다. 솔라나는 세 가지 커밋먼트 수준을 노출한다. <strong>processed</strong>("최근 블록에 포함"되었으나 "다수 포크에 남을 수도, 남지 않을 수도" 있음), <strong>confirmed</strong>(스테이크 초다수, 즉 ≥66%가 투표), 그리고 <strong>finalized/rooted</strong>로, 이 경우 블록은 "스테이크 초다수의 확인을 받았고, 그 위에 최소 31개의 추가 confirmed 블록이 쌓인" 상태다 — "블록이 타워에서 32개의 투표를 누적하면 최대 락아웃에 도달해 확정된다"<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 애플리케이션은 지연과 되돌림 가능성을 저울질하며 이 스펙트럼 위 어디서 행동할지 선택한다.</p>
+<h2>트랜잭션 흐름과 네트워킹</h2>
+<p>모든 검증자가 다가오는 리더 스케줄을 알기 때문에, 솔라나는 전역 멤풀을 완전히 없앨 수 있다. <strong>Gulf Stream</strong>은 솔라나의 "멤풀 없는 트랜잭션 전달 프로토콜"이다. "모든 검증자가 다가오는 리더의 순서를 알기 때문에, 클라이언트와 검증자는 트랜잭션을 예상되는 리더에게 미리 전달한다. 이 해법은 리더가 비결정적인 네트워크에서는 불가능하다"<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. 독립적 분석도 이 설계가 "처음부터 멤풀 없이 작동하도록 만들어졌음"을 확인하며, 구조적 귀결을 지적한다 — 공개된 대기 트랜잭션 풀이 없고 모든 트랜잭션이 최근 블록해시를 참조해야 하므로, 솔라나의 멤풀 기반 MEV 표면은 이더리움과 근본적으로 다르다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<p>출력 측에서 <strong>Turbine</strong>은 리더가 블록 전체를 모두에게 보내지 않고도 블록 전파를 해결한다. 리더는 "블록을 shred라 불리는 하위 블록으로 쪼개고" "Reed-Solomon 소거 부호화 방식으로 대응하는 복구 shred를 생성"하며, shred는 "스테이크 가중이 높은 검증자가 shred를 더 먼저 받도록 우선순위가 매겨지는" 다층 트리를 통해 중계된다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 소거 부호화는 복원력을 사들인다. 솔라나 블록은 "통상 32:32의 FEC(순방향 오류 정정)를 활용"해 64개 패킷 중 어느 32개만 있으면 블록을 재구성할 수 있고, 따라서 절반까지의 패킷이 재전송 없이 유실되어도 된다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. _(여기의 shred·FEC 세부는 1차 사양이 아니라 독립적 기술 문헌에서 왔다.)_</p>
+<p>인그레스는 스테이크로 속도가 제한된다. 검증자는 QUIC로 트랜잭션을 받고 <strong>스테이크 가중 서비스 품질(SWQoS)</strong>을 적용한다. "리더의 TPU(Transaction Processing Unit) 용량의 상당 부분이 명시된 lamport 양에 비례해 분할"되며, 이는 스테이크가 낮거나 없는 노드가 스테이크된 트래픽을 밀어내지 못하게 함으로써 "향상된 시빌 저항성"을 제공한다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. 요컨대 리더에게 트랜잭션을 밀어넣을 권리는 누구에게나 열려 있는 것이 아니라 경제적 가중치로 계량된다.</p>
+<h2>실행: Sealevel 런타임과 계정 모델</h2>
+<p>솔라나의 상태 모델은 UTXO 기반도, EVM의 단일 스레드 컨트랙트-스토리지 모델도 아닌 계정 기반이다. "네트워크는 모든 상태를 키-값 저장소에 저장하며, 각 키는 32바이트 주소이고 각 값은 계정"이고, "계정의 소유자 프로그램만이 그 데이터를 수정하거나 lamport를 차감할 수 있다"<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. 따라서 프로그램(솔라나에서 스마트 컨트랙트를 가리키는 용어)은 <em>상태가 없는</em> 코드이며, 그것이 다루는 데이터는 프로그램이 소유하는 별도의 계정에 존재한다. 이 분리가 병렬성의 전제 조건이다.</p>
+<p><strong>Sealevel</strong>은 이를 활용하는 런타임으로, "검증자에서 사용 가능한 만큼의 코어를 사용해 수만 개의 컨트랙트를 병렬로 처리할 수 있는 런타임"이다<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. 이를 가능케 하는 제약은 "솔라나 트랜잭션이 실행 중 읽거나 쓸 모든 상태를 서술"한다는 점으로, 이는 스케줄러가 "겹치지 않는 트랜잭션을 동시에" 실행하게 하고, 같은 상태를 <em>읽기만</em> 하는 트랜잭션들도 함께 실행하게 한다<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. 이더리움은 각 트랜잭션이 어떤 상태를 건드릴지 미리 알 수 없어 트랜잭션을 하나씩 실행하는 반면, 솔라나는 트랜잭션이 이를 미리 선언하도록 요구하고 그에 따라 병렬화한다. 서로 다른 네 계정 사이의 두 전송은 동시에 실행될 수 있고, 같은 계정을 건드리는 두 전송은 직렬화된다.</p>
+<p>지속 상태는 공짜가 아니다. "모든 계정은 온체인에 남으려면 데이터 크기에 비례하는 최소 lamport 잔액을 보유해야 한다"<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup> — 이는 살아있는 계정에서 주기적으로 임대료를 차감하던 이전 모델을 대체한 임대료 면제(rent-exempt) 최소값이다. 임계값 아래로 떨어진 계정은 지속될 수 없으며, 이는 솔라나의 저장 공간 사용량을 잠긴 SOL에 묶는다.</p>
+<h2>수수료, 경제, 스테이킹</h2>
+<p>솔라나 트랜잭션에는 두 가지 수수료 구성요소가 있다. <strong>기본 수수료</strong>는 "서명당 5,000 lamport"이며 "50% 소각 / 50% 검증자"로 나뉜다<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. 선택적 <strong>우선순위 수수료</strong>는 <code>ceil(compute_unit_price × compute_unit_limit / 1,000,000)</code> lamport로 계산되며, 현행 프로토콜에서는 "100% 검증자"에게 간다<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. 우선순위 수수료는 수요가 높을 때 발신자가 스케줄링 우선권을 입찰하는 방식이다.</p>
+<p>이 100% 검증자 배분 자체가 거버넌스의 결과다. 검증자 투표 — SIMD-0096 — 가 규칙을 바꾸었다. 검증자들은 "5월 27일[2024년] 우선순위 수수료의 100%를 자신에게 배분하기로 투표해 기존 50/50 분할을 종료"했고, <em>기본</em> 수수료의 50% 소각은 유지되었다<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. 이 변경은 솔라나 경제가 제네시스에 고정된 것이 아니라 온체인 거버넌스로 변경 가능함을 보여주는 교훈적 사례다.</p>
+<p>결정적으로, 솔라나는 하나의 전역 가스 경매가 아니라 <strong>국지적 수수료 시장(local fee markets)</strong>을 운영한다. 국지적 수수료 시장에서 "트랜잭션은 자신이 쓰는 특정 상태에 따라 수수료를 지불하며, 이는 국지적 핫스팟이 블록체인 전체의 수수료를 끌어올리는 것을 방지한다"<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. 인기 있는 하나의 핫 프로그램(예컨대 인기 민팅)에 대한 활동 폭주는 그 프로그램이 쓰는 계정들의 우선순위 수수료를 올리지만, 다른 곳의 무관한 트랜잭션에는 과세하지 않는다 — 이는 Sealevel이 이미 요구하는 사전 계정 선언의 직접적 귀결이다.</p>
+<p>발행은 디스인플레이션 스케줄을 따른다. 안자 문서에 따르면 "초기 인플레이션율"은 8%, "디스인플레이션율"은 연 −15%, "장기 인플레이션율"은 1.5%다<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup> _(미검증 — 단일 출처)_. 이 인플레이션은 스테이킹 보상을 조달한다. 토큰 보유자는 "토큰을 하나 이상의 검증자에게 위임한 후 스테이킹 보상을 받을 자격을 얻으며", 검증자는 "위임된 스테이크 계정이 얻는 인플레이션 보상에 대해 수수료를 부과"하는데 이를 커미션율이라 한다<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>. 따라서 스테이크는 이중 역할을 한다 — (Tower BFT 가중치와 SWQoS를 통해) 합의를 보호하고, 새로 발행된 SOL을 번다.</p>
+<h2>성능, 신뢰성, 그리고 Firedancer</h2>
+<p>솔라나의 헤드라인 처리량과 실제 처리량은 같은 숫자가 아니며, 정직한 분석은 둘 다를 붙들어야 한다. 마케팅되는 <strong>이론적</strong> 상한은 65,000 TPS다<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. 측정된 <strong>실제</strong> 처리량은 훨씬 낮다. 한 분석 애그리게이터는 그 65,000 이론치에 대해 실시간 처리량이 약 1,417 TPS, 최근 100블록 최대치가 6,284 TPS임을 보였고<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>, 독립적 보도는 지속되는 <em>비투표</em>(즉 실제 사용자) TPS를 "네트워크 수요에 따라 1,600에서 3,800 사이"로, 고활동 기간에는 "약 3,000 TPS의 지속 수준"이 흔해졌다고 전한다<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>. 원시 TPS 숫자의 상당 부분은 역사적으로 사용자 활동이 아니라 합의 투표 트랜잭션이었으므로, "65,000"과 "수천" 사이의 격차는 부분적으로 정의상의 것이고 부분적으로는 실제 상한이다. 이 수치들은 감사받지 않은 특정 시점 분석치이며 끊임없이 변한다.</p>
+<p>신뢰성은 솔라나의 가장 공개적인 약점이었다. 메인넷-베타는 검증자 커뮤니티가 재시작을 조율해야 하는 여러 차례의 전면적 또는 부분적 중단을 겪었다. 문서화된 사건에는 2021년 9월 14일 약 17시간 중단(이때 "봇이 생성한 트랜잭션이 포워더 큐라는 시스템을 범람시켜 이 큐가 사용하는 메모리가 한없이 증가"<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>했고 "검증자 커뮤니티가 네트워크 재시작을 조율하기로 결정"<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>함), 2022년 4월 말/5월 초 "NFT 민팅 봇이 네트워크를 압도"하며 발생한 약 8시간 중단<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup>, 2022년 6월 "특정 콜드 스토리지 트랜잭션"의 durable-nonce 버그로 인한 중단<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>, 그리고 2023년 2월 초대형 블록이 "검증자 중복 제거 필터를 압도"해 "검증자 간에 계속 재전달"되며 발생한 약 19시간 중단<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>이 포함된다. 관통하는 흐름은 대부분의 중단이 암호학적 파훼가 아니라 적대적 부하 하의 자원 고갈이나 합의 엣지 케이스였다는 점이다. 신뢰성은 이후 뚜렷이 개선되어, 2024년까지 솔라나는 "1년 넘게 중단 없이" 지내며 메인넷-베타에서 'beta' 꼬리표를 떼기 위한 핵심 이정표를 달성했다<sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup>.</p>
+<p>클라이언트 다양성이 진행 중인 구조적 해법이다. Jump Crypto가 "Rust 코드 한 줄 없이 전적으로 C로 작성"한 독립 검증자 클라이언트 <strong>Firedancer</strong>는 더 높은 성능과 구현 다양성을 통한 복원력을 함께 겨냥한다<sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup>. 여기서 자료들이 충돌하며, 그 충돌은 중요하다. firedancer-io 저장소 README는 "Firedancer 검증자는 테스트나 프로덕션 사용 준비가 되지 않았고 릴리스가 없다"고 분명히 밝히면서도, 하이브리드인 "Frankendancer는 현재 솔라나 테스트넷과 메인넷-베타 모두에서 이용 가능"함을 확인한다<sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup>. 반면 Breakpoint 2025 보도는 Firedancer를 "100일 넘는 런타임을 누적하며 메인넷에서 가동 중"이라 서술하고, Frankendancer가 "약 175개 검증자에 걸쳐 메인넷 스테이크의 20–30%"를 통제한다고 전한다<sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup>. 둘 다에 부합하는 조정된 해석: <em>Frankendancer 하이브리드</em>(Firedancer의 네트워킹 스택을 Agave 런타임에 결합)는 가동 중이고 의미 있는 스테이크를 지니지만, <em>완전한</em> Firedancer 클라이언트는 여전히 릴리스 전이다.</p>
+<h2>중앙화와 하드웨어</h2>
+<p>솔라나의 "단일 기계가 하드웨어에 비례해 확장" 베팅의 비용은 검증자에게 떨어진다. 안자의 요구사항은 "12코어 / 24스레드 이상", "256GB 이상"의 RAM, "PCIe Gen3 x4 NVME SSD 이상"을 열거하면서 "Agave 검증자를 운영하는 데 필요한 엄격한 최소 SOL 양은 없다"고 명시한다<sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup>. 즉 프로토콜이 강제하는 하드웨어 하한은 없지만, <em>권장</em> 사양은 기업급 서버다. 비평가들은 이것이 중앙화를 부른다고 주장한다. 한 분석은 솔라나의 Nakamoto 계수를 이더리움의 "100 이상"에 대비해 "19에서 33 사이"로 놓고, "전체 검증자의 약 60%가 물리적으로 미국 또는 EU에 위치하며 단 다섯 개 제공업체에 호스팅"된다고 주장한다<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup> _(미검증 — 단일 출처, 낮은 신뢰도)_. 그 구체적 수치들은 단일 저신뢰 블로그에서 나왔으므로 확립된 사실이 아니라 귀속된 비평으로 읽어야 하지만, 근저의 긴장 — 높은 하드웨어 요구로 사들인 높은 성능이 참여자를 좁힌다는 것 — 은 실재하며, 솔라나 자신의 권장 사양 문서조차 이를 인정한다<sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup>.</p>
+<h2>다음 합의: Alpenglow</h2>
+<p>가장 중요한 단기 변화는, 솔라나가 이 보고서가 중심에 둔 바로 그 메커니즘들을 폐기할 준비를 하고 있다는 것이다. <strong>Alpenglow</strong>(SIMD-0326)는 합의 재작성으로, 그 제안은 "Proof-of-History와 TowerBFT에 기반한 현행 방식"이 "12.8초의 합의 파이널리티 시간"을 갖는다는 점을 개선하는 것을 목표로 명시한다<sup class="footnote-ref"><a href="#ref-32" id="cite-32">[32]</a></sup>. 두 구성요소는 "Tower BFT, Proof of History, 그리고 투표 전파를 위한 gossip 사용을 대체하는 새 투표 메커니즘"인 <strong>Votor</strong>와 블록 전파를 위한 Turbine의 진화형인 <strong>Rotor</strong>이며, 독립 분석은 100–150ms의 파이널리티 목표를 보고한다<sup class="footnote-ref"><a href="#ref-33" id="cite-33">[33]</a></sup>. 거버넌스는 이미 답했다. "SIMD-0326은 98.27%의 검증자 승인을 받았고", 업그레이드는 "5월 11일[2026년] 커뮤니티 검증자 테스트에 진입"했으며, "메인넷 배포는 현재 2026년 하반기로 예상된다"<sup class="footnote-ref"><a href="#ref-34" id="cite-34">[34]</a></sup>. 예정대로 출시된다면 Alpenglow는 PoH를 합의에서 완전히 제거할 것이다 — 이는 솔라나의 아키텍처가 움직이는 표적이며, 그 가장 유명한 혁신인 Proof of History가 영구적 고정물이 아니라 저지연 순서화를 위한 수단임을 상기시킨다.</p>
+<h2>한계</h2>
+<p>이 보고서는 상당 부분 벤더가 저술한 자료에 기반한다. PoH, Tower BFT, Gulf Stream, Turbine, Sealevel의 메커니즘은 솔라나 랩스와 안자 자신이 문서화했고, 독립적 기술 문헌(Helius, 분석 애그리게이터)이 그 메커니즘을 뒷받침하지만, 그것들을 이점으로 규정하는 프레이밍은 벤더의 것이다. 몇몇 구체적 수치는 여전히 근거가 약하다. 수치적 인플레이션 스케줄은 단일 1차 자료에 의존하고, 정확한 에폭당 슬롯 수는 1차 자료로 확인되지 않았으며, 처리량 수치는 감사받지 않은 특정 시점 분석치이고, 중앙화 지표(Nakamoto 계수, 제공업체 집중도)는 단일 저신뢰 블로그에서 나와 귀속된 비평으로만 제시된다. Firedancer 프로덕션 상태 충돌은 미해결로 남겨 충돌로 표시했다. 끝으로 Alpenglow 절은 거버넌스 승인은 받았으나 아직 활성화되지 않은 업그레이드를 서술하며, 그 2026년 하반기 메인넷 목표는 확정된 사실이 아니라 계획이고, Votor와 Rotor의 세부는 활성화 전에 바뀔 수 있다. 프로덕션에 결정적인 수치(현재 TPS, 라이브 Firedancer 스테이크 비중, 정확한 에폭 파라미터)가 필요한 독자는 사용 시점에 라이브 자료로 확인해야 한다.</p>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Solana Labs</span>. <a href="https://solana.com/news/8-innovations-that-make-solana-the-first-web-scale-blockchain">8 Innovations that Make Solana the First Web-Scale Blockchain</a>. <span class="venue">Solana official blog, 2019</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-2"><span class="authors">Anatoly Yakovenko</span>. <a href="https://solana.com/solana-whitepaper.pdf">Solana: A new architecture for a high performance blockchain v0.8.13</a>. <span class="venue">Solana whitepaper, 2017</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-3"><span class="authors">Anatoly Yakovenko</span>. <a href="https://solana.com/solana-whitepaper.pdf">Solana: A new architecture for a high performance blockchain v0.8.13</a>. <span class="venue">Solana whitepaper, 2017</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-4"><span class="authors">Solana Labs</span>. <a href="https://solana.com/news/8-innovations-that-make-solana-the-first-web-scale-blockchain">8 Innovations that Make Solana the First Web-Scale Blockchain</a>. <span class="venue">Solana official blog, 2019</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-5"><span class="authors">Bill Buchanan</span>. <a href="https://medium.com/asecuritysite-when-bob-met-alice/proof-of-history-is-it-a-verifiable-delay-function-5e5d08a6fc64">Proof of History — Is It a Verifiable Delay Function?</a>. <span class="venue">ASecuritySite, 2023</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-6"><span class="authors">Helius</span>. <a href="https://www.helius.dev/blog/solana-gulf-stream">Solana&#x27;s Gulf Stream: Mo Mempool, Mo Problems</a>. <span class="venue">Helius blog, 2024</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-7"><span class="authors">Solana Labs</span>. <a href="https://solana.com/news/tower-bft--solana-s-high-performance-implementation-of-pbft">Tower BFT: Solana&#x27;s High Performance Implementation of PBFT</a>. <span class="venue">Solana official blog, 2019</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-8"><span class="authors">Anza</span>. <a href="https://docs.anza.xyz/consensus/leader-rotation">Leader Rotation</a>. <span class="venue">Anza / Agave documentation, 2025</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-9"><span class="authors">Helius</span>. <a href="https://www.helius.dev/blog/solana-commitment-levels">What are Solana Commitment Levels?</a>. <span class="venue">Helius blog, 2024</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-10"><span class="authors">Solana Labs</span>. <a href="https://solana.com/news/gulf-stream--solana-s-mempool-less-transaction-forwarding-protocol">Gulf Stream: Solana&#x27;s Mempool-less Transaction Forwarding Protocol</a>. <span class="venue">Solana official blog, 2020</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-11"><span class="authors">Helius</span>. <a href="https://www.helius.dev/blog/turbine-block-propagation-on-solana">Turbine: Block Propagation on Solana</a>. <span class="venue">Helius blog, 2024</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-12"><span class="authors">Solana Foundation</span>. <a href="https://solana.com/developers/guides/advanced/stake-weighted-qos">A Guide to Stake-Weighted Quality of Service on Solana</a>. <span class="venue">solana.com developer guides, 2024</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-13"><span class="authors">Solana Foundation</span>. <a href="https://solana.com/docs/core/accounts">Solana Account Model</a>. <span class="venue">solana.com/docs, 2025</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-14"><span class="authors">Anatoly Yakovenko</span>. <a href="https://solana.com/news/sealevel---parallel-processing-thousands-of-smart-contracts">Sealevel — Parallel Processing Thousands of Smart Contracts</a>. <span class="venue">Solana official blog, 2019</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-15"><span class="authors">Solana Foundation</span>. <a href="https://solana.com/docs/core/fees">Fees on Solana</a>. <span class="venue">solana.com/docs, 2025</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-16"><span class="authors">Assad Jafri</span>. <a href="https://cryptoslate.com/solana-validators-approve-100-allocation-of-priority-fees-ending-50-50-burn-split/">Solana validators approve 100% allocation of priority fees, ending 50/50 burn split</a>. <span class="venue">CryptoSlate, 2024</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-17"><span class="authors">Helius</span>. <a href="https://www.helius.dev/blog/solana-local-fee-markets">The Truth about Solana Local Fee Markets</a>. <span class="venue">Helius blog, 2024</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-18"><span class="authors">Anza</span>. <a href="https://docs.anza.xyz/implemented-proposals/ed_overview/ed_validation_client_economics/ed_vce_state_validation_protocol_based_rewards">Inflation Schedule</a>. <span class="venue">Anza / Agave documentation, 2024</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-19"><span class="authors">Solana Foundation</span>. <a href="https://solana.com/staking">Solana Staking and Inflation FAQ</a>. <span class="venue">solana.com, 2024</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-20"><span class="authors">Chainspect</span>. <a href="https://chainspect.app/chain/solana">Solana TPS, Max TPS, Block Time &amp; TTF</a>. <span class="venue">Chainspect, 2026</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-21"><span class="authors">Crypto Briefing Editorial Team</span>. <a href="https://cryptobriefing.com/solana-true-tps-surpasses-2500/">Solana&#x27;s true TPS surpasses 2,500 transactions per second</a>. <span class="venue">Crypto Briefing, 2026</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-22"><span class="authors">Solana</span>. <a href="https://solana.com/news/9-14-network-outage-initial-overview">9-14 Network Outage Initial Overview</a>. <span class="venue">solana.com, 2021</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-23"><span class="authors">Danny Nelson</span>. <a href="https://www.coindesk.com/markets/2021/09/14/solana-validators-ready-potential-restart-amid-blockchain-outage">Solana Validators Plan Network &#x27;Restart&#x27; as Outage Continues</a>. <span class="venue">CoinDesk, 2021</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-24"><span class="authors">Martin Young</span>. <a href="https://cointelegraph.com/news/reliably-unreliable-solana-price-dives-after-latest-network-outage">Reliably unreliable: Solana price dives after latest network outage</a>. <span class="venue">Cointelegraph, 2022</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-25"><span class="authors">Danny Nelson</span>. <a href="https://www.coindesk.com/tech/2022/06/02/solana-halted-by-bug-linked-to-certain-cold-storage-transactions">Solana Halted by Bug Linked to Certain Cold Storage Transactions</a>. <span class="venue">CoinDesk, 2022</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-26"><span class="authors">Solana</span>. <a href="https://solana.com/news/02-25-23-solana-mainnet-beta-outage-report">02-25-23 Solana Mainnet Beta Outage Report</a>. <span class="venue">solana.com, 2023</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-27"><span class="authors">Helius</span>. <a href="https://www.helius.dev/blog/solana-outages-complete-history">A Complete History of Solana Outages: Causes, Fixes, and Lessons Learnt</a>. <span class="venue">Helius blog, 2024</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-28"><span class="authors">Kevin Bowers, Michael McGee, Philip Taffet</span>. <a href="https://solanacompass.com/learn/breakpoint-25/wen-firedancer">Firedancer Live on Solana Mainnet (Breakpoint 2025)</a>. <span class="venue">Solana Compass / Breakpoint 2025, 2025</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-29"><span class="authors">Jump Crypto</span>. <a href="https://github.com/firedancer-io/firedancer">firedancer-io/firedancer (README)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-30"><span class="authors">Anza</span>. <a href="https://docs.anza.xyz/operations/requirements">Validator Requirements</a>. <span class="venue">docs.anza.xyz, 2025</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-31"><span class="authors">Novemh</span>. <a href="https://medium.com/@Novemvigintillion/solanas-validator-problem-running-a-node-is-expensive-and-why-that-s-bad-for-everyone-78791bfd8f1f">Solana&#x27;s Validator Problem: Running a node is expensive</a>. <span class="venue">Medium, 2025</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-32"><span class="authors">Solana Foundation</span>. <a href="https://github.com/solana-foundation/solana-improvement-documents/blob/main/proposals/0326-alpenglow.md">SIMD-0326: Proposal for the New Alpenglow Consensus Protocol</a>. <span class="venue">solana-improvement-documents, 2025</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-33"><span class="authors">Helius</span>. <a href="https://www.helius.dev/blog/alpenglow">Alpenglow: Solana&#x27;s Great Consensus Rewrite</a>. <span class="venue">Helius blog, 2025</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-34"><span class="authors">Coinspeaker</span>. <a href="https://www.coinspeaker.com/solana-alpenglow-upgrade-live-validator-testing/">Solana News: Alpenglow Upgrade Activates for Live Validator Testing</a>. <span class="venue">Coinspeaker, 2026</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-07-22 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
