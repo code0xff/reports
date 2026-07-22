@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Solana SPL 토큰과 SPL 토큰 2022, 그리고 Ethereum ERC-20 비교 분석 — Deepsearch</title>
+<meta name="description" content="공유 프로그램 방식과 컨트랙트별 배포 방식 — 두 체인의 토큰 표준을 데이터 모델·기능·보안 관점에서 대조한다.">
+<link rel="canonical" href="https://code0xff.github.io/reports/spl-token-2022-vs-erc20/">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="en" href="en/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="Solana SPL 토큰과 SPL 토큰 2022, 그리고 Ethereum ERC-20 비교 분석">
+<meta property="og:description" content="공유 프로그램 방식과 컨트랙트별 배포 방식 — 두 체인의 토큰 표준을 데이터 모델·기능·보안 관점에서 대조한다.">
+<meta property="og:url" content="https://code0xff.github.io/reports/spl-token-2022-vs-erc20/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Solana SPL 토큰과 SPL 토큰 2022, 그리고 Ethereum ERC-20 비교 분석">
+<meta name="twitter:description" content="공유 프로그램 방식과 컨트랙트별 배포 방식 — 두 체인의 토큰 표준을 데이터 모델·기능·보안 관점에서 대조한다.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="en/index.html" hreflang="en">English</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="GitHub에서 Deepsearch 보기" title="GitHub에서 Deepsearch 보기">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>Solana SPL 토큰과 SPL 토큰 2022, 그리고 Ethereum ERC-20 비교 분석</h1>
+    <p class="subtitle">공유 프로그램 방식과 컨트랙트별 배포 방식 — 두 체인의 토큰 표준을 데이터 모델·기능·보안 관점에서 대조한다.</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-07-22</span>
+      <span><strong>태그</strong> solana, spl-token, token-2022, token-extensions, ethereum, erc-20, token-standards</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="spl-token-2022-vs-erc20.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>Solana와 Ethereum은 "토큰 표준"이라는 같은 목표를 서로 다른 아키텍처로 달성한다. Ethereum의 ERC-20에서는 토큰 하나하나가 독립적으로 배포된 스마트 컨트랙트이며, 각 컨트랙트가 자신의 잔고 장부를 직접 보관한다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 반면 Solana에서는 단 하나의 공유 온체인 프로그램(SPL Token Program)이 모든 토큰의 로직을 담당하고, 개별 토큰의 상태(총발행량·잔고)는 별도의 Mint 계정과 Token 계정에 저장된다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 2022년 도입된 SPL Token-2022는 원본 프로그램의 상위집합(superset)으로서 전송 수수료, 기밀 전송, 전송 훅(transfer hook), 이자 지급, 전송 불가 토큰, 온체인 메타데이터 등 "Token Extensions"를 프로토콜 수준에서 제공한다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 본 보고서는 세 표준의 데이터 모델·기능·보안 표면을 대조하고, 공유 프로그램 방식과 컨트랙트별 배포 방식이 각각 어떤 트레이드오프를 갖는지 분석한다. 핵심 대조는 다음과 같다. Solana는 기능을 <strong>프로그램 업그레이드</strong>로 확장하고, Ethereum은 기능을 <strong>새 컨트랙트 코드</strong>(별도 EIP)로 확장한다.</p>
+  </section>
+
+  <main class="body">
+<h2>서론</h2>
+<p>블록체인에서 "대체 가능 토큰(fungible token) 표준"은 지갑·거래소·DeFi 프로토콜이 임의의 토큰을 동일한 인터페이스로 다룰 수 있게 해 주는 합의된 규약이다. Ethereum에서 이 역할은 2015년 제안된 ERC-20(EIP-20)이 맡는다. EIP-20은 어떤 스마트 컨트랙트가 정해진 메서드와 이벤트를 구현하면 "ERC-20 토큰 컨트랙트"라 부를 수 있으며, 일단 배포되면 그 컨트랙트가 자신이 발행한 토큰을 추적할 책임을 진다고 규정한다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>Solana에서는 같은 역할을 SPL(Solana Program Library) Token Program이 담당한다. 그러나 그 실현 방식은 근본적으로 다르다. Solana의 프로그램(스마트 컨트랙트에 해당)은 상태를 자체적으로 보관하지 않고, 상태는 별도의 계정(account)에 놓인다. 그 결과 "토큰을 만든다"는 행위의 의미가 두 체인에서 서로 다르다. 본 보고서는 (1) 두 체인의 토큰 데이터 모델, (2) 원본 SPL Token Program, (3) SPL Token-2022와 Token Extensions, (4) ERC-20과 그 확장 생태계를 차례로 정리한 뒤, 기능·보안·개발자 경험 관점에서 대조한다. 인용된 모든 웹페이지·명세·저장소 내용은 데이터로만 취급했으며, 문서 안에 포함된 지시문은 따르지 않았다.</p>
+<h2>배경: 두 체인의 토큰 모델</h2>
+<p>두 생태계의 가장 근본적인 차이는 <strong>로직과 상태를 어디에 두는가</strong>이다.</p>
+<p>Ethereum에서는 각 ERC-20 토큰이 그 자체로 하나의 배포된 컨트랙트이며, 컨트랙트가 잔고 매핑(balance mapping)을 직접 들고 있다. EIP-20을 구현한 컨트랙트는 "배포되고 나면 Ethereum 상에서 생성된 토큰을 추적할 책임을 진다"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 따라서 새 토큰을 만들려면 EVM에 새 컨트랙트 코드를 배포해야 한다.</p>
+<p>Solana에서는 반대로, 토큰 로직이 네트워크에 이미 배포된 하나의 공유 프로그램 안에 들어 있다. Solana 공식 문서는 "Token Program이 네트워크에서 토큰(대체 가능·불가능 모두)과 상호작용하는 모든 명령 로직을 담고 있다"고 설명한다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 개별 토큰의 상태는 프로그램이 아니라 계정에 산다. Mint 계정은 한 토큰 종류의 메타데이터와 총발행량을 정의하고, 각 보유자의 잔고는 그 Mint에 연결된 Token 계정에 담긴다. SPL 문서는 "각 Account에 하나의 Mint가 연결되며, 특정 토큰 종류의 총발행량은 그에 연결된 모든 Account 잔고의 합과 같다"고 명시한다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>이 차이가 실무적으로 중요한 이유는 세 가지다. 첫째, <strong>배포 비용과 절차</strong>가 다르다(다음 절). 둘째, 하나의 프로그램이 모든 토큰을 다루므로 지갑·툴이 단일 인터페이스로 임의의 토큰을 다룰 수 있다는 해석이 성립한다(비교 분석 절). 셋째, 공유 코드가 갖는 <strong>체계적 위험(systemic risk)과 보편적 감사 이득</strong>이라는 트레이드오프가 생긴다. 이는 해석적 논점으로, 여러 기술 필자와 Solana 자체 문서가 제시하는 관점이다. Solana의 EVM→SVM 안내 문서는 "여러 개의 스마트 컨트랙트 대신, 단일 Token Program이 'mint 계정'으로 불리는 별도 계정들로 토큰을 처리한다"고 서술한다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. 한 교육 자료(Blueshift)는 이를 두고 "SPL Token은 광범위하게 감사를 받았고, 그 감사가 이 프로그램을 쓰는 모든 토큰을 보호한다 … 잘 검증된 하나의 프로그램이 수조 달러의 가치를 보호한다"고 표현한다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 뒤집어 말하면 그 공유 프로그램의 버그는 모든 토큰에 영향을 줄 수 있는 반면, ERC-20의 버그는 개별 컨트랙트 구현에 국한된다는 뜻이다 _(해석 — 설계 트레이드오프)_<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<h2>SPL 토큰 프로그램</h2>
+<p>원본 SPL Token Program은 Solana 메인넷에서 주소 <code>TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA</code>에 배포되어 있다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. 흔히 앞 글자를 따 "Tokenkeg"로 부른다.</p>
+<p>이 프로그램은 대체 가능·불가능 토큰의 기본 연산을 모두 제공한다. 발행(mint), 전송(transfer), 소각(burn)에 더해, Mint에 설정된 <code>freeze_authority</code>가 <code>FreezeAccount</code> 명령으로 특정 계정을 "사용 불가" 상태로 만들 수 있고 <code>ThawAccount</code>로 다시 해제할 수 있다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 또한 <code>approve</code>를 통한 위임(delegation)과, Mint 권한이나 계정 소유자 자리에 쓸 수 있는 M-of-N 멀티시그도 지원한다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<p>토큰을 새로 만드는 절차는 Ethereum과 뚜렷이 대비된다. Solana에서는 새 프로그램 바이트코드를 배포할 필요가 없다. 대신 System Program의 <code>CreateAccount</code> 명령으로 rent-exempt 계정을 만들고 그 소유권을 기존 Token Program에 넘긴 뒤 Mint로 초기화한다. 공식 문서는 "System Program의 CreateAccount 명령이 새 rent-exempt 계정을 만들고 그 새 계정의 프로그램 소유자로 Token Program을 지정한다"고 설명한다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 즉 토큰 생성은 코드 배포가 아니라 <strong>계정 초기화</strong>다.</p>
+<p>보유자별 잔고는 대개 연관 토큰 계정(Associated Token Account, ATA)에 담긴다. ATA는 지갑 주소·토큰 프로그램 주소·Mint 주소로부터 결정론적으로 도출되는 프로그램 파생 계정이다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. Token 계정은 온체인 계정이므로 rent를 위한 SOL 예치가 필요하다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. 이는 Ethereum에서 잔고가 컨트랙트 내부 매핑의 한 항목일 뿐 별도 계정 생성 비용이 없는 것과 대비된다.</p>
+<p>원본 프로그램의 인터페이스는 오랫동안 안정적으로 유지되어 Solana 생태계 전반의 사실상 표준이 되었으며, 뒤에 나온 Token-2022는 바로 이 인터페이스와의 호환성을 설계 목표로 삼았다(다음 절).</p>
+<h2>SPL 토큰 2022와 확장 기능</h2>
+<p>SPL Token-2022(브랜드명 "Token Extensions")는 원본 Token Program과 <strong>별개의</strong> 온체인 프로그램으로, 다른 주소 <code>TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb</code>에 배포되어 있다<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. SPL 문서는 Token-2022를 "Token Program이 제공하는 기능의 상위집합(superset)"이라 정의하며, 나아가 "Token-2022는 Token과 정확히 같은 명령 레이아웃을 바이트 단위로(byte for byte) 지원한다"고 명시한다<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. 즉 원본 기능 집합에 대해서는 명령 단위로 하위 호환된다.</p>
+<p>Token-2022가 추가하는 것은 Mint 또는 Token 계정에 붙이는 "확장(extension)"들이다. 공식 문서가 열거하는 확장에는 전송 수수료(<code>TransferFeeConfig</code>), 기밀 전송(<code>ConfidentialTransferMint</code>), 전송 훅(<code>TransferHook</code>), 이자 지급(<code>InterestBearingConfig</code>), 전송 불가(<code>NonTransferable</code>, 소울바운드), 기본 계정 상태(<code>DefaultAccountState</code>), 영구 위임자(<code>PermanentDelegate</code>), CPI 가드(<code>CpiGuard</code>), 메타데이터 포인터(<code>MetadataPointer</code>) 등이 있다<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>.</p>
+<p>몇 가지 확장은 특히 ERC-20 세계와의 대조에서 중요하다.</p>
+<ul>
+<li><strong>전송 수수료.</strong> "Token Extension 프로그램의 <code>TransferFeeConfig</code> mint 확장은 해당 mint의 모든 전송에 수수료를 적용하며, 원천징수된 수수료는 수신 토큰 계정에 기록된다"<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. 즉 수수료가 프로토콜(프로그램) 수준의 1급 기능이다.</li>
+<li><strong>전송 훅.</strong> 전송 훅은 mint 발행자가 "모든 토큰 전송마다 커스텀 명령 로직을 실행"하도록 강제할 수 있게 한다. 공식 가이드는 그 용례로 "NFT 로열티 강제", "토큰을 받을 수 있는 지갑의 블랙/화이트리스트"를 들며, 실행은 "Token Extensions 프로그램이 Transfer Hook 프로그램에 CPI(Cross Program Invocation)를 걸어" 이뤄진다고 설명한다<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>.</li>
+<li><strong>기밀 전송.</strong> 기밀 전송에서는 "전송 금액과 토큰 잔고만 비공개이며, 토큰 계정 주소는 공개로 남는다"<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. 즉 숨겨지는 것은 <strong>금액과 잔고</strong>이지 송·수신자 신원이 아니다. 기저 암호 기법은 Solana의 ZK ElGamal 증명 계열이며, 공식 문서가 "동형암호(homomorphic encryption)"라는 표현을 문자 그대로 쓰지는 않으므로 기법 명칭을 과장하지 않도록 주의한다.</li>
+</ul>
+<p>호환·마이그레이션 측면에서 중요한 점은, 원본 SPL 토큰이 Token-2022로 <strong>자동 전환되지 않는다</strong>는 것이다. 두 프로그램은 나란히(side by side) 쓰이며, 한 토큰이 어느 프로그램에 속하는지는 mint 생성 시점에 고정된다. Solana의 개발자 가이드는 "토큰 확장은 새로운 토큰 표준이지만, 누구든 한 표준에서 다른 표준으로 마이그레이션해야 한다는 요구사항은 아니다"라고 못박는다<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</p>
+<h2>ERC-20와 이더리움 확장 모델</h2>
+<p>ERC-20(EIP-20)은 대체 가능 토큰의 최소 인터페이스를 정의한다. 핵심은 <code>totalSupply</code>, <code>balanceOf</code>, <code>transfer</code>, <code>transferFrom</code>, <code>approve</code>, <code>allowance</code>의 여섯 함수와 두 이벤트다. 명세는 토큰이 이동할 때(0값 전송 포함) <code>Transfer</code> 이벤트가 반드시 발생해야 하고, <code>approve</code> 호출이 성공하면 <code>Approval</code> 이벤트가 반드시 발생해야 한다고 규정한다<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>.</p>
+<p>위임 지출은 <code>approve</code>/<code>transferFrom</code> 허용량(allowance) 패턴으로 이뤄진다. 이 패턴에는 잘 알려진 위험이 따른다. EIP-20 명세 자체가 허용량을 갱신할 때 발생하는 경쟁 조건(race condition)을 경고하며, 클라이언트가 "같은 spender에 대해 허용량을 다른 값으로 바꾸기 전에 먼저 0으로 설정"하는 UI를 만들 것을 권고한다<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>. OpenZeppelin 문서도 같은 위험을 "이 방식으로 허용량을 바꾸면 트랜잭션 순서에 따라 누군가 옛 허용량과 새 허용량을 모두 쓸 수 있는 위험이 있다"고 경고하며, 완화책으로 "먼저 spender의 허용량을 0으로 줄인 뒤 원하는 값을 설정"할 것을 든다<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup>. 무제한 허용량(unlimited approval)을 노린 피싱 위험을 줄이기 위한 대안으로는 EIP-2612의 <code>permit</code>이 있는데, 이는 온체인 트랜잭션 없이 서명만으로 허용량을 부여하는 함수 <code>permit(owner, spender, value, deadline, v, r, s)</code>를 정의한다<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>.</p>
+<p>Ethereum에서 "고급 토큰 동작"은 프로토콜 업그레이드가 아니라 <strong>추가 표준(별도 EIP)을 상속·배포</strong>하는 방식으로 붙는다. 대표적으로:</p>
+<ul>
+<li><strong>EIP-2612(permit)</strong> — 서명 기반 가스리스 승인<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>.</li>
+<li><strong>ERC-1363(Payable Token)</strong> — "<code>transfer</code>/<code>transferFrom</code> 후 수신자 코드를, <code>approve</code> 후 spender 코드를 실행"하는 콜백 지원<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>.</li>
+<li><strong>ERC-777</strong> — "ERC-20과 하위 호환을 유지하면서 토큰 컨트랙트와 상호작용하는 새로운 방식"으로, operator와 send/receive 훅을 정의<sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup>.</li>
+<li><strong>ERC-4626(Tokenized Vaults)</strong> — "단일 기반 EIP-20 토큰의 지분을 표현하는 토큰화 금고의 표준 API … EIP-20 토큰에 대한 확장"<sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup>.</li>
+</ul>
+<p>핵심은 이 모든 확장이 <strong>컨트랙트 코드 수준</strong>에서 일어난다는 점이다. 새 기능을 원하면 해당 EIP를 구현한 코드를 상속하거나 새 컨트랙트를 배포한다. 이는 Solana가 하나의 업그레이드된 프로그램(Token-2022)에 확장을 몰아넣은 것과 대조된다.</p>
+<h2>비교 분석</h2>
+<p><strong>전송 수수료.</strong> 네이티브 프로토콜 수준 전송 수수료는 Token-2022의 전송 수수료 확장으로 제공된다<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. ERC-20 표준에는 그런 개념이 없다. Ethereum의 "fee-on-transfer" 토큰은 수수료를 커스텀 컨트랙트 코드로 구현하는데, 이는 "받은 금액 = 보낸 금액"을 가정하는 통합을 깨뜨리는 것으로 잘 알려져 있다. Uniswap 문서는 아예 "fee-on-transfer 토큰은 우리 라우터 컨트랙트와 동작하지 않으며, 앞으로도 이를 지원하는 라우터를 만들지 않을 것"이라고 명시한다<sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup>. 한 보안 해설도 AMM들이 "보낸 토큰 양 = 받은 양"을 가정하기 때문에 fee-on-transfer 토큰에서 이 가정이 깨져 초과 슬리피지와 트랜잭션 실패가 생긴다고 설명한다<sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup>. 다만 Token-2022의 프로토콜 수준 수수료 역시 훅·확장을 인식하지 못하는 통합에는 유사한 통합 부담을 남길 수 있다는 점에서, 수수료 문제 자체가 사라지는 것은 아니라 <strong>표준의 일부로 명시화</strong>되었다는 차이로 보는 것이 정확하다.</p>
+<p><strong>동결·블랙리스트.</strong> 두 Solana 토큰 프로그램은 <code>freeze_authority</code>를 통한 계정 동결을 기본 제공한다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. ERC-20 표준에는 동결·블랙리스트 메커니즘이 없다. USDC·USDT 같은 실제 토큰의 동결 기능은 표준이 아니라 커스텀 컨트랙트 로직으로 구현된다. Spark의 조사 자료는 "USDT와 USDC 모두 블랙리스트 기능을 자신들의 ERC-20 토큰 컨트랙트에 직접 구현하며, 발행자가 관리하는 특권 주소가 임의의 지갑을 온체인 매핑에 추가할 수 있다"고 정리한다<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup>. Circle FiatToken 설계 문서도 "블랙리스트에 오른 주소는 <code>transfer</code>나 <code>transferFrom</code>을 호출할 수 없고 토큰을 받을 수도 없다"고 기술한다<sup class="footnote-ref"><a href="#ref-32" id="cite-32">[32]</a></sup>. 요컨대 Solana에서는 동결이 <strong>프로그램 표준 기능</strong>인 반면, Ethereum에서는 발행자가 표준 밖에서 덧붙인 <strong>선택적 커스텀 기능</strong>이다.</p>
+<p><strong>툴링·조합성.</strong> Solana에서는 지갑·툴이 하나의 프로그램 인터페이스를 통해 임의의 SPL/Token-2022 토큰과 상호작용할 수 있다. Blueshift는 SPL Token을 "템플릿이 아니라 … 주소 <code>Tokenkeg…</code>에서 실제로 돌아가는 프로그램"이라 표현하며, 이 단일성을 강조한다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Ethereum에서는 각 토큰이 별도 배포된 컨트랙트이지만 같은 ABI를 따르므로 툴이 공통 인터페이스로 다룰 수 있다 — 통일성의 원천이 "하나의 프로그램"이 아니라 "공유된 ABI 규약"이라는 점이 다르다 _(해석)_<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. 두 방식 모두 상호운용을 달성하지만, Solana는 실행 코드 자체를 공유하고 Ethereum은 인터페이스 규약을 공유한다.</p>
+<p><strong>보안 표면.</strong> 앞서 본 체계적 위험/보편적 감사 트레이드오프가 여기서 구체화된다. Solana 모델에서는 단일 프로그램이 광범위하게 감사되어 그 이득이 모든 토큰에 파급되지만<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, 그 프로그램의 결함은 원리상 모든 토큰에 파급될 수 있다. Ethereum 모델에서는 결함이 개별 컨트랙트에 국한되는 대신, 매 배포가 새로운(그리고 종종 감사되지 않은) 코드를 도입한다. 또한 Token-2022의 강력한 확장(영구 위임자, 전송 훅 등)은 새로운 신뢰 가정과 공격 표면을 만든다는 점에서, "표준에 내장된 기능"이 반드시 "더 안전"을 의미하지는 않는다.</p>
+<p>이 대목은 Token-2022가 자동으로 유리하다는 인상에 대한 반례가 필요하다. 확장은 통합하는 쪽에 실질적 부담을 지운다. 보안 감사사 Neodyme는 확장을 두고 "이런 종류의 확장에서 자금을 잃는 것은 명백한 귀결이며, 특히 사용자 토큰을 보관하는 금고로 단일 토큰 계정만 쓰는 프로토콜에서 그렇다"고 경고한다<sup class="footnote-ref"><a href="#ref-33" id="cite-33">[33]</a></sup>. 즉 프로토콜은 통합 전에 대상 mint가 어떤 확장을 달고 있는지(전송 수수료·영구 위임자·전송 훅 등) 반드시 검사해야 하며, 그러지 않으면 "받은 금액 = 보낸 금액" 가정이나 잔고 불변 가정이 조용히 깨질 수 있다. 이는 앞서 본 ERC-20의 fee-on-transfer 통합 문제<sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup>와 구조적으로 같은 위험이 Solana에서도 확장 형태로 재현됨을 뜻한다 — 즉 기능을 프로토콜 수준으로 옮긴다고 해서 통합 위험이 사라지는 것이 아니라, 위험의 위치가 바뀔 뿐이다.</p>
+<h2>논의</h2>
+<p>두 설계는 상반된 곳에 복잡성을 둔다. Solana는 복잡성을 <strong>공유 프로그램</strong>에 집중시킨다. 그 대가로 토큰 생성이 값싼 계정 초기화가 되고 툴링이 단순해지지만, 확장 기능을 추가하려면 새 프로그램(Token-2022)과 프로그램 간 마이그레이션 부재라는 현실을 감수해야 한다<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>. Ethereum은 복잡성을 <strong>각 컨트랙트</strong>에 분산시킨다. 그 대가로 무한한 커스터마이즈 자유를 얻지만, 확장이 파편화되고(EIP-2612/1363/777/4626 …) 매 컨트랙트가 잠재적 버그 원천이 된다.</p>
+<p>Token-2022의 실제 채택은 실험 단계를 넘어섰다. 가장 잘 문서화된 사례는 PayPal의 PYUSD로, Solana Foundation은 "PYUSD on Solana는 token extensions를 활용한 가장 이른 스테이블코인 중 하나"라고 밝혔고<sup class="footnote-ref"><a href="#ref-34" id="cite-34">[34]</a></sup>, PayPal 개발자 블로그도 "Solana 상의 PYUSD는 Solana의 token extensions로 구축되었다"고 확인한다<sup class="footnote-ref"><a href="#ref-35" id="cite-35">[35]</a></sup>. 다만 전체 발행량·발행자 중 Token-2022가 차지하는 비중은 본 보고서에서 정량화하지 않았으므로, PYUSD는 "광범위한 시장 점유"의 증거가 아니라 <strong>구체적 프로덕션 사례</strong>로 읽어야 한다.</p>
+<p>전체적으로 보면, "어느 쪽이 우월한가"보다는 "어디에 복잡성과 신뢰를 두기로 선택했는가"가 두 모델을 가르는 축이다. Solana Token-2022는 과거 ERC-20 생태계가 여러 EIP로 나눠 해결하던 기능(수수료, 훅, 메타데이터, 권한 통제)을 프로토콜 수준으로 끌어올린 시도로 볼 수 있다.</p>
+<h2>한계</h2>
+<ul>
+<li><strong>정량적 채택 데이터 부재.</strong> Token-2022 대 원본 SPL Token의 발행 비중, ERC-20 대비 사용량 등 시장 점유 수치는 다루지 않았다. PYUSD 등은 사례 증거일 뿐이다.</li>
+<li><strong>암호 기법의 깊이.</strong> 기밀 전송의 ZK ElGamal 증명 구조를 프로토콜 수준에서 상세히 검증하지는 않았고, 공개 문서의 서술("금액·잔고 비공개, 주소 공개")에 근거했다<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>.</li>
+<li><strong>부재 주장(absence claims)의 성격.</strong> "ERC-20 표준에는 수수료/동결이 없다"는 명제는 EIP-20 정본 텍스트에 근거한 것이며, 모든 확장 EIP를 소진적으로 검사해 증명한 것은 아니다.</li>
+<li><strong>해석적 논점.</strong> 체계적 위험 대 보편적 감사, 툴링 통일성의 원천은 측정된 결과가 아니라 설계 트레이드오프에 대한 분석적 관점이다.</li>
+<li><strong>일부 2차 출처.</strong> USDT의 <code>destroyBlackFunds</code> 같은 세부는 조사 자료(Spark)에 의존했으며 컨트랙트 원문까지 대조하지는 않았다.</li>
+<li><strong>빠른 변화.</strong> Token Extensions 세트와 EIP 생태계는 계속 확장 중이므로, 특정 확장 목록은 시점 의존적이다.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">ethereum.org contributors</span>. <a href="https://ethereum.org/en/developers/docs/standards/tokens/erc-20/">ERC-20 Token Standard</a>. <span class="venue">ethereum.org Developer Docs, 2024</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-2"><span class="authors">Solana Foundation</span>. <a href="https://solana.com/docs/tokens">Tokens on Solana</a>. <span class="venue">Solana Documentation, 2025</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-3"><span class="authors">Solana Program Library</span>. <a href="https://www.solana-program.com/docs/token">Token Program</a>. <span class="venue">Solana Program Library Docs, 2025</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-4"><span class="authors">Solana Foundation</span>. <a href="https://solana.com/developers/evm-to-svm/erc20">What is ERC20 on Solana? (EVM to SVM)</a>. <span class="venue">solana.com, 2024</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-5"><span class="authors">Blueshift</span>. <a href="https://learn.blueshift.gg/en/courses/tokens-on-solana/introduction">One Program, Every Token — Tokens on Solana</a>. <span class="venue">Blueshift, 2025</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-6"><span class="authors">Nagu Thogiti</span>. <a href="https://thogiti.github.io/2025/02/26/SPL-ERC20-Tokens.html">Solana SPL vs. Ethereum ERC-20 — A Deep Dive into State, Scalability, and Architecture</a>. <span class="venue">Dare to Know, 2025</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-7"><span class="authors">Solana Foundation</span>. <a href="https://explorer.solana.com/address/TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA">Token Program — Solana Explorer</a>. <span class="venue">Solana Explorer, 2026</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-8"><span class="authors">Blueshift</span>. <a href="https://learn.blueshift.gg/en/courses/tokens-on-solana/introduction">One Program, Every Token — Tokens on Solana (program address)</a>. <span class="venue">Blueshift, 2025</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-9"><span class="authors">Solana Program Library</span>. <a href="https://www.solana-program.com/docs/token">Token Program — Freezing Accounts</a>. <span class="venue">Solana Program Library Docs, 2025</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-10"><span class="authors">Solana Program Library</span>. <a href="https://www.solana-program.com/docs/token">Token Program (operations and multisig)</a>. <span class="venue">Solana Program Library Docs, 2025</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-11"><span class="authors">Solana Foundation</span>. <a href="https://solana.com/docs/tokens/basics/create-mint">Create a Token Mint</a>. <span class="venue">Solana Documentation, 2025</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-12"><span class="authors">Solana Foundation</span>. <a href="https://solana.com/docs/tokens/basics/create-token-account">Create a Token Account</a>. <span class="venue">Solana Documentation, 2025</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-13"><span class="authors">Solana Program Library</span>. <a href="https://www.solana-program.com/docs/associated-token-account">Associated Token Account Program</a>. <span class="venue">Solana Program Library Docs, 2025</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-14"><span class="authors">Solana Program Library</span>. <a href="https://www.solana-program.com/docs/token-2022">Token-2022 — Solana Program Library (separate address)</a>. <span class="venue">Solana Program Library Docs, 2024</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-15"><span class="authors">Solana Foundation</span>. <a href="https://explorer.solana.com/address/TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb">Token-2022 Program — Solana Explorer</a>. <span class="venue">Solana Explorer, 2026</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-16"><span class="authors">Solana Program Library</span>. <a href="https://www.solana-program.com/docs/token-2022">Token-2022 — Solana Program Library</a>. <span class="venue">Solana Program Library Docs, 2024</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-17"><span class="authors">Solana Foundation</span>. <a href="https://solana.com/docs/tokens/extensions">Extensions | Solana</a>. <span class="venue">solana.com/docs, 2025</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-18"><span class="authors">Solana Foundation</span>. <a href="https://solana.com/docs/tokens/extensions/transfer-fees">Transfer Fees | Solana</a>. <span class="venue">solana.com/docs, 2024</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-19"><span class="authors">Solana Foundation</span>. <a href="https://solana.com/developers/guides/token-extensions/transfer-hook">How to use the Transfer Hook extension | Solana</a>. <span class="venue">solana.com/developers/guides, 2024</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-20"><span class="authors">Solana Foundation</span>. <a href="https://solana.com/docs/tokens/extensions/confidential-transfer">Confidential Transfer | Solana</a>. <span class="venue">solana.com/docs, 2025</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-21"><span class="authors">Solana Foundation</span>. <a href="https://solana.com/news/token-extensions-developer-guide">A Developer&#x27;s Guide to Token Extensions on Solana</a>. <span class="venue">solana.com/news, 2024</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-22"><span class="authors">Fabian Vogelsteller, Vitalik Buterin</span>. <a href="https://eips.ethereum.org/EIPS/eip-20">EIP-20: Token Standard</a>. <span class="venue">Ethereum Improvement Proposals, 2015</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-23"><span class="authors">Fabian Vogelsteller, Vitalik Buterin</span>. <a href="https://eips.ethereum.org/EIPS/eip-20">EIP-20: Token Standard (approve race condition)</a>. <span class="venue">Ethereum Improvement Proposals, 2015</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-24"><span class="authors">OpenZeppelin</span>. <a href="https://docs.openzeppelin.com/contracts/5.x/api/token/erc20">ERC-20 — OpenZeppelin Contracts 5.x API</a>. <span class="venue">OpenZeppelin Contracts Docs, 2024</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-25"><span class="authors">Martin Lundfall, Nick Johnson, Dan Robinson, Sam Bacha</span>. <a href="https://eips.ethereum.org/EIPS/eip-2612">EIP-2612: Permit Extension for EIP-20 Signed Approvals</a>. <span class="venue">Ethereum Improvement Proposals, 2020</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-26"><span class="authors">Vittorio Minacori</span>. <a href="https://eips.ethereum.org/EIPS/eip-1363">ERC-1363: Payable Token</a>. <span class="venue">Ethereum Improvement Proposals, 2020</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-27"><span class="authors">Jacques Dafflon, Jordi Baylina, Thomas Shababi</span>. <a href="https://eips.ethereum.org/EIPS/eip-777">ERC-777: Token Standard</a>. <span class="venue">Ethereum Improvement Proposals, 2017</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-28"><span class="authors">Joey Santoro, t11s, Jet Jadeja, Alberto Cuesta Cañada, Señor Doggo</span>. <a href="https://eips.ethereum.org/EIPS/eip-4626">ERC-4626: Tokenized Vaults</a>. <span class="venue">Ethereum Improvement Proposals, 2021</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-29"><span class="authors">Uniswap Labs</span>. <a href="https://developers.uniswap.org/concepts/protocol/integration-issues">Token Integration Issues — Uniswap</a>. <span class="venue">Uniswap Docs, 2023</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-30"><span class="authors">0xnolo</span>. <a href="https://medium.com/@0xnolo/fee-on-transfer-rebase-tokens-an-erc-20-security-bug-you-need-to-know-f4e5badea1ee">Fee on Transfer &amp; Rebase Tokens: An ERC-20 Security Bug You Need to Know</a>. <span class="venue">Medium, 2024</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-31"><span class="authors">Spark</span>. <a href="https://www.spark.money/research/stablecoin-blacklisting-sanctions-mechanics">Stablecoin Blacklisting: How OFAC Sanctions and Freeze Functions Work On-Chain</a>. <span class="venue">Spark Research, 2025</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-32"><span class="authors">Centre / Circle</span>. <a href="https://github.com/zhenghui-w/stablecoin-evm/blob/master/doc/tokendesign.md">FiatToken (Circle stablecoin) Token Design — Blacklist</a>. <span class="venue">stablecoin-evm repository documentation, 2023</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-33"><span class="authors">Neodyme</span>. <a href="https://neodyme.io/en/blog/token-2022/">SPL Token-2022: Don&#x27;t shoot yourself in the foot with extensions</a>. <span class="venue">Neodyme Security Blog, 2024</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-34"><span class="authors">Solana Foundation</span>. <a href="https://solana.com/news/paypal-pyusd-on-solana">PayPal Announces PYUSD on Solana</a>. <span class="venue">solana.com/news, 2024</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+      <li id="ref-35"><span class="authors">Mehak Jethmalani</span>. <a href="https://developer.paypal.com/community/blog/pyusd-solana-token-extensions/">A Deep Dive into PYUSD and Solana Token Extensions</a>. <span class="venue">PayPal Developer Community Blog, 2025</span>. <span class="accessed">접근일 2026-07-22.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-07-22 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+title: Solana SPL 토큰과 SPL 토큰 2022, 그리고 Ethereum ERC-20 비교 분석
+subtitle: 공유 프로그램 방식과 컨트랙트별 배포 방식 — 두 체인의 토큰 표준을 데이터 모델·기능·보안 관점에서 대조한다.
+title_en: SPL Token, SPL Token-2022, and Ethereum ERC-20 — A Comparative Analysis
+subtitle_en: Shared program versus per-contract deployment — contrasting the two chains' token standards on data model, features, and security.
+slug: spl-token-2022-vs-erc20
+lang: ko
+langs: [ko, en]
+date: 2026-07-22
+tags: [solana, spl-token, token-2022, token-extensions, ethereum, erc-20, token-standards]
+status: ready
