@@ -1,0 +1,10 @@
+title: "Google AP2 v0.2 — Protocol Surface, Processing Flow, and What the Reference Code Actually Enforces"
+subtitle: "A code-anchored reading of AP2 at commit e1ea56d: the SD-JWT delegation chain, the Human-Present and Human-Not-Present message orders, the x402 EIP-3009 binding, and four normative requirements the reference implementation does not enforce."
+title_ko: "Google AP2 v0.2 — 프로토콜 표면, 처리 플로우, 그리고 레퍼런스 코드가 실제로 강제하는 것"
+subtitle_ko: "커밋 e1ea56d 기준으로 AP2를 코드에 붙여 읽는다: SD-JWT 위임 체인, Human-Present/Human-Not-Present 메시지 순서, x402 EIP-3009 바인딩, 그리고 레퍼런스 구현이 강제하지 않는 네 가지 규범 요구사항."
+slug: google-ap2-flow-and-code
+lang: en
+langs: [en, ko]
+date: 2026-07-30
+tags: [ap2, agent-payments, sd-jwt, kb-sd-jwt, selective-disclosure, x402, eip-3009, ucp, a2a, mcp, fido, google-adk]
+status: ready
