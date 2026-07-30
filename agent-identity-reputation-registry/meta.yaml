@@ -1,0 +1,10 @@
+title: AI 에이전트 신원인증·평판·탐색: 프로토콜과 레지스트리 생태계
+subtitle: 서명 기반 웹 신원, 엔터프라이즈 에이전트 IAM, 온체인 레지스트리, 마켓플레이스 심사 — 2026년 중반 기준 에이전트 신뢰 스택 조사.
+title_en: "AI Agent Identity, Reputation, and Discovery: The Protocol and Registry Landscape"
+subtitle_en: Signed web identity, enterprise agent IAM, on-chain registries, and marketplace review — a survey of the agent trust stack as of mid-2026.
+slug: agent-identity-reputation-registry
+lang: ko
+langs: [ko, en]
+date: 2026-07-30
+tags: [ai-agents, agent-identity, reputation, agent-registry, web-bot-auth, rfc-9421, a2a, mcp-registry, erc-8004, trusted-agent-protocol, entra-agent-id, agent-marketplace]
+status: ready
