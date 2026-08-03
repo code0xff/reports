@@ -1,0 +1,10 @@
+title: 에이전트 커머스 카드 결제 프로토콜과 서비스 — 사양부터 운영 현실까지
+subtitle: Visa TAP·Mastercard Agent Pay·Google AP2/UCP·OpenAI ACP·Amex ACE를 식별·위임·체크아웃·정산 계층으로 분해하고, 온보딩 비용·승인율·책임 귀속·사기 위험을 운영 관점에서 평가한다.
+title_en: Card Payment Protocols and Services for Agent Commerce — From Specification to Operational Reality
+subtitle_en: Decomposing Visa TAP, Mastercard Agent Pay, Google AP2/UCP, OpenAI ACP and Amex ACE into identification, delegation, checkout and settlement layers, and evaluating onboarding cost, authorisation, liability and fraud in operation.
+slug: agent-commerce-card-payments
+lang: ko
+langs: [ko, en]
+date: 2026-08-03
+tags: [agentic-commerce, agent-payments, card-networks, acp, ap2, ucp, trusted-agent-protocol, payments-operations]
+status: ready
