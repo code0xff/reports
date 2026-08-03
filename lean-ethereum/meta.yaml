@@ -1,0 +1,10 @@
+title: Lean Ethereum
+subtitle: 포스트-퀀텀과 스나크화를 축으로 한 이더리움 프로토콜 재설계 — 정의, 구현 현황, 그리고 반론
+title_en: Lean Ethereum
+subtitle_en: Ethereum's protocol redesign around post-quantum cryptography and snarkification — definition, implementation state, and counter-arguments
+slug: lean-ethereum
+lang: ko
+langs: [ko, en]
+date: 2026-08-03
+tags: [ethereum, lean-ethereum, post-quantum, consensus, zkvm, xmss, poseidon, roadmap]
+status: ready
