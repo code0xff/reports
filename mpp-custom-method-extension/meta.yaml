@@ -1,0 +1,10 @@
+title: Extending MPP with Custom Payment Methods
+subtitle: How MPP models a payment rail, what the mppx extension surface actually requires, and a custom method compiled and executed end-to-end.
+title_ko: MPP 커스텀 결제 메서드 확장
+subtitle_ko: MPP가 결제 레일을 모델링하는 방식, mppx 확장 표면이 실제로 요구하는 것, 그리고 컴파일하고 실행까지 마친 커스텀 메서드 구현
+slug: mpp-custom-method-extension
+lang: en
+langs: [en, ko]
+date: 2026-08-06
+tags: [mpp, tempo, agent-payments, http-402, paymentauth, mppx, custom-payment-method]
+status: ready

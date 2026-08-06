@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Extending MPP with Custom Payment Methods — Deepsearch</title>
+<meta name="description" content="How MPP models a payment rail, what the mppx extension surface actually requires, and a custom method compiled and executed end-to-end.">
+<link rel="canonical" href="https://code0xff.github.io/reports/mpp-custom-method-extension/">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="ko" href="ko/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="Extending MPP with Custom Payment Methods">
+<meta property="og:description" content="How MPP models a payment rail, what the mppx extension surface actually requires, and a custom method compiled and executed end-to-end.">
+<meta property="og:url" content="https://code0xff.github.io/reports/mpp-custom-method-extension/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Extending MPP with Custom Payment Methods">
+<meta name="twitter:description" content="How MPP models a payment rail, what the mppx extension surface actually requires, and a custom method compiled and executed end-to-end.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>Extending MPP with Custom Payment Methods</h1>
+    <p class="subtitle">How MPP models a payment rail, what the mppx extension surface actually requires, and a custom method compiled and executed end-to-end.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-08-06</span>
+      <span><strong>Tags</strong> mpp, tempo, agent-payments, http-402, paymentauth, mppx, custom-payment-method</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="mpp-custom-method-extension.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>The Machine Payments Protocol (MPP) reserves the word <em>method</em> for the concrete payment rail behind an HTTP 402 exchange, and pushes everything rail-specific out of the core into a per-method contract: a wire identifier, a request schema, a credential-payload schema, a verification procedure, and a settlement procedure.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> This report examines what it actually takes to add a rail MPP does not ship. It maps the extension surface of <code>mppx</code>, the reference TypeScript SDK — <code>Method.from()</code> for the shared definition, <code>Method.toClient()</code> for credential creation, <code>Method.toServer()</code> for the server lifecycle<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> — and presents a complete custom method that was compiled under <code>strict</code> TypeScript and executed end-to-end against <code>mppx</code> 0.8.15, including a live 402 challenge, a settled receipt, a rejected replay, and a rejected forged challenge.</p>
+<p>Three findings qualify the picture. First, the settlement contract changed recently and the project's two documentation surfaces have not converged on it: version 0.8.14 deprecated the combined <code>verify</code> hook in favour of a non-mutating <code>validate</code> plus a terminal <code>broadcast</code>, and <code>Method.toServer</code>'s options type is now a discriminated union accepting one shape or the other.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> The API reference tracks this and marks <code>verify</code> "Legacy",<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> but the narrative custom-method guide — the page a new implementer lands on first — still teaches <code>verify</code> alone.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> Second, the extension point is genuinely open in practice, not just on paper: Stellar, the Solana Foundation, and an individual developer have all shipped MPP methods as independent packages, and a NEAR Intents method draft was submitted to the specification repository by an outside author.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> Third, the trust boundary sits entirely inside the method — the core draft assigns single-use proof semantics to "the payment method infrastructure", and the SDK's server dispatch supplies HMAC challenge provenance and route binding but no credential-consumption store, so replay protection is work the implementer must do.<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup> Under those conditions the engineering cost of a new rail is modest, and the correctness burden is not.</p>
+  </section>
+
+  <main class="body">
+<h2>Introduction</h2>
+<p>MPP, launched on 18 March 2026 and described by Stripe as "co-authored by Tempo and Stripe",<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> standardises the long-dormant HTTP <code>402 Payment Required</code> status into a challenge–credential–receipt exchange that is deliberately indifferent to how money actually moves.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> That indifference is the whole design: the core specification describes HTTP semantics, headers, and registries; a separate layer describes <em>intents</em> (abstract payment patterns such as charge and subscription); and a third layer describes <em>methods</em> (concrete rails such as Tempo, Stripe, or Solana).<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> Cloudflare's independent documentation reaches the same reading, describing MPP as "payment-method agnostic" and noting that a single service can offer more than one method.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<p>The practical question this report answers is narrower than "what is MPP". It is: <strong>if the rail you need is not one of the rails that ship, what do you build, where does it plug in, and what can go wrong?</strong></p>
+<p>Two answers exist and they operate at different layers. The specification-level answer is to write a method draft against the published template and open a pull request to the <code>mpp-specs</code> repository.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> The implementation-level answer is to construct a method object with the SDK's <code>Method</code> API and pass it to <code>Mppx.create()</code> on both sides, changing nothing else.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> These are complementary rather than alternative: the first buys interoperability with other people's clients, the second buys a working payment flow this afternoon. Most of this report concerns the second, because that is where the code lives, but §6 returns to the first.</p>
+<p>Scope: <code>mppx</code> is the primary implementation surface, with the <code>Payment</code> HTTP authentication scheme as the wire contract. Cross-language parity with the Rust SDK is examined but not exhaustively audited. This report does not compare rails on economics, nor evaluate Tempo the chain. All SDK findings are pinned to <code>mppx</code> 0.8.15 and to repository state on 2026-08-06; §8 says what that pinning costs.</p>
+<h2>Background — the MPP method abstraction</h2>
+<h3>The wire exchange</h3>
+<p>An MPP exchange has three headers. A server that wants payment answers with <code>402</code> and a <code>WWW-Authenticate: Payment</code> challenge; the client retries with an <code>Authorization: Payment</code> credential; a successful response may carry a <code>Payment-Receipt</code>.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> The challenge is a standard RFC 9110 auth-param list, and five parameters are required — <code>id</code>, <code>realm</code>, <code>method</code>, <code>intent</code>, and <code>request</code> — with <code>expires</code>, <code>digest</code>, <code>description</code>, and <code>opaque</code> optional.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> The <code>request</code> parameter is base64url-encoded JSON serialised under the JSON Canonicalization Scheme, which matters for a custom method because it means your request schema is transported as an opaque blob the core never interprets.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></p>
+<p>Two of those parameters carry the extension:</p>
+<ul>
+<li><strong><code>method</code></strong> names the rail. Its grammar in the core draft's collected ABNF is <code>payment-method-id = 1*LOWERALPHA</code>, where <code>LOWERALPHA</code> is <code>%x61-7A</code> — lowercase letters only, no digits and no hyphens.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></li>
+<li><strong><code>intent</code></strong> names the payment pattern, with a looser grammar of <code>1*( ALPHA / DIGIT / "-" )</code>.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></li>
+</ul>
+<p>The inference to draw from those two facts: because the method name is just a string in a header and the request body is just an opaque blob the core never interprets, a server and client that agree on a new method can transact over unmodified MPP infrastructure, with nothing in the core changing. That is the structural reason third-party methods are possible at all — and the sections below test the inference against methods people have actually shipped.</p>
+<p>The credential mirrors the challenge: <code>Authorization: Payment &lt;base64url-nopad&gt;</code>, decoding to an object with an echoed <code>challenge</code>, a method-specific <code>payload</code>, and an optional <code>source</code> payer identifier that the specification recommends be a DID.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> The receipt is likewise base64url JSON, carrying <code>status</code>, <code>method</code>, <code>timestamp</code>, and <code>reference</code>.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup></p>
+<h3>Layering, and what "additive" means</h3>
+<p>The <code>mpp-specs</code> repository is organised as core / intents / methods / extensions, with the core holding "HTTP 402 semantics, headers, IANA registries" and methods holding "concrete implementations for specific networks".<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> A new rail is therefore a new <em>document</em> in <code>specs/methods/</code>, not an edit to the core — the contributing guide routes "New method" straight to the method template.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></p>
+<p>The intent layer is more constrained. Shipped intents are <code>charge</code>, <code>session</code>, and <code>subscription</code> in the SDK's constant table,<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> and the method template treats <code>charge</code> as REQUIRED with <code>authorize</code> and <code>subscription</code> OPTIONAL.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> A method may nevertheless define a <em>new</em> intent, which the project labels <strong>experimental</strong>: an intent defined only inside a method spec is experimental, and is promoted to <code>specs/intents/</code> once two or more methods implement it.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> So the honest summary is that intents are a small, curated set that a custom method is expected to reuse, with a documented — but deliberately slow — path to adding one.</p>
+<h3>The built-ins are not privileged</h3>
+<p>The clearest evidence that the extension point is real is that the shipped methods use it. <code>mppx</code>'s EVM charge method is an ordinary <code>Method.from()</code> call with a <code>z.pipe</code> request schema that accepts human-readable amounts and transforms them into wire values:<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup></p>
+<pre><code>export const charge = Method.from({
+  name: Types.paymentMethod,
+  intent: Types.chargeIntent,
+  schema: {
+    credential: { payload: Types.ChargePayloadSchema },
+    request: z.pipe(
+      Types.ChargeRequestInputSchema,
+      z.transform(({ amount, decimals, currency, recipient, chainId, ...request }) =&gt; ({
+        ...request,
+        amount: parseUnits(amount, decimals).toString(),
+        currency: getAddress(currency),
+        recipient: getAddress(recipient),
+        methodDetails: { chainId, decimals },
+      })),
+    ),
+  },
+})</code></pre>
+<p>There is no private interface here that third parties cannot reach. The SDK's own test suite defines throwaway methods named <code>mock</code> the same way,<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup> and Stellar's shipped SDK defines <code>name: 'stellar'</code> the same way.<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup></p>
+<h2>The extension surface</h2>
+<h3>The shared definition</h3>
+<p><code>Method.from()</code> takes a plain object and returns it unchanged — it exists for type inference, not behaviour. The <code>Method</code> type has exactly four meaningful fields (plus an optional <code>html</code> block for browser-facing payment pages):<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<pre><code>export type Method = {
+  name: string
+  html?: Html.Options | undefined
+  intent: string
+  schema: {
+    credential: { payload: z.ZodMiniType }
+    request: z.ZodMiniType&lt;Record&lt;string, unknown&gt;&gt;
+  }
+}</code></pre>
+<p>This object is the contract, and it should live in a module both halves import. <code>name</code> and <code>intent</code> become the wire identifiers; <code>schema.request</code> types what the server puts into the challenge; <code>schema.credential.payload</code> types what the client puts into the credential.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></p>
+<p>Two schema conventions are worth adopting from the built-ins. Use <code>amount</code>, <code>currency</code>, and <code>recipient</code> as top-level field names — the SDK's default credential-to-route binding recognises exactly those three as its <em>core</em> binding fields,<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup> and Stellar's independently authored method uses the same three.<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup> Nest anything rail-specific under a <code>methodDetails</code> object, which is both the documented guidance for avoiding schema collisions<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> and what the built-in EVM and third-party Stellar methods actually do.<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup></p>
+<h3>The client half</h3>
+<p><code>Method.toClient()</code> requires one function. <code>createCredential</code> receives the parsed challenge and returns a serialized credential string:<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<pre><code>export type CreateCredentialFn&lt;method extends Method, context = unknown&gt; = (
+  parameters: { challenge: Challenge.Challenge&lt;...&gt; } &amp; (...),
+) =&gt; Promise&lt;string&gt;</code></pre>
+<p><code>Credential.serialize({ challenge, payload, source? })</code> produces that string, base64url-encoding the echoed challenge together with the payload.<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup><sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup> Two options refine the behaviour: <code>context</code>, a Zod schema for per-call parameters that the SDK validates before invoking <code>createCredential</code>, and <code>canHandleChallenge</code>, a predicate used when several client implementations share a wire method/intent pair.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> Per-call context is supplied through the fetch init object's <code>context</code> field.</p>
+<h3>The server half</h3>
+<p><code>Method.toServer()</code> is where the lifecycle lives, and where the SDK has recently changed shape. Historically a server method supplied one hook, <code>verify</code>, which both checked the proof and settled the payment.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> As of <code>mppx</code> 0.8.14, that hook is deprecated in favour of a two-phase split, and the options type is now a discriminated union — you supply <strong>either</strong> <code>{ broadcast, validate? }</code> <strong>or</strong> <code>{ verify }</code>, never both:<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup></p>
+<pre><code>| { broadcast: BroadcastFn&lt;method&gt;; validate?: ValidateFn&lt;method&gt;; verify?: undefined }
+| { broadcast?: undefined; validate?: undefined; /** @deprecated */ verify: VerifyFn&lt;method&gt; }</code></pre>
+<p>The SDK's own comment gives the rationale: <code>validate</code> "must not settle, reserve, or otherwise consume payment state", while <code>broadcast</code> "performs the terminal payment operation"; the combined hook "may mutate payment state and cannot power a safe validation-only endpoint".<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> The split is what makes <code>mppx.validateCredential()</code> — a non-destructive pre-check — possible. Internally, if you supply only the new pair, the SDK synthesises a <code>verify</code> that calls <code>validate</code> then <code>broadcast</code>, so downstream dispatch is unchanged.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<p><strong>The project's two documentation surfaces disagree about this.</strong> The API reference for <code>Method.toServer</code> is current: it lists <code>validate</code> as "Validates a Credential without settling, reserving, broadcasting, or otherwise consuming payment state", <code>broadcast</code> as "Completes payment and returns its Receipt", and <code>verify</code> as "Legacy combined validation and settlement function. Use <code>validate</code> and <code>broadcast</code> for new methods."<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup> The narrative custom-method guide at <code>mpp.dev/payment-methods/custom</code>, read the same day, still teaches <code>Method.toServer(lightning, { async verify({ credential }) { ... } })</code> with no mention of either new hook.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> The guide's form still compiles and runs — it simply selects the deprecated branch of the union. Since the guide is the entry point most implementers reach first, expect to be taught the old shape and cross-check against the reference.</p>
+<p>Beyond settlement, the server options expose a set of optional hooks, each with a distinct job. The table below is derived from the SDK's type definitions,<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> which are a superset of the reference page's list — <code>authorize</code>, <code>preflight</code>, <code>stableBinding</code>, <code>alias</code>, <code>extensions</code>, and <code>html</code> exist in the types but are not documented on the reference page:<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup></p>
+<table><thead><tr><th>Hook</th><th>Runs</th><th>Purpose</th></tr></thead><tbody><tr><td><code>request</code></td><td>before the challenge is minted, and again on resubmission</td><td>enrich or normalise request fields — e.g. mint an invoice</td></tr><tr><td><code>defaults</code></td><td>challenge construction</td><td>pre-fill request fields so routes need not repeat them</td></tr><tr><td><code>authorize</code></td><td>after normalisation, before the 402 path</td><td>grant access from existing state (e.g. an active subscription) without a fresh credential</td></tr><tr><td><code>preflight</code></td><td>before the challenge/verification path</td><td>answer method-specific management requests directly</td></tr><tr><td><code>canOffer</code></td><td>once per configured offer</td><td>withdraw this method's offer for a given request</td></tr><tr><td><code>respond</code></td><td>after settlement succeeds</td><td>return a Response directly and short-circuit <code>withReceipt()</code></td></tr><tr><td><code>stableBinding</code></td><td>credential binding</td><td>declare which request fields must stay stable across <code>request</code>-hook transforms</td></tr><tr><td><code>alias</code>, <code>extensions</code>, <code>transport</code>, <code>html</code></td><td>—</td><td>registration name, arbitrary attachments, transport override, browser payment page</td></tr></tbody></table>
+<p>The <code>request</code> hook deserves emphasis because its double invocation is easy to miss. It runs on the initial 402 <em>and</em> on credential resubmission — the SDK passes <code>credential</code> on the second pass so the hook can tell them apart, and the SDK's own test asserts the transport captures the request exactly twice.<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup> The documented consequence is that side-effectful setup inside <code>request</code>, such as minting an invoice, must be idempotent.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></p>
+<h3><code>defaults</code>: a runtime/type-level split worth knowing</h3>
+<p>The guide presents <code>defaults</code> as a way to "make request parameters optional at call sites".<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> At runtime this is exactly true: a route declared with <code>defaults: { currency: 'usd', recipient: 'acct_merchant_1' }</code> and called as <code>mppx.charge({ amount: '1.50' })</code> produced a challenge whose decoded request was <code>{"amount":"150","currency":"usd","methodDetails":{"decimals":2},"recipient":"acct_merchant_1"}</code>. That result, and every other measurement in this report attributed to "the execution run", is first-party experimental evidence rather than a cited source; the code, the compiler output, and the runtime log are committed under this report's <code>working/verification/</code> directory so the run can be repeated.</p>
+<p>At the type level, in <code>mppx</code> 0.8.15, it is not. Compiling that same call under <code>strict</code> fails:</p>
+<pre><code>error TS2345: Argument of type &#x27;{ amount: string; }&#x27; is not assignable to parameter of type
+&#x27;Options&lt;Server&lt;..., {}, undefined, {}, undefined&gt;, {}&gt;&#x27;.
+  Type &#x27;{ amount: string; }&#x27; is missing the following properties: currency, recipient</code></pre>
+<p>The <code>{}</code> in the printed <code>Server&lt;...&gt;</code> type is the diagnosis: <code>Method.toServer</code>'s <code>defaults</code> type parameter is a separate inference site from its <code>options</code> argument, so it collapses to <code>{}</code> and the <code>WithDefaults</code> mapping never applies. Supplying the type argument explicitly fixes it, and this compiles clean:</p>
+<pre><code>const defaults = { currency: &#x27;usd&#x27;, recipient: &#x27;acct_merchant_1&#x27; } as const
+
+const ledger = Method.toServer&lt;typeof charge, typeof defaults&gt;(charge, {
+  defaults,
+  // ...
+})</code></pre>
+<p>This was verified both ways — with and without the explicit generic, with a plain object schema and with a <code>z.pipe</code> schema — by compiling and running each variant. _(Single implementation, single version — treat as a 0.8.15 quirk, not a design statement.)_</p>
+<h2>Implementation — a worked custom method</h2>
+<p>The example below is a complete <code>ledger</code> method: a proprietary prepaid-balance rail with no blockchain, no external processor, and no facilitator. It is deliberately boring, because the interesting part is the plumbing. The full file, its compiler output, and its runtime output are in this report's <code>working/verification/</code> directory.</p>
+<p><strong>Verification status.</strong> This code was compiled with <code>tsc --strict</code> against <code>mppx</code> 0.8.15 (clean, no errors) and executed under <code>tsx</code>. The outputs quoted below are the real outputs of that run, not illustrations.</p>
+<h3>Step 1 — the shared definition</h3>
+<p>Both halves import this module. Note the spec-conformant name (<code>ledger</code>: lowercase letters only), the <code>z.pipe</code> request schema that accepts a human-readable <code>"1.50"</code> and emits base-unit <code>"150"</code>, and <code>methodDetails</code> for the rail-specific field.</p>
+<pre><code>import { Credential, Method, Receipt, z } from &#x27;mppx&#x27;
+
+export const charge = Method.from({
+  name: &#x27;ledger&#x27;,
+  intent: &#x27;charge&#x27;,
+  schema: {
+    credential: {
+      payload: z.object({
+        nonce: z.string(),
+        signature: z.string(),
+        type: z.literal(&#x27;balance-debit&#x27;),
+      }),
+    },
+    request: z.pipe(
+      z.object({
+        amount: z.string(),
+        currency: z.string(),
+        decimals: z.optional(z.number()),
+        recipient: z.string(),
+      }),
+      z.transform(({ amount, currency, decimals = 2, recipient }) =&gt; ({
+        amount: parseUnits(amount, decimals),
+        currency: currency.toLowerCase(),
+        methodDetails: { decimals },
+        recipient,
+      })),
+    ),
+  },
+})
+
+/** Integer-only base-unit conversion. Never use Number() for money. */
+function parseUnits(value: string, decimals: number): string {
+  const [whole = &#x27;0&#x27;, frac = &#x27;&#x27;] = value.split(&#x27;.&#x27;)
+  const padded = (frac + &#x27;0&#x27;.repeat(decimals)).slice(0, decimals)
+  return (BigInt(whole) * 10n ** BigInt(decimals) + BigInt(padded || &#x27;0&#x27;)).toString()
+}
+
+/** The exact bytes the payer signs. Binds the proof to challenge, amount, and payee. */
+export function signingMessage(p: {
+  amount: string
+  challengeId: string
+  nonce: string
+  recipient: string
+}) {
+  return Buffer.from(`ledger:v1:${p.challengeId}:${p.amount}:${p.recipient}:${p.nonce}`)
+}</code></pre>
+<p>The signing message is the security core of the whole method, and it is worth stating why each component is present. <code>challengeId</code> binds the signature to one specific challenge, so a proof cannot be lifted to another request; the SDK computes that id as an HMAC-SHA256 over <code>realm|method|intent|request|expires|digest|opaque</code>, so it is not attacker-choosable.<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup> <code>amount</code> and <code>recipient</code> bind the payer's intent, so a compromised server cannot re-target a signature. <code>nonce</code> gives the payer a handle for their own deduplication.</p>
+<h3>Step 2 — the client half</h3>
+<p>A factory closes over the payer's key, which is how the built-in and third-party methods are structured.<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup></p>
+<pre><code>import { sign } from &#x27;node:crypto&#x27;
+import { Credential, Method, z } from &#x27;mppx&#x27;
+import { charge, signingMessage } from &#x27;./Methods.js&#x27;
+
+export function ledger(parameters: { account: { id: string; key: KeyObject } }) {
+  const { account } = parameters
+  return Method.toClient(charge, {
+    context: z.object({ maxAmount: z.optional(z.string()) }),
+    async createCredential({ challenge, context }) {
+      const { amount, recipient } = challenge.request
+
+      // Client-side spend guard, evaluated against the server&#x27;s own quote.
+      if (context?.maxAmount &amp;&amp; BigInt(amount) &gt; BigInt(context.maxAmount))
+        throw new Error(`quote ${amount} exceeds maxAmount ${context.maxAmount}`)
+
+      const nonce = `n-${challenge.id.slice(0, 8)}`
+      const signature = sign(
+        null,
+        signingMessage({ amount, challengeId: challenge.id, nonce, recipient }),
+        account.key,
+      ).toString(&#x27;base64url&#x27;)
+
+      return Credential.serialize({
+        challenge,
+        payload: { nonce, signature, type: &#x27;balance-debit&#x27; as const },
+        source: `did:web:ledger.example#${account.id}`,
+      })
+    },
+  })
+}</code></pre>
+<p><code>context</code> is the right home for a spend cap. It is validated against the declared Zod schema before <code>createCredential</code> runs,<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> and because the check happens after the challenge is parsed, the agent is comparing against the server's actual quote rather than a guess.</p>
+<h3>Step 3 — the server half</h3>
+<p>This is the <code>validate</code> / <code>broadcast</code> form. <code>validate</code> is pure: it proves the credential is acceptable and touches nothing. <code>broadcast</code> is the only place state moves.</p>
+<pre><code>import { verify } from &#x27;node:crypto&#x27;
+import { Method, Receipt } from &#x27;mppx&#x27;
+import { charge, signingMessage } from &#x27;./Methods.js&#x27;
+
+const defaults = { currency: &#x27;usd&#x27;, recipient: &#x27;acct_merchant_1&#x27; } as const
+
+export function ledger(parameters: { accounts: Accounts; store: AtomicStore }) {
+  const { accounts, store } = parameters
+
+  function resolveAccount(source: string | undefined) {
+    const id = source?.split(&#x27;#&#x27;)[1]
+    const account = id ? accounts.get(id) : undefined
+    if (!id || !account) throw new Error(&#x27;unknown payer account&#x27;)
+    return { account, id }
+  }
+
+  return Method.toServer&lt;typeof charge, typeof defaults&gt;(charge, {
+    defaults,
+
+    // The default binding pins amount/currency/recipient only; add `decimals`
+    // so a request-hook transform cannot silently change the scale.
+    stableBinding(request) {
+      return {
+        amount: request.amount,
+        currency: request.currency,
+        decimals: request.methodDetails.decimals,
+        recipient: request.recipient,
+      }
+    },
+
+    // NON-MUTATING. Must not settle, reserve, or consume payment state.
+    async validate({ credential }) {
+      const { challenge, payload, source } = credential
+      const { amount, recipient } = challenge.request
+      const { account, id } = resolveAccount(source)
+
+      const ok = verify(
+        null,
+        signingMessage({ amount, challengeId: challenge.id, nonce: payload.nonce, recipient }),
+        account.pubkey,
+        Buffer.from(payload.signature, &#x27;base64url&#x27;),
+      )
+      if (!ok) throw new Error(&#x27;invalid ledger authorisation signature&#x27;)
+      if (account.balance &lt; BigInt(amount)) throw new Error(&#x27;insufficient ledger balance&#x27;)
+
+      return {
+        challenge,
+        credential,
+        details: { accountId: id, availableBalance: account.balance.toString() },
+        intent: &#x27;charge&#x27; as const,
+        method: &#x27;ledger&#x27; as const,
+        request: challenge.request,
+        source,
+      }
+    },
+
+    // TERMINAL. Claims the challenge, then moves money exactly once.
+    async broadcast({ credential }) {
+      const { challenge, source } = credential
+      const { amount } = challenge.request
+      const { account, id } = resolveAccount(source)
+
+      // Replay protection: atomic compare-and-set on the challenge id.
+      const claim = await store.update(`ledger:challenge:${challenge.id}`, (current) =&gt;
+        current
+          ? { op: &#x27;noop&#x27; as const, result: &#x27;replay&#x27; as const }
+          : {
+              op: &#x27;set&#x27; as const,
+              result: &#x27;claimed&#x27; as const,
+              value: { claimedAt: new Date().toISOString() },
+            },
+      )
+      if (claim === &#x27;replay&#x27;) throw new Error(&#x27;challenge already settled — replay rejected&#x27;)
+
+      account.balance -= BigInt(amount)
+      accounts.set(id, account)
+
+      return Receipt.from({
+        externalId: id,
+        method: &#x27;ledger&#x27;,
+        reference: `ldg_${challenge.id.slice(0, 12)}`,
+        status: &#x27;success&#x27;,
+        timestamp: new Date().toISOString(),
+      })
+    },
+  })
+}</code></pre>
+<p><code>Receipt.from()</code> validates against a schema whose required fields are <code>method</code>, <code>reference</code>, <code>status</code>, and an RFC 3339 <code>timestamp</code>, with <code>externalId</code> and <code>subscriptionId</code> optional; <code>status</code> is the literal <code>'success'</code>, because failures travel as 402 plus Problem Details rather than as a failed receipt.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> Unknown fields survive parse/serialize round-trips, so a method may add its own.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup></p>
+<p>One caveat the split introduces: <strong>a <code>validate</code> result is advisory, not a guarantee that still holds inside <code>broadcast</code>.</strong> The API reference is explicit — "Revalidate any external or on-chain state before the terminal operation, because a previous <code>validate</code> result is advisory."<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup> The two hooks are separate calls, so anything checked in <code>validate</code> may have changed by the time <code>broadcast</code> runs. In the example above the balance check in <code>validate</code> is a fast rejection, not the authority; <code>broadcast</code> claims the challenge atomically before debiting, and a production version would perform the debit and the balance assertion in one atomic operation rather than reading the balance in one hook and writing it in another. Treat <code>validate</code> as a pre-flight that saves work, and put every invariant that must actually hold inside the terminal operation.</p>
+<p>The store idiom is lifted from a shipped production method rather than invented here. Stellar's server charge method refuses to construct without an atomic store — "An atomic store providing compare-and-set semantics via <code>update()</code> is required for replay protection" — and claims <code>challenge.id</code> by compare-and-set before doing settlement work, exactly as above.<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup></p>
+<h3>Step 4 — wiring, on both sides</h3>
+<p>Nothing about <code>Mppx.create()</code> changes for a custom method — the call is the same shape the README shows for the built-in Tempo method, with a different object in the <code>methods</code> array.<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup> This is the entire integration:</p>
+<pre><code>// Server
+const mppx = ServerMppx.create({
+  methods: [ledgerServer({ accounts, store: Store.memory() })],
+  realm: &#x27;api.example.com&#x27;,
+  secretKey: process.env.MPP_SECRET_KEY!,
+})
+
+async function app(request: Request): Promise&lt;Response&gt; {
+  const result = await mppx.charge({ amount: &#x27;1.50&#x27; })(request)
+  if (result.status === 402) return result.challenge
+  return result.withReceipt(Response.json({ data: &#x27;the paid resource&#x27; }))
+}
+
+// Client
+const client = ClientMppx.create({
+  methods: [ledgerClient({ account: { id: &#x27;alice&#x27;, key: privateKey } })],
+  polyfill: false,   // omit to patch global fetch instead
+})
+
+const response = await client.fetch(&#x27;https://api.example.com/resource&#x27;, {
+  context: { maxAmount: &#x27;500&#x27; },
+})</code></pre>
+<p><code>mppx.charge(...)</code> is the intent-named handler; when several methods share a name the SDK also exposes <code>handler['&lt;name&gt;/&lt;intent&gt;']</code>.<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup> <code>Store.memory()</code> is one of five built-in store constructors — the module also exports <code>cloudflare</code>, <code>redis</code>, <code>upstash</code>, and a generic <code>from</code>.<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup> The memory store holds state in process, so it does not survive a restart and is not shared across instances; pick a durable one if the replay guard below has to hold across either.</p>
+<h3>What actually happened when it ran</h3>
+<p><strong>The unpaid request</strong> produced a challenge naming the custom method:</p>
+<pre><code>HTTP/1.1 402 Payment Required
+WWW-Authenticate: Payment id=&quot;5xgDTLEF1cB2sOql7mB5qgsuXfLWoWmrr_HjvQFHr0A&quot;,
+    realm=&quot;api.example.com&quot;, method=&quot;ledger&quot;, intent=&quot;charge&quot;,
+    request=&quot;eyJhbW91bnQiOiIxNTAiLCJjdXJyZW5jeSI6InVzZCIsIm1ldGhvZERldGFpbHMiOnsiZGVjaW1hbHMiOjJ9LCJyZWNpcGllbnQiOiJhY2N0X21lcmNoYW50XzEifQ&quot;,
+    expires=&quot;2026-08-06T02:33:14.865Z&quot;</code></pre>
+<p>Decoding <code>request</code> gives <code>{"amount":"150","currency":"usd","methodDetails":{"decimals":2},"recipient":"acct_merchant_1"}</code> — the <code>z.pipe</code> transform and the runtime <code>defaults</code> both visible in the output.</p>
+<p><strong>The paid request</strong> returned 200 with a receipt, and the payer's balance moved from 1000 to 850 base units:</p>
+<pre><code>status: 200
+decoded receipt: {
+  method: &#x27;ledger&#x27;,
+  reference: &#x27;ldg_BTa8NRa--cMq&#x27;,
+  externalId: &#x27;alice&#x27;,
+  status: &#x27;success&#x27;,
+  timestamp: &#x27;2026-08-06T02:28:14.871Z&#x27;
+}
+body: { data: &#x27;the paid resource&#x27; }</code></pre>
+<p><strong>A replayed credential</strong> — the byte-identical <code>Authorization</code> header submitted twice — succeeded once and then failed, with the balance debited exactly once:</p>
+<pre><code>first use  status: 200
+second use status: 402
+second body: {
+  type: &#x27;https://paymentauth.org/problems/verification-failed&#x27;,
+  title: &#x27;Verification Failed&#x27;, status: 402,
+  detail: &#x27;Payment verification failed.&#x27;
+}</code></pre>
+<p><strong>A forged challenge</strong> — a valid challenge whose <code>amount</code> was edited down to <code>1</code> before serialising the credential — was rejected before the method's own code ran, by the SDK's HMAC provenance check:<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup></p>
+<pre><code>forged status: 402 {
+  type: &#x27;https://paymentauth.org/problems/invalid-challenge&#x27;,
+  title: &#x27;Invalid Challenge&#x27;, status: 402,
+  detail: &#x27;Challenge &quot;2TsW...&quot; is invalid: challenge was not issued by this server.&#x27;
+}</code></pre>
+<p>That last result is the useful one for calibrating how much the SDK does for you. Challenge tampering is caught by the framework. Replay is not — the method caught it, using a store the method had to supply.</p>
+<h3>Variants</h3>
+<ul>
+<li><strong>Rails that must mint something first</strong> — a Lightning invoice, a hosted checkout session — use the <code>request</code> hook to enrich the request before the challenge is issued, and must make that minting idempotent because the hook runs again on resubmission.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup></li>
+<li><strong>Rails with management operations</strong> — opening or closing a channel — use <code>respond</code> to return a Response directly, which short-circuits <code>withReceipt()</code>.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></li>
+<li><strong>Rails that should sometimes decline</strong> — a method that is unavailable for a given request — use <code>canOffer</code> to withdraw just that offer while leaving other methods' offers intact.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></li>
+</ul>
+<h2>Packaging, discovery, and interoperability</h2>
+<h3>Inline versus published</h3>
+<p>The guide names two paths: define a method inline inside your application, or package it as a standalone npm module for ecosystem reuse.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> The recommended package layout is a shared definition module plus <code>./client</code> and <code>./server</code> subpath exports, with <code>mppx</code> as a peer dependency so the application shares a single instance, and with <code>Mppx</code> itself re-exported so consumers import from one place.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></p>
+<p>Shipped third-party packages both confirm and refine this. <code>@stellar/mpp</code> declares <code>mppx</code> as a peer dependency and exports <code>.</code>, <code>./charge</code>, <code>./charge/client</code>, <code>./charge/server</code>, <code>./channel</code>, <code>./channel/client</code>, and <code>./channel/server</code><sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup> — the same shared/client/server split, but nested one level deeper so each intent gets its own tree. Its source mirrors that: <code>sdk/src/charge/Methods.ts</code> holds the <code>Method.from()</code> definition, with <code>charge/client/Methods.ts</code> and <code>charge/server/Charge.ts</code> holding the two halves.<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup> For a method supporting more than one intent, the per-intent nesting is the better pattern.</p>
+<h3>Discovery</h3>
+<p>Three mechanisms operate at different distances from the payment.</p>
+<p>At request time, the client advertises what it can pay with. <code>Accept-Payment</code> carries <code>method/intent</code> tokens with optional q-values — <code>Accept-Payment: tempo/charge, stripe/charge;q=0.5</code> — and a server that supports several may order its challenges accordingly.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> <code>mppx</code>'s client builds this header automatically from the registered methods via <code>AcceptPayment.resolve(methods, config.paymentPreferences)</code>,<sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup> so a custom method becomes discoverable to the server for free, with no registration step.</p>
+<p>At the 402 itself, a server may emit multiple <code>WWW-Authenticate: Payment</code> challenges, one per offered method/intent pair, letting the client choose.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></p>
+<p>Ahead of any request, the discovery extension defines an OpenAPI document annotated with <code>x-service-info</code> and <code>x-payment-info</code>, describing pricing, payment methods, and intent types — while insisting that "the runtime 402 challenge remains authoritative for all payment parameters".<sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup> A custom method appears there as a payment offer like any other. Notably, this draft was co-authored across two organisations, Tempo Labs and Merit Systems,<sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup> which is itself a small signal that the extension layer is not purely single-vendor.</p>
+<h3>Naming, and the registry that does not exist yet</h3>
+<p>The core draft establishes an IANA "HTTP Payment Methods" registry under a <strong>Specification Required</strong> policy per RFC 8126, taking a method identifier of lowercase ASCII letters, a description, a specification pointer, and a registrant contact — and it states that the registry "is initially empty".<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup> The method template's IANA section is pre-written for exactly that registration.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<p>But the registry is proposed, not operating, and this can be checked at IANA rather than inferred. The IANA HTTP Authentication Scheme Registry currently lists sixteen schemes — Basic, Bearer, Concealed, Digest, DPoP, GNAP, HOBA, Mutual, Negotiate, OAuth, PrivateToken, the SCRAM variants, and vapid — and <strong>"Payment" is not among them</strong>; nor does that page reference any "HTTP Payment Methods" registry.<sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup> The reason is visible in the draft's own status. The IETF Datatracker records <code>draft-ryan-httpauth-payment</code> at revision 01, submitted 18 March 2026 and expiring 19 September 2026, with a null stream, a null intended status, and group 1027 — which resolves to "Individual Submissions".<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup> It is an individual submission that has not been adopted by any working group.</p>
+<p>The practical consequence: <strong>no registry or tooling observed in this research would prevent two implementers from both shipping <code>name: 'bank'</code>.</strong> Uniqueness is maintained by convention and by the <code>mpp-specs</code> repository acting as a de facto coordination point.</p>
+<p>There is also a conformance trap in the naming rules. The ABNF admits lowercase letters only,<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup> but the official guide's packaged-SDK example uses <code>name: 'my-method'</code>, which contains a hyphen and would not satisfy <code>1*LOWERALPHA</code>.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> Every third-party method examined for this report uses a bare lowercase word — <code>stellar</code>,<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup> <code>ledger</code> in the example above. Pick a single lowercase word.</p>
+<h3>Who is actually building on this</h3>
+<p>Adoption of the extension point is checkable, and it extends beyond Tempo:</p>
+<table><thead><tr><th>Artefact</th><th>Author</th><th>Evidence</th></tr></thead><tbody><tr><td><code>@stellar/mpp</code> v0.7.1</td><td>Stellar Development Foundation</td><td>peer-depends on <code>mppx ^0.6.29</code>; charge + channel intents<sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup></td></tr><tr><td><code>solana-foundation/mpp-sdk</code></td><td>Solana Foundation</td><td>Solana payment method for MPP<sup class="footnote-ref"><a href="#ref-32" id="cite-32">[32]</a></sup></td></tr><tr><td><code>mppx-hedera</code> v0.2.2</td><td>independent developer</td><td>"Native Hedera payment method… Charge + session intents, no facilitator"; first published 2026-04-11<sup class="footnote-ref"><a href="#ref-33" id="cite-33">[33]</a></sup></td></tr><tr><td><code>draft-nearintents-charge-01</code></td><td>Near One</td><td>in <code>mpp-specs</code>, <code>submissiontype: independent</code><sup class="footnote-ref"><a href="#ref-34" id="cite-34">[34]</a></sup></td></tr></tbody></table>
+<p>The <code>mpp-specs</code> tree additionally carries method drafts for lightning, card, usdc, hedera, solana, and stellar alongside tempo, evm, and stripe.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> These are implementation artefacts, not usage statistics — none of them tells us anything about live transaction volume.</p>
+<h3>Cross-language: the Rust SDK is not symmetric</h3>
+<p><code>mpp-rs</code> does expose a third-party extension surface, and documents it: its <code>ChargeMethod</code> trait carries a worked example headed "Implementing for a custom payment network".<sup class="footnote-ref"><a href="#ref-35" id="cite-35">[35]</a></sup> But the abstraction is shaped differently. The Rust traits are <strong>intent-scoped</strong> — <code>ChargeMethod</code>, <code>SessionMethod</code> — and each enforces a fixed typed request schema, which the source states as a design principle:</p>
+<p>&gt; Intent ("charge"): Defines the shared schema (<code>ChargeRequest</code>); Method (e.g. "tempo"): Implements verification for that schema. … All implementations use the same <code>ChargeRequest</code> schema, enforcing consistent field names per the IETF spec.<sup class="footnote-ref"><a href="#ref-35" id="cite-35">[35]</a></sup></p>
+<p><code>mppx</code>, by contrast, lets each method declare an arbitrary request schema.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> The Rust design buys cross-method consistency and gives up schema freedom; the TypeScript design does the reverse. A method needing request fields outside <code>ChargeRequest</code> is straightforward in TypeScript and constrained in Rust. _(Characterised from the trait definitions; the full Rust server integration was not audited — see §8.)_</p>
+<h2>Security and design analysis</h2>
+<h3>The SDK's half of the boundary, and yours</h3>
+<p>It is worth being precise about the division, because the guide's warnings read as generic advice until you see where the framework actually stops.</p>
+<p><strong>The SDK handles:</strong> challenge provenance, via an HMAC-SHA256 challenge id computed over <code>realm|method|intent|request|expires|digest|opaque</code>, which is verified statelessly on resubmission — "No database lookup is needed".<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup> Route binding, so a credential minted at a cheap route cannot be presented at an expensive one; the SDK's tests cover exactly this "cross-route scope confusion" case.<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup> Challenge expiry. Payload schema parsing. And, for body-bearing requests, an optional RFC 9530 content digest parameter binding the credential to the request body.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></p>
+<p><strong>Your method handles:</strong> everything about whether the payment is real. The core specification is explicit that single-use semantics are the rail's job — "Payment methods used with this specification MUST provide single-use proof semantics. A payment proof MUST be usable exactly once… subsequent attempts to use the same proof MUST be rejected by the payment method infrastructure."<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> Reading <code>mppx</code>'s server dispatch path finds HMAC provenance and binding checks but no credential-consumption store,<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup> and the execution run for this report confirmed the consequence directly: forged challenges were rejected by the framework, while replays were rejected only because the example method claimed <code>challenge.id</code> in an atomic store. Stellar's production method reaches the same conclusion independently, requiring an atomic store as a construction precondition and deduplicating on both challenge id and transaction hash.<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup></p>
+<p>So: <strong><code>validate</code> plus <code>broadcast</code> is the entire trust boundary for payment authenticity.</strong> The guidance to "always reject invalid proofs… never return success without proof validation"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> is not boilerplate; the framework has no way to second-guess a method that returns a Receipt.</p>
+<h3>Failure modes worth designing against</h3>
+<p><strong>The challenge is public.</strong> Request fields are serialised into a <code>WWW-Authenticate</code> header and handed to the payer,<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> so anything in <code>schema.request</code> is disclosed. The guide's instruction to keep API keys and private keys out of request fields<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> follows directly from the wire format, not from convention.</p>
+<p><strong>Binding is narrower than your schema.</strong> Absent a <code>stableBinding</code>, the SDK pins <code>amount</code>, <code>currency</code>, and <code>recipient</code>, plus <code>chainId</code>, <code>memo</code>, <code>sessionProtocol</code>, <code>splits</code>, and <code>unitType</code> under <code>methodDetails</code>.<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup> Any other field you invent — <code>decimals</code> in the example above — is <em>not</em> covered by that secondary check. The SDK notes the HMAC binding is the primary integrity check and <code>stableBinding</code> is a "secondary safety net" for cases where the <code>request()</code> hook produces credential-dependent output.<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup> The practical rule: if a field changes what the payer owes, declare it in <code>stableBinding</code>.</p>
+<p><strong>Money is not a <code>Number</code>.</strong> Amounts cross the wire as decimal strings in base units — <code>amount: z.string()</code> in every schema examined,<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup> with the built-in EVM method using <code>parseUnits</code>.<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup> The guide's rule is to use <code>parseUnits</code>/<code>formatUnits</code> and never <code>Number()</code>.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> The example above uses <code>BigInt</code> arithmetic for the same reason.</p>
+<p><strong><code>request</code> runs twice.</strong> Minting an invoice, reserving inventory, or opening a session inside the <code>request</code> hook without an idempotency key will do it twice per payment.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup></p>
+<p><strong>Split settlement from validation.</strong> The 0.8.14 rationale is worth internalising even if you write <code>verify</code>: a hook that mutates payment state cannot be safely called as a pre-check.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> Methods that fuse the two lose the ability to answer "would this credential work?" without spending it.</p>
+<p><strong>Cross-language and cross-version drift.</strong> A method identifier is a bare string; two independent implementations of <code>ledger</code> will collide silently on the wire, and no registry will stop them today.<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup></p>
+<h2>Limitations</h2>
+<p><strong>Version pinning.</strong> All SDK findings are pinned to <code>mppx</code> 0.8.15 and to repository state on 2026-08-06. The package is pre-1.0, was first published 2026-02-12, and was modified the day before this report was written.<sup class="footnote-ref"><a href="#ref-36" id="cite-36">[36]</a></sup> Between the two most recent releases the server hook set gained <code>validate</code>, <code>broadcast</code>, and <code>canOffer</code>, and <code>verify</code> was deprecated.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup> Nothing here is a stable API contract, and the example code should be expected to need mechanical revision across minor versions.</p>
+<p><strong>The narrative guide lags the API reference.</strong> This is narrower than "the documentation is out of date". The <code>Method.toServer</code> API reference is current and marks <code>verify</code> as legacy,<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup> and dedicated pages exist for <code>validateCredential</code> and the non-mutating pre-check.<sup class="footnote-ref"><a href="#ref-37" id="cite-37">[37]</a></sup> It is specifically the custom-method guide at <code>mpp.dev/payment-methods/custom</code> that still teaches <code>verify</code> alone.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> All three were read on 2026-08-06. This report does not attempt to determine whether the lag is intentional.</p>
+<p><strong>The specification has no formal standing.</strong> <code>draft-ryan-httpauth-payment-01</code> is an individual submission, unadopted by any IETF working group, expiring 19 September 2026.<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup> Method identifier grammar, the intent set, and the registry policy could all change before — or instead of — RFC publication. Normative-sounding MUSTs should be read as vendor-stated for now.</p>
+<p><strong>Evidence of absence on replay protection.</strong> The claim that <code>mppx</code> does not enforce single-use credentials rests on reading the server dispatch path and finding no consumption store,<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup> on the observed behaviour of the execution run, and on a shipped third-party method building its own guard.<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup> It is well-supported but remains an argument from absence in one SDK layer; a future release could add a generic guard.</p>
+<p><strong>Cross-language parity is characterised, not audited.</strong> The <code>mpp-rs</code> finding rests on the <code>ChargeMethod</code> and <code>SessionMethod</code> trait definitions.<sup class="footnote-ref"><a href="#ref-35" id="cite-35">[35]</a></sup> The full Rust server integration was not read, so "less flexible in request schema" is a statement about the trait signature and not a verdict on the SDK.</p>
+<p><strong>Adoption breadth is unmeasured.</strong> Third-party method packages demonstrably exist and are versioned,<sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup><sup class="footnote-ref"><a href="#ref-33" id="cite-33">[33]</a></sup><sup class="footnote-ref"><a href="#ref-32" id="cite-32">[32]</a></sup> and one method specification came from outside Tempo.<sup class="footnote-ref"><a href="#ref-34" id="cite-34">[34]</a></sup> None of that is evidence of production transaction volume, which this report did not attempt to measure.</p>
+<p><strong>No peer-reviewed sources exist.</strong> MPP launched in March 2026,<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup> and no academic literature covers it. Sourcing here is primary — the IETF draft, the specifications repository, and SDK source — corroborated by independent implementations, one platform vendor's documentation,<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> and one third-party explainer.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> On authorship, the sources are consistent rather than contradictory: Stripe's launch post describes MPP as "an open standard, internet-native way for agents to pay—co-authored by Tempo and Stripe", published 18 March 2026,<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> which matches the independent explainer.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> <code>mpp.dev/overview</code> omits authorship rather than disputing it, crediting Tempo Labs and Wevm for the SDKs,<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> and individual specification drafts list their own authors, including one from Merit Systems.<sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup></p>
+<p><strong>One worked example, one rail shape.</strong> The <code>ledger</code> method is a synchronous, single-server, balance-debit rail. Rails with asynchronous settlement, external confirmation latency, or multi-party splits will exercise hooks this example does not — particularly <code>request</code>, <code>preflight</code>, and <code>respond</code>.</p>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Stripe</span>. <a href="https://stripe.com/blog/machine-payments-protocol">Machine Payments Protocol — Stripe (launch announcement)</a>. <span class="venue">Stripe Blog, 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-2"><span class="authors">Agentic Commerce Atlas</span>. <a href="https://agenticcommerceatlas.com/learn/mpp-explained/">MPP Explained: The Machine Payments Protocol</a>. <span class="venue">Agentic Commerce Atlas, 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-3"><span class="authors">Tempo Labs, Wevm</span>. <a href="https://mpp.dev/overview">Machine Payments Protocol — overview</a>. <span class="venue">mpp.dev, 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-4"><span class="authors">Tempo Labs</span>. <a href="https://github.com/tempoxyz/mpp-specs">mpp-specs — repository structure (core / intents / methods / extensions)</a>. <span class="venue">GitHub (tempoxyz/mpp-specs), 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-5"><span class="authors">Cloudflare</span>. <a href="https://developers.cloudflare.com/agents/agentic-payments/mpp">MPP (Machine Payments Protocol) — Cloudflare Agents documentation</a>. <span class="venue">Cloudflare Developer Docs, 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-6"><span class="authors">Tempo Labs</span>. <a href="https://github.com/tempoxyz/mpp-specs/blob/main/CONTRIBUTING.md">mpp-specs — CONTRIBUTING: adding a new method or intent</a>. <span class="venue">GitHub (tempoxyz/mpp-specs), 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-7"><span class="authors">Tempo Labs</span>. <a href="https://github.com/tempoxyz/mpp-specs/blob/main/examples/method-template.md">mpp-specs — payment method specification template</a>. <span class="venue">GitHub (tempoxyz/mpp-specs), 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-8"><span class="authors">Tempo Labs, Wevm</span>. <a href="https://mpp.dev/payment-methods/custom">Custom payment methods — MPP documentation</a>. <span class="venue">mpp.dev, 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-9"><span class="authors">Wevm</span>. <a href="https://github.com/wevm/mppx/blob/cd71f9e5/src/Method.ts">mppx — src/Method.ts (payment method abstraction)</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-10"><span class="authors">Tempo Labs, Wevm</span>. <a href="https://mpp.dev/protocol">Protocol overview — MPP documentation</a>. <span class="venue">mpp.dev, 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-11"><span class="authors">Wevm</span>. <a href="https://github.com/wevm/mppx/blob/cd71f9e5/src/Constants.ts">mppx — src/Constants.ts (built-in method and intent names)</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-12"><span class="authors">Brendan Ryan, Jake Moxey</span>. <a href="https://paymentauth.org/draft-httpauth-payment-00.html">The &#x27;Payment&#x27; HTTP Authentication Scheme (draft-httpauth-payment-00)</a>. <span class="venue">IETF Internet-Draft / paymentauth.org, 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-13"><span class="authors">Tempo Labs</span>. <a href="https://github.com/tempoxyz/mpp-specs/blob/main/specs/core/draft-httpauth-payment-00.md">mpp-specs — core draft: IANA Payment Method Registry</a>. <span class="venue">GitHub (tempoxyz/mpp-specs), 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-14"><span class="authors">Wevm</span>. <a href="https://github.com/wevm/mppx/blob/cd71f9e5/src/Receipt.ts">mppx — src/Receipt.ts (receipt schema)</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-15"><span class="authors">Wevm</span>. <a href="https://github.com/wevm/mppx/blob/cd71f9e5/src/evm/Methods.ts">mppx — src/evm/Methods.ts (built-in EVM charge method)</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-16"><span class="authors">Wevm</span>. <a href="https://github.com/wevm/mppx/blob/cd71f9e5/src/server/Mppx.test.ts">mppx — src/server/Mppx.test.ts (custom &#x27;mock&#x27; method, end-to-end)</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-17"><span class="authors">Stellar Development Foundation</span>. <a href="https://github.com/stellar/stellar-mpp-sdk/blob/main/sdk/src/charge/Methods.ts">stellar-mpp-sdk — shared charge Method definition</a>. <span class="venue">GitHub (stellar/stellar-mpp-sdk), 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-18"><span class="authors">Wevm</span>. <a href="https://github.com/wevm/mppx/blob/cd71f9e5/src/server/Mppx.ts">mppx — src/server/Mppx.ts (server dispatch and challenge binding)</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-19"><span class="authors">Wevm</span>. <a href="https://github.com/wevm/mppx/blob/cd71f9e5/src/Credential.ts">mppx — src/Credential.ts (credential serialization)</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-20"><span class="authors">Wevm</span>. <a href="https://github.com/wevm/mppx/blob/cd71f9e5/src/client/Mppx.test.ts">mppx — src/client/Mppx.test.ts (client-side custom method)</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-21"><span class="authors">Wevm</span>. <a href="https://github.com/wevm/mppx/blob/main/CHANGELOG.md">mppx — CHANGELOG (0.8.14: validate/broadcast lifecycle)</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-22"><span class="authors">Tempo Labs, Wevm</span>. <a href="https://mpp.dev/sdk/typescript/core/Method.toServer">Method.toServer — MPP TypeScript SDK API reference</a>. <span class="venue">mpp.dev, 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-23"><span class="authors">Wevm</span>. <a href="https://github.com/wevm/mppx/blob/cd71f9e5/src/Challenge.ts">mppx — src/Challenge.ts (challenge serialization and HMAC binding)</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-24"><span class="authors">Stellar Development Foundation</span>. <a href="https://github.com/stellar/stellar-mpp-sdk/blob/main/sdk/src/charge/server/Charge.ts">stellar-mpp-sdk — server charge method: replay protection via atomic Store</a>. <span class="venue">GitHub (stellar/stellar-mpp-sdk), 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-25"><span class="authors">Wevm</span>. <a href="https://github.com/wevm/mppx">mppx — TypeScript SDK for the Machine Payments Protocol (README)</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-26"><span class="authors">Wevm</span>. <a href="https://github.com/wevm/mppx/blob/cd71f9e5/src/Store.ts">mppx — src/Store.ts (store interface and built-in constructors)</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-27"><span class="authors">Stellar Development Foundation</span>. <a href="https://registry.npmjs.org/@stellar%2fmpp">@stellar/mpp — Stellar payment method for MPP (npm package metadata)</a>. <span class="venue">npm registry, 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-28"><span class="authors">Wevm</span>. <a href="https://github.com/wevm/mppx/blob/cd71f9e5/src/client/Mppx.ts">mppx — src/client/Mppx.ts (Accept-Payment derived from registered methods)</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-29"><span class="authors">Brendan Ryan, Jake Moxey, Ryan Sproule, Sam Ragsdale</span>. <a href="https://github.com/tempoxyz/mpp-specs/blob/main/specs/extensions/draft-payment-discovery-00.md">Service Discovery for HTTP Payment Authentication (draft-payment-discovery-00)</a>. <span class="venue">GitHub (tempoxyz/mpp-specs), 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-30"><span class="authors">IANA</span>. <a href="https://www.iana.org/assignments/http-authschemes/http-authschemes.xhtml">IANA HTTP Authentication Scheme Registry</a>. <span class="venue">IANA, 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-31"><span class="authors">Brendan Ryan</span>. <a href="https://datatracker.ietf.org/doc/draft-ryan-httpauth-payment/">draft-ryan-httpauth-payment — IETF Datatracker status</a>. <span class="venue">IETF Datatracker, 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-32"><span class="authors">Solana Foundation</span>. <a href="https://github.com/solana-foundation/mpp-sdk">solana-foundation/mpp-sdk — Solana payment method for the Machine Payments Protocol</a>. <span class="venue">GitHub (solana-foundation/mpp-sdk), 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-33"><span class="authors">tomrowbo</span>. <a href="https://registry.npmjs.org/mppx-hedera">mppx-hedera — third-party Hedera payment method for MPP</a>. <span class="venue">npm registry, 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-34"><span class="authors">Iker Alustiza</span>. <a href="https://github.com/tempoxyz/mpp-specs/blob/main/specs/methods/nearintents/draft-nearintents-charge-01.md">NEAR Intents Charge Intent for HTTP Payment Authentication (independent submission)</a>. <span class="venue">GitHub (tempoxyz/mpp-specs), 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-35"><span class="authors">Tempo Labs</span>. <a href="https://github.com/tempoxyz/mpp-rs/blob/main/src/protocol/traits/charge.rs">mpp-rs — ChargeMethod trait (&#x27;Implementing for a custom payment network&#x27;)</a>. <span class="venue">GitHub (tempoxyz/mpp-rs), 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-36"><span class="authors">Wevm</span>. <a href="https://registry.npmjs.org/mppx">mppx on npm — version and release cadence</a>. <span class="venue">npm registry, 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+      <li id="ref-37"><span class="authors">Tempo Labs, Wevm</span>. <a href="https://mpp.dev/sdk/typescript/server/Mppx.validateCredential">mppx.validateCredential — MPP TypeScript SDK API reference</a>. <span class="venue">mpp.dev, 2026</span>. <span class="accessed">Accessed 2026-08-06.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-08-06. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

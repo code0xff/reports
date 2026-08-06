@@ -1,0 +1,42 @@
+--- 1. bare request (no client) ---
+status: 402
+WWW-Authenticate: Payment id="ARAzonIoYJAYPiBIE77k5R1MsW73P-fRAqYkQGVSCQY", realm="api.example.com", method="ledger", intent="charge", request="eyJhbW91bnQiOiIxNTAiLCJjdXJyZW5jeSI6InVzZCIsIm1ldGhvZERldGFpbHMiOnsiZGVjaW1hbHMiOjJ9LCJyZWNpcGllbnQiOiJhY2N0X21lcmNoYW50XzEifQ", expires="2026-08-06T02:33:41.822Z"
+
+--- 2. paid request via payment-aware fetch ---
+status: 200
+Payment-Receipt: eyJtZXRob2QiOiJsZWRnZXIiLCJyZWZlcmVuY2UiOiJsZGdfTVdWM3NaeVdrVVhYIiwiZXh0ZXJuYWxJZCI6ImFsaWNlIiwic3RhdHVzIjoic3VjY2VzcyIsInRpbWVzdGFtcCI6IjIwMjYtMDgtMDZUMDI6Mjg6NDEuODI4WiJ9
+decoded receipt: {
+  method: 'ledger',
+  reference: 'ldg_MWV3sZyWkUXX',
+  externalId: 'alice',
+  status: 'success',
+  timestamp: '2026-08-06T02:28:41.828Z'
+}
+body: { data: 'the paid resource' }
+alice balance after: 850
+
+--- 3. replayed credential is rejected ---
+mppx: internal verification error Error: challenge already settled — replay rejected
+    at broadcast (/private/tmp/claude-501/-Users-lt-164-workspace-deepsearch/a4a5effc-c5ff-4b48-99d6-8727c96c5433/scratchpad/demo/demo.ts:156:37)
+    at async handler (/private/tmp/claude-501/-Users-lt-164-workspace-deepsearch/a4a5effc-c5ff-4b48-99d6-8727c96c5433/scratchpad/demo/node_modules/mppx/src/server/Mppx.ts:1342:23)
+    at async app (/private/tmp/claude-501/-Users-lt-164-workspace-deepsearch/a4a5effc-c5ff-4b48-99d6-8727c96c5433/scratchpad/demo/demo.ts:189:18)
+    at async main (/private/tmp/claude-501/-Users-lt-164-workspace-deepsearch/a4a5effc-c5ff-4b48-99d6-8727c96c5433/scratchpad/demo/demo.ts:226:18)
+first use  status: 200
+second use status: 402
+second body: {
+  type: 'https://paymentauth.org/problems/verification-failed',
+  title: 'Verification Failed',
+  status: 402,
+  detail: 'Payment verification failed.',
+  challengeId: 'yfw0yNYXhr6_Qm0hZ7XS7vyW14WvEPnI6aKpsY_RJDs'
+}
+alice balance after: 700
+
+--- 4. tampered amount is rejected (HMAC challenge binding) ---
+forged status: 402 {
+  type: 'https://paymentauth.org/problems/invalid-challenge',
+  title: 'Invalid Challenge',
+  status: 402,
+  detail: 'Challenge "jax6yfhMujnUjFNthj1bJQI19Eb5Um5UlvOJvsPmZqM" is invalid: challenge was not issued by this server.',
+  challengeId: 'PsPttqbvovEgDLqCCzwzibCiZnMp0M-DzR31OFTZsiY'
+}
