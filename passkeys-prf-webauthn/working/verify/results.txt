@@ -1,0 +1,92 @@
+# Verification results — 2026-08-07T08:30:27Z — node v24.17.0
+# Run:  for f in *.mjs; do node $f; done
+
+## verify_vectors.mjs
+=== 1. RP-side inputs are seed||0x02 and seed||0x03 ===
+PASS  prf_eval_first  = seed || 0x02
+PASS  prf_eval_second = seed || 0x03
+
+=== 2. authenticator CredRandom = SHA-256(seed || 0x06) ===
+PASS  cred_random
+
+=== 3. client-side domain separation: SHA-256("WebAuthn PRF" || 0x00 || input) ===
+PASS  salt1
+PASS  salt2
+
+=== 4. authenticator: outputN = HMAC-SHA-256(CredRandom, saltN) ===
+PASS  output1
+PASS  output2
+
+=== 5. end-to-end: RP input -> PRF output, no intermediate values ===
+PASS  e2e first  (seed||0x02)
+PASS  e2e second (seed||0x03)
+
+=== 6. API-section vectors ===
+PASS  credential ID = b64u(SHA-256(seed || 0x00))
+PASS  API results.first  = SHA-256(seed || 0x01)
+
+=== 7. determinism + independence properties ===
+PASS  same input -> same output
+PASS  different inputs -> different outputs
+
+---------------- 13 passed, 0 failed ----------------
+
+## verify_app.mjs
+=== 1. WebCrypto HKDF-SHA-256 matches RFC 5869 ===
+PASS  RFC5869 A.1 OKM(42)
+PASS  RFC5869 A.2 OKM(82)
+
+=== 2. one PRF output -> independent purpose-bound keys ===
+PASS  same purpose -> same key (deterministic)
+PASS  different purpose -> different key
+      vault-kek    = 302cc7e65ac5ff85d7ce8409d13b3cca...
+      search-index = 5947aa82be9755064e9e4d011e6db9d8...
+
+=== 3. envelope encryption: random DEK, wrapped per credential ===
+PASS  the two wraps differ (different KEKs)
+PASS  passkey A opens the data
+PASS  passkey B opens the SAME data
+
+=== 4. wrong passkey cannot unwrap; AAD is bound ===
+PASS  unknown PRF output fails to unwrap
+PASS  wrong AAD (doc:99) fails to decrypt
+
+=== 5. credential revocation needs no data re-encryption ===
+PASS  data still readable by A after revoking B
+PASS  ciphertext was never rewritten
+
+=== 6. key rotation via the two salts in ONE ceremony ===
+PASS  after rotation the data opens under the new KEK
+
+=== 7. key check value catches silent PRF mismatch ===
+PASS  KCV is stable for the right passkey
+PASS  KCV differs for a mismatched PRF value
+      stored KCV = b94ae0b33d1444fd3b7ebb1e46784178
+
+=== 8. results.first may arrive as a non-Uint8Array BufferSource ===
+PASS  normalized Uint32Array == spec first bytes
+PASS  raw .length would have been wrong (8 vs 32)
+
+---------------- 16 passed, 0 failed ----------------
+
+## helpers.mjs
+PASS  toBytes(Uint32Array) -> spec bytes
+PASS  bytesToHex zero-pads
+PASS  bytesToHex on ArrayBuffer
+PASS  b64u url-safe, unpadded
+PASS  b64u matches Buffer base64url
+helper block correct
+
+## draft_snippets.mjs
+=== draft snippets, run verbatim ===
+PASS  deriveKey runs with extractable:false and still wraps
+PASS  unwrapped DEK (extractable:false) can decrypt
+PASS  second passkey opens the same ciphertext
+PASS  keyCheckValue stable
+PASS  keyCheckValue differs
+PASS  rotation re-wrap opens data
+PASS  toBytes normalizes Uint32Array to 32 bytes
+PASS  b64u helper produces url-safe output
+
+all draft snippets execute correctly
+

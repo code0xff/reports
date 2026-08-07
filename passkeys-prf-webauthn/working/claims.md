@@ -92,3 +92,61 @@
 - [x] c27: Corbado의 "PRF를 핵심 의존성이 아닌 향상 기능으로 취급하라"는 권고는 2026년 현재도 지원 매트릭스 불균일성 때문에 타당하다.
   - kind: interpretive
   - needs: 지원 현황 소스들로부터의 종합
+
+---
+
+## 개정 2 (2026-08-07) — 구현 가이드 클레임
+
+## 구현 가이드
+- [ ] c28: WebAuthn L3는 prf 확장의 입력을 `AuthenticationExtensionsPRFInputs`
+  (`eval`, `evalByCredential`), 출력을 `AuthenticationExtensionsPRFOutputs`
+  (`enabled`, `results`)로 정의하며, `enabled`는 등록 시에만 보고되고 인증
+  응답에는 존재하지 않는다.
+  - kind: technical
+  - needs: W3C L3 §10.1.4 IDL 및 출력 정의 원문
+
+- [ ] c29: 클라이언트의 salt 변환 `SHA-256(UTF8("WebAuthn PRF") || 0x00 || input)`과
+  인증기의 `HMAC-SHA-256(CredRandom, salt)`는 W3C 공식 테스트 벡터로
+  독립 재현이 가능하다.
+  - kind: technical
+  - needs: L3 §16.17.1 테스트 벡터 + 실행 검증
+
+- [ ] c30: WebAuthn L3가 create 시점 PRF 평가의 전제로 언급한
+  "a future extension to [FIDO-CTAP]"은 CTAP 2.2 PS §12.8에 표준화된
+  `hmac-secret-mc`이며, 이 확장은 makeCredential에만 적용되고
+  `hmac-secret`이 함께 true로 설정되어야 한다.
+  - kind: technical
+  - needs: L3 §10.1.4 + CTAP 2.2 PS §12.8 원문
+
+- [ ] c31: CTAP 규범 텍스트는 인증기가 크리덴셜마다 32바이트 난수 두 개
+  (`CredRandomWithUV`, `CredRandomWithoutUV`)를 생성하고 응답의 uv 비트로
+  어느 쪽을 쓸지 정하며, 복호화된 salt가 32 또는 64바이트가 아니면
+  `CTAP1_ERR_INVALID_PARAMETER`를 반환하도록 규정한다.
+  - kind: technical
+  - needs: CTAP 2.1 PS / 2.2 PS hmac-secret 절 원문 (기존 Limitations 해소)
+
+- [ ] c32: 하나의 PRF 출력에서 HKDF의 `info`를 달리하면 서로 독립적인
+  목적 구속 키를 결정적으로 유도할 수 있다.
+  - kind: technical
+  - needs: RFC 5869 + 실행 검증
+
+- [ ] c33: 봉투 암호화 구성에서는 크리덴셜 추가·폐기가 데이터 재암호화를
+  요구하지 않으며, 서로 다른 패스키가 같은 평문을 열 수 있다.
+  - kind: technical
+  - needs: 구현 가이드 + 실행 검증
+
+- [ ] c34: 기능 감지(`enabled`)로는 걸러지지 않는 "조용한 PRF 값 불일치"를
+  키 검증값(KCV)으로 탐지할 수 있다.
+  - kind: interpretive
+  - needs: iOS CDA 버그 사례 + 실행 검증
+
+- [ ] c35: `results.first`/`second`는 임의의 BufferSource 타입으로 반환될 수
+  있어(스펙 예제가 Uint8Array와 Uint32Array를 함께 제시) 바이트 단위
+  정규화 없이 길이나 내용을 다루면 오류가 발생한다.
+  - kind: technical
+  - needs: L3 §16.17.1 예제 + 실행 검증
+
+- [ ] c36: Firefox는 PRF 미지원 인증기에서 `{"prf":{"enabled":false}}`가 아니라
+  빈 객체를 반환하는 동작 차이가 있었고 후속 버그로 수정됐다.
+  - kind: factual
+  - needs: Mozilla Bugzilla 메타 버그 코멘트
