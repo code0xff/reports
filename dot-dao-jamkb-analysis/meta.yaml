@@ -1,0 +1,10 @@
+title: "DOT DAO and the Need for $JAMKB: Analysis and Rebuttal"
+subtitle: Reconstructing Gavin Wood's case for a dedicated JAM state-footprint token, testing each premise against the Gray Paper, and arguing that the decisive claim is an efficiency claim rather than a soundness one.
+title_ko: "DOT DAO와 $JAMKB의 필요성: 상세 분석과 반박"
+subtitle_ko: 개빈 우드가 제시한 JAM 상태 풋프린트 전용 토큰 논거를 전제별로 재구성하고 그레이페이퍼 원문과 대조한 뒤, 결정적 주장이 건전성(soundness) 논거가 아니라 효율성 논거임을 논증한다.
+slug: dot-dao-jamkb-analysis
+lang: en
+langs: [en, ko]
+date: 2026-08-07
+tags: [polkadot, jam, jamkb, tokenomics, state-rent, mechanism-design, gray-paper]
+status: ready
