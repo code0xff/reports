@@ -1,0 +1,10 @@
+title: 신용정보법이 Agent Payments에 미치는 영향과 규제 대응 전략
+subtitle: 법·시행령 원문을 조항별로 대조해 에이전트 결제 아키텍처에 매핑하고, 대리인 구조·부수업무 경로·규제 샌드박스를 축으로 한 대응 전략을 도출한다.
+title_en: "How Korea's Credit Information Act Bears on Agent Payments, and How to Work Within It"
+subtitle_en: A provision-by-provision mapping of the statute and its Enforcement Decree onto agent payment architectures, and a strategy built on the statutory agency route, the MyData ancillary-business line, and the regulatory sandbox.
+slug: credit-info-act-agent-payments
+lang: ko
+langs: [ko, en]
+date: 2026-08-10
+tags: [신용정보법, agent-payments, 마이데이터, 전송요구권, 자동화평가, 금융위원회, 규제샌드박스, korea]
+status: ready
