@@ -1,0 +1,10 @@
+title: TEE의 동작 메커니즘과 활용 가능성
+subtitle: 격리·측정·원격 증명·봉인의 네 기둥으로 SGX·TDX·SEV-SNP·Arm CCA를 대조하고, 2025–2026년 공격이 그 보장을 어디까지 남겨두었는지 정리한다.
+title_en: "How Trusted Execution Environments Work, and What They Make Possible"
+subtitle_en: Decomposing isolation, measurement, remote attestation and sealing across SGX, TDX, SEV-SNP and Arm CCA — and what the 2025–2026 attacks left standing.
+slug: tee-mechanisms-and-applications
+lang: ko
+langs: [ko, en]
+date: 2026-08-12
+tags: [TEE, confidential-computing, SGX, TDX, SEV-SNP, Arm-CCA, remote-attestation, WireTap, Battering-RAM, RMPocalypse, TEE-Fail]
+status: ready
