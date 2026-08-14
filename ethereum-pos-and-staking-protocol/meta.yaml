@@ -1,0 +1,10 @@
+title: Ethereum Proof of Stake and the Staking Protocol
+subtitle: Reading Gasper, the deposit contract, the validator lifecycle and the incentive schedule out of the consensus specification itself — and what Electra changed about who may stake, queue and exit.
+title_ko: 이더리움 지분증명과 스테이킹 프로토콜
+subtitle_ko: Gasper와 예치 컨트랙트, 검증자 생애주기, 인센티브 스케줄을 합의 명세 원문에서 읽어내고, Electra가 스테이킹·대기열·퇴출의 권한 구조를 어떻게 바꿨는지 정리한다.
+slug: ethereum-pos-and-staking-protocol
+lang: en
+langs: [en, ko]
+date: 2026-08-14
+tags: [ethereum, proof-of-stake, staking, gasper, casper-ffg, lmd-ghost, consensus-specs, EIP-7251, EIP-7002, slashing, validators]
+status: ready

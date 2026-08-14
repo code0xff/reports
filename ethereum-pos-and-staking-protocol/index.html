@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ethereum Proof of Stake and the Staking Protocol — Deepsearch</title>
+<meta name="description" content="Reading Gasper, the deposit contract, the validator lifecycle and the incentive schedule out of the consensus specification itself — and what Electra changed about who may stake, queue and exit.">
+<link rel="canonical" href="https://code0xff.github.io/reports/ethereum-pos-and-staking-protocol/">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="ko" href="ko/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="Ethereum Proof of Stake and the Staking Protocol">
+<meta property="og:description" content="Reading Gasper, the deposit contract, the validator lifecycle and the incentive schedule out of the consensus specification itself — and what Electra changed about who may stake, queue and exit.">
+<meta property="og:url" content="https://code0xff.github.io/reports/ethereum-pos-and-staking-protocol/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Ethereum Proof of Stake and the Staking Protocol">
+<meta name="twitter:description" content="Reading Gasper, the deposit contract, the validator lifecycle and the incentive schedule out of the consensus specification itself — and what Electra changed about who may stake, queue and exit.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>Ethereum Proof of Stake and the Staking Protocol</h1>
+    <p class="subtitle">Reading Gasper, the deposit contract, the validator lifecycle and the incentive schedule out of the consensus specification itself — and what Electra changed about who may stake, queue and exit.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-08-14</span>
+      <span><strong>Tags</strong> ethereum, proof-of-stake, staking, gasper, casper-ffg, lmd-ghost, consensus-specs, EIP-7251, EIP-7002, slashing, validators</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="ethereum-pos-and-staking-protocol.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>Ethereum's proof of stake is two protocols wearing one name. There is a consensus protocol — Gasper, the composition of the LMD-GHOST fork-choice rule with the Casper FFG finality gadget<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> — and there is a <em>staking protocol</em>: a deposit contract, a validator lifecycle, a queue, a withdrawal system and an incentive schedule. Most explanations cover the first and gesture at the second. This report reads both out of the consensus specification itself, quoting the constants and functions that clients actually implement rather than paraphrasing secondary accounts.</p>
+<p>Four things stand out from that reading. First, <strong>finality is cheaper to describe than it looks</strong>: a checkpoint is justified when attestations representing two-thirds of active balance target it, expressed in the spec as <code>target_balance <em> 3 &gt;= total_active_balance </em> 2</code>, and finalisation is not one rule but four distinct patterns over a justification bitfield<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Second, <strong>the entire attester slashing surface is two conditions</strong> — a double vote and a surround vote — written in a single predicate<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. That economy is the point: accountable safety requires that misbehaviour be <em>attributable</em>, and two conditions are enough to make equivocation provable.</p>
+<p>Third, <strong>the staking protocol changed shape more than the consensus protocol did</strong>. Capella introduced 0x01 execution-address withdrawal credentials<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>; Electra added 0x02 compounding credentials and raised the effective-balance ceiling from 32 ETH to 2048 ETH while keeping the 32 ETH activation minimum<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Electra also redenominated the activation/exit queue from validator <em>count</em> to <em>balance</em><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, which is the sort of change that sounds like bookkeeping and is actually a redesign of how capital enters and leaves the validator set. And EIP-7002 answered a question that was never about plumbing: in a delegated arrangement the party holding the withdrawal credentials — the actual owner of the funds — previously "cannot independently choose to exit and begin the withdrawal process"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<p>Fourth, <strong>the spec is now visibly shaped by the staking industry rather than only by solo stakers</strong>. EIP-7251's stated motivation is that there were "over 830,000 validators" by October 2023 and that large operators were running thousands of validators for a single pool of stake, paying P2P and aggregation costs for the privilege<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. In 2026 that theory met practice: Lido began migrating over 265,000 legacy 0x01 validators to compounding credentials, a change projected to cut the network validator count by roughly a third _(unverified — industry reporting)_<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. Roughly 39 million ETH, about a third of supply, is staked, with the largest liquid-staking protocol holding around 23% of it _(unverified — industry reporting)_<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<p>The report deliberately does not issue a verdict on centralisation. It sets out the arithmetic — the thresholds that matter are 1/3, 1/2 and 2/3 — and the mechanisms, and leaves the judgement to the reader.</p>
+  </section>
+
+  <main class="body">
+<h1>Ethereum Proof of Stake and the Staking Protocol</h1>
+<h2>Introduction</h2>
+<p>Proof of work answered one question: which chain has the most accumulated work behind it? That answer is probabilistic and never final. You wait more confirmations and grow more confident, but nothing in the protocol ever declares a block irreversible, and nothing identifies who was responsible if a deep reorganisation occurs.</p>
+<p>Proof of stake on Ethereum was built to answer a different question, and to answer it with names attached. Validators put capital at risk, sign messages, and — crucially — can be <em>proven</em> to have contradicted themselves. That property, accountable safety, is what makes economic finality possible: not merely "this block is old" but "reverting this block requires at least a third of staked capital to be provably destroyed."</p>
+<p>This report covers two layers. The consensus mechanics (§4) are Gasper. The staking protocol (§5–6) is the machinery that decides who may validate, on what terms, how they leave, and what they earn or lose. Execution-layer topics — MEV, proposer-builder separation, blobs — appear only where they bear on staking.</p>
+<p>A note on method. Everything structural here is quoted from <code>ethereum/consensus-specs</code> on the <code>master</code> branch, fetched as raw markdown and YAML. This matters because the specification is the artefact clients implement, and because explainers age badly: several widely-repeated constants have since changed. One immediate example — the slot duration is no longer a seconds-denominated constant in the mainnet config but <code>SLOT_DURATION_MS: 12000</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h2>Background — the shape of the system</h2>
+<h3>Slots, epochs, committees</h3>
+<p>Time is divided into 12-second slots (<code>SLOT_DURATION_MS: 12000</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>) and 32-slot epochs (<code>SLOTS_PER_EPOCH: 32</code><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>) — so an epoch is 6.4 minutes. In each slot one validator is selected to propose a block, and the validator set is partitioned into committees to attest. The preset caps committees at 64 per slot with a target size of 128 validators and a hard maximum of 2048 per committee<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>The committee structure is what makes the protocol scale to hundreds of thousands of validators: no validator votes on every slot, and votes are aggregated before they reach the chain.</p>
+<h3>The fork schedule</h3>
+<p>The mainnet config records each fork's activation epoch with a dated comment, which makes it a reliable primary timeline<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>:</p>
+<table><thead><tr><th>Fork</th><th>Epoch</th><th>Activation</th></tr></thead><tbody><tr><td>Altair</td><td>74240</td><td>2021-10-27</td></tr><tr><td>Bellatrix (The Merge)</td><td>144896</td><td>2022-09-06</td></tr><tr><td>Capella (withdrawals)</td><td>194048</td><td>2023-04-12</td></tr><tr><td>Deneb</td><td>269568</td><td>2024-03-13</td></tr><tr><td>Electra (Pectra)</td><td>364032</td><td>2025-05-07</td></tr><tr><td>Fulu (Fusaka)</td><td>411392</td><td>2025-12-03</td></tr><tr><td>Gloas</td><td>—</td><td>unscheduled</td></tr><tr><td>Heze</td><td>—</td><td>unscheduled</td></tr></tbody></table>
+<p>Gloas and Heze have fork versions assigned (<code>0x07000000</code>, <code>0x08000000</code>) but their activation epochs are set to the maximum uint64 sentinel, meaning not scheduled<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>The two forks that matter most for staking are Capella and Electra. Capella made staked ETH withdrawable at all. Electra rewrote how validators hold balance, how they queue, and who may exit them.</p>
+<h2>Consensus mechanics — Gasper</h2>
+<h3>Two protocols, one chain</h3>
+<p>Gasper is described by its authors as "an idealized version of the proposed Ethereum 2.0 beacon chain" that "combines Casper FFG, a finality tool, with LMD GHOST, a fork-choice rule," for which they "prove safety, plausible liveness, and probabilistic liveness under different sets of assumptions"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Casper itself was introduced earlier as "a proof of stake-based finality system which overlays an existing proof of work blockchain… a partial consensus mechanism"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> — the overlay framing is historical, but the division of labour survived into the merged chain.</p>
+<p>The division is worth stating plainly. <strong>LMD-GHOST decides what to build on right now</strong>; it is the liveness half, always producing an answer. <strong>Casper FFG decides what can never be reverted</strong>; it is the safety half, and it deliberately lags. A block is proposed, attested, eventually justified, and eventually finalised — and only the last of those is irreversible in the economic sense.</p>
+<h3>Attestations</h3>
+<p>Each attestation carries three votes: a <em>head</em> vote (LMD-GHOST input), and a <em>source</em> and <em>target</em> checkpoint pair (Casper FFG input). One message serves both protocols, which is why the attestation is the central object in the system and why the slashing rules are stated over <code>AttestationData</code>.</p>
+<h3>Justification and finalisation</h3>
+<p>Justification is a supermajority condition on balance, not on validator count. The spec computes it directly:</p>
+<pre><code>if previous_epoch_target_balance * 3 &gt;= total_active_balance * 2:
+    state.current_justified_checkpoint = Checkpoint(
+        epoch=previous_epoch, root=get_block_root(state, previous_epoch)
+    )
+    state.justification_bits[1] = 0b1</code></pre>
+<p>with the same test applied to the current epoch<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Multiplying out rather than dividing avoids rounding — the condition is exactly two-thirds of total active balance.</p>
+<p>Finalisation is where most summaries oversimplify. There is no single rule. The spec maintains a four-bit <code>justification_bits</code> field and applies four separate patterns<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>:</p>
+<ul>
+<li>bits 1–3 justified and the old previous justified checkpoint is 3 epochs back — finalise it (the 2nd using the 4th as source);</li>
+<li>bits 1–2 justified and it is 2 epochs back — finalise it;</li>
+<li>bits 0–2 justified and the old current justified checkpoint is 2 epochs back — finalise it;</li>
+<li>bits 0–1 justified and it is 1 epoch back — finalise it.</li>
+</ul>
+<p>The last is the common case: two consecutive justified epochs finalise the earlier one. The others exist because justification can skip epochs under degraded participation, and the protocol should still finalise when the evidence permits. This is why "finality in two epochs" is the typical case rather than a guarantee.</p>
+<h3>The two slashing conditions</h3>
+<p>The entire attester slashing surface fits in one predicate<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>:</p>
+<pre><code>def is_slashable_attestation_data(data_1: AttestationData, data_2: AttestationData) -&gt; bool:
+    &quot;&quot;&quot;
+    Check if ``data_1`` and ``data_2`` are slashable according to Casper FFG rules.
+    &quot;&quot;&quot;
+    return (
+        # Double vote
+        (data_1 != data_2 and data_1.target.epoch == data_2.target.epoch)
+        or
+        # Surround vote
+        (data_1.source.epoch &lt; data_2.source.epoch and data_2.target.epoch &lt; data_1.target.epoch)
+    )</code></pre>
+<p>A <strong>double vote</strong> is two different attestations for the same target epoch — voting twice in one election. A <strong>surround vote</strong> is an attestation whose source-target span strictly contains another's — retroactively contradicting an earlier commitment.</p>
+<p>Two properties deserve emphasis. First, these conditions are <em>objective</em>: any observer with both messages can verify the violation without knowing network conditions, timing, or intent. That is what makes the safety accountable — a validator who equivocates leaves a portable proof. Second, they are <em>minimal</em>: no rule punishes being wrong, only contradicting yourself. Voting for a block that loses is free. This is deliberate, because a protocol that punished being on the wrong side of a fork would punish honest validators during network partitions.</p>
+<h3>The inactivity leak</h3>
+<p>Safety and liveness trade off, and Gasper resolves the trade in favour of safety: if two-thirds cannot agree, nothing finalises, and the chain can stall indefinitely. The inactivity leak is the escape hatch. It triggers on a simple condition<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>:</p>
+<pre><code>def is_in_inactivity_leak(state: BeaconState) -&gt; bool:
+    return get_finality_delay(state) &gt; MIN_EPOCHS_TO_INACTIVITY_PENALTY</code></pre>
+<p>with <code>MIN_EPOCHS_TO_INACTIVITY_PENALTY: 4</code><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Once finality has been delayed more than four epochs, validators failing to attest correctly begin to bleed balance. The leak drains non-participants until the participating set again constitutes two-thirds of the <em>remaining</em> active balance, at which point finality resumes.</p>
+<p>The design intent is worth naming: the protocol does not try to keep everyone online. It ensures that a chain which loses a third or more of its validators eventually finalises again by shrinking the denominator — at the cost of those absent validators' stake. Altair retuned the severity, moving <code>INACTIVITY_PENALTY_QUOTIENT</code> from 2²⁶ to <code>INACTIVITY_PENALTY_QUOTIENT_ALTAIR: 50331648</code><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<h2>The staking protocol — deposit contract and validator lifecycle</h2>
+<h3>Entry is one-way</h3>
+<p>The spec is blunt about how one becomes a validator: it "is to make a one-way ETH transaction to a deposit contract"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The mainnet deposit contract sits at <code>0x00000000219ab540356cBB839Cbe05303d7705Fa</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Deposits accumulate in a Merkle tree, and the consensus layer accepts a deposit by verifying a Merkle proof against that tree — the spec carries <code>DepositProof</code> as a <code>Vector[Bytes32, DEPOSIT_CONTRACT_TREE_DEPTH + 1]</code><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<p>One detail matters for anyone building staking infrastructure: the consensus layer verifies "the deposit signature (proof of possession) which is not checked by the deposit contract"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The contract accepts money it cannot fully validate; the beacon chain does the cryptographic checking afterwards. A malformed deposit can therefore be accepted on the execution side and rejected on the consensus side.</p>
+<p>The minimum deposit is 1 ETH (<code>MIN_DEPOSIT_AMOUNT: 1000000000</code> Gwei) but the minimum to <em>activate</em> is 32 ETH<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<h3>Withdrawal credentials: three prefixes, three eras</h3>
+<p>A validator's withdrawal credentials are 32 bytes whose first byte is a version prefix, and the history of that byte is the history of Ethereum staking.</p>
+<p><strong>0x00 — BLS credentials.</strong> The original form. Withdrawals were not implemented, so the credential merely committed to a BLS key.</p>
+<p><strong>0x01 — execution address.</strong> Capella introduced an "operation to change from <code>BLS_WITHDRAWAL_PREFIX</code> to <code>ETH1_ADDRESS_WITHDRAWAL_PREFIX</code> versioned withdrawal credentials to enable withdrawals"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. The credential now names an execution-layer address, and the protocol sweeps funds to it automatically.</p>
+<p><strong>0x02 — compounding.</strong> Electra added <code>COMPOUNDING_WITHDRAWAL_PREFIX</code> as <code>Bytes1('0x02')</code><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. This is the credential that unlocks the raised balance ceiling.</p>
+<p>The ceiling is selected by credential type, not by choice<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>:</p>
+<pre><code>def get_max_effective_balance(validator: Validator) -&gt; Gwei:
+    if has_compounding_withdrawal_credential(validator):
+        return MAX_EFFECTIVE_BALANCE_ELECTRA
+    else:
+        return MIN_ACTIVATION_BALANCE</code></pre>
+<p><code>MIN_ACTIVATION_BALANCE</code> is 32 ETH and <code>MAX_EFFECTIVE_BALANCE_ELECTRA</code> is 2048 ETH<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. So a 0x01 validator is capped at 32 ETH of <em>effective</em> balance — anything above is swept out as a partial withdrawal — while a 0x02 validator accrues up to 2048 ETH and compounds.</p>
+<h3>Why the ceiling was raised</h3>
+<p>EIP-7251's motivation is explicitly about validator-set size, not about staker convenience: "As of October 3, 2023, there are currently over 830,000 validators participating in the consensus layer"<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. Large operators were forced to run thousands of validators for a single economic position, and every one of those validators generated P2P messages and signatures to aggregate. The EIP frames the benefit both ways — "large validators can consolidate to run fewer validators and thus fewer beacon nodes" while "small validators [benefit] from compounding rewards and the ability to stake in more flexible increments"<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<p>Consolidation is a protocol operation, not a withdraw-and-redeposit cycle: it "permits multiple validator indices to be combined through the protocol" without passing through the exit and activation queues, rate-limited by a fee mechanism with <code>MAX_CONSOLIDATION_REQUESTS_PER_PAYLOAD: 2</code><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<h3>The queue, redenominated</h3>
+<p>Entry and exit are rate-limited so the validator set cannot change faster than the protocol can safely absorb. Originally the limit was counted in validators: <code>MIN_PER_EPOCH_CHURN_LIMIT: 4</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Once a validator can hold anywhere between 32 and 2048 ETH, counting validators stops measuring anything meaningful — so Electra redenominated churn in ETH<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>:</p>
+<pre><code>def get_balance_churn_limit(state: BeaconState) -&gt; Gwei:
+    churn = max(
+        MIN_PER_EPOCH_CHURN_LIMIT_ELECTRA, get_total_active_balance(state) // CHURN_LIMIT_QUOTIENT
+    )
+    return churn - churn % EFFECTIVE_BALANCE_INCREMENT</code></pre>
+<p>with <code>MIN_PER_EPOCH_CHURN_LIMIT_ELECTRA</code> set to 128 ETH per epoch and <code>MAX_PER_EPOCH_ACTIVATION_EXIT_CHURN_LIMIT</code> to 256 ETH<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The queue is now a capital throughput limit rather than a headcount limit — which is the correct unit, since what the protocol must protect is the rate at which economic weight enters or leaves.</p>
+<h3>Exit, delay, withdrawal</h3>
+<p>A validator cannot exit immediately. It must have been active for <code>SHARD_COMMITTEE_PERIOD: 256</code> epochs before requesting a voluntary exit, and after exiting must wait <code>MIN_VALIDATOR_WITHDRAWABILITY_DELAY: 256</code> epochs — roughly 27 hours each — before funds become withdrawable<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The delay exists so that misbehaviour discovered after the fact still has stake to slash.</p>
+<h3>Who is allowed to exit — EIP-7002</h3>
+<p>The most consequential staking change is not about capital efficiency but about authority. A validator has two keys: an active signing key that performs duties, and withdrawal credentials that own the funds. Before EIP-7002 only the <em>signing</em> key could initiate an exit. The EIP states the problem exactly:</p>
+<p>"In any non-standard custody relationship (i.e., the active key is a separate entity from the withdrawal credentials), the ultimate owner of the funds – the possessor of the withdrawal credentials – cannot independently choose to exit and begin the withdrawal process."<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup></p>
+<p>That is the entire delegated-staking industry. A pool contract holds the withdrawal credentials; an operator holds the signing keys. If the operator vanished, went rogue, or lost the keys, the funds were stuck — the owner could not force the exit.</p>
+<p>EIP-7002 adds a predeploy at <code>0x00000961Ef480Eb55e80D19ad83579A64c007002</code> that lets the holder of 0x01 credentials trigger a withdrawal or exit from the execution layer, with requests appended to the execution block and processed by the consensus layer<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Rate limits are tight — <code>MAX_WITHDRAWAL_REQUESTS_PER_PAYLOAD: 16</code><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<p>This converts a trust assumption into a protocol guarantee. Pooled staking previously required believing the operator would exit when asked; now the contract can compel it.</p>
+<h2>Incentives — rewards, penalties, slashing</h2>
+<h3>Effective balance and hysteresis</h3>
+<p>Rewards scale with <em>effective balance</em>, a quantised version of the real balance moving in 1 ETH steps (<code>EFFECTIVE_BALANCE_INCREMENT: 1000000000</code> Gwei)<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Quantisation avoids recomputing rewards for every wei of drift. To stop the effective balance oscillating around a boundary, the spec applies hysteresis: <code>HYSTERESIS_QUOTIENT: 4</code>, with a downward multiplier of 1 and an upward multiplier of 5<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> — balance must fall a quarter-ETH below or rise 1.25 ETH above a boundary before the step moves.</p>
+<h3>Rewards</h3>
+<p>Rewards derive from <code>BASE_REWARD_FACTOR: 64</code><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>, scaled by effective balance and inversely by the square root of total stake — so per-validator yield falls as total stake rises. Validators earn for correct source, target and head votes, for proposing blocks (<code>PROPOSER_REWARD_QUOTIENT: 8</code><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>), and for sync-committee duty (<code>SYNC_COMMITTEE_SIZE: 512</code> validators rotating every <code>EPOCHS_PER_SYNC_COMMITTEE_PERIOD: 256</code> epochs<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>).</p>
+<p>This report does not compute an APR; the reward function was not extracted term by term (see Limitations).</p>
+<h3>Penalties are not slashing</h3>
+<p>Conflating these is the most common error in staking discussions, and the spec keeps them structurally distinct.</p>
+<p><strong>Penalties</strong> apply to omission. Miss an attestation and you forgo the reward and pay a symmetric penalty. The magnitudes are small and roughly cancel: a validator online most of the time earns approximately what perfect participation would yield, minus its downtime. Ethereum.org states the practical consequence — going offline incurs penalties, but slashing is separately described as "larger penalties and ejection"<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<p><strong>Slashing</strong> applies to provable contradiction. It is not a bigger penalty; it is a different event, and it triggers three things at once<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>:</p>
+<pre><code>validator.slashed = True
+validator.withdrawable_epoch = max(
+    validator.withdrawable_epoch, Epoch(epoch + EPOCHS_PER_SLASHINGS_VECTOR)
+)
+state.slashings[epoch % EPOCHS_PER_SLASHINGS_VECTOR] += validator.effective_balance
+slashing_penalty = validator.effective_balance // MIN_SLASHING_PENALTY_QUOTIENT_ELECTRA</code></pre>
+<p>The validator is marked, forcibly exited, and its withdrawability pushed out by <code>EPOCHS_PER_SLASHINGS_VECTOR: 8192</code> epochs — about 36 days at 12-second slots<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. An immediate penalty is taken. And critically, the validator's effective balance is <em>recorded in a slashings vector</em>.</p>
+<h3>The correlation penalty</h3>
+<p>That vector is the heart of the design. The spec applies a second penalty in <code>process_slashings</code>, and the timing is precise — it fires when <code>epoch + EPOCHS_PER_SLASHINGS_VECTOR // 2 == validator.withdrawable_epoch</code><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, i.e. at the <strong>midpoint</strong> of the window, roughly 18 days after the slashing, not at the end. The penalty is proportional to <em>how much total stake was slashed in the same window</em>:</p>
+<pre><code>adjusted_total_slashing_balance = min(
+    sum(state.slashings) * PROPORTIONAL_SLASHING_MULTIPLIER, total_balance
+)
+penalty_numerator = validator.effective_balance // increment * adjusted_total_slashing_balance
+penalty = penalty_numerator // total_balance * increment</code></pre>
+<p>The live multiplier is not the genesis value. Phase 0 set <code>PROPORTIONAL_SLASHING_MULTIPLIER: 1</code> and the spec notes it was "set to <code>1</code> at initial mainnet"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>; Altair raised it to 2<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>; Bellatrix set <code>PROPORTIONAL_SLASHING_MULTIPLIER_BELLATRIX: 3</code><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>, and Electra's <code>process_slashings</code> still uses the Bellatrix constant<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. So the correlated penalty today is scaled by 3.</p>
+<p>The consequence is that slashing is superlinear in correlation. One validator equivocating alone loses a small fraction. A third of the network equivocating together — the scenario that could actually break finality — approaches total loss for every participant. The protocol is close to indifferent about isolated faults, which are usually bugs or misconfiguration, and maximally hostile to coordinated ones, which are attacks. This is what "economic finality" purchases: reverting a finalised checkpoint requires a third of stake to equivocate, and the correlation penalty ensures that a third of stake equivocating destroys itself.</p>
+<h3>Electra softened the immediate penalty</h3>
+<p>The initial slashing quotient has moved three times, tightening steadily before reversing: <code>MIN_SLASHING_PENALTY_QUOTIENT: 128</code> at genesis<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>, 64 in Altair<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, <code>MIN_SLASHING_PENALTY_QUOTIENT_BELLATRIX: 32</code> from Bellatrix onward<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>, then relaxed to <code>MIN_SLASHING_PENALTY_QUOTIENT_ELECTRA: 4096</code> in Electra<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. At the pre-Electra value of 1/32 a 32 ETH validator lost 1 ETH immediately; at 1/4096 it loses about 0.0078 ETH — a 128-fold reduction in the immediate cost.</p>
+<p>The spec attributes the change to EIP-7251 rather than to leniency — the note reads "modified to change how the slashing penalty and proposer/whistleblower rewards are calculated in accordance with EIP7251"<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. With validators now holding up to 2048 ETH, a fixed fraction that was proportionate at 32 ETH would be punishing at 2048 ETH for what may be an operator error. The correlation penalty, which is the part that actually deters attacks, was not weakened. Reading the change as "slashing got safer for attackers" would therefore be wrong; reading it as "the immediate cost of an honest mistake fell sharply" is right. _(This reading is this report's; the spec states only the EIP-7251 attribution.)_</p>
+<h2>The staking ecosystem and its concentration</h2>
+<h3>Four routes, four trust assumptions</h3>
+<p>Ethereum.org presents four ways to stake and does not pretend they are equivalent<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. <strong>Home staking</strong> is "most impactful" — full control, full rewards, and full exposure: "Your ETH is at stake." <strong>Staking as a service</strong> keeps the 32 ETH but hands over signing keys, carrying "the same risks as solo staking plus counter-party risk of service provider." <strong>Pooled staking</strong> drops the minimum — "some projects require as little as 0.01 ETH" — in exchange for counter-party and execution risk. <strong>Centralised exchanges</strong> are ranked "least impactful" and described as creating "a large centralized target and point of failure, making the network more vulnerable to attack or bugs."</p>
+<p>The ranking is by <em>network</em> impact, not user convenience, and it inverts the popularity ordering.</p>
+<h3>Where the stake actually sits</h3>
+<p>Approximately 39 million ETH is staked — around 32% of a 121.7 million ETH supply — and the largest liquid-staking protocol, Lido, accounts for roughly 8.86 million ETH, about 22.7% of the staked total _(unverified — industry reporting)_<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</p>
+<p>The thresholds that matter are protocol thresholds. One third of stake can prevent finality (since justification needs two-thirds). One half matters for fork-choice dominance. Two thirds can finalise arbitrarily. A ~23% share is below all three, but the relevant question is whether a protocol's operator set should be counted as one actor or many — a question about governance and correlated failure, not about arithmetic. This report reports the numbers and does not issue a verdict.</p>
+<h3>MaxEB in practice: the 2026 consolidation</h3>
+<p>EIP-7251 was justified by an abstract argument about validator-set size. In 2026 that argument became a migration. Lido's DAO approved Curated Module v2 in late July 2026 and began moving stake out of "over 265,000" legacy 0x01 validators into compounding units. The projected effect: compounding validators' share of secured stake rising from roughly 32% to about 52%, and the network validator count falling by roughly a third, "from around 880,000 to near 628,000" _(unverified — industry reporting)_<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>.</p>
+<p>If that projection holds it is the largest single change to the validator set since the Merge, and it is worth being precise about what it does and does not do. It reduces <em>message and aggregation load</em>, which is what EIP-7251 targeted<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. It does not reduce the amount of stake under one protocol's control — the same ETH is simply held in fewer, larger validators. Validator count and decentralisation were never the same measurement, and this migration makes the gap between them visible.</p>
+<h2>Limitations</h2>
+<ul>
+<li><strong>Deposit contract source not read.</strong> The address is confirmed from the config<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> and consensus-side verification from the spec<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, but the contract's own source was not retrieved. Statements here concern its interface and consensus-side treatment, not its implementation.</li>
+<li><strong>Casper FFG paper body not read.</strong> Only the abstract was retrievable<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The slashing conditions and accountable-safety reasoning are cited from the implemented specification<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> — the more load-bearing artefact — with the paper cited for the concept only. The report does not quote the paper's formal theorems.</li>
+<li><strong>No reward arithmetic.</strong> Base reward, per-component attestation weights and exact proposer shares were not extracted function by function. The report describes reward <em>structure</em> and quotes constants<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> but computes no APR, and readers should not infer yields from it.</li>
+<li><strong>Staking statistics are tier-4.</strong> The ~39M ETH staked, ~23% Lido share, and the 880k→628k projection come from industry trackers and reporting<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>, not from chain-derived primaries such as beaconcha.in or a Dune query. They are marked in-line and should be treated as approximate and fast-moving. The 628k figure is a projection, not an outcome.</li>
+<li><strong>Specification currency.</strong> Everything is quoted from <code>master</code>, which is the current development state, not a mainnet snapshot; the latest tagged release at the time of writing was v1.7.0-alpha.13 (2026-07-31). Constants for activated forks (through Fulu) are live; Gloas and Heze are not scheduled<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> and nothing tagged to them is asserted as active.</li>
+<li><strong>Fulu contents not analysed.</strong> Fusaka's activation on 2025-12-03 is confirmed from the config<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, but its specification changes were not read and the report does not characterise what it changed.</li>
+<li><strong>No PoS attack literature.</strong> Work on reorg and balancing attacks against LMD-GHOST was not gathered. The report states the properties Gasper's authors prove<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> and does not claim the protocol is attack-free; a security assessment would require that literature.</li>
+<li><strong>Concentration deliberately unjudged.</strong> The report gives distribution figures and protocol thresholds but issues no verdict on whether current concentration is dangerous, because that depends on whether an operator set counts as one actor — a governance question this report did not investigate.</li>
+</ul>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://github.com/ethereum/consensus-specs/blob/master/configs/mainnet.yaml">Ethereum consensus-specs — configs/mainnet.yaml (fork schedule, churn, deposit contract)</a>. <span class="venue">ethereum/consensus-specs (master), 2026</span>. <span class="accessed">Accessed 2026-08-14.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://github.com/ethereum/consensus-specs/blob/master/presets/mainnet/phase0.yaml">Ethereum consensus-specs — presets/mainnet/phase0.yaml</a>. <span class="venue">ethereum/consensus-specs (master), 2026</span>. <span class="accessed">Accessed 2026-08-14.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://arxiv.org/abs/2003.03052">Combining GHOST and Casper (Gasper)</a>. <span class="venue">Vitalik Buterin, Diego Hernandez, Thor Kamphefner, Khiem Pham, Zhi Qiao, Danny Ryan, Juhyeok Sin, Ying Wang, Yan X Zhang — arXiv:2003.03052, 2026</span>. <span class="accessed">Accessed 2026-08-14.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://arxiv.org/abs/1710.09437">Casper the Friendly Finality Gadget</a>. <span class="venue">Vitalik Buterin, Virgil Griffith — arXiv:1710.09437, 2026</span>. <span class="accessed">Accessed 2026-08-14.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://github.com/ethereum/consensus-specs/blob/master/specs/phase0/beacon-chain.md">Ethereum consensus-specs — phase0/beacon-chain.md</a>. <span class="venue">ethereum/consensus-specs (master), 2026</span>. <span class="accessed">Accessed 2026-08-14.</span></li>
+      <li id="ref-6"><span class="authors">—</span>. <a href="https://github.com/ethereum/consensus-specs/blob/master/presets/mainnet/altair.yaml">Ethereum consensus-specs — presets/mainnet/altair.yaml</a>. <span class="venue">ethereum/consensus-specs (master), 2026</span>. <span class="accessed">Accessed 2026-08-14.</span></li>
+      <li id="ref-7"><span class="authors">—</span>. <a href="https://github.com/ethereum/consensus-specs/blob/master/presets/mainnet/electra.yaml">Ethereum consensus-specs — presets/mainnet/electra.yaml</a>. <span class="venue">ethereum/consensus-specs (master), 2026</span>. <span class="accessed">Accessed 2026-08-14.</span></li>
+      <li id="ref-8"><span class="authors">—</span>. <a href="https://github.com/ethereum/consensus-specs/blob/master/specs/capella/beacon-chain.md">Ethereum consensus-specs — capella/beacon-chain.md (withdrawals)</a>. <span class="venue">ethereum/consensus-specs (master), 2026</span>. <span class="accessed">Accessed 2026-08-14.</span></li>
+      <li id="ref-9"><span class="authors">—</span>. <a href="https://github.com/ethereum/consensus-specs/blob/master/specs/electra/beacon-chain.md">Ethereum consensus-specs — electra/beacon-chain.md</a>. <span class="venue">ethereum/consensus-specs (master), 2026</span>. <span class="accessed">Accessed 2026-08-14.</span></li>
+      <li id="ref-10"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-7251">EIP-7251: Increase the MAX_EFFECTIVE_BALANCE</a>. <span class="venue">mike, Francesco, dapplion, Mikhail, Aditya, Justin, lightclient, Felix Lange (Final), 2026</span>. <span class="accessed">Accessed 2026-08-14.</span></li>
+      <li id="ref-11"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-7002">EIP-7002: Execution layer triggerable withdrawals</a>. <span class="venue">Danny Ryan, Mikhail Kalinin, Ansgar Dietrichs, Hsiao-Wei Wang, lightclient, Felix Lange (Final), 2026</span>. <span class="accessed">Accessed 2026-08-14.</span></li>
+      <li id="ref-12"><span class="authors">—</span>. <a href="https://ethereum.org/en/staking/">Staking — ethereum.org</a>. <span class="venue">Ethereum Foundation, 2026</span>. <span class="accessed">Accessed 2026-08-14.</span></li>
+      <li id="ref-13"><span class="authors">—</span>. <a href="https://github.com/ethereum/consensus-specs/blob/master/presets/mainnet/bellatrix.yaml">Ethereum consensus-specs — presets/mainnet/bellatrix.yaml</a>. <span class="venue">ethereum/consensus-specs (master), 2026</span>. <span class="accessed">Accessed 2026-08-14.</span></li>
+      <li id="ref-14"><span class="authors">—</span>. <a href="https://www.datawallet.com/crypto/ethereum-staking-statistics-and-trends">Ethereum Staking Statistics &amp; Trends (2026 Data)</a>. <span class="venue">Datawallet, 2026</span>. <span class="accessed">Accessed 2026-08-14.</span></li>
+      <li id="ref-15"><span class="authors">—</span>. <a href="https://www.crowdfundinsider.com/2026/07/294117-ethereum-eth-liquid-staking-protocol-lido-initiates-overhaul-by-shifting-billions-in-staked-ether-to-higher-capacity-validators/">Lido Initiates Overhaul By Shifting Billions In Staked Ether To Higher-Capacity Validators</a>. <span class="venue">Crowdfund Insider (2026-07), 2026</span>. <span class="accessed">Accessed 2026-08-14.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-08-14. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
