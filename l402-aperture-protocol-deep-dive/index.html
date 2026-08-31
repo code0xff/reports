@@ -77,7 +77,12 @@
 <pre><code>WWW-Authenticate: L402 macaroon=&quot;&lt;base64&gt;&quot;, invoice=&quot;&lt;bolt11&gt;&quot;
 Authorization:    L402 &lt;base64(macaroon)&gt;:&lt;hex(preimage)&gt;</code></pre>
 <p>전체 흐름은 다음 4단계다.</p>
-<p>1. <strong>클라이언트가 보호 자원 요청.</strong> 2. <strong>서버가 402로 응답</strong> — <code>WWW-Authenticate</code> 헤더에 macaroon과 BOLT 11 invoice를 동봉한다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 3. <strong>클라이언트가 Lightning invoice를 결제</strong> — preimage <code>r</code>을 얻는다. 4. <strong>클라이언트가 재요청</strong> — <code>Authorization: L402 &lt;base64(macaroon)&gt;:&lt;hex(preimage)&gt;</code> 헤더로 자원을 받는다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<ol>
+<li><strong>클라이언트가 보호 자원 요청.</strong></li>
+<li><strong>서버가 402로 응답</strong> — <code>WWW-Authenticate</code> 헤더에 macaroon과 BOLT 11 invoice를 동봉한다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</li>
+<li><strong>클라이언트가 Lightning invoice를 결제</strong> — preimage <code>r</code>을 얻는다.</li>
+<li><strong>클라이언트가 재요청</strong> — <code>Authorization: L402 &lt;base64(macaroon)&gt;:&lt;hex(preimage)&gt;</code> 헤더로 자원을 받는다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</li>
+</ol>
 <h3>3.2 토큰 형식과 payment hash binding</h3>
 <p>토큰의 결정적 디테일은 <strong>macaroon의 identifier가 invoice의 payment_hash <code>H</code>에 commit한다</strong>는 것이다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 명세는 이를 다음과 같이 적시한다 — "The macaroon's identifier commits to the payment hash H of the Lightning invoice. This commitment enables in-band payment verification: the server can confirm a client has paid using only the macaroon and preimage, with no additional state or backend lookup"<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 즉 검증자는 (1) macaroon에서 H를 꺼내고 (2) 들어온 preimage <code>r</code>로 sha256(r)을 계산해 H와 같은지 확인하고 (3) macaroon HMAC 체인이 유효한지, 카비엇이 통과하는지 확인한다 — 모두 stateless다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
 <h3>3.3 402 vs 401 분리</h3>
@@ -148,7 +153,7 @@ services:
 <li><strong><code>Tierion/lsat-js</code></strong> — JavaScript 유틸리티 라이브러리. "A javascript library for working with LSATs (Lightning Service Authentication Tokens)"<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. macaroon 직렬화/역직렬화, preimage 부착·검증, caveat 추가를 SDK 수준에서 처리한다.</li>
 <li><strong><code>Tierion/boltwall</code></strong> — Node.js + TypeScript 미들웨어. "Bitcoin Lightning paywall and authentication using LSATs. Built with LND, Nodejs, and Typescript"<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. 사실상 Node 진영의 Aperture에 해당하는 페이월 미들웨어다.</li>
 </ul>
-<p>(현 시점에는 <code>lsat-go</code>로 통칭되는 공식 Go 클라이언트 SDK는 단일 표준 리포로 굳어지지 않았고, 클라이언트 코드 대부분은 Aperture 자체의 <code>l402</code> 패키지를 직접 import해 쓰는 패턴을 따른다 _(unverified — single source)_.)</p>
+<p>(현 시점에는 <code>lsat-go</code>로 통칭되는 공식 Go 클라이언트 SDK는 단일 표준 리포로 굳어지지 않았고, 클라이언트 코드 대부분은 Aperture 자체의 <code>l402</code> 패키지를 직접 import해 쓰는 패턴을 따른다 <em>(unverified — single source)</em>.)</p>
 <h3>5.2 Lightning Agent Tools (2026-02-11 발표)</h3>
 <p>2026년 2월 11일, Lightning Labs는 "Lightning Agent Tools"라는 7개 스킬 패키지를 공개했다<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup><sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. 발표문은 다음과 같이 정리한다 — "The new Lightning agent tools repo ships with seven composable skills covering the full agent commerce stack: running a Lightning node, isolating private keys with a remote signer, baking scoped credentials, paying for L402-gated APIs, hosting paid endpoints, querying node state via MCP"<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>. 일곱 스킬은 (1) Lightning 노드 운영, (2) remote signer로 키 격리, (3) scoped credential baking, (4) <strong><code>lnget</code></strong> — L402 게이트 API 자동 결제 클라이언트, (5) <strong><code>aperture</code> 스킬</strong> — paid endpoint 호스팅, (6) MCP로 노드 상태 조회, (7) buyer/seller 워크플로 오케스트레이션이다<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>. 모두 Claude Code · Codex · npx · ClawHub 경로로 배포된다<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>.</p>
 <h3>5.3 표준화 트래킹</h3>
@@ -163,7 +168,7 @@ services:
 <li><strong>AI agent commerce와 1 sat 단위 마이크로결제</strong> — Lightning 라우팅 수수료가 1 sat 수준이라 "한 호출당 1 cent 미만" 가격대가 경제적으로 성립한다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 본 보고서가 다룬 다른 표준들이 단가 floor를 낮추는 데 별도의 채널/배치 인프라가 필요한 반면, L402는 단건 결제만으로도 단가 floor가 같은 수준이다.</li>
 <li><strong>비-EVM 환경 / Bitcoin-native 운영자</strong> — Bitcoin 인프라(lnd)를 이미 운영 중이거나, EVM 의존성을 피하고 싶은 머천트에게 L402가 자연 선택이다.</li>
 <li><strong>stateless 검증이 결정적인 환경</strong> — 외부 facilitator·RPC·체인 인덱서에 의존하지 않고 자체 서버로 자기 매출을 검증하고 싶은 경우, macaroon + preimage 두 값만으로 충분한 L402가 다른 어떤 표준보다 단순하다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</li>
-<li><strong>반대로</strong> USD-pegged 가격 정책이 필요한 비즈니스(가격표가 USD 단위), 카드 분쟁/chargeback이 필요한 소비자 결제, EVM 토큰을 자산으로 받아야 하는 시나리오에서는 x402·MPP·ACP가 더 맞을 수 있다 _(interpretive)_<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</li>
+<li><strong>반대로</strong> USD-pegged 가격 정책이 필요한 비즈니스(가격표가 USD 단위), 카드 분쟁/chargeback이 필요한 소비자 결제, EVM 토큰을 자산으로 받아야 하는 시나리오에서는 x402·MPP·ACP가 더 맞을 수 있다 <em>(interpretive)</em><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</li>
 <li><strong>에이전트 측에서는 동시에 여러 표준을 받아들이는 어댑터 패턴이 더 현실적</strong>이라는 결론이 자매 보고서 <a href="../agent-payments-smart-account-design/"><code>agent-payments-smart-account-design</code></a>에 정리되어 있다 — L402는 그 어댑터 셋의 Bitcoin-native 슬롯을 담당하는 셈이다.</li>
 </ul>
 <h2>8. 한계</h2>

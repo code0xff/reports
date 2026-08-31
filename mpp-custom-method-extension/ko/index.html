@@ -140,7 +140,7 @@ const ledger = Method.toServer&lt;typeof charge, typeof defaults&gt;(charge, {
   defaults,
   // ...
 })</code></pre>
-<p>이는 명시적 제네릭 유무 각각에 대해, 그리고 평범한 객체 스키마와 <code>z.pipe</code> 스키마 각각에 대해 컴파일과 실행으로 확인했다. _(구현 하나, 버전 하나 — 설계 의도가 아니라 0.8.15의 특이점으로 다루는 것이 안전하다.)_</p>
+<p>이는 명시적 제네릭 유무 각각에 대해, 그리고 평범한 객체 스키마와 <code>z.pipe</code> 스키마 각각에 대해 컴파일과 실행으로 확인했다. <em>(구현 하나, 버전 하나 — 설계 의도가 아니라 0.8.15의 특이점으로 다루는 것이 안전하다.)</em></p>
 <h2>구현 — 실제로 동작하는 커스텀 메서드</h2>
 <p>아래 예제는 완결된 <code>ledger</code> 메서드다. 블록체인도, 외부 결제 처리사도, 퍼실리테이터도 없는 사내 선불 잔액 레일이다. 의도적으로 심심하게 만들었다. 흥미로운 부분은 배관이기 때문이다. 전체 파일과 컴파일러 출력, 런타임 출력은 이 보고서의 <code>working/verification/</code> 디렉터리에 있다.</p>
 <p><strong>검증 상태.</strong> 이 코드는 <code>mppx</code> 0.8.15에 대해 <code>tsc --strict</code>로 컴파일했고(오류 없음), <code>tsx</code>로 실행했다. 아래 인용된 출력은 그 실행의 실제 출력이며 예시가 아니다.</p>
@@ -402,8 +402,10 @@ second body: {
 <p><code>mpp-specs</code> 트리에는 tempo, evm, stripe와 함께 lightning, card, usdc, hedera, solana, stellar 메서드 초안도 실려 있다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> 이들은 구현 산출물이지 사용량 통계가 아니다. 실제 트랜잭션 볼륨에 대해서는 아무것도 말해주지 않는다.</p>
 <h3>언어 간: Rust SDK는 대칭이 아니다</h3>
 <p><code>mpp-rs</code> 도 서드파티 확장 표면을 노출하고 문서화한다. <code>ChargeMethod</code> 트레이트에는 "커스텀 결제 네트워크를 위한 구현"이라는 제목의 완결된 예제가 붙어 있다.<sup class="footnote-ref"><a href="#ref-35" id="cite-35">[35]</a></sup> 다만 추상화의 모양이 다르다. Rust 트레이트는 <strong>인텐트 범위</strong> — <code>ChargeMethod</code>, <code>SessionMethod</code> — 이고, 각각 고정된 타입의 요청 스키마를 강제한다. 소스가 이를 설계 원칙으로 명시한다.</p>
-<p>&gt; 인텐트("charge")는 공유 스키마(<code>ChargeRequest</code>)를 정의하고, 메서드(예: "tempo")는 그 스키마에 대한 검증을 구현한다. … 모든 구현이 동일한 <code>ChargeRequest</code> 스키마를 사용해 IETF 명세에 따른 일관된 필드 이름을 강제한다.<sup class="footnote-ref"><a href="#ref-35" id="cite-35">[35]</a></sup></p>
-<p>반면 <code>mppx</code> 는 메서드마다 임의의 요청 스키마를 선언하게 한다.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> Rust 설계는 메서드 간 일관성을 사고 스키마 자유도를 포기한다. TypeScript 설계는 그 반대다. <code>ChargeRequest</code> 바깥의 요청 필드가 필요한 메서드는 TypeScript에서는 간단하고 Rust에서는 제약을 받는다. _(트레이트 정의로부터 성격을 규정한 것이며, Rust 서버 통합 전체는 감사하지 않았다 — 8장 참조.)_</p>
+<blockquote>
+<p>인텐트("charge")는 공유 스키마(<code>ChargeRequest</code>)를 정의하고, 메서드(예: "tempo")는 그 스키마에 대한 검증을 구현한다. … 모든 구현이 동일한 <code>ChargeRequest</code> 스키마를 사용해 IETF 명세에 따른 일관된 필드 이름을 강제한다.<sup class="footnote-ref"><a href="#ref-35" id="cite-35">[35]</a></sup></p>
+</blockquote>
+<p>반면 <code>mppx</code> 는 메서드마다 임의의 요청 스키마를 선언하게 한다.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> Rust 설계는 메서드 간 일관성을 사고 스키마 자유도를 포기한다. TypeScript 설계는 그 반대다. <code>ChargeRequest</code> 바깥의 요청 필드가 필요한 메서드는 TypeScript에서는 간단하고 Rust에서는 제약을 받는다. <em>(트레이트 정의로부터 성격을 규정한 것이며, Rust 서버 통합 전체는 감사하지 않았다 — 8장 참조.)</em></p>
 <h2>보안 및 설계 분석</h2>
 <h3>SDK의 몫, 그리고 여러분의 몫</h3>
 <p>경계를 정확히 짚어둘 가치가 있다. 프레임워크가 실제로 어디서 멈추는지를 보기 전까지는 가이드의 경고가 일반론처럼 읽히기 때문이다.</p>

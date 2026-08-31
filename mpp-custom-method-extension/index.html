@@ -140,7 +140,7 @@ const ledger = Method.toServer&lt;typeof charge, typeof defaults&gt;(charge, {
   defaults,
   // ...
 })</code></pre>
-<p>This was verified both ways — with and without the explicit generic, with a plain object schema and with a <code>z.pipe</code> schema — by compiling and running each variant. _(Single implementation, single version — treat as a 0.8.15 quirk, not a design statement.)_</p>
+<p>This was verified both ways — with and without the explicit generic, with a plain object schema and with a <code>z.pipe</code> schema — by compiling and running each variant. <em>(Single implementation, single version — treat as a 0.8.15 quirk, not a design statement.)</em></p>
 <h2>Implementation — a worked custom method</h2>
 <p>The example below is a complete <code>ledger</code> method: a proprietary prepaid-balance rail with no blockchain, no external processor, and no facilitator. It is deliberately boring, because the interesting part is the plumbing. The full file, its compiler output, and its runtime output are in this report's <code>working/verification/</code> directory.</p>
 <p><strong>Verification status.</strong> This code was compiled with <code>tsc --strict</code> against <code>mppx</code> 0.8.15 (clean, no errors) and executed under <code>tsx</code>. The outputs quoted below are the real outputs of that run, not illustrations.</p>
@@ -402,8 +402,10 @@ second body: {
 <p>The <code>mpp-specs</code> tree additionally carries method drafts for lightning, card, usdc, hedera, solana, and stellar alongside tempo, evm, and stripe.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> These are implementation artefacts, not usage statistics — none of them tells us anything about live transaction volume.</p>
 <h3>Cross-language: the Rust SDK is not symmetric</h3>
 <p><code>mpp-rs</code> does expose a third-party extension surface, and documents it: its <code>ChargeMethod</code> trait carries a worked example headed "Implementing for a custom payment network".<sup class="footnote-ref"><a href="#ref-35" id="cite-35">[35]</a></sup> But the abstraction is shaped differently. The Rust traits are <strong>intent-scoped</strong> — <code>ChargeMethod</code>, <code>SessionMethod</code> — and each enforces a fixed typed request schema, which the source states as a design principle:</p>
-<p>&gt; Intent ("charge"): Defines the shared schema (<code>ChargeRequest</code>); Method (e.g. "tempo"): Implements verification for that schema. … All implementations use the same <code>ChargeRequest</code> schema, enforcing consistent field names per the IETF spec.<sup class="footnote-ref"><a href="#ref-35" id="cite-35">[35]</a></sup></p>
-<p><code>mppx</code>, by contrast, lets each method declare an arbitrary request schema.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> The Rust design buys cross-method consistency and gives up schema freedom; the TypeScript design does the reverse. A method needing request fields outside <code>ChargeRequest</code> is straightforward in TypeScript and constrained in Rust. _(Characterised from the trait definitions; the full Rust server integration was not audited — see §8.)_</p>
+<blockquote>
+<p>Intent ("charge"): Defines the shared schema (<code>ChargeRequest</code>); Method (e.g. "tempo"): Implements verification for that schema. … All implementations use the same <code>ChargeRequest</code> schema, enforcing consistent field names per the IETF spec.<sup class="footnote-ref"><a href="#ref-35" id="cite-35">[35]</a></sup></p>
+</blockquote>
+<p><code>mppx</code>, by contrast, lets each method declare an arbitrary request schema.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> The Rust design buys cross-method consistency and gives up schema freedom; the TypeScript design does the reverse. A method needing request fields outside <code>ChargeRequest</code> is straightforward in TypeScript and constrained in Rust. <em>(Characterised from the trait definitions; the full Rust server integration was not audited — see §8.)</em></p>
 <h2>Security and design analysis</h2>
 <h3>The SDK's half of the boundary, and yours</h3>
 <p>It is worth being precise about the division, because the guide's warnings read as generic advice until you see where the framework actually stops.</p>

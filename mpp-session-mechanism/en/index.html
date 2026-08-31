@@ -56,7 +56,7 @@
   <section class="abstract">
     <h2>Abstract</h2>
     <p>MPP (Machine Payments Protocol) Session is an off-chain payment channel mechanism that enables autonomous AI agents to perform unlimited micropayments against HTTP APIs while bypassing blockchain throughput limitations. After depositing TIP-20 tokens into the <code>TempoStreamChannel</code> escrow smart contract, clients exchange EIP-712 typed-data vouchers off-chain as they consume services. Servers validate each voucher with a single <code>ecrecover</code> call — adding only microseconds of latency — while thousands of micropayments settle in just two on-chain transactions (open + close)<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. This analysis draws primarily from the official Tempo blog<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, IETF draft-tempo-session-00<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>, and mpp.dev technical documentation<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> to cover channelId derivation, the EIP-712 voucher structure, server accounting, the full session lifecycle, security considerations, and the SDK ecosystem.</p>
-<p>---</p>
+<hr>
   </section>
 
   <main class="body">
@@ -68,13 +68,13 @@
 <p>MPP defines two payment intents<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The <code>charge</code> intent is a one-time payment that settles one on-chain transaction per request. The <code>session</code> intent combines pre-funded escrow with off-chain voucher exchange: only two on-chain transactions (open + close) are needed regardless of how many micropayments occur in between<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Cloudflare has integrated the session intent into its agentic payment infrastructure as the preferred model for token-based and streaming billing scenarios<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
 <h3>1.3 Standardization Status</h3>
 <p>MPP Session is submitted as IETF draft <code>draft-tempo-session-00</code><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The underlying MPP protocol was co-authored by Tempo and Stripe as an open standard<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. IETF drafts expire after six months without an update, and progression to RFC status could take years.</p>
-<p>---</p>
+<hr>
 <h2>2. Background</h2>
 <h3>2.1 HTTP 402-Based Payment Negotiation</h3>
 <p>MPP reuses the HTTP 402 Payment Required status code and standard authentication headers<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The server returns a 402 response with a <code>WWW-Authenticate: Payment</code> challenge containing: <code>id</code> (challenge identifier), <code>realm</code> (protection space), <code>method</code> ("tempo"), <code>intent</code> ("session"), <code>request</code> (Base64url-encoded JSON), and <code>expires</code> (RFC3339 timestamp). The client generates a voucher and retries with an <code>Authorization: Payment &lt;credential&gt;</code> header.</p>
 <h3>2.2 Tempo Blockchain and TIP-20</h3>
-<p>Tempo uses the TIP-20 token standard with built-in payment lanes, transfer memos, and compliance policies for stablecoins<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The chain provides deterministic sub-second finality _(specific sub-second figure is vendor-stated)_ and supports fee sponsorship, enabling gasless transactions where users pay gas in stablecoins<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. An expiring-nonce system supports concurrent transaction submission<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The <code>TempoStreamChannel</code> escrow contract is deployed on mainnet (chain ID 4217, <code>0x33b901018174DDabE4841042ab76ba85D4e24f25</code>) and testnet Moderato (chain ID 42431, <code>0xe1c4d3dce17bc111181ddf716f75bae49e61a336</code>)<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
-<p>---</p>
+<p>Tempo uses the TIP-20 token standard with built-in payment lanes, transfer memos, and compliance policies for stablecoins<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The chain provides deterministic sub-second finality <em>(specific sub-second figure is vendor-stated)</em> and supports fee sponsorship, enabling gasless transactions where users pay gas in stablecoins<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. An expiring-nonce system supports concurrent transaction submission<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The <code>TempoStreamChannel</code> escrow contract is deployed on mainnet (chain ID 4217, <code>0x33b901018174DDabE4841042ab76ba85D4e24f25</code>) and testnet Moderato (chain ID 42431, <code>0xe1c4d3dce17bc111181ddf716f75bae49e61a336</code>)<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<hr>
 <h2>3. MPP Session Architecture</h2>
 <h3>3.1 The TempoStreamChannel Escrow Contract</h3>
 <p>The <code>TempoStreamChannel</code> escrow contract is the foundation of MPP Session<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. The payer (client) deposits TIP-20 tokens into the contract; the payee (server) later submits the final voucher on-chain to claim payment. Any unused deposit is refunded to the payer at close. The model resembles pre-paying at a fuel station: funds are locked in advance and only actual consumption is deducted.</p>
@@ -100,7 +100,7 @@
 </ul>
 <h3>3.4 Deposit Negotiation</h3>
 <p>Servers include <code>suggestedDeposit</code> and <code>maxDeposit</code> parameters in the challenge payload to guide clients on appropriate deposit sizes<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. The SDK respects <code>maxDeposit</code> as an upper bound on capital locked per channel<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. For example, <code>maxDeposit: '1'</code> locks up to 1 pathUSD — enough for 100 requests at $0.01 each.</p>
-<p>---</p>
+<hr>
 <h2>4. The Cryptographic Voucher System</h2>
 <h3>4.1 EIP-712 Typed Data Signature</h3>
 <p>Vouchers use EIP-712 structured data signing<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The type definition is:</p>
@@ -120,12 +120,12 @@
 <h3>4.2 Cumulative Semantics</h3>
 <p>Vouchers specify totals, not deltas<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. Each voucher authorizes "withdrawal of up to X total so far." The contract computes <code>delta = cumulativeAmount - settled</code> for each settlement. A sequence of vouchers for 100, 250, and 400 authorizes deltas of 100, 150, and 150 respectively. Servers enforce monotonic increase by rejecting any voucher with <code>cumulativeAmount ≤ acceptedCumulative</code><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. Non-advancing vouchers are handled idempotently.</p>
 <h3>4.3 Single ecrecover Verification</h3>
-<p>Voucher verification requires exactly one <code>ecrecover</code> call<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. This is a CPU-bound operation requiring no RPC calls, achieving microsecond-level latency _(vendor-stated)_<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. "Vouchers are not bottlenecked by blockchain throughput; they are processed in pure CPU-bound signature checks"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<p>Voucher verification requires exactly one <code>ecrecover</code> call<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. This is a CPU-bound operation requiring no RPC calls, achieving microsecond-level latency <em>(vendor-stated)</em><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. "Vouchers are not bottlenecked by blockchain throughput; they are processed in pure CPU-bound signature checks"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
 <h3>4.4 Low-S ECDSA Rule</h3>
 <p>All signatures must use low-s values (s ≤ secp256k1_order / 2)<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. Servers reject high-s signatures. This rule prevents ECDSA signature malleability attacks. Both 65-byte <code>(r, s, v)</code> and 64-byte EIP-2098 compact formats are accepted.</p>
 <h3>4.5 Authorized Signer Delegation</h3>
 <p>The <code>channelId</code> derivation includes an <code>authorizedSigner</code> parameter<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. When this field is non-zero, the contract verifies that the recovered signer matches <code>channel.authorizedSigner</code> rather than <code>channel.payer</code>. This separates deposit authority (cold wallet) from signing authority (hot wallet). Compromise of the authorized signer key risks only the per-channel locked deposit, not the main account's broader holdings.</p>
-<p>---</p>
+<hr>
 <h2>5. Session Lifecycle</h2>
 <h3>5.1 Open: Channel Establishment</h3>
 <p>The client submits an on-chain transaction depositing TIP-20 tokens into the <code>TempoStreamChannel</code> contract<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. The server recognizes the channel as valid after on-chain confirmation. With the TypeScript SDK<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>:</p>
@@ -138,7 +138,14 @@
 <p>When the first request receives a 402, the SDK automatically opens the channel and sends the initial voucher.</p>
 <h3>5.2 Consume: Off-Chain Voucher Exchange</h3>
 <p>After channel opening, each request carries an off-chain voucher in the <code>Authorization: Payment</code> header<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. The server's processing order is:</p>
-<p>1. Validate voucher signature (<code>ecrecover</code>) 2. Confirm <code>cumulativeAmount &gt; acceptedCumulative</code> (monotonicity) 3. Confirm <code>cumulativeAmount ≤ channel.deposit</code> (deposit cap) 4. Persist <code>spent</code> to durable storage before delivering service (crash-safety principle) 5. Deliver service 6. Return <code>Payment-Receipt</code> header (channelId, acceptedCumulative, spent, available)</p>
+<ol>
+<li>Validate voucher signature (<code>ecrecover</code>)</li>
+<li>Confirm <code>cumulativeAmount &gt; acceptedCumulative</code> (monotonicity)</li>
+<li>Confirm <code>cumulativeAmount ≤ channel.deposit</code> (deposit cap)</li>
+<li>Persist <code>spent</code> to durable storage before delivering service (crash-safety principle)</li>
+<li>Deliver service</li>
+<li>Return <code>Payment-Receipt</code> header (channelId, acceptedCumulative, spent, available)</li>
+</ol>
 <h3>5.3 Streaming Pause: payment-need-voucher Event</h3>
 <p>During SSE streaming, if <code>available</code> is exhausted the server pauses the stream and emits<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>:</p>
 <pre><code>event: payment-need-voucher
@@ -155,7 +162,7 @@ data: {
 <p>In normal termination, the server calls <code>close(channelId, cumulativeAmount, sig)</code> on the escrow contract<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. The contract verifies the server's signature, pays <code>cumulativeAmount</code> to the payee, and refunds the remainder to the payer. The SDK completes this via <code>const receipt = await session.close()</code>.</p>
 <h3>5.6 Forced Close</h3>
 <p>If the server is unresponsive or refuses cooperative close, the payer calls <code>requestClose(channelId)</code><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. A 15-minute grace period begins during which the server may still submit a final voucher on-chain for settlement. After the grace period, the payer calls <code>withdraw(channelId)</code> to recover the full remaining deposit. The 15-minute window is designed to "provide time to detect close requests and submit final settlements, even during network congestion or maintenance windows"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
-<p>---</p>
+<hr>
 <h2>6. Server Implementation and Security</h2>
 <h3>6.1 Crash-Safe Accounting</h3>
 <p>Servers must maintain <code>acceptedCumulative</code>, <code>spent</code>, and <code>settledOnChain</code> in durable storage<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. Critically, <code>spent</code> must be persisted before service delivery — the "spend-before-serve" principle<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. This ensures accurate billing state survives server crashes, preventing double-delivery of service.</p>
@@ -170,14 +177,18 @@ data: {
 </ul>
 <h3>6.3 Replay Attack Prevention</h3>
 <p>MPP Session replay protection uses three complementary layers<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>:</p>
-<p>1. <strong>channelId binding</strong>: Vouchers are bound to a specific contract/chain/payer-payee pair 2. <strong>Cumulative monotonicity</strong>: Any voucher ≤ <code>acceptedCumulative</code> is immediately rejected 3. <strong>On-chain enforcement</strong>: The contract rejects withdrawals below the already-settled amount</p>
+<ol>
+<li><strong>channelId binding</strong>: Vouchers are bound to a specific contract/chain/payer-payee pair</li>
+<li><strong>Cumulative monotonicity</strong>: Any voucher ≤ <code>acceptedCumulative</code> is immediately rejected</li>
+<li><strong>On-chain enforcement</strong>: The contract rejects withdrawals below the already-settled amount</li>
+</ol>
 <h3>6.4 RFC9457 Error Responses</h3>
 <p>Servers return payment errors in RFC9457 Problem Details format<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The draft defines eight problem types (all prefixed with <code>https://paymentauth.org/problems/</code>):</p>
 <table><thead><tr><th>Problem Type</th><th>HTTP Status</th></tr></thead><tbody><tr><td><code>session/invalid-signature</code></td><td>402</td></tr><tr><td><code>session/signer-mismatch</code></td><td>402</td></tr><tr><td><code>session/amount-exceeds-deposit</code></td><td>402</td></tr><tr><td><code>session/delta-too-small</code></td><td>402</td></tr><tr><td><code>session/channel-not-found</code></td><td>410</td></tr><tr><td><code>session/channel-finalized</code></td><td>410</td></tr><tr><td><code>session/challenge-not-found</code></td><td>402</td></tr><tr><td><code>session/insufficient-balance</code></td><td>402</td></tr></tbody></table>
-<p>---</p>
+<hr>
 <h2>7. Performance, SDK Ecosystem, and Adoption</h2>
 <h3>7.1 Performance Characteristics</h3>
-<p>The core performance advantage of MPP Session is that in-session requests require only off-chain voucher verification — no on-chain confirmation delay<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Voucher processing occurs in microseconds _(vendor-stated)_, contrasting with ~500ms for per-request <code>charge</code> payments _(vendor-stated)_. Two on-chain transactions amortize across thousands of micropayments, substantially reducing the effective per-request on-chain cost<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>The core performance advantage of MPP Session is that in-session requests require only off-chain voucher verification — no on-chain confirmation delay<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Voucher processing occurs in microseconds <em>(vendor-stated)</em>, contrasting with ~500ms for per-request <code>charge</code> payments <em>(vendor-stated)</em>. Two on-chain transactions amortize across thousands of micropayments, substantially reducing the effective per-request on-chain cost<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
 <h3>7.2 SDK Ecosystem</h3>
 <p>MPP supports a multi-language SDK ecosystem<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>:</p>
 <ul>
@@ -188,7 +199,7 @@ data: {
 </ul>
 <h3>7.3 Real-World Adoption</h3>
 <p>Cloudflare has integrated MPP into its agentic payments infrastructure, supporting Tempo stablecoin payments alongside Stripe card payments (charge intent) at a single endpoint<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Primary use cases are LLM inference marketplaces (per-token billing), real-time data feeds, and IoT microtransactions<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
-<p>---</p>
+<hr>
 <h2>8. Limitations</h2>
 <p><strong>IETF Draft Status</strong>: <code>draft-tempo-session-00</code> will expire six months after submission without an update<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. Progression to RFC could take years. Protocol details may change during standardization.</p>
 <p><strong>Authorized Signer Key Theft</strong>: Compromise of the <code>authorizedSigner</code> hot-wallet key exposes the full per-channel deposit balance. The main account is protected, but per-channel balances are at risk<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>

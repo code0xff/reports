@@ -87,7 +87,11 @@
 <h2>4. Transport bindings and asynchronous execution</h2>
 <p>The current spec defines three standard bindings: <code>JSON-RPC</code>, <code>HTTP+JSON/REST</code>, and <code>gRPC</code>, with the same core semantics preserved across transports.<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup> This is a practical design choice. HTTP-family bindings fit web-service and API-gateway environments, while gRPC can fit internal high-performance systems where strongly typed contracts are more important.<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup></p>
 <p>The JSON-RPC binding in the latest spec runs over HTTP and uses <code>Server-Sent Events</code> for streaming.<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup> That means an A2A server cannot stop at synchronous replies if it wants to support long-running work. In practice, at least one of the following update paths needs to exist:</p>
-<p>1. Polling via <code>Get Task</code> 2. SSE subscription via <code>message/stream</code> or an equivalent streaming endpoint 3. Asynchronous updates through a push-notification webhook</p>
+<ol>
+<li>Polling via <code>Get Task</code></li>
+<li>SSE subscription via <code>message/stream</code> or an equivalent streaming endpoint</li>
+<li>Asynchronous updates through a push-notification webhook</li>
+</ol>
 <p>The official spec says that in blocking mode, a task can wait not only for terminal states but also until it reaches interrupted states such as <code>INPUT_REQUIRED</code> or <code>AUTH_REQUIRED</code>.<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup> The enterprise docs also explain that when extra credentials are required, the system should acquire them through an external OAuth-style process and then continue the task.<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup> A2A is therefore better understood as "an interface for advancing work until it completes or interrupts" rather than "an API that returns one final answer immediately."<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup></p>
 <p>That directly affects implementation scope. A demo may work with only <code>message/send</code>, but production systems are very likely to need <code>tasks/get</code>, <code>tasks/cancel</code>, streaming, push config, task history policies, and resume logic.<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup><sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup></p>
 <h2>5. Enterprise design points</h2>
@@ -140,7 +144,15 @@ handler = DefaultRequestHandler(
 <h3>6.2 Task-first implementation example</h3>
 <p>It is possible to build a stateless agent that returns only direct message responses, and that is the easiest way to get started.<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup><sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup> But most business agents eventually involve external API calls, human approval, retrieval, or document generation. In those cases, it is better to design around Tasks from the beginning.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup></p>
 <p>For example, an agent that produces vendor-risk reports can follow this flow:</p>
-<p>1. Receive <code>message/send</code> 2. Create a Task and immediately move it to <code>working</code> 3. Run search, collection, and analysis workers 4. Emit a draft artifact 5. If more material is needed, move to <code>input_required</code> 6. Resume with the same <code>taskId</code> and <code>contextId</code> after the caller provides additional material 7. Store final PDF or JSON artifacts and move to <code>completed</code></p>
+<ol>
+<li>Receive <code>message/send</code></li>
+<li>Create a Task and immediately move it to <code>working</code></li>
+<li>Run search, collection, and analysis workers</li>
+<li>Emit a draft artifact</li>
+<li>If more material is needed, move to <code>input_required</code></li>
+<li>Resume with the same <code>taskId</code> and <code>contextId</code> after the caller provides additional material</li>
+<li>Store final PDF or JSON artifacts and move to <code>completed</code></li>
+</ol>
 <p>This matches the task lifecycle and multi-turn continuation model in the spec.<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup> It also makes retries, resume behavior, and auditability easier to manage.<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup></p>
 <h3>6.3 TypeScript/Express edge example</h3>
 <p>The official JavaScript SDK README shows an Express-based server that combines <code>AgentExecutor</code>, <code>DefaultRequestHandler</code>, <code>InMemoryTaskStore</code>, and transport adapters for JSON-RPC, REST, and gRPC.<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup> In the Node.js ecosystem, that makes an architecture with "Express as the A2A edge, actual agent execution behind it" a natural fit.<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup></p>
@@ -162,24 +174,56 @@ handler = DefaultRequestHandler(
 <h2>7. Production architecture and implementation strategy</h2>
 <h3>7.1 Recommended architecture</h3>
 <p>For production systems, it is better not to weld the A2A server directly into the LLM application. A cleaner design separates at least five layers:</p>
-<p>1. <code>A2A edge</code> 2. <code>authn/authz and policy</code> 3. <code>task orchestration</code> 4. <code>worker/tool execution</code> 5. <code>artifact and audit storage</code></p>
+<ol>
+<li><code>A2A edge</code></li>
+<li><code>authn/authz and policy</code></li>
+<li><code>task orchestration</code></li>
+<li><code>worker/tool execution</code></li>
+<li><code>artifact and audit storage</code></li>
+</ol>
 <p>This architecture is the practical synthesis of the enterprise guidance around HTTP-layer auth, tracing, audit, and API management, combined with the SDK's separation of executors, request handlers, and task stores.<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup><sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup><sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup><sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup> It lets A2A own the external contract and state machine while keeping internal toolchains and model orchestration replaceable.</p>
 <h3>7.2 Data-model strategy</h3>
 <p>At minimum, the persistence layer should retain:</p>
-<p>1. <code>taskId</code>, <code>contextId</code>, tenant, and caller identity 2. Current state plus state-transition history 3. Request messages and a summarized history 4. Artifact metadata and a reference to the actual blob 5. Push-notification configuration 6. Trace IDs, correlation IDs, and audit events</p>
+<ol>
+<li><code>taskId</code>, <code>contextId</code>, tenant, and caller identity</li>
+<li>Current state plus state-transition history</li>
+<li>Request messages and a summarized history</li>
+<li>Artifact metadata and a reference to the actual blob</li>
+<li>Push-notification configuration</li>
+<li>Trace IDs, correlation IDs, and audit events</li>
+</ol>
 <p>This is a direct operational interpretation of the spec's task/context/artifact model plus the enterprise observability requirements.<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup> In particular, whether artifact bodies live directly in a database or only as object-storage references should be treated as an explicit design decision driven by data size and compliance needs.<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup></p>
 <h3>7.3 Security strategy</h3>
 <p>The most important security principle is that everything coming from a remote agent must be treated as untrusted input. Because Message and Artifact parts can contain text, files, URLs, and structured JSON, teams need to defend not only against prompt injection but also schema abuse, oversized payloads, malicious URLs, and content-type spoofing.<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup><sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup></p>
 <p>Recommended guardrails include:</p>
-<p>1. Agent Card schema validation and allowlisting 2. Media-type and size limits 3. Sandboxed URL fetching 4. Skill-level authorization boundaries 5. Signature- or registry-based trust assignment 6. Validation for extension-provided inputs</p>
+<ol>
+<li>Agent Card schema validation and allowlisting</li>
+<li>Media-type and size limits</li>
+<li>Sandboxed URL fetching</li>
+<li>Skill-level authorization boundaries</li>
+<li>Signature- or registry-based trust assignment</li>
+<li>Validation for extension-provided inputs</li>
+</ol>
 <p>Extensions deserve special attention. Because they can open new methods and states, they need the same authn and authz enforcement as core methods.<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup></p>
 <h3>7.4 Versioning strategy</h3>
 <p>The most realistic design issue right now is version alignment. The spec is <code>1.0.0</code>, but SDK READMEs and some samples still describe <code>0.3.x</code> compatibility.<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup><sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup> A safe initial policy is:</p>
-<p>1. Pin the supported <code>protocolVersion</code> explicitly 2. Automate transport-level compatibility tests 3. Cross-check Agent Card and server version values in CI 4. Publish the validated version matrix in partner-onboarding docs</p>
+<ol>
+<li>Pin the supported <code>protocolVersion</code> explicitly</li>
+<li>Automate transport-level compatibility tests</li>
+<li>Cross-check Agent Card and server version values in CI</li>
+<li>Publish the validated version matrix in partner-onboarding docs</li>
+</ol>
 <p>If this is skipped, systems that look superficially like "A2A servers" can still break on method names, field names, enum handling, or transport behavior.<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup><sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup></p>
 <h3>7.5 Staged implementation strategy</h3>
 <p>The most realistic rollout sequence is:</p>
-<p>1. First release with <code>JSON-RPC + direct config + polling</code> 2. Add task persistence and cancellation 3. Add SSE streaming 4. Add webhook-based push notifications 5. Add registry-based discovery 6. Introduce extensions only if strictly necessary</p>
+<ol>
+<li>First release with <code>JSON-RPC + direct config + polling</code></li>
+<li>Add task persistence and cancellation</li>
+<li>Add SSE streaming</li>
+<li>Add webhook-based push notifications</li>
+<li>Add registry-based discovery</li>
+<li>Introduce extensions only if strictly necessary</li>
+</ol>
 <p>This does not reject the broader feature set in the spec. It is simply the lower-risk adoption order.<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup><sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup> Trying to ship registry discovery, custom extensions, push, and a full multi-tenant policy engine all at once is more likely to create operational failure before interoperability value is realized.<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup><sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup></p>
 <h2>8. When to use A2A, and when not to</h2>
 <p>A2A is most compelling when two conditions are both true: the other side is a remote independent service, and the collaboration is stateful.<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> Partner agents, cross-organization approval flows, long-running research, document generation, and workflows with human approval all fit well.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup></p>

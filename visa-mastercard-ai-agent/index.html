@@ -69,17 +69,22 @@
 <p>Mastercard는 Agent Pay를 "에이전트 결제 프로그램"으로 정의하면서, <code>Agentic Tokens</code>를 핵심 자격증명 계층으로 제시했다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> 또한 신뢰된 에이전트의 등록/검증을 결제 이전 단계의 필수 조건으로 두고, 소비자 통제·인증·사기방지·분쟁지원을 포함한 end-to-end 보안 서사를 함께 제시했다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
 <p>2025년 10월 PayPal과의 파트너십 발표에서는 Agent Pay를 대형 지갑 생태계에 결합하고, PayPal이 <code>Mastercard Agent Pay Acceptance Framework</code>를 파일럿한다고 밝혔다.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> 같은 해 12월 LATAM 발표에서는 해당 프레임워크가 거래 전 <code>agent registration and verification</code>을 요구한다고 명시했다.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> 2026년 1월 APAC 발표에서는 호주 내 인증된 agentic 거래 사례를 공개하며 지역 확장을 공식화했다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
 <h2>4) 구현 아키텍처 비교</h2>
-<p>두 회사의 공통점은 명확하다. 1) 사용자 대신 행동하는 에이전트에 대해 별도 신뢰/인증 계층을 둔다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> 2) 원시 카드정보 대신 토큰화 자격증명을 중심에 둔다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> 3) 소비자 통제(한도/조건/권한)와 분쟁 가능성 대응을 설계에 포함한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></p>
+<p>두 회사의 공통점은 명확하다.</p>
+<ol>
+<li>사용자 대신 행동하는 에이전트에 대해 별도 신뢰/인증 계층을 둔다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></li>
+<li>원시 카드정보 대신 토큰화 자격증명을 중심에 둔다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></li>
+<li>소비자 통제(한도/조건/권한)와 분쟁 가능성 대응을 설계에 포함한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></li>
+</ol>
 <p>차이점도 분명하다.</p>
 <ul>
 <li>Visa: <code>ICC</code>를 통해 수용(acceptance) 측 통합 마찰을 줄이는 허브형 메시지(단일 통합, 다중 네트워크/토큰볼트 호환)를 강하게 낸다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></li>
 <li>Mastercard: <code>Agentic Tokens</code>와 <code>Acceptance Framework</code>로 네트워크 내부의 거래 식별·검증·수용 규율을 명시적으로 내세운다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></li>
 </ul>
-<p>즉, Visa는 생태계 연결성과 온보딩 경로를, Mastercard는 네트워크 레벨 통제 프레임을 상대적으로 전면에 배치하고 있다. _(해석)_ <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<p>즉, Visa는 생태계 연결성과 온보딩 경로를, Mastercard는 네트워크 레벨 통제 프레임을 상대적으로 전면에 배치하고 있다. <em>(해석)</em> <sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
 <h2>5) 트랙션과 확장 현황 (2025~2026)</h2>
 <p>Visa는 2025년 12월 기준으로 수백 건의 secure agent-initiated transaction, 100+ 파트너, 20+ 직접 통합 에이전트/인에이블러를 공개했다.<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> 2026년 4월에는 비즈니스 온램프(ICC)와 지역 확장(Agentic Ready)을 연달아 발표했다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
 <p>Mastercard는 2025년 4월 출시 후, 2025년 10월 PayPal 연계, 2025년 12월 LATAM, 2026년 1월 APAC 사례를 발표하며 지역·파트너 확장형 로드맵을 제시하고 있다.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
-<p>다만 공개된 수치는 벤더 발표 중심이며, 승인율·사기율·차지백 등 핵심 운영 KPI의 제3자 검증 비교는 제한적이다. _(vendor-stated)_ <sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<p>다만 공개된 수치는 벤더 발표 중심이며, 승인율·사기율·차지백 등 핵심 운영 KPI의 제3자 검증 비교는 제한적이다. <em>(vendor-stated)</em> <sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
 <h2>6) 리스크와 실행 시사점</h2>
 <p>핵심 리스크는 "누가 어떤 의도로 결제를 실행했는지"를 기술·운영·법적 관점에서 일치시키는 문제다. Visa는 TAP과 Agentic Ready로 신뢰 신호 교환 및 준비도 검증을 제시하고,<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> Mastercard는 Acceptance Framework와 Agentic Token 기반 인증 흐름으로 대응한다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
 <p>실행 우선순위는 다음과 같다.</p>
@@ -88,9 +93,9 @@
 <li>머천트/PSP: 에이전트 식별, 허용 정책, 감사로그/분쟁증적 수집을 체크아웃 경로에 내장.</li>
 <li>에이전트 빌더: 토큰화 자격증명 사용, 사용자 통제 UI, 거래 가시성(누가/언제/무엇을 결제했는지) 확보.</li>
 </ul>
-<p>위 3가지는 양사 프로그램의 공통 요구사항에서 직접 도출된다. _(해석)_ <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
+<p>위 3가지는 양사 프로그램의 공통 요구사항에서 직접 도출된다. <em>(해석)</em> <sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup></p>
 <h2>7) 결론</h2>
-<p>2026년 5월 시점에서 Visa와 Mastercard의 AI 에이전트 결제 전략은 "카드 네트워크 신뢰 모델의 에이전트 확장"이라는 공통 축 위에 있다. Visa는 연계 허브·준비도 프로그램 중심으로 외연을 넓히고,<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> Mastercard는 Agentic Token/Acceptance Framework 중심으로 네트워크 통제를 구조화한다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> 최종 승부는 기술 우위 단독이 아니라, 발급사·가맹점·에이전트 플랫폼이 실제로 낮은 마찰로 연결되는 운영 표준 경쟁에서 갈릴 가능성이 높다. _(early signal)_ <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
+<p>2026년 5월 시점에서 Visa와 Mastercard의 AI 에이전트 결제 전략은 "카드 네트워크 신뢰 모델의 에이전트 확장"이라는 공통 축 위에 있다. Visa는 연계 허브·준비도 프로그램 중심으로 외연을 넓히고,<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> Mastercard는 Agentic Token/Acceptance Framework 중심으로 네트워크 통제를 구조화한다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> 최종 승부는 기술 우위 단독이 아니라, 발급사·가맹점·에이전트 플랫폼이 실제로 낮은 마찰로 연결되는 운영 표준 경쟁에서 갈릴 가능성이 높다. <em>(early signal)</em> <sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
   </main>
 
   <section class="references">

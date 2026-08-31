@@ -154,7 +154,12 @@ void alloy_error_free(alloy_error* err);</code></pre>
 <h3>5.2 provider와 subscription은 2차 목표가 맞다</h3>
 <p>반대로 <code>provider</code>, <code>pubsub</code>, websocket subscription, layered middleware, async signer flow는 곧장 1차 목표로 잡기 어렵다. Alloy 공식 자료만 봐도 provider/transport/pubsub 계층은 큰 비중을 차지하고 있고, 이는 곧 Rust async runtime과 네트워크 상태머신이 wrapper의 핵심이 된다는 뜻이다.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> 여기에 JNI/FFM upcall, callback, thread attachment, event delivery, Java exception mapping까지 들어오면 구현 난이도가 급격히 올라간다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup></p>
 <p>그래서 full provider wrapper는 기술적으로 불가능해서가 아니라, 1차 제품으로는 비용 대비 위험이 너무 크다. 실무적으로는 다음 순서가 더 자연스럽다.</p>
-<p>1. codec/primitives/typed transaction 2. signer façade 3. sync-like RPC helper 4. full async provider and subscription</p>
+<ol>
+<li>codec/primitives/typed transaction</li>
+<li>signer façade</li>
+<li>sync-like RPC helper</li>
+<li>full async provider and subscription</li>
+</ol>
 <p>이것이 “alloy를 Java로 래핑하라”는 요구를 가장 보수적이고 제품 친화적으로 해석한 로드맵이다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup></p>
 <h3>5.3 왜 가치가 있는가</h3>
 <p>가치는 세 층위에서 나온다.</p>
@@ -173,7 +178,14 @@ void alloy_error_free(alloy_error* err);</code></pre>
 <p>특히 JNI나 FFM 어느 쪽이든 native library 로딩, ABI 안정성, 운영 환경 차이 문제는 피할 수 없다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 따라서 조직이 이미 순수 Java 배포 체인에 강하게 최적화되어 있고, 네이티브 아티팩트 운용 경험이 없다면 alloy wrapper는 좋은 기술이더라도 과한 선택일 수 있다.</p>
 <h3>5.5 권고</h3>
 <p>가장 설득력 있는 전략은 다음과 같다.</p>
-<p>1. Rust 측에 안정적인 <code>C ABI façade</code>를 설계한다. 2. <code>cbindgen + cargo-c</code>로 header와 shared library 산출물을 정리한다. 3. Java API는 Rust 타입이 아니라 Java 친화적 value object와 builder를 중심으로 설계한다. 4. JDK 17/21용 기본 backend는 <code>JNI</code>로 둔다. 5. JDK 22+용 선택 backend는 <code>FFM/jextract</code>로 둔다. 6. 1차 제품 범위는 <code>primitives + ABI + typed transaction + rpc types</code>로 제한한다.</p>
+<ol>
+<li>Rust 측에 안정적인 <code>C ABI façade</code>를 설계한다.</li>
+<li><code>cbindgen + cargo-c</code>로 header와 shared library 산출물을 정리한다.</li>
+<li>Java API는 Rust 타입이 아니라 Java 친화적 value object와 builder를 중심으로 설계한다.</li>
+<li>JDK 17/21용 기본 backend는 <code>JNI</code>로 둔다.</li>
+<li>JDK 22+용 선택 backend는 <code>FFM/jextract</code>로 둔다.</li>
+<li>1차 제품 범위는 <code>primitives + ABI + typed transaction + rpc types</code>로 제한한다.</li>
+</ol>
 <p>이 전략은 호환성, 성능, 구현 복잡도, 제품 가치 사이의 균형이 가장 낫다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup></p>
 <h2>Limitations</h2>
 <p>첫째, 이 리포트는 공개 저장소와 공식 문서를 기준으로 Java Ethereum 생태계를 평가했다. 따라서 상용 폐쇄형 SDK나 사내 라이브러리는 반영하지 못했다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></p>

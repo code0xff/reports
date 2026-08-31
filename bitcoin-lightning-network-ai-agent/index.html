@@ -65,15 +65,19 @@
 <p>채널은 funding transaction으로 시작되고, 이후 참여자 간 커밋먼트 상태를 반복 업데이트한다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> 결제 전달은 HTLC를 사용해 조건부 원자성을 확보하며, 다중 홉에서는 온니언 라우팅으로 중간 노드가 최소 정보만 갖도록 설계한다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></p>
 <p>결제 수신 인터페이스는 전통적으로 BOLT11 인보이스가 중심이었고,<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> BOLT12 Offers는 재사용 가능한 결제 요청 모델을 도입해 정적 결제 UX를 개선하는 방향으로 발전 중이다.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
 <h2>3) 운영 레이어: 유동성, 신뢰성, 수수료, 워치타워</h2>
-<p>실운영에서 결제 성공률은 경로의 실제 유동성, 노드 가용성, 수수료 설정에 크게 영향받는다.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> 즉, 프로토콜 스펙만 구현해도 곧바로 높은 SLA가 보장되지는 않는다. _(해석)_ <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></p>
+<p>실운영에서 결제 성공률은 경로의 실제 유동성, 노드 가용성, 수수료 설정에 크게 영향받는다.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> 즉, 프로토콜 스펙만 구현해도 곧바로 높은 SLA가 보장되지는 않는다. <em>(해석)</em> <sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></p>
 <p>워치타워는 사용자가 오프라인일 때 상대방의 부정 상태 방송 리스크를 완화하는 보조 계층으로 사용된다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> 이는 LN 보안모델의 실무적 운영 비용(추가 인프라/신뢰 설정)을 보여준다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
 <h2>4) 기능 확장: AMP, Offers, splicing/PTLC 방향성</h2>
 <p>AMP는 단일 경로 용량 제약을 완화하기 위해 결제를 분할 전송하는 방식으로, 큰 결제를 성공시키는 데 유용하다.<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> BOLT12 Offers는 결제 요청 생성/재사용성을 높여 상호작용 부담을 줄이는 기능적 진화다.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
-<p>splicing과 PTLC 계열은 채널 유연성·프라이버시 개선에 중요한 방향으로 논의/구현되고 있지만, 구현체와 운영 환경 간 성숙도 편차가 남아 있다. _(early signal)_ <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<p>splicing과 PTLC 계열은 채널 유연성·프라이버시 개선에 중요한 방향으로 논의/구현되고 있지만, 구현체와 운영 환경 간 성숙도 편차가 남아 있다. <em>(early signal)</em> <sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
 <h2>5) AI Agent 결제 인터페이스: LNURL, NWC, L402</h2>
 <p>AI Agent 결제에서 자주 쓰이는 패턴은 다음 세 가지다.</p>
-<p>1. LNURL: 사용자/서비스 친화적인 URL 기반 결제·인출 UX 확장.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> 2. Nostr Wallet Connect(NIP-47): 앱/에이전트가 원격 지갑 권한으로 결제를 위임 실행.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> 3. L402: HTTP 402 + invoice + macaroon으로 API 접근제어와 결제를 결합.<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup></p>
-<p>L402는 특히 “API 호출 단위 과금”과 잘 맞아 agentic workflow에서 결제 트리거를 코드 경로에 자연스럽게 삽입할 수 있다.<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup> Lightning Labs는 최근 에이전트 사용사례를 전면에 내세워 이를 강화하고 있다. _(vendor-stated)_ <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup></p>
+<ol>
+<li>LNURL: 사용자/서비스 친화적인 URL 기반 결제·인출 UX 확장.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>  </li>
+<li>Nostr Wallet Connect(NIP-47): 앱/에이전트가 원격 지갑 권한으로 결제를 위임 실행.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>  </li>
+<li>L402: HTTP 402 + invoice + macaroon으로 API 접근제어와 결제를 결합.<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup></li>
+</ol>
+<p>L402는 특히 “API 호출 단위 과금”과 잘 맞아 agentic workflow에서 결제 트리거를 코드 경로에 자연스럽게 삽입할 수 있다.<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup> Lightning Labs는 최근 에이전트 사용사례를 전면에 내세워 이를 강화하고 있다. <em>(vendor-stated)</em> <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup></p>
 <h2>6) AI Agent 결제 아키텍처(권장 통제)</h2>
 <p>실서비스에서 AI Agent에 LN 결제를 붙일 때 핵심 통제는 다음이다.</p>
 <ul>
@@ -82,12 +86,17 @@
 <li>재시도 안전성: idempotency 키 기반 중복결제 차단.</li>
 <li>감사추적: 요청-응답-결제 preimage/토큰 매핑 로그 보관.</li>
 </ul>
-<p>이 통제들은 NIP-47 위임 모델과 L402 인증 결제모델을 함께 쓸 때 특히 중요하다. _(해석)_ <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup></p>
+<p>이 통제들은 NIP-47 위임 모델과 L402 인증 결제모델을 함께 쓸 때 특히 중요하다. <em>(해석)</em> <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup></p>
 <h2>7) 한계와 리스크</h2>
 <p>LN는 성장했지만, 네트워크 토폴로지와 경제 인센티브 관점에서 일부 라우팅 허브 집중과 신뢰성 편차 리스크가 지속적으로 지적된다.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup> 또한 온체인 수수료 급등 구간에서는 채널 재조정/정산 비용이 상향되어 운영비가 커질 수 있다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
-<p>AI Agent 결제 확장에서도 표준 성숙도와 상호운용성은 아직 진화 중이며, L402·NWC·LNURL 조합은 강력하지만 구현 책임이 서비스 운영자에게 남는다. _(early signal)_ <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></p>
+<p>AI Agent 결제 확장에서도 표준 성숙도와 상호운용성은 아직 진화 중이며, L402·NWC·LNURL 조합은 강력하지만 구현 책임이 서비스 운영자에게 남는다. <em>(early signal)</em> <sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></p>
 <h2>8) 구현 체크리스트(요약)</h2>
-<p>1. 지갑 모델 결정: custodial vs self-custodial, 그리고 에이전트 권한 분리 정책 수립.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> 2. 결제 게이트웨이: L402/Aperture 기반의 표준 402 플로우 우선 채택.<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup> 3. 유동성 운영: AMP 활성화, 채널 리밸런싱 정책, 실패 재시도 전략 마련.<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> 4. 보안 운영: 워치타워, 로그 감사, 키 순환, 비정상 결제 탐지 규칙 구성.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup></p>
+<ol>
+<li>지갑 모델 결정: custodial vs self-custodial, 그리고 에이전트 권한 분리 정책 수립.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>  </li>
+<li>결제 게이트웨이: L402/Aperture 기반의 표준 402 플로우 우선 채택.<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>  </li>
+<li>유동성 운영: AMP 활성화, 채널 리밸런싱 정책, 실패 재시도 전략 마련.<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>  </li>
+<li>보안 운영: 워치타워, 로그 감사, 키 순환, 비정상 결제 탐지 규칙 구성.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup></li>
+</ol>
   </main>
 
   <section class="references">

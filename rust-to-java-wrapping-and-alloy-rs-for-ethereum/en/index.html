@@ -154,7 +154,12 @@ void alloy_error_free(alloy_error* err);</code></pre>
 <h3>5.2 Why providers should be a second phase</h3>
 <p>The full provider layer is a much harder problem. Alloy's own structure makes that obvious: providers, transports, pubsub, and RPC clients are large parts of the project.<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup> Wrapping those layers directly means dealing with Rust async runtimes, connection state, callbacks, Java thread interaction, error propagation, and possibly upcalls.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup></p>
 <p>That does not make the provider layer impossible. It makes it a poor choice for phase one. A more credible roadmap is:</p>
-<p>1. codecs, primitives, and typed transactions, 2. signer façade, 3. synchronous or request/response RPC helpers, 4. full async providers and subscriptions.</p>
+<ol>
+<li>codecs, primitives, and typed transactions,</li>
+<li>signer façade,</li>
+<li>synchronous or request/response RPC helpers,</li>
+<li>full async providers and subscriptions.</li>
+</ol>
 <p>That is the most conservative product interpretation of "bring Alloy to Java".<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></p>
 <h3>5.3 Where the value comes from</h3>
 <p>The value appears at three levels.</p>
@@ -173,7 +178,14 @@ void alloy_error_free(alloy_error* err);</code></pre>
 <p>None of that goes away whether the chosen backend is JNI or FFM. Native loading, ABI stability, and environment-specific behavior remain part of the product cost in both models.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> So if a team is heavily optimized for pure-Java packaging and has little appetite for native distribution, Alloy-as-Java may still be too expensive operationally even if it is attractive technically.</p>
 <h3>5.5 Recommendation</h3>
 <p>The most defensible practical strategy is:</p>
-<p>1. design a stable Rust-side <code>C ABI façade</code>, 2. use <code>cbindgen + cargo-c</code> to produce headers and native libraries, 3. define a Java-native object model rather than exposing Rust-shaped APIs, 4. use <code>JNI</code> as the baseline backend for JDK 17/21 reach, 5. offer <code>FFM/jextract</code> as an optional JDK 22+ backend, 6. keep phase one limited to <code>primitives + ABI + typed transactions + RPC types</code>.</p>
+<ol>
+<li>design a stable Rust-side <code>C ABI façade</code>,</li>
+<li>use <code>cbindgen + cargo-c</code> to produce headers and native libraries,</li>
+<li>define a Java-native object model rather than exposing Rust-shaped APIs,</li>
+<li>use <code>JNI</code> as the baseline backend for JDK 17/21 reach,</li>
+<li>offer <code>FFM/jextract</code> as an optional JDK 22+ backend,</li>
+<li>keep phase one limited to <code>primitives + ABI + typed transactions + RPC types</code>.</li>
+</ol>
 <p>That is the best balance across compatibility, engineering complexity, and strategic value.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></p>
 <h2>Limitations</h2>
 <p>First, this report evaluates the Java Ethereum landscape through public repositories and official project documentation. It does not account for proprietary or internal SDKs.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup></p>

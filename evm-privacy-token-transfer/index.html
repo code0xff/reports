@@ -56,7 +56,7 @@
   <section class="abstract">
     <h2>초록</h2>
     <p>Ethereum을 비롯한 EVM 기반 체인은 설계상 모든 주소·잔액·트랜잭션이 공개되어 기업 결제, OTC 거래, 개인정보 보호 등 합법적 프라이버시 요구를 충족하지 못한다. 이 분석은 2026년 현재 실용적으로 선택 가능한 네 가지 기술 계열 — ① ERC-5564/6538 스텔스 주소, ② Railgun ZK 쉴드 풀, ③ Aztec Network ZK L2, ④ Zama FHEVM/ERC-7984 — 과 역사적 기준점인 Tornado Cash 및 Privacy Pools를 비교한다. 가장 성숙하고 컴플라이언스 친화적인 실서비스 선택지는 Private Proofs of Innocence를 갖춘 <strong>Railgun</strong>이며, 수신자 익명성만 필요한 단순 사례에서는 <strong>ERC-5564 스텔스 주소</strong>가 구현 복잡도 면에서 가장 낮다. Aztec은 프로그래머블 프라이버시 잠재력을 가지나 2026년 3월 치명적 취약점 발견으로 프로덕션 사용이 보류 상태이며, Zama FHE는 기관 OTC에 적합하나 코프로세서 의존성과 높은 가스 비용이 일반 서비스 장벽으로 남는다.</p>
-<p>---</p>
+<hr>
   </section>
 
   <main class="body">
@@ -68,7 +68,7 @@
 <p>OFAC는 2022년 8월 Tornado Cash를 제재하면서 불변 스마트 컨트랙트가 IEEPA 하의 "재산(property)"에 해당한다는 이례적 법리를 적용했다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 이는 프라이버시 기술 개발자 전체에 법적 불확실성을 안겼다. 그러나 2024년 11월 미국 제5순회법원은 Tornado Cash의 불변 스마트 컨트랙트가 "소유, 통제, 독점"이 불가능하므로 제재 대상 재산이 아니라고 판결했고, 재무부는 2025년 3월 21일 제재를 공식 해제했다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 이 판결은 스마트 컨트랙트 코드 자체와 서비스 운영을 구분하는 법리적 선례가 되었다.</p>
 <h3>1.3 연구 범위</h3>
 <p>본 보고서는 EVM 메인넷 및 EVM 호환 L2에서 실제 배포되었거나 배포 임박한 프라이버시 토큰 전송 방법을 대상으로 한다. 순수 오프체인 솔루션(Zcash, Monero), 비EVM 프라이버시 체인(Secret Network, Penumbra)은 범위 밖이다. 각 기술의 암호학적 원리, 컴플라이언스 설계, 개발자 생태계, 현재 프로덕션 적합성을 분석한다.</p>
-<p>---</p>
+<hr>
 <h2>2. 배경: 프라이버시 위협 모델과 암호학 기초</h2>
 <h3>2.1 프라이버시 목표의 세 가지 차원</h3>
 <p>EVM 프라이버시 기술은 서로 다른 목표를 가진다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>:</p>
@@ -80,7 +80,7 @@
 <p>어떤 단일 기술도 세 가지를 모두 완벽하게 달성하지는 않으며, 사용 사례에 따라 적절한 수준을 선택해야 한다.</p>
 <h3>2.2 핵심 암호학 도구</h3>
 <p><strong>zk-SNARK(Zero-Knowledge Succinct Non-Interactive Argument of Knowledge)</strong>는 증명자가 어떤 정보를 공개하지 않고 해당 정보를 알고 있음을 검증자에게 증명하는 기법이다. Railgun과 Aztec이 이를 사용한다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. <strong>ECDH(Elliptic Curve Diffie-Hellman)</strong>는 두 당사자가 공개 채널을 통해 공유 비밀을 생성하는 기법으로, ERC-5564 스텔스 주소의 핵심이다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. <strong>완전동형암호(FHE)</strong>는 암호화된 데이터에 대해 복호화 없이 연산을 수행할 수 있어, Zama FHEVM에서 온체인 기밀 잔액 관리에 사용된다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
-<p>---</p>
+<hr>
 <h2>3. 기술 접근법별 분류 및 메커니즘</h2>
 <h3>3.1 스텔스 주소 (ERC-5564 / ERC-6538)</h3>
 <p>스텔스 주소는 <strong>수신자 익명성</strong>을 목표로 한다. 발신자는 수신자의 스텔스 메타주소로부터 SECP256k1 ECDH를 사용해 일회성 스텔스 주소를 생성하고, 해당 주소로 토큰을 전송한다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. 수신자는 뷰잉 키(viewing key)로 블록체인을 스캔하여 자신에게 온 트랜잭션을 식별하고, 스펜딩 키(spending key)로 자금에 접근한다.</p>
@@ -95,28 +95,33 @@
 <h3>3.4 완전동형암호 기반 — Zama FHEVM / ERC-7984</h3>
 <p>ERC-7984는 "기밀 ERC-20"으로 볼 수 있다. 컨트랙트는 잔액과 전송액을 암호화된 핸들(handle)로 저장하며, 오프체인 FHE 코프로세서 네트워크가 실제 암호화 연산을 수행한다. 게이트웨이가 코프로세서와 체인 간 조율을 담당하며, 임계값 KMS(Key Management System)가 분산 복호화를 관리한다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
 <p>2026년 3월 GSR과 Zama는 이 시스템을 사용해 KYC 완료 상태에서 Ethereum 위 최초의 기관 간 기밀 OTC 거래를 완결했다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. OpenZeppelin이 감사를 완료한 컨트랙트가 Mainnet에 배포되어 있다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
-<p>---</p>
+<hr>
 <h2>4. 주요 구현체 상세 분석</h2>
 <h3>4.1 Railgun</h3>
 <p>Railgun은 현재 프로덕션에서 가장 성숙한 EVM 프라이버시 인프라 중 하나다. Private POI로 기관 DeFi 사용자를 위한 컴플라이언스 친화적 프라이버시를 제공하며<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>, 멀티체인 배포로 Ethereum DeFi 생태계(Uniswap, Aave 등)와 직접 통합이 가능하다. 쉴드 후 1시간의 Unshield-Only Standby Period가 있어 급속한 주소 전환을 방지한다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
 <p>그러나 컴플라이언스 이력에는 논란이 있다. 2023년 1월 FBI는 북한 Lazarus Group이 2022년 6월 Harmony Horizon Bridge 해킹으로 탈취한 약 $6,000만 규모의 ETH를 Railgun을 통해 세탁했다고 공표했다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. Railgun은 이를 부인하며 Private POI 시스템이 제재 대상 주소를 차단한다고 주장했다. 그러나 ChainArgos 연구에 따르면 POI 관련 코드가 Railgun의 공개 저장소에 등장한 것은 2023년 11월로, DPRK 자금 흐름이 발생한 시점보다 수개월 뒤다<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. 즉, 해당 사건 당시 POI 시스템은 실제로 작동 중이 아니었다. 서비스 개발자는 이 이력을 인지하고 자체 리스크 평가를 수행해야 한다.</p>
 <h3>4.2 Aztec Network</h3>
-<p>Aztec은 2026년 3월 Alpha 단계에서 치명적 취약점이 발견되어 현재 프로덕션 배포에 적합하지 않다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Alpha 처리량은 1 TPS로 제한된다 _(vendor-stated)_. v5(2026년 7월 예정) 이후 보안 상태를 재검토해야 한다.</p>
+<p>Aztec은 2026년 3월 Alpha 단계에서 치명적 취약점이 발견되어 현재 프로덕션 배포에 적합하지 않다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Alpha 처리량은 1 TPS로 제한된다 <em>(vendor-stated)</em>. v5(2026년 7월 예정) 이후 보안 상태를 재검토해야 한다.</p>
 <h3>4.3 Zama FHEVM / ERC-7984</h3>
-<p>FHE 연산은 표준 ERC-20 대비 높은 가스 비용이 발생하며, Zama는 최근 100배 개선을 달성했으나 추가 100배 최적화 목표가 남아 있다 _(vendor-stated)_<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. OpenZeppelin Wizard의 기밀 토큰 생성 기능은 아직 "출시 예정(coming soon)" 상태다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 기관 KYC 환경에서의 선택적 공개 기능은 규제 요건 충족에 이점을 제공한다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<p>FHE 연산은 표준 ERC-20 대비 높은 가스 비용이 발생하며, Zama는 최근 100배 개선을 달성했으나 추가 100배 최적화 목표가 남아 있다 <em>(vendor-stated)</em><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. OpenZeppelin Wizard의 기밀 토큰 생성 기능은 아직 "출시 예정(coming soon)" 상태다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 기관 KYC 환경에서의 선택적 공개 기능은 규제 요건 충족에 이점을 제공한다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
 <h3>4.4 ERC-5564 / ScopeLift SDK</h3>
 <p>ScopeLift의 <code>@scopelift/stealth-address-sdk</code> v1.0.0-beta.5(2026-04-30)는 스텔스 주소 생성, 개인 키 계산, 어나운스먼트 스캔을 TypeScript로 구현한다<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. 현재 SECP256k1(Scheme ID 1)만 지원하며 베타 상태다.</p>
 <h3>4.5 Tornado Cash → Privacy Pools</h3>
 <p>Tornado Cash는 2022년 OFAC 제재 이후 공식 프런트엔드와 생태계가 사실상 중단되었다. 2025년 3월 21일 제재가 해제되었으나<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>, 개발자 기소(Roman Semenov)는 별개로 진행 중이다. 후속 모델인 <strong>Privacy Pools</strong>는 0xbow 팀이 2025년 3월 31일 Ethereum 메인넷에 출시했으며<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>, 이 모델의 기반 논문 공동 저자인 Vitalik Buterin이 프로젝트를 공개적으로 지지했다<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. Association Set Provider(ASP)를 통한 ZK 컴플라이언스 증명이 핵심 차별점이다<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. 2025년 11월 기준 $6M 거래량, 1,500+ 사용자를 기록했다<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</p>
-<p>---</p>
+<hr>
 <h2>5. 규제 및 컴플라이언스 환경</h2>
 <h3>5.1 Tornado Cash 판결의 의미</h3>
-<p>미국 제5순회법원의 _Van Loon v. Treasury_ 판결은 불변 스마트 컨트랙트가 제재 가능한 재산이 아니라는 선례를 만들었다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 이 판결은 "코드를 작성하거나 게시하는 것이 제재 위험에 노출될 수 있다"는 우려가 과도했음을 시사하며, 서비스 제공자와 도구 개발자를 구분하는 법리적 기반을 제공한다.</p>
+<p>미국 제5순회법원의 <em>Van Loon v. Treasury</em> 판결은 불변 스마트 컨트랙트가 제재 가능한 재산이 아니라는 선례를 만들었다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 이 판결은 "코드를 작성하거나 게시하는 것이 제재 위험에 노출될 수 있다"는 우려가 과도했음을 시사하며, 서비스 제공자와 도구 개발자를 구분하는 법리적 기반을 제공한다.</p>
 <h3>5.2 Privacy Pools: 컴플라이언스 설계의 새 패러다임</h3>
 <p>Vitalik Buterin과 공동 저자들은 2023년 프라이버시와 규제 컴플라이언스가 반드시 상충하지 않는다고 논증했다<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. Privacy Pools 모델에서 사용자는 자신의 자금이 불법 출처에서 오지 않았음을 ZK 증명으로 제시할 수 있으며, 전체 거래 내역은 공개하지 않는다. 이는 Tornado Cash의 "블랙박스 익명성" 접근과 달리 감사자에게 최소한의 정보를 증명 가능하게 제공한다<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>.</p>
 <h3>5.3 개발자를 위한 컴플라이언스 설계 원칙</h3>
-<p>서비스 개발자가 고려해야 할 핵심 원칙: 1. 컴플라이언스 레이어를 기술 핵심부터 분리하여 설계할 것 (Railgun의 POI 모델). 2. 선택적 공개(selective disclosure) 메커니즘을 규제기관이 접근할 수 있도록 설계할 것 (ERC-7984의 지정 감사자 모델). 3. 불변 컨트랙트와 프런트엔드 서비스를 명확히 분리하여 규제 접촉면을 최소화할 것.</p>
-<p>---</p>
+<p>서비스 개발자가 고려해야 할 핵심 원칙:</p>
+<ol>
+<li>컴플라이언스 레이어를 기술 핵심부터 분리하여 설계할 것 (Railgun의 POI 모델).</li>
+<li>선택적 공개(selective disclosure) 메커니즘을 규제기관이 접근할 수 있도록 설계할 것 (ERC-7984의 지정 감사자 모델).</li>
+<li>불변 컨트랙트와 프런트엔드 서비스를 명확히 분리하여 규제 접촉면을 최소화할 것.</li>
+</ol>
+<hr>
 <h2>6. 실용적 구현 가이드: 사용 사례별 최적 선택</h2>
 <h3>6.1 선택 기준 프레임워크</h3>
 <table><thead><tr><th>기준</th><th>스텔스 주소 (ERC-5564)</th><th>Railgun</th><th>Aztec</th><th>Zama FHE/ERC-7984</th></tr></thead><tbody><tr><td>프라이버시 범위</td><td>수신자만</td><td>발신자+수신자+금액</td><td>발신자+수신자+금액+컨트랙트</td><td>금액+잔액 (온체인 암호화)</td></tr><tr><td>컴플라이언스</td><td>없음</td><td>Private POI ✅</td><td>미완성</td><td>선택적 공개 ✅</td></tr><tr><td>개발 복잡도</td><td>낮음</td><td>중간</td><td>높음 (Noir 언어)</td><td>높음 (코프로세서 인프라)</td></tr><tr><td>프로덕션 적합성</td><td>✅ (베타 SDK)</td><td>✅ 성숙</td><td>❌ 취약점 (2026-07 패치 예정)</td><td>⚠️ 기관용 성숙, 일반용 미흡</td></tr><tr><td>지원 체인</td><td>모든 EVM</td><td>ETH, Polygon, Arbitrum, BNB</td><td>L2 전용</td><td>Mainnet (FHE 인프라 필요)</td></tr><tr><td>가스 비용</td><td>낮음</td><td>중간</td><td>중간</td><td>높음 (표준 ERC-20 대비)</td></tr></tbody></table>
@@ -128,7 +133,7 @@
 <p>복잡한 프라이빗 스마트 컨트랙트가 필요한 경우(프라이빗 투표, 비공개 경매, 기밀 DeFi) Aztec이 유일한 현실적 후보다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 그러나 2026년 3월 치명적 취약점 발견으로 <strong>현재 프로덕션 배포는 권장하지 않는다</strong><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 2026년 7월 v5 패치 이후 3개월 이상 안정 운영이 확인된 후 재평가를 권장한다.</p>
 <h3>6.5 기관 대상 기밀 금융 서비스: Zama FHEVM / ERC-7984</h3>
 <p>KYC 완료 기관 간 기밀 결제, 비공개 RWA 토큰화 등 기관 금융 서비스에는 ERC-7984가 적합하다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. 선택적 공개 기능으로 규제기관에 최소 정보만 제공할 수 있으며, OpenZeppelin이 감사한 컨트랙트를 사용할 수 있다. 단, 높은 가스 비용과 코프로세서 인프라 의존성이 소규모 서비스에 장벽이 된다.</p>
-<p>---</p>
+<hr>
 <h2>7. 한계 및 불확실성</h2>
 <p><strong>Aztec Network 취약점 미해결</strong>: 2026년 3월 발견된 증명 시스템 취약점은 7월 v5에서 수정 예정이다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 공식 권고사항은 "잃어도 괜찮은 금액 이상을 예치하지 말 것"으로, Alpha 단계의 보안 상한선이 제한적임을 시사한다. 패치 이후에도 새로운 취약점이 발견될 가능성을 배제할 수 없다.</p>
 <p><strong>FHE 코프로세서 중앙화 리스크</strong>: Zama FHEVM의 코프로세서 네트워크 탈중앙화 정도는 Zama의 주장 외 독립 검증이 없다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 코프로세서 네트워크 장애 시 서비스가 중단될 수 있다.</p>
