@@ -1,0 +1,9 @@
+# Gaps — ai-agent-brief-2026-09-02
+
+- No independent (non-vendor) coverage found for Massive's x402-metered stock-data launch. It is a single company's blog post plus a same-day Show HN thread with no comments — real, dated, and matches x402's documented mechanics, but there is no second outlet confirming scale or usage.
+- No card-network- or PSP-specific announcement (Visa, Mastercard, Stripe, PayPal, Adyen) fell inside this 72-hour window. The last brief's Agentic Payments Alliance story has no dated follow-up yet; this is a continuity gap, not a new one.
+- No spec-repo activity in the window: `coinbase/x402`, `google-agentic-commerce/AP2`, `modelcontextprotocol/modelcontextprotocol`, and `agentic-commerce-protocol/agentic-commerce-protocol` show no releases dated 2026-08-30 through 2026-09-02 via the GitHub lane.
+- Bluesky and Reddit lanes were unavailable (no credentials configured in this environment) — X/Twitter is out of scope per protocol. If either channel carried something this cycle, it is not reflected here.
+- OpenAI's "Path to Astra" post does not disclose the specific prompts or evaluation harness details behind Astra's ExploitBench score or its two-zero-day claim; those numbers are OpenAI's own, and no third party has independently reproduced them.
+- OpenAI's safety/danger framing for Astra has no external verification path (unlike its benchmarked capability claims), and independent commentary has flagged a gap between OpenAI's hedged blog language and its more definitive public framing — noted in the draft, but still unresolved as of this brief.
+- Whether Cloudflare's Adaptive Intelligence actually holds its false-positive rate down at production scale is unmeasured by anyone, including Cloudflare, as of launch — flagged by Security Boulevard's own coverage and now noted in the draft.
