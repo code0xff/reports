@@ -66,7 +66,7 @@ the agent is an attacker, then a payment authorization cannot be a claim the
 agent makes; it must be an artifact the agent cannot forge and cannot detach
 from the transaction it was issued for.
 
-### 1.2 Version and governance state as of 2026-07
+### 1.2 Version and governance state (re-verified 2026-09-02)
 
 The repository's `CHANGELOG.md` records exactly two releases: `0.1.0
 (2025-09-16)` and `0.2.0 (2026-04-28)`.[^s23] The first was announced through
@@ -85,6 +85,27 @@ that "Without coordination, protocols will inevitably diverge in how they
 represent consent and constraints."[^s34] The repository FAQ confirms the split:
 "The core specification work will continue in FIDO", while the spec text and
 SDK remain published in the GitHub repository.[^s26]
+
+FIDO's own working-group listing names where that work went. The **Agentic
+Authentication Technical Working Group** is chartered to "extend or complement
+other specifications (primarily FIDO2/WebAuthn and digital credentials
+ecosystem) to enable secure, phishing-resistant, privacy-preserving
+authentication and delegated authority for AI agents", and the **Payments
+Technical Working Group** to "define FIDO solutions that can best address
+payment use cases and requirements, and develop technical
+specifications".[^s46] FIDO publishes no chairs, deliverables, or timeline for
+either group, so how AP2's normative text will change under that governance is
+not observable from outside today.
+
+Re-verified on 2026-09-02: nothing upstream has moved. `e1ea56d` is still the
+tip of `main` four months after it landed on 2026-04-29, with no commits
+since.[^s47] `CHANGELOG.md` still records the same two releases,[^s23] and
+`ap2-protocol.org` still publishes v0.2 with no successor draft. Every
+code-level finding below therefore describes the current reference
+implementation rather than a historical snapshot. The stasis is itself
+evidence: specification work moved into FIDO in April and the public artifact
+has been frozen since, so the externally visible AP2 surface is the v0.2 text
+plus whatever the two working groups are doing behind membership.
 
 Two things about versioning matter for anyone reading AP2 material today.
 
@@ -105,8 +126,9 @@ likely to be reading about a superseded model.
 Every behavioural statement in this report is anchored to one of two things:
 normative text in `docs/ap2/*.md`, or source code. Code evidence is pinned to
 `google-agentic-commerce/AP2` at commit
-`e1ea56db72a6385bce3e5c1112b3a56ce60acb43` (2026-04-29) — the tip of `main` at
-the time of writing, one commit tree above tag `v0.2.0`. The repository was
+`e1ea56db72a6385bce3e5c1112b3a56ce60acb43` (2026-04-29), one commit tree above
+tag `v0.2.0`. It was the tip of `main` when this report was written and remained
+the tip when the repository was re-checked on 2026-09-02.[^s47] The repository was
 cloned locally and read directly rather than through rendered documentation,
 because several of the findings below are precisely about divergence between the
 two. Where a claim rests on a measurement rather than a reading, the command is
