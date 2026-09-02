@@ -292,6 +292,46 @@ Human-Not-Present는 사용자가 서명한 open Mandate 아래에 에이전트�
 
 플로우는 쇼핑 단계와 결제 단계로 나뉜다.[^s05]
 
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant SA as Shopping Agent
+    participant TS as Trusted Surface
+    participant M as Merchant
+    participant CP as Credential Provider
+    participant MPP as Merchant Payment Processor
+
+    Note over U,MPP: Shopping phase
+    U->>SA: initiate
+    SA->>M: assemble cart
+    SA->>M: go to Checkout
+    M-->>SA: signed Checkout (checkout_jwt)
+    Note right of M: price committed by the merchant<br/>before the user authorizes
+    SA->>CP: request instrument options
+    CP-->>SA: options, one selected
+
+    Note over U,MPP: Payment phase
+    SA->>TS: Payment + Checkout Mandate content
+    TS->>U: render content, authenticate, request consent
+    U-->>TS: consent
+    TS->>TS: sign with user_sk,<br/>link both mandates by hash(checkout_jwt)
+    TS-->>SA: Payment Mandate + Checkout Mandate
+    SA->>CP: Payment Mandate
+    CP->>CP: verify mandate
+    CP-->>SA: payment token
+    Note right of CP: token released only after<br/>a verified Payment Mandate
+    SA->>M: token + Checkout Mandate
+    M->>M: verify Checkout Mandate<br/>against current cart state
+    M->>MPP: initiate payment (token, checkout_jwt hash)
+    MPP->>MPP: verify Payment Mandate in token<br/>and its binding to checkout_jwt
+    MPP-->>SA: signed Payment Receipt
+    M-->>SA: signed Checkout Receipt
+```
+
+_그림 1 — Human-Present 메시지 순서. 모든 화살표는 규범 흐름 문서에서 그대로 옮겼고, 두 개의 노트는 명세가 관례가 아니라 의무로 규정한 순서를 표시한다._[^s05][^s06]
+
+
 **쇼핑.** 사용자가 시작하고, Shopping Agent가 Merchant와 통신해 장바구니를
 구성한다. 그다음 "Shopping Agent가 Checkout으로 넘어간다. Merchant는 서명된
 Checkout을 생성하고 계속하기 위해 적절한 Mandate를 요구한다." SA는 Credential

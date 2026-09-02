@@ -109,6 +109,41 @@
 <p>The flow document is explicit that its contents are illustrative: "All flows below are non-normative examples."<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup> The normative content lives in the Verification section of the specification. Both are used below; where a step is merely illustrative it is marked as such.</p>
 <h3>3.1 Human-Present (Direct): the message order and why it is that order</h3>
 <p>The flow splits into a shopping phase and a payment phase.<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup></p>
+<pre class="mermaid">sequenceDiagram
+    autonumber
+    actor U as User
+    participant SA as Shopping Agent
+    participant TS as Trusted Surface
+    participant M as Merchant
+    participant CP as Credential Provider
+    participant MPP as Merchant Payment Processor
+
+    Note over U,MPP: Shopping phase
+    U-&gt;&gt;SA: initiate
+    SA-&gt;&gt;M: assemble cart
+    SA-&gt;&gt;M: go to Checkout
+    M--&gt;&gt;SA: signed Checkout (checkout_jwt)
+    Note right of M: price committed by the merchant&lt;br/&gt;before the user authorizes
+    SA-&gt;&gt;CP: request instrument options
+    CP--&gt;&gt;SA: options, one selected
+
+    Note over U,MPP: Payment phase
+    SA-&gt;&gt;TS: Payment + Checkout Mandate content
+    TS-&gt;&gt;U: render content, authenticate, request consent
+    U--&gt;&gt;TS: consent
+    TS-&gt;&gt;TS: sign with user_sk,&lt;br/&gt;link both mandates by hash(checkout_jwt)
+    TS--&gt;&gt;SA: Payment Mandate + Checkout Mandate
+    SA-&gt;&gt;CP: Payment Mandate
+    CP-&gt;&gt;CP: verify mandate
+    CP--&gt;&gt;SA: payment token
+    Note right of CP: token released only after&lt;br/&gt;a verified Payment Mandate
+    SA-&gt;&gt;M: token + Checkout Mandate
+    M-&gt;&gt;M: verify Checkout Mandate&lt;br/&gt;against current cart state
+    M-&gt;&gt;MPP: initiate payment (token, checkout_jwt hash)
+    MPP-&gt;&gt;MPP: verify Payment Mandate in token&lt;br/&gt;and its binding to checkout_jwt
+    MPP--&gt;&gt;SA: signed Payment Receipt
+    M--&gt;&gt;SA: signed Checkout Receipt</pre>
+<p><em>Figure 1 — Human-Present message order. Every arrow is drawn from the normative flow text; the two notes mark the orderings the spec makes mandatory rather than conventional.</em><sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
 <p><strong>Shopping.</strong> The user initiates; the Shopping Agent talks to the Merchant and assembles a cart; then "The Shopping Agent goes to Checkout. The Merchant creates a signed Checkout and requires an appropriate mandate to continue"; the SA fetches instrument options from the Credential Provider and selects one.<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup></p>
 <p>That third step is the load-bearing one. The merchant signs the checkout <em>before</em> the user is asked to authorize anything, which means the artifact the user's key later covers is a merchant-committed price, not a price the agent reported. Given a threat model in which the agent is an attacker,<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> any other order would leave the user signing the agent's word.</p>
 <p><strong>Payment.</strong> The SA constructs Payment and Checkout Mandate content and requests approval via a Trusted Surface. The TS "renders the Mandate Content and obtains user authentication (e.g., biometric) and consent", then "uses <code>user_sk</code> to sign and create the Payment Mandate and Checkout Mandate", with the note that "The <code>checkout_jwt</code> hash is used to permanently link the Mandates."<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup> The mandates come back to the SA, which forwards the Payment Mandate to the Credential Provider; the CP verifies it and returns a payment token, possibly after sharing the mandate with the payment network to obtain "a scoped purchase credential."<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup> The SA hands token plus Checkout Mandate to the Merchant, which "verifies the integrity and content of the Checkout Mandate against the current cart state, then initiates the payment with the token and <code>checkout_jwt</code> hash." The MPP "verifies the included Payment Mandate in the token and the binding with the <code>checkout_jwt</code> hash." Finally the MPP-signed Payment Receipt goes to SA, CP and Network, and the Merchant-signed Checkout Receipt goes to the SA.<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup></p>
@@ -230,6 +265,39 @@ FAILED .../kb_sd_jwt_intermediate_tests.py::test_verify_rejects_nonce_mismatch</
 <p><strong>Vendor-stated claims not independently confirmed.</strong> Payment-rail agnosticism and framework neutrality are the project's own claims.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> The only rails demonstrated in runnable v0.2 code are a mocked card processor and USDC on Base Sepolia;<sup class="footnote-ref"><a href="#ref-33" id="cite-33">[33]</a></sup> the only reference agent is ADK-based with a hard <code>google-adk==1.28.0</code> dependency.<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup> No third-party-framework implementation was found to corroborate neutrality.</p>
 <p><strong>Source concentration.</strong> 38 of 45 sources resolve to <code>github.com</code>, which looks like a single-origin evidence base but is not quite one: those split into vendor-authored artefacts (the spec, schemas and code) and third-party-authored issues and discussions filed against them. The genuinely independent non-GitHub material — FIDO, Google's own blog, one trade outlet, UCP, two comparison sites — is thin, and no peer-reviewed source on AP2 was found. A reader should treat the protocol-mechanics sections as well evidenced and the ecosystem-positioning sections as lightly evidenced.</p>
 <p><strong>Comparison sources are practitioner-grade.</strong> The ACP/UCP/AP2 contrasts draw on vendor-adjacent technical writing, and at least one of those sources misdescribes AP2 mandates as JSON-LD and uses the superseded v0.1 mandate names.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> They are used for the structural comparison only, never as an authority on AP2's own mechanics.</p>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
   </main>
 
   <section class="references">

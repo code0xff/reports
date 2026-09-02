@@ -334,6 +334,45 @@ merely illustrative it is marked as such.
 
 The flow splits into a shopping phase and a payment phase.[^s05]
 
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant SA as Shopping Agent
+    participant TS as Trusted Surface
+    participant M as Merchant
+    participant CP as Credential Provider
+    participant MPP as Merchant Payment Processor
+
+    Note over U,MPP: Shopping phase
+    U->>SA: initiate
+    SA->>M: assemble cart
+    SA->>M: go to Checkout
+    M-->>SA: signed Checkout (checkout_jwt)
+    Note right of M: price committed by the merchant<br/>before the user authorizes
+    SA->>CP: request instrument options
+    CP-->>SA: options, one selected
+
+    Note over U,MPP: Payment phase
+    SA->>TS: Payment + Checkout Mandate content
+    TS->>U: render content, authenticate, request consent
+    U-->>TS: consent
+    TS->>TS: sign with user_sk,<br/>link both mandates by hash(checkout_jwt)
+    TS-->>SA: Payment Mandate + Checkout Mandate
+    SA->>CP: Payment Mandate
+    CP->>CP: verify mandate
+    CP-->>SA: payment token
+    Note right of CP: token released only after<br/>a verified Payment Mandate
+    SA->>M: token + Checkout Mandate
+    M->>M: verify Checkout Mandate<br/>against current cart state
+    M->>MPP: initiate payment (token, checkout_jwt hash)
+    MPP->>MPP: verify Payment Mandate in token<br/>and its binding to checkout_jwt
+    MPP-->>SA: signed Payment Receipt
+    M-->>SA: signed Checkout Receipt
+```
+
+_Figure 1 — Human-Present message order. Every arrow is drawn from the normative flow text; the two notes mark the orderings the spec makes mandatory rather than conventional._[^s05][^s06]
+
 **Shopping.** The user initiates; the Shopping Agent talks to the Merchant and
 assembles a cart; then "The Shopping Agent goes to Checkout. The Merchant
 creates a signed Checkout and requires an appropriate mandate to continue"; the

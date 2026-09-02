@@ -109,6 +109,41 @@
 <p>플로우 문서는 자기 내용이 예시임을 분명히 한다. "아래의 모든 플로우는 비규범적 예시다."<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup> 규범적 내용은 명세의 Verification 절에 있다. 아래에서는 둘을 함께 쓰되, 예시일 뿐인 단계는 그렇다고 표시한다.</p>
 <h3>3.1 Human-Present(Direct) — 메시지 순서, 그리고 왜 그 순서인가</h3>
 <p>플로우는 쇼핑 단계와 결제 단계로 나뉜다.<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup></p>
+<pre class="mermaid">sequenceDiagram
+    autonumber
+    actor U as User
+    participant SA as Shopping Agent
+    participant TS as Trusted Surface
+    participant M as Merchant
+    participant CP as Credential Provider
+    participant MPP as Merchant Payment Processor
+
+    Note over U,MPP: Shopping phase
+    U-&gt;&gt;SA: initiate
+    SA-&gt;&gt;M: assemble cart
+    SA-&gt;&gt;M: go to Checkout
+    M--&gt;&gt;SA: signed Checkout (checkout_jwt)
+    Note right of M: price committed by the merchant&lt;br/&gt;before the user authorizes
+    SA-&gt;&gt;CP: request instrument options
+    CP--&gt;&gt;SA: options, one selected
+
+    Note over U,MPP: Payment phase
+    SA-&gt;&gt;TS: Payment + Checkout Mandate content
+    TS-&gt;&gt;U: render content, authenticate, request consent
+    U--&gt;&gt;TS: consent
+    TS-&gt;&gt;TS: sign with user_sk,&lt;br/&gt;link both mandates by hash(checkout_jwt)
+    TS--&gt;&gt;SA: Payment Mandate + Checkout Mandate
+    SA-&gt;&gt;CP: Payment Mandate
+    CP-&gt;&gt;CP: verify mandate
+    CP--&gt;&gt;SA: payment token
+    Note right of CP: token released only after&lt;br/&gt;a verified Payment Mandate
+    SA-&gt;&gt;M: token + Checkout Mandate
+    M-&gt;&gt;M: verify Checkout Mandate&lt;br/&gt;against current cart state
+    M-&gt;&gt;MPP: initiate payment (token, checkout_jwt hash)
+    MPP-&gt;&gt;MPP: verify Payment Mandate in token&lt;br/&gt;and its binding to checkout_jwt
+    MPP--&gt;&gt;SA: signed Payment Receipt
+    M--&gt;&gt;SA: signed Checkout Receipt</pre>
+<p><em>그림 1 — Human-Present 메시지 순서. 모든 화살표는 규범 흐름 문서에서 그대로 옮겼고, 두 개의 노트는 명세가 관례가 아니라 의무로 규정한 순서를 표시한다.</em><sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
 <p><strong>쇼핑.</strong> 사용자가 시작하고, Shopping Agent가 Merchant와 통신해 장바구니를 구성한다. 그다음 "Shopping Agent가 Checkout으로 넘어간다. Merchant는 서명된 Checkout을 생성하고 계속하기 위해 적절한 Mandate를 요구한다." SA는 Credential Provider에서 결제수단 옵션을 받아 하나를 고른다.<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup></p>
 <p>세 번째 단계가 하중을 받는 지점이다. Merchant는 사용자가 무엇을 승인하기 <em>이전에</em> 체크아웃에 서명하며, 그 결과 사용자 키가 나중에 덮는 산출물은 에이전트가 보고한 가격이 아니라 Merchant가 확정한 가격이 된다. 에이전트를 공격자로 두는 위협 모델<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> 아래에서는 다른 순서였다면 사용자는 에이전트의 말에 서명하는 셈이 된다.</p>
 <p><strong>결제.</strong> SA가 Payment·Checkout Mandate 내용을 구성하고 Trusted Surface를 통해 승인을 요청한다. TS는 "Mandate 내용을 렌더링하고 사용자 인증(예: 생체)과 동의를 획득"한 뒤 "<code>user_sk</code>로 서명해 Payment Mandate와 Checkout Mandate를 생성"하며, "<code>checkout_jwt</code> 해시가 두 Mandate를 영구적으로 연결하는 데 쓰인다"는 주석이 붙는다.<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup> Mandate가 SA로 돌아오고, SA는 Payment Mandate를 Credential Provider로 전달한다. CP는 이를 검증하고 결제 토큰을 반환하는데, 그 과정에서 Mandate를 결제망과 공유해 "범위가 한정된 구매 크리덴셜"을 받을 수도 있다.<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup> SA는 토큰과 Checkout Mandate를 Merchant에게 넘기고, Merchant는 "Checkout Mandate의 무결성과 내용을 현재 장바구니 상태와 대조 검증한 뒤, 토큰과 <code>checkout_jwt</code> 해시로 결제를 개시한다." MPP는 "토큰에 포함된 Payment Mandate와 <code>checkout_jwt</code> 해시와의 바인딩을 검증한다." 마지막으로 MPP가 서명한 Payment Receipt가 SA·CP·망으로, Merchant가 서명한 Checkout Receipt가 SA로 반환된다.<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup></p>
@@ -230,6 +265,39 @@ FAILED .../kb_sd_jwt_intermediate_tests.py::test_verify_rejects_nonce_mismatch</
 <p><strong>벤더 진술은 독립 확인되지 않았다.</strong> 결제 레일 불가지성과 프레임워크 중립성은 프로젝트 자신의 주장이다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> 실행 가능한 v0.2 코드에서 시연되는 레일은 모킹된 카드 프로세서와 Base Sepolia의 USDC뿐이며,<sup class="footnote-ref"><a href="#ref-33" id="cite-33">[33]</a></sup> 유일한 레퍼런스 에이전트는 <code>google-adk==1.28.0</code>을 하드 의존성으로 갖는 ADK 기반이다.<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup> 중립성을 교차 확인해 줄 서드파티 프레임워크 구현은 발견되지 않았다.</p>
 <p><strong>출처 집중.</strong> 45개 출처 중 38개가 <code>github.com</code>으로 귀결되어 단일 출처 기반처럼 보이지만 정확히는 그렇지 않다. 그 38개는 벤더가 작성한 산출물(명세·스키마·코드)과 그에 대해 서드파티가 제출한 이슈·디스커션으로 갈린다. 진정으로 독립적인 비GitHub 자료 — FIDO, Google 자체 블로그, 업계 매체 1건, UCP, 비교 사이트 2건 — 는 얇고, AP2에 관한 피어리뷰 출처는 발견되지 않았다. 독자는 프로토콜 메커니즘 절은 근거가 충분하고, 생태계 위치 절은 근거가 얕다고 보아야 한다.</p>
 <p><strong>비교 출처는 실무자 수준이다.</strong> ACP/UCP/AP2 대조는 벤더 인접 기술 문서에 기반하며, 그중 최소 하나는 AP2 Mandate를 JSON-LD로 잘못 설명하고 폐기된 v0.1 Mandate 이름을 쓴다.<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> 구조적 비교에만 사용했고, AP2 자체 메커니즘에 대한 권위로는 결코 사용하지 않았다.</p>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
   </main>
 
   <section class="references">

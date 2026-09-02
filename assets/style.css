@@ -316,6 +316,37 @@ pre code {
   font-size: 0.88em;
 }
 
+/* ---------- Diagrams ---------- */
+
+/* A mermaid block is a figure, not a code listing: it keeps `pre`'s
+   horizontal scroll so a wide diagram never widens the page, and drops the
+   code-block chrome so the SVG sits on the article background. Before the
+   mermaid runtime replaces its contents, the element still holds the diagram
+   source as text. That text stays visible here on purpose: the runtime hides
+   it as its first action, so a reader whose browser never ran the script gets
+   readable source instead of an empty gap. */
+pre.mermaid {
+  background: transparent;
+  border: 0;
+  padding: 0.5rem 0;
+  margin: 1.5rem 0 0.75rem;
+  text-align: center;
+  line-height: normal;
+}
+
+pre.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Caption line directly under a diagram. */
+pre.mermaid + p em,
+pre.mermaid + p i {
+  display: block;
+  font-size: 0.9em;
+  color: var(--muted, inherit);
+}
+
 /* ---------- Tables ---------- */
 
 table {
