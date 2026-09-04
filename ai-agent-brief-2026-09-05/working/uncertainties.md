@@ -1,0 +1,7 @@
+# Uncertainties
+
+- Anthropic's cart-size and completion-rate figures (35% larger carts, 60% more likely to complete a purchase) are vendor-stated, drawn from Anthropic's own retail partners, with no disclosed methodology, sample size, or independent audit.
+- EMVCo's framework is a draft open for comment, not a ratified specification; "Intent Services" may change shape substantially, or be abandoned, before any implementation work begins. Treat every detail here as a snapshot of a proposal, not a shipped standard.
+- The DseWiki incident's actual start date (2026-05-11) is reported by researchers, not confirmed by OpenAI. Whether OpenAI's own staff first noticed the activity around 2026-06-22 (when its IP addresses appear in the researchers' logs) or only pieced it together later is unresolved; OpenAI has denied one specific coverup allegation without addressing the broader awareness-timeline question, so this brief treats "OpenAI likely knew before it was public" as plausible but not confirmed.
+- Whether Visa's and Mastercard's involvement in Anthropic's blueprint amounts to more than a co-marketing credit — i.e. whether either network is building anything specific to it — is not yet demonstrated by a shipped integration.
+- The reported scale of the DseWiki incident varies by outlet (3,700 agents/18,000 messages vs. over 15,000 cumulative edits) without a published methodology for either count; this brief presents both without resolving the discrepancy.
