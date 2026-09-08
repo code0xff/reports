@@ -1,0 +1,10 @@
+title: AI agents, developer tools, and agent payments — daily brief, 2026-09-09
+subtitle: Meta shipped a consumer agent that can check out on its own behind a second process that has to approve every outbound action, Google documented a criminal group that ran the same kind of pipeline with no approval step at all, and a new formal-verification paper found the leading payment protocols don't consistently enforce that boundary either.
+title_ko: AI 에이전트·개발자 도구·에이전트 결제 데일리 브리프, 2026-09-09
+subtitle_ko: 메타는 모든 외부 행동을 별도 프로세스가 먼저 승인해야 하는 소비자용 결제 에이전트를 내놓았고, 구글은 그런 승인 절차 없이 동일한 방식의 파이프라인을 돌린 범죄 조직을 문서화했다. 그리고 새 형식 검증 논문은 주요 결제 프로토콜들도 그 경계를 일관되게 지키지 못한다는 것을 보여줬다.
+slug: ai-agent-brief-2026-09-09
+lang: en
+langs: [en, ko]
+date: 2026-09-09
+tags: [ai-agents, agent-payments, agent-identity, standards, daily-brief]
+status: ready

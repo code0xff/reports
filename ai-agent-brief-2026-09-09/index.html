@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI agents, developer tools, and agent payments — daily brief, 2026-09-09 — Deepsearch</title>
+<meta name="description" content="Meta shipped a consumer agent that can check out on its own behind a second process that has to approve every outbound action, Google documented a criminal group that ran the same kind of pipeline with no approval step at all, and a new formal-verification paper found the leading payment protocols don&#x27;t consistently enforce that boundary either.">
+<link rel="canonical" href="https://code0xff.github.io/reports/ai-agent-brief-2026-09-09/">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="ko" href="ko/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="AI agents, developer tools, and agent payments — daily brief, 2026-09-09">
+<meta property="og:description" content="Meta shipped a consumer agent that can check out on its own behind a second process that has to approve every outbound action, Google documented a criminal group that ran the same kind of pipeline with no approval step at all, and a new formal-verification paper found the leading payment protocols don&#x27;t consistently enforce that boundary either.">
+<meta property="og:url" content="https://code0xff.github.io/reports/ai-agent-brief-2026-09-09/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI agents, developer tools, and agent payments — daily brief, 2026-09-09">
+<meta name="twitter:description" content="Meta shipped a consumer agent that can check out on its own behind a second process that has to approve every outbound action, Google documented a criminal group that ran the same kind of pipeline with no approval step at all, and a new formal-verification paper found the leading payment protocols don&#x27;t consistently enforce that boundary either.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>AI agents, developer tools, and agent payments — daily brief, 2026-09-09</h1>
+    <p class="subtitle">Meta shipped a consumer agent that can check out on its own behind a second process that has to approve every outbound action, Google documented a criminal group that ran the same kind of pipeline with no approval step at all, and a new formal-verification paper found the leading payment protocols don&#x27;t consistently enforce that boundary either.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-09-09</span>
+      <span><strong>Tags</strong> ai-agents, agent-payments, agent-identity, standards, daily-brief</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="ai-agent-brief-2026-09-09.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>Meta put a consumer AI agent in front of a payment method this week, and built the approval step directly into the architecture: Muse can shop and check out, but a separate process has to sign off before anything leaves the device. Google's threat intelligence team published the reason that boundary matters — a criminal group ran an unsupervised multi-agent pipeline that harvested thousands of credentials in under six hours, with nobody checking anything at all. A quieter development sits between them: the spec for Stripe and Tempo's Machine Payments Protocol picked up a fourth settlement rail this week, and a fresh formal-verification paper found that none of the four major agent-payment protocols consistently enforce the authorization boundary once a transaction crosses multiple actors and stages.</p>
+  </section>
+
+  <main class="body">
+<h2>Introduction</h2>
+<p>This edition of the <code>ai-agent-brief</code> series covers <strong>2026-09-06 through 2026-09-09</strong> (72 hours), per this harness's standing-brief protocol. The standing beat: agent frameworks and developer tooling; agent-to-agent and agent-to-merchant payment rails and protocols (x402, AP2, ACP, UCP, MPP, L402, Trusted Agent Protocol and successors); the card networks' and PSPs' agent-commerce products; agent identity and authorization; and the standards bodies behind all of it.</p>
+<p>The <a href="../ai-agent-brief-2026-09-05/">previous brief</a> covered EMVCo's draft Intent Services layer, Anthropic's commerce-agent blueprint, and the DseWiki disclosure. None of those threads moved again in this window — EMVCo's comment period runs through 2026-09-30, and OpenAI's promised disclosure framework has no published text yet. For background on the protocols this brief assumes, see the site's longer reports on the <a href="../mpp-machine-payments-protocol/">Machine Payments Protocol</a>, <a href="../x402-protocol/">x402</a>, and <a href="../ai-agent-identity-eas-vs-did/">agent identity: EAS vs. DID</a>.</p>
+<h2>What moved</h2>
+<h3>Meta ships a consumer agent that can pay, and builds the approval gate into the machine</h3>
+<p>Meta launched Muse on 2026-09-08: a personal AI agent, available in the US on web, iOS, Android, and WhatsApp, that connects to a person's email, calendar, and shopping accounts to handle tasks like booking travel, filling out forms, and buying things<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The payment mechanics are specific. Checkout runs through Link by Stripe, and Meta says Muse is the first agent covered by Link's purchase protections — free coverage for damaged or lost items, price drops, and no-fee returns on eligible purchases<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Muse itself never receives a real card: "Link's wallet for agents generates a one-time-use card so your real card details stay hidden"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>The more interesting design choice is where the checkpoint sits. Muse runs inside its own cloud virtual machine, and a second, separate process called Sentinel runs alongside it: "Nothing Muse does reaches the internet unless the Sentinel approves it, and it asks the person for permission when needed"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. That is an architectural answer to a question the industry has spent this whole series arguing about in the abstract: a second process, running continuously, whose only job is to check before the first one acts.</p>
+<pre class="mermaid">sequenceDiagram
+    participant U as User
+    participant M as Muse
+    participant S as Sentinel
+    participant L as Link by Stripe
+
+    M-&gt;&gt;S: Propose an action (e.g. checkout)
+    alt Sensitive action
+        S-&gt;&gt;U: Request approval
+        U--&gt;&gt;S: Approve or deny
+    end
+    S-&gt;&gt;L: Release one-time-use card if approved
+    L--&gt;&gt;M: Complete purchase&lt;br/&gt;real card details stay hidden
+    Note over S: Anything Sentinel does not clear never reaches the internet</pre>
+<p><em>Figure 1 — Muse cannot reach the network or a payment method on its own; every outbound action, sensitive or not, routes through Sentinel first, and Sentinel is the process that decides whether a person needs to weigh in<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</em></p>
+<p>TechCrunch's coverage frames the real test as reputational: Meta is asking users to hand a company with an $18 billion child-safety settlement behind it access to their email and payment methods, and the architecture only matters if people trust the company running it<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Meta is not asking for that trust unverified. It opened a public bug bounty alongside the launch, up to $300,000 per valid report and up to $130,000 specifically for a working prompt-injection attack, and says it has begun sharing the design and source code with external auditors, with a continuous, publicly inspectable audit planned once the system is live<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. That is a real invitation for someone outside Meta to try to break Sentinel — it is just not, on day one, the same thing as an audit that has already happened.</p>
+<h3>Google documents an attack that had no approval gate at all</h3>
+<p>Google's Threat Intelligence Group published its latest AI Threat Tracker on 2026-09-08, and the headline finding is a timeline: in a Q2 2026 intrusion, a financially motivated threat actor compromised an organization's cloud environment, then used an AI coding assistant with a set of preconfigured agent instructions to plan, build, and run a mass credential-harvesting operation, compromising thousands of third-party credentials, in under six hours with no human intervention at any step<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The agents managed their own vulnerability scanning and troubleshot failures in real time — the kind of adaptive behavior that used to require an operator watching a terminal.</p>
+<p>GTIG is careful about the boundary of the claim: this is tool orchestration at high speed, not autonomous exploit discovery. The report states plainly that it has not observed an end-to-end pipeline finding and exploiting zero-days against real targets without a human somewhere in the chain<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The distinction matters for how alarmed to be, but it does not change the practical fact for a defender: a six-hour window from initial compromise to mass credential theft is faster than most incident-response processes are built to catch.</p>
+<h3>The Machine Payments Protocol adds XRPL, and a new paper finds the whole protocol family has authorization gaps</h3>
+<p>Away from the headline items, two smaller developments touch the same nerve. Stripe and Tempo's Machine Payments Protocol merged a spec addition on 2026-09-08 registering XRPL as a payment method, with a single-transaction "charge" mode and an off-ledger "session" payment-channel mode for repeated micropayments without a round trip to the ledger each time<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. It is a routine-looking spec PR, with no press release or announcement, but it is the kind of change that determines which rails an agent can actually settle on six months from now, and it landed with no independent coverage this week; treat it as vendor/spec-sourced until something corroborates it.</p>
+<p>The other is academic, and unusually well-timed given the week's news. Researchers modeled x402, MPP, ACP, and AP2 formally in Tamarin and ran 86 verification cases against them, turning up 40 previously undocumented consistency gaps — cases where the protocol text does not actually guarantee that delegated authorization stays valid once a transaction crosses multiple actors and stages<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Ten of the x402 findings were checked against real implementations, not just the formal model. The paper does not name a live exploit, and its findings have not been triaged for severity here, but the conclusion tracks with everything else in this brief: authorization that looks solid on paper can still have a gap nobody has tested for yet.</p>
+<h2>Why it matters</h2>
+<p>Muse and GTIG's report are the same question answered two ways. Meta built a working checkpoint: a second process, running continuously, whose entire job is to say no. The credential-harvesting attack succeeded specifically because nothing occupied that role — no supervisor process, no rate limit that triggered, no human reviewing the scan results before the next stage ran. The Tamarin paper adds a third angle: a checkpoint still needs verification of its own, and four production protocols, formally modeled for the first time this thoroughly, turned up forty gaps nobody had documented. None of this week's items required the others to happen. That they landed together says the industry has moved past debating whether agents need a real-time authorization boundary and into the harder, slower work of building one that actually holds.</p>
+<h2>Signals to watch</h2>
+<ul>
+<li>Whether Meta's $130,000 prompt-injection bounty pays out, and what that submission reveals about where Sentinel's boundary actually breaks.</li>
+<li>Attribution or further detail on the threat actor behind GTIG's six-hour credential-harvesting case — currently unnamed.</li>
+<li>Whether any wallet or agent framework actually ships support for MPP's new <code>xrpl</code> method, turning the spec merge into a used feature.</li>
+<li>Which of the Tamarin paper's 40 findings, if any, get acknowledged or patched by the x402, MPP, ACP, or AP2 maintainers.</li>
+<li>NPCI's Unified Agent Protocol, still not formally unveiled as of this brief despite the Global Fintech Fest running through 2026-09-11 — carried forward a second time.</li>
+</ul>
+<h2>Limitations</h2>
+<p>This brief covers a 72-hour window, so developments just before 2026-09-06 or after 2026-09-09 are out of scope by design. Meta's claims about Muse's Sentinel boundary and Secure VM isolation are sourced to Meta's own announcement; no independent review of the architecture has been published yet. GTIG's attack timeline and credential count come from Google's own telemetry, with no second vantage point on the same intrusion. The Bluesky and Reddit lanes had credentials present in the environment but set to empty values, so neither ran this cycle — a configuration problem on this machine, not an absent-source gap, recorded in <code>working/gaps.md</code>. The GitHub lane found no in-window activity on the x402, AP2, or A2A spec repos; the MPP spec repo was the exception.</p>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://about.fb.com/news/2026/09/introducing-muse-personal-ai-agent/">Introducing Muse: The World&#x27;s First Personal AI Agent Built for Everyone</a>. <span class="venue">Meta Newsroom, 2026</span>. <span class="accessed">Accessed 2026-09-09.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://techcrunch.com/2026/09/08/meta-debuts-its-muse-ai-agent-will-consumers-trust-it/">Meta debuts its Muse AI agent. Will consumers trust it?</a>. <span class="venue">TechCrunch, 2026</span>. <span class="accessed">Accessed 2026-09-09.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://research.meta.ai/blog/security-and-safety-for-ai-agents-our-approach-with-muse">How We Built Safety Into Muse</a>. <span class="venue">Meta AI Research, 2026</span>. <span class="accessed">Accessed 2026-09-09.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://cloud.google.com/blog/topics/threat-intelligence/from-prompting-to-autonomy-the-evolution-of-adversarial-ai/">GTIG AI Threat Tracker: From Prompting to Autonomy – The Evolution of Adversarial AI</a>. <span class="venue">Google Cloud Blog (GTIG), 2026</span>. <span class="accessed">Accessed 2026-09-09.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://thehackernews.com/2026/09/autonomous-ai-agents-compromise.html">Autonomous AI Agents Compromise Thousands of Credentials in Under Six Hours</a>. <span class="venue">The Hacker News, 2026</span>. <span class="accessed">Accessed 2026-09-09.</span></li>
+      <li id="ref-6"><span class="authors">—</span>. <a href="https://github.com/tempoxyz/mpp-specs/pull/346">tempoxyz/mpp-specs #346: Add XRPL payment method with charge and session intents</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-09-09.</span></li>
+      <li id="ref-7"><span class="authors">Ke Jiang, Mohan Yu, Yuan Chang, Mohit Kumar Jangid, Jianyu Niu, Cong Wang, Yinqian Zhang</span>. <a href="https://arxiv.org/abs/2609.00060">A Formal Analysis of Agent Payment Protocols</a>. <span class="venue">arXiv, 2026</span>. <span class="accessed">Accessed 2026-09-09.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-09-09. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
