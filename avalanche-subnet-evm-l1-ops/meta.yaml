@@ -1,0 +1,10 @@
+title: Avalanche Subnet-EVM: 띄우기, 운영, 그리고 L2·독립 체인과의 비교
+subtitle: Etna 이후 Subnet-EVM L1을 띄우고 운영하는 실제 절차, 그리고 롤업·Cosmos 앱체인과 무엇이 다른가
+title_en: Avalanche Subnet-EVM: launching, operating, and how it differs from rollups and standalone chains
+subtitle_en: The post-Etna L1 model from spec to ops, and what you trade against an OP Stack rollup or a Cosmos appchain
+slug: avalanche-subnet-evm-l1-ops
+lang: ko
+langs: [ko, en]
+date: 2026-09-10
+tags: [avalanche, subnet-evm, l1, rollups, infrastructure]
+status: ready

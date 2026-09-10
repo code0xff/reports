@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Avalanche Subnet-EVM: launching, operating, and how it differs from rollups and standalone chains — Deepsearch</title>
+<meta name="description" content="The post-Etna L1 model from spec to ops, and what you trade against an OP Stack rollup or a Cosmos appchain">
+<link rel="canonical" href="https://code0xff.github.io/reports/avalanche-subnet-evm-l1-ops/en/">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="Avalanche Subnet-EVM: launching, operating, and how it differs from rollups and standalone chains">
+<meta property="og:description" content="The post-Etna L1 model from spec to ops, and what you trade against an OP Stack rollup or a Cosmos appchain">
+<meta property="og:url" content="https://code0xff.github.io/reports/avalanche-subnet-evm-l1-ops/en/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Avalanche Subnet-EVM: launching, operating, and how it differs from rollups and standalone chains">
+<meta name="twitter:description" content="The post-Etna L1 model from spec to ops, and what you trade against an OP Stack rollup or a Cosmos appchain">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>Avalanche Subnet-EVM: launching, operating, and how it differs from rollups and standalone chains</h1>
+    <p class="subtitle">The post-Etna L1 model from spec to ops, and what you trade against an OP Stack rollup or a Cosmos appchain</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-09-10</span>
+      <span><strong>Tags</strong> avalanche, subnet-evm, l1, rollups, infrastructure</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="avalanche-subnet-evm-l1-ops.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>Subnet-EVM is a trimmed-down build of the C-Chain's coreth, written to run on a chain that has its own validator set. The Etna upgrade of 16 December 2024 (ACP-77) changed what "its own validator set" costs. Validators no longer stake 2,000 AVAX on the Primary Network; they keep a P-Chain balance that drains at roughly 1.33 AVAX a month, and membership changes come from a Validator Manager contract on the L1, relayed to the P-Chain as Warp messages. This report lays that structure out from the specs and code, walks through a mainnet launch (local, Fuji, then three P-Chain transactions and validator registration), lists where operation actually breaks (the 80% connected-weight rule, <code>upgrade.json</code> coordination, relayers, balance exhaustion), and sets the result against rollups and Cosmos appchains. Two caveats for September 2026: the standalone <code>ava-labs/subnet-evm</code> repository is archived and lives inside the AvalancheGo monorepo now, and <code>avalanche-cli</code> has been in maintenance mode since December 2025.</p>
+  </section>
+
+  <main class="body">
+<h2>1. Introduction</h2>
+<p>"Avalanche Subnet" and "Avalanche L1" name the same thing. Ava Labs' documentation uses both, and defines an L1 as "a sovereign network which defines its own rules regarding its membership and token economics"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The rename came with ACP-77, "Reinventing Subnets", whose motivation section states the old problem without softening it: a node operator had to stake "at least 2000 $AVAX ($70k at time of writing)" as a Primary Network validator before qualifying as a Subnet validator, and regulated entities barred from validating a permissionless smart-contract chain "cannot launch a Subnet because they cannot opt-out of Primary Network Validation"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Etna removed the requirement and put a "dynamic continuous fee" in its place<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>Subnet-EVM is the usual VM on such an L1. Three questions follow. What is Subnet-EVM and how does it differ from the C-Chain? How do you launch one and what do you have to keep running? Against an OP Stack or Arbitrum Orbit rollup, or a Cosmos SDK appchain, what do you gain and what do you give up?</p>
+<h2>2. Background: the Avalanche architecture and the post-Etna L1 model</h2>
+<p>The Primary Network is the P-Chain, X-Chain and C-Chain, and every L1 validator "must sync the P-Chain of the Primary Network for interoperability"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> <em>(unverified — single source)</em>. The P-Chain is the registry: who validates which L1, at what weight, under which BLS key. Other chains read that registry to verify Warp signatures<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<pre class="mermaid">flowchart TB
+  subgraph PN[&quot;Primary Network&quot;]
+    P[&quot;P-Chain&lt;br/&gt;validator registry&quot;]
+    X[&quot;X-Chain&quot;]
+    C[&quot;C-Chain&lt;br/&gt;(coreth)&quot;]
+  end
+  subgraph L1A[&quot;Avalanche L1 A&quot;]
+    VA[&quot;validators A1..An&lt;br/&gt;Subnet-EVM&quot;]
+    VMA[&quot;ValidatorManager&lt;br/&gt;(PoA or PoS)&quot;]
+  end
+  subgraph L1B[&quot;Avalanche L1 B&quot;]
+    VB[&quot;validators B1..Bm&quot;]
+  end
+  VMA -- &quot;RegisterL1ValidatorMessage&lt;br/&gt;L1ValidatorWeightMessage (Warp)&quot; --&gt; P
+  P -- &quot;L1ValidatorRegistrationMessage (Warp)&quot; --&gt; VMA
+  VA -. &quot;sync P-Chain&quot; .-&gt; P
+  VB -. &quot;sync P-Chain&quot; .-&gt; P
+  VA &lt;-- &quot;ICM (aggregated BLS)&quot; --&gt; VB
+  VA &lt;-- &quot;ICM&quot; --&gt; C</pre>
+<p><em>Figure 1 — The post-Etna shape. An L1's own validators produce its blocks; the P-Chain holds only the public record of who they are. Membership changes travel from the L1's Validator Manager to the P-Chain as Warp messages, and the P-Chain answers with a confirmation. Cross-chain messages are verified by aggregating validator BLS signatures.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></em></p>
+<h3>2.1 Before and after Etna</h3>
+<p>ACP-77 added five P-Chain transaction types: <code>ConvertSubnetToL1Tx</code>, <code>RegisterL1ValidatorTx</code>, <code>SetL1ValidatorWeightTx</code>, <code>DisableL1ValidatorTx</code>, <code>IncreaseL1ValidatorBalanceTx</code><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The first is the pivot. Once a Subnet is converted, its validator set is no longer driven by P-Chain transactions from the owner; it is driven by whichever Validator Manager contract the conversion named. "The P-Chain will consume Warp messages that modify the L1's validator set"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>Etna shipped as AvalancheGo v1.12.0 and activated on mainnet at 17:00 UTC on 16 December 2024, carrying ACP-77 alongside dynamic P-Chain fees (ACP-103), the Warp signature interface standard (ACP-118) and Cancun EIPs on both the C-Chain and Subnet-EVM (ACP-131)<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The Foundation called it "over 99.9% reduction in upfront costs"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<h3>2.2 The continuous fee</h3>
+<p>An L1 validator deposits a balance on the P-Chain and the fee drains from it per second. Initial parameters: a minimum rate of 512 nAVAX/s (about 1.33 AVAX a month) and a target of 10,000 validators, with the rate rising exponentially once active L1 validators exceed the target<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The Foundation's blog rounds this to "approximately 1.3 AVAX per month"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>; AvaCloud passes it through to customers as "1.33 AVAX tokens" per node per month<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. When the balance hits zero the validator "will be considered inactive and will no longer participate in validating the L1"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The CLI's mainnet guide puts it plainly: "1 AVAX should last the validator about a month"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p>That is a floor. The rate moves with validator count, so it should not be plugged into a multi-year budget as a constant.</p>
+<h2>3. Inside Subnet-EVM</h2>
+<h3>3.1 Relation to coreth</h3>
+<p>The README calls Subnet-EVM "a simplified version of Coreth VM (C-Chain)" and lists the differences in four lines: configurable fees and gas limits in genesis, all Avalanche hardforks merged into a single "Subnet EVM" hardfork, Atomic Txs and Shared Memory removed, the Multicoin contract and state removed<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. What was removed is exactly what tied the C-Chain to the Primary Network. It stays compatible "with almost all Ethereum tooling, including Foundry and Remix"<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p>As of September 2026 the standalone repository is archived. Both the README and the node-operator docs say Subnet-EVM "is now part of the AvalancheGo monorepo", and the build happens from the Subnet-EVM directory inside it<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. The last standalone compatibility table pairs v0.8.0 with AvalancheGo v1.14.0 (protocol 44) and v0.7.9 with v1.13.5<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. Operators used to pin two versions; going forward there is one.</p>
+<h3>3.2 Genesis and fee configuration</h3>
+<p>A genesis JSON has three layers: Ethereum-style chain config (chainId, hardfork block numbers), the Subnet-EVM-specific <code>feeConfig</code>, and the list of enabled precompiles<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. The chainId "must be picked carefully since a conflict with other chains can cause issues"<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<p>The <code>feeConfig</code> fields and the documented recommended ranges<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>:</p>
+<table><thead><tr><th>Field</th><th>Meaning</th><th>Recommended</th><th>Note</th></tr></thead><tbody><tr><td><code>gasLimit</code></td><td>Max gas per block</td><td>8M–100M</td><td>Obsolete after ACP-224 / Helicon</td></tr><tr><td><code>targetBlockRate</code></td><td>Target seconds between blocks</td><td>2–10</td><td>Deprecated by Granite</td></tr><tr><td><code>minBaseFee</code></td><td>Minimum base fee (wei)</td><td>25–500 gwei</td><td></td></tr><tr><td><code>targetGas</code></td><td>Target gas over the last 10 s</td><td>5M–50M</td><td></td></tr><tr><td><code>baseFeeChangeDenominator</code></td><td>Speed of base-fee change</td><td>8–1000</td><td>Obsolete after ACP-224 / Helicon</td></tr><tr><td><code>minBlockGasCost</code> / <code>maxBlockGasCost</code> / <code>blockGasCostStep</code></td><td>Block gas cost</td><td></td><td>Deprecated by Granite</td></tr></tbody></table>
+<p>Two upgrades explain the deprecation column. ACP-226, part of Granite, lets "validators collectively and dynamically determine the minimum time between blocks" and requires the header's <code>blockGasCost</code> to be 0<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. ACP-224, scheduled for the Helicon upgrade, brings ACP-176-style dynamic gas limits to Subnet-EVM; the proposal states that "the existing FeeManagerPrecompile is not compatible with the ACP-176 fee mechanism" and that <code>GasLimit</code> and <code>BaseFeeChangeDenominator</code> become obsolete<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. Half of this table will stop meaning anything within the next network upgrade.</p>
+<h3>3.3 Stateful precompiles</h3>
+<p>This is where Subnet-EVM diverges most from the C-Chain. Six ship by default: Deployer AllowList, Transaction AllowList, Native Minter, Fee Manager, Reward Manager, Warp Messenger<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<ul>
+<li><strong>The AllowLists.</strong> In the Deployer AllowList "Enabled addresses can deploy contracts"; in the Transaction AllowList "Enabled addresses can submit transactions". Three roles: Admin (add or remove any role), Manager (add or remove Enabled only), Enabled (use the precompile)<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. A chain where only KYC'd addresses may transact is built from these two.</li>
+<li><strong>Native Minter.</strong> "Allows authorized addresses to mint additional tokens after network launch", for emission schedules, validator rewards and monetary policy<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. A PoS Validator Manager has to be an admin of this precompile to pay rewards<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</li>
+<li><strong>Fee Manager.</strong> Lives at <code>0x0200000000000000000000000000000000000003</code> and adjusts fee parameters on-chain, gated by the AllowList interface<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</li>
+<li><strong>Warp Messenger.</strong> The VM-side entry point for ICM (§5.3).</li>
+</ul>
+<h3>3.4 Network upgrades</h3>
+<p>Enabling or disabling a precompile after launch goes through <code>upgrade.json</code>, placed "in the same directory where config.json resides". Each <code>precompileUpgrades</code> entry names exactly one precompile, its <code>blockTimestamp</code> must be "in the future relative to the head of the chain", and timestamps must increase<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. Once activated, an upgrade "must always be present in upgrade.json exactly as it was configured at the time of activation (otherwise the node will refuse to start)"<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. The operational consequences are in §5.1.</p>
+<h2>4. Launching</h2>
+<h3>4.1 The tooling landscape, September 2026</h3>
+<p>The official CLI, <code>avalanche-cli</code>, covers local, Fuji and mainnet deployments through <code>avalanche blockchain create</code> followed by <code>avalanche blockchain deploy</code><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. Its README also says that since December 2025 it is in "maintenance mode" with "only security patches and critical bug fixes"<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. Builder Hub still documents mainnet deployment in terms of this CLI<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. For production infrastructure there is a separate <code>avalanche-deploy</code> that stands nodes up with Terraform and <code>platform-cli</code><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>. The managed route is AvaCloud, whose Starter/Pro/Enterprise plans add the mainnet validator fee at 1.33 AVAX per node per month<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Builder Hub also hosts a web-based L1 Launcher and L1 Toolbox, whose pages did not return readable content for this report (§8).</p>
+<h3>4.2 Mainnet deployment sequence</h3>
+<p>The CLI guide's prerequisites are a fully bootstrapped mainnet AvalancheGo node, AVAX on the P-Chain, a prior Fuji deployment of the same L1, and a Ledger: "all Avalanche-CLI Mainnet operations require the use of a connected Ledger device"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<pre class="mermaid">sequenceDiagram
+  participant Op as Operator&lt;br/&gt;(Ledger)
+  participant P as P-Chain
+  participant BV as Bootstrap&lt;br/&gt;validator
+  participant VM as Validator&lt;br/&gt;Manager
+  Op-&gt;&gt;P: CreateSubnetTx
+  Op-&gt;&gt;P: CreateChainTx (genesis, VMID)
+  Op-&gt;&gt;P: ConvertSubnetToL1Tx&lt;br/&gt;(NodeID, BLS key, manager addr)
+  P--&gt;&gt;BV: SubnetToL1Conversion (Warp)
+  BV-&gt;&gt;VM: initialize&lt;br/&gt;(conversion msg + aggregated BLS sig)
+  Note over Op,VM: from here, validator changes start at the contract
+  Op-&gt;&gt;VM: initiateValidatorRegistration&lt;br/&gt;(PoA: owner, PoS: stake)
+  VM--&gt;&gt;P: RegisterL1ValidatorMessage&lt;br/&gt;→ RegisterL1ValidatorTx
+  P--&gt;&gt;VM: L1ValidatorRegistrationMessage (Warp)
+  Op-&gt;&gt;VM: completeValidatorRegistration</pre>
+<p><em>Figure 2 — Creating an L1 on mainnet. The three P-Chain transactions need Ledger signatures; after conversion, authority over the validator set passes to the Validator Manager. Registering a validator starts at the contract and completes through a Warp round-trip to the P-Chain.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup></em></p>
+<p><code>ConvertSubnetToL1Tx</code> carries each bootstrap validator's NodeID, BLS public key and proof of possession<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. The CLI offers <code>--use-local-machine</code> to make your workstation the bootstrap validator; the mainnet guide answers that prompt with "No" and points at a dedicated node instead<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. On the <code>avalanche-deploy</code> path, a <code>create-l1</code> tool writes <code>SUBNET_ID</code>, <code>CHAIN_ID</code>, <code>CONVERSION_TX</code> and <code>EVM_CHAIN_ID</code> to <code>l1.env</code>, and if the genesis includes a ValidatorManager proxy it is initialized separately with "a BLS-aggregated SubnetToL1Conversion warp message"<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>.</p>
+<h3>4.3 Choosing a Validator Manager</h3>
+<p>The official contracts are one <code>ValidatorManager</code> paired with one of <code>PoAManager</code>, <code>NativeTokenStakingManager</code> or <code>ERC20TokenStakingManager</code><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. PoA is created by passing an <code>owner</code> to <code>initialize</code>; "only the owner may initiate validator set changes, but anybody can complete the validator set change"<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. Under PoS, whoever calls <code>initiateValidatorRegistration</code> becomes that validator's owner and is the only one who can remove it, and "unlike with PoA, PoS validators are not able to decrease their weight"<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. Both modes enforce churn limits: "only a certain (configurable) percentage of the total weight is allowed to be added or removed in a (configurable) period of time"<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>.</p>
+<p>The registration flow is the bottom half of Figure 2. The contract builds a <code>RegisterL1ValidatorMessage</code> for the P-Chain, the P-Chain signs an <code>L1ValidatorRegistrationMessage</code> back, and removal is an <code>L1ValidatorWeightMessage</code> with weight 0<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<h3>4.4 Validator hardware</h3>
+<p>L1 validators and Primary Network validators are specced differently. The docs tier L1 nodes by throughput: under 10 TPS, 2 cores / 4 GB / 100 GB; 10–100 TPS, 4 cores / 8 GB / 500 GB SSD; 100+ TPS, 8+ cores / 16 GB+ / 1 TB+ NVMe. Every node needs inbound port 9651, and storage must be "a local NVMe SSD attached directly to your hardware with minimum 3000 IOPS"; cloud block storage is ruled out on latency<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup> <em>(unverified — single source)</em>. The lower floor than a Primary Network validator (4 cores / 16 GB / 1 TB and up) follows from an L1 node not carrying C-Chain state.</p>
+<p>Two node-side settings: the VM binary goes in <code>~/.avalanchego/plugins/</code> under the L1's VMID, and <code>track-subnets</code> in <code>config.json</code> (or the <code>--track-subnets</code> flag) lists the SubnetID<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<h2>5. Operating</h2>
+<h3>5.1 Upgrade coordination</h3>
+<p>This is the largest operational risk. Both an AvalancheGo version bump and an <code>upgrade.json</code> network upgrade require that "every single validator on the Avalanche L1 will need to perform the identical upgrade"<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>. The docs do not hedge: "Any mistakes in configuring network upgrades or coordinating them on validators may cause the network to halt and recovering may be difficult"<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. You "must schedule advance notice to every Avalanche L1 validator" ahead of activation<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>. On a rollup, one sequencer operator bumps a version and is done; here it is n operators against a deadline.</p>
+<h3>5.2 The 80% connected-weight rule</h3>
+<p>"Avalanche L1s can operate normally only if validators representing 80% or more of the cumulative validator weight is connected. If the amount of connected stake falls close to or below 80%, Avalanche L1 performance (time to finality) will suffer, and ultimately the Avalanche L1 will halt (stop processing transactions)"<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>. The operator must "ensure that whatever you do, at least 80% of the validators' cumulative weight is connected and working at all times"<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>.</p>
+<p>That number dictates validator-set design. In a five-node equal-weight PoA, one node down puts connected weight at exactly 80%, on the edge. Two down during a rolling upgrade halts the chain. A validator that went "inactive" because its P-Chain balance ran out counts the same way<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. A rollup whose sequencer dies stops producing blocks but keeps a forced-inclusion path on L1; an L1 below the weight threshold simply stops.</p>
+<h3>5.3 ICM and relayers</h3>
+<p>The protocol signs and verifies cross-chain messages but does not deliver them: "It is up to the Avalanche L1s and their users to determine how they want to transport data from the validators of the origin Avalanche L1 to the validators of the destination Avalanche L1"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The gap is filled by the off-chain <code>icm-relayer</code>, "configurable to listen to specific source and destination chain pairs and relay messages according to its configured rules", plus a separate signature-aggregator service that "requests and aggregates signatures from validators"<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>.</p>
+<p>On the contract side the interface is <code>TeleporterMessenger</code>. Each message can carry an ERC20 fee to incentivize a relayer, and <code>allowedRelayerAddresses</code> can restrict who may deliver it<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup>. Fees are optional, so an L1 that runs its own relayer pays nothing per message. The converse also holds: if nobody runs a relayer, a signed message goes nowhere. An L1 that uses ICM owns two more off-chain services beyond its validators.</p>
+<p>The acceptance threshold is per receiving chain; the docs' example is "Avalanche L1 A may accept messages from Avalanche L1 B that are signed by at least 70% of stake"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<h3>5.4 Monitoring</h3>
+<p>Ava Labs ships an installer for Prometheus, Grafana and node_exporter with dashboards, plus a page of key metrics with healthy ranges and alert thresholds<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>. Its one emphatic point is exposure: "The system as described here should not be opened to the public internet. Neither Prometheus nor Grafana as shown here is hardened against unauthorized access"<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>. There is no L1-specific metrics guide; the general AvalancheGo setup is applied to L1 nodes as is.</p>
+<p>On a PoS L1, uptime feeds rewards. The Staking Manager tracks uptime, and a validator below the requirement has to exit through the forced path rather than the normal one<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup> <em>(early signal — the numeric threshold was not confirmed in a reachable primary page)</em>.</p>
+<h3>5.5 Operations checklist</h3>
+<p>The recurring work, pulled from the sources above:</p>
+<table><thead><tr><th>Cadence</th><th>Task</th><th>Basis</th></tr></thead><tbody><tr><td>Always</td><td>Keep connected weight ≥ 80%; respond to any validator outage immediately</td><td><sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup></td></tr><tr><td>Monthly</td><td>Check each validator's P-Chain balance; top up with <code>IncreaseL1ValidatorBalanceTx</code></td><td><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></td></tr><tr><td>Each release</td><td>Roll out AvalancheGo (VM included, in the monorepo); check the compatibility table</td><td><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></td></tr><tr><td>As needed</td><td>Distribute <code>upgrade.json</code>; confirm every validator applied it before the activation time</td><td><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup></td></tr><tr><td>Always</td><td>Keep relayer and signature aggregator running; fund the relayer wallet</td><td><sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup><sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup></td></tr><tr><td>Always</td><td>Prometheus/Grafana alerts; no public exposure</td><td><sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup></td></tr></tbody></table>
+<h2>6. Comparison: rollups, Cosmos appchains, Avalanche L1s</h2>
+<h3>6.1 Where security comes from</h3>
+<p>One question separates the three: who finally vouches for a block's validity?</p>
+<p>An OP Stack rollup "leverage[s] the consensus mechanism (like PoW or PoS) of their parent chain instead of providing their own"; blocks go to L1 as EIP-4844 blobs, and "writing to L1 is the major cost of OP Mainnet transactions". Block production is "primarily managed by a single party, called the sequencer", and a state commitment becomes final only after the 7-day challenge window, which is also when withdrawals complete<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>. Arbitrum Orbit adds AnyTrust, storing data off-chain with "an external Data Availability Committee (DAC), which is a group of permissioned nodes that you choose and run"<sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup>.</p>
+<p>An Avalanche L1's security is its validator set and nothing else. Zeeve's comparison puts it as rollups being "tied to their supportive L1s chain for security, operations and governance" while L1s decide "the tokenomics, membership of validators" themselves<sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup> <em>(vendor-stated)</em>. A five-validator PoA L1 is as secure as those five institutions are honest; neither Ethereum nor the Avalanche Primary Network stands behind it. The P-Chain records the set and lets others verify Warp signatures against it<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>; it does not validate blocks.</p>
+<p>Cosmos SDK chains are sovereign-validator-set chains too. The SDK is "a modular, open-source blockchain SDK for building secure, high-performance Layer 1 chains with full customizability", recommends CometBFT, and ships IBC "out-of-the-box"<sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup>. Gelato's comparison table summarizes the differences: probabilistic sub-sampled Snowman with sub-second finality versus deterministic BFT in seconds; dynamic participation against a shared P-Chain registry versus "fixed validator set per chain, where each zone must independently establish its own validator set"; BLS-aggregated AWM versus IBC<sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup> <em>(vendor-stated)</em>. Cosmos also has Interchain Security, which lets a consumer chain borrow the Hub's validators<sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup>; Avalanche L1s have no official shared-security counterpart.</p>
+<pre class="mermaid">flowchart TD
+  Q1{&quot;Can you assemble&lt;br/&gt;your own validator set?&quot;}
+  Q2{&quot;Is inheriting Ethereum&lt;br/&gt;liquidity and security required?&quot;}
+  Q3{&quot;Are a custom gas token,&lt;br/&gt;permissioned access, or sub-second&lt;br/&gt;finality required?&quot;}
+  Q4{&quot;Is the EVM required?&quot;}
+  R[&quot;Rollup (OP Stack / Orbit)&quot;]
+  A[&quot;Avalanche L1 + Subnet-EVM&quot;]
+  C[&quot;Cosmos SDK appchain&quot;]
+  C2[&quot;Cosmos ICS consumer chain&quot;]
+  Q1 -- no --&gt; Q2
+  Q1 -- yes --&gt; Q3
+  Q2 -- yes --&gt; R
+  Q2 -- no --&gt; C2
+  Q3 -- no --&gt; R
+  Q3 -- yes --&gt; Q4
+  Q4 -- yes --&gt; A
+  Q4 -- no --&gt; C</pre>
+<p><em>Figure 3 — A decision path. The validator set is the first question because rollups are the only option that does not require one. The remaining branches follow each stack's documented strengths.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup><sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup><sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup><sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup><sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup></em></p>
+<h3>6.2 Failure modes</h3>
+<table><thead><tr><th></th><th>Rollup</th><th>Avalanche L1</th><th>Cosmos appchain</th></tr></thead><tbody><tr><td>Block producer down</td><td>Sequencer stalls; forced inclusion via L1 exists<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup></td><td>Chain halts below 80% connected weight<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup></td><td>Halts below ⅔ of validators (BFT)<sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup></td></tr><tr><td>Upgrade</td><td>Sequencer operator performs it</td><td>All validators, simultaneously; a mistake halts<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup></td><td>All validators, coordinated</td></tr><tr><td>Withdrawal / finality</td><td>7-day challenge (optimistic)<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup></td><td>Sub-second<sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup> <em>(vendor-stated)</em></td><td>Seconds<sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup> <em>(vendor-stated)</em></td></tr><tr><td>Data availability</td><td>Ethereum blobs or a DAC<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup><sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup></td><td>Own validators</td><td>Own validators</td></tr></tbody></table>
+<h3>6.3 Cost structure</h3>
+<p>A rollup's marginal cost scales with data posted to L1<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>. An Avalanche L1's fixed cost is the per-validator continuous fee (initially 1.33 AVAX a month) plus node infrastructure<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>; more transactions do not raise what the P-Chain is owed. Zeeve quotes simple transfers at $0.01–0.03 on Avalanche against $0.05–0.10 on Arbitrum and $0.05–0.15 on Optimism<sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup> <em>(vendor-stated)</em>. The Substack enterprise framework restates the trade-off along a time axis: "If you're still validating product–market fit, a Rollup might be the more pragmatic entry point. If the chain is a core part of your operating model and you're thinking in 5–10 year horizons, a sovereign L1/AppChain often pays off"<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup>.</p>
+<h3>6.4 Adoption</h3>
+<p>One explainer says pre-Etna subnets were given a 12-month transition window and that "most active L1s, including Beam and Dexalot, completed migration in the first quarter following the upgrade"<sup class="footnote-ref"><a href="#ref-32" id="cite-32">[32]</a></sup> <em>(unverified — single source)</em>. On the institutional side, Nansen reports Progmat moving "more than $2B in tokenized real estate assets and corporate bonds" onto a dedicated L1, KB Kookmin Card "building a stablecoin payment system and a dedicated L1", and the gaming chain CX Chain "deployed via AvaCloud"<sup class="footnote-ref"><a href="#ref-33" id="cite-33">[33]</a></sup>. The validator conditions Ava Labs advertises, "must be located in a given country", "must pass KYC/AML checks", "must hold a certain license"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, are written for exactly those customers.</p>
+<h2>7. Trade-offs and when to choose which</h2>
+<p>The reasons to pick an Avalanche L1 with Subnet-EVM match what the docs advertise: your own gas token (Native Minter)<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>, per-address permissioning (AllowLists)<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>, validator eligibility rules<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, and throughput isolated from anyone else's load<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. A rollup gives none of the four at the protocol level.</p>
+<p>What you give up is equally concrete.</p>
+<ul>
+<li><strong>You buy your own security budget.</strong> Assembling and retaining a validator set is the operator's job. A small L1 will not match a large network's decentralization, and the 80% rule makes a small set fragile against one or two outages<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>.</li>
+<li><strong>You leave Ethereum's liquidity.</strong> A token on L1 X is not natively the same asset on L1 Y, and "if activity spreads across many L1s, users may face thinner liquidity, more bridging, and less unified DeFi activity"<sup class="footnote-ref"><a href="#ref-34" id="cite-34">[34]</a></sup>. ICM narrows the gap at the price of running relayers (§5.3).</li>
+<li><strong>The tooling is moving.</strong> The repository archive<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>, the CLI's maintenance mode<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup> and the announced FeeManager replacement<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> all landed within the last nine months. A genesis and a set of ops scripts written today will probably need edits at the next upgrade.</li>
+<li><strong>It is decoupled from AVAX value capture.</strong> Growth of an L1 with a custom gas token "may not fully benefit AVAX holders"<sup class="footnote-ref"><a href="#ref-34" id="cite-34">[34]</a></sup>. That is an investor's concern, but it shapes where the Foundation's incentives point.</li>
+</ul>
+<p>The case for a rollup is the mirror image: DeFi that has to stay inside Ethereum's security and liquidity, a team that cannot recruit validators, a product still searching for market fit<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup>. Cosmos fits when the EVM is optional and IBC is the target ecosystem, or when Interchain Security lets you skip the bootstrap<sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup><sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup>.</p>
+<p>The most common misreading is that "L1" implies stronger security. It does not. An Avalanche L1 inherits nothing from the Primary Network; a five-node PoA is a five-node PoA.</p>
+<h2>8. Limitations</h2>
+<ul>
+<li>The hardware table (§4.4) and the Beam/Dexalot migration timing (§6.4) each rest on a single source.</li>
+<li>The PoS reward uptime threshold appeared as 80% in search snippets, but both pages returned 404 on fetch, so no number is stated in the body.</li>
+<li>Granite's activation date (19 November 2025) came from a snippet; the blog body did not fetch, so the date is omitted in the body.</li>
+<li>L2BEAT project pages exceeded the fetch size limit; sequencer-failure and forced-inclusion statements rely on the OP docs alone.</li>
+<li>Cosmos Interchain Security is cited from a vendor comparison, not Cosmos's own documentation.</li>
+<li>The number of live L1s varies by definition (52, 69 or 524 across sources) and is not stated.</li>
+<li>Builder Hub's web-based L1 Launcher and L1 Toolbox did not return page bodies, so their procedures are not described. With the CLI in maintenance mode, that gap matters in practice.</li>
+<li>Every cost and finality figure in the comparison is vendor-sourced.</li>
+</ul>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/avalanche-l1s">Avalanche L1s — Overview</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-2"><span class="authors">Dhruba Basu</span>. <a href="https://github.com/avalanche-foundation/ACPs/blob/main/ACPs/77-reinventing-subnets/README.md">ACP-77: Reinventing Subnets</a>. <span class="venue">Avalanche Community Proposals, 2024</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-3"><span class="authors">Avalanche Foundation</span>. <a href="https://www.avax.network/about/blog/etna-enhancing-the-sovereignty-of-avalanche-l1-networks">Etna: Enhancing the Sovereignty of Avalanche L1 Networks</a>. <span class="venue">avax.network blog, 2024</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-4"><span class="authors">Ava Labs</span>. <a href="https://github.com/ava-labs/avalanchego/releases/tag/v1.12.0">AvalancheGo v1.12.0 — Etna: Reinventing Subnets</a>. <span class="venue">GitHub Releases, 2024</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-5"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/cross-chain/avalanche-warp-messaging/overview">Avalanche Warp Messaging — Overview</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-6"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/avalanche-l1s/validator-manager/contract">Validator Manager Contracts</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-7"><span class="authors">Ava Labs</span>. <a href="https://docs.avacloud.io/getting-started/plans">AvaCloud Plans</a>. <span class="venue">AvaCloud Docs, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-8"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/tooling/avalanche-cli/create-deploy-avalanche-l1s/deploy-on-mainnet">Deploy an Avalanche L1 on Mainnet (avalanche-cli)</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-9"><span class="authors">Ava Labs</span>. <a href="https://github.com/ava-labs/subnet-evm">ava-labs/subnet-evm: Launch your own EVM as an Avalanche Subnet</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-10"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/nodes/run-a-node/avalanche-l1-nodes">Run an Avalanche L1 node</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-11"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/avalanche-l1s/evm-configuration/evm-l1-customization">EVM L1 Customization — genesis and chain configuration</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-12"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/avalanche-l1s/evm-configuration/transaction-fees">Transaction fees and the Fee Manager precompile</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-13"><span class="authors">Avalanche Community Proposals</span>. <a href="https://build.avax.network/docs/acps/226-dynamic-minimum-block-times">ACP-226: Dynamic Minimum Block Times</a>. <span class="venue">Avalanche Builder Hub, 2025</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-14"><span class="authors">Avalanche Community Proposals</span>. <a href="https://build.avax.network/docs/acps/224-dynamic-gas-limit-in-subnet-evm">ACP-224: Dynamic Gas Limit in Subnet-EVM</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-15"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/avalanche-l1s/evm-configuration/permissions">Permissions — Deployer and Transaction AllowLists</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-16"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/avalanche-l1s/evm-configuration/tokenomics">Tokenomics — Native Minter precompile</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-17"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/avalanche-l1s/upgrade/customize-avalanche-l1">Customize your Avalanche L1 — network upgrades (upgrade.json)</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-18"><span class="authors">Ava Labs</span>. <a href="https://github.com/ava-labs/avalanche-cli">ava-labs/avalanche-cli</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-19"><span class="authors">Ava Labs</span>. <a href="https://github.com/ava-labs/avalanche-deploy/blob/main/docs/l1/DEPLOYMENT.md">avalanche-deploy — L1 deployment guide</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-20"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/avalanche-l1s/validator-manager/poa-vs-pos">PoA vs PoS validator management</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-21"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/nodes/system-requirements">AvalancheGo node system requirements</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-22"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/avalanche-l1s/upgrade/considerations">Avalanche L1 upgrade considerations</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-23"><span class="authors">Ava Labs</span>. <a href="https://github.com/ava-labs/icm-services">ava-labs/icm-services — ICM relayer and signature aggregator</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-24"><span class="authors">Ava Labs</span>. <a href="https://github.com/ava-labs/icm-contracts/blob/main/contracts/teleporter/README.md">TeleporterMessenger README (icm-contracts)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-25"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/nodes/maintain/monitoring">Monitoring an AvalancheGo node</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-26"><span class="authors">Optimism Collective</span>. <a href="https://docs.optimism.io/stack/rollup/overview">OP Stack — Rollup overview</a>. <span class="venue">Optimism Docs, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-27"><span class="authors">Offchain Labs</span>. <a href="https://docs.arbitrum.io/launch-arbitrum-chain/features/common/data-availability/choose-anytrust">Why choose AnyTrust for data availability on your Arbitrum chain</a>. <span class="venue">Arbitrum Docs, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-28"><span class="authors">Zeeve</span>. <a href="https://www.zeeve.io/blog/is-avalanche-l1-actually-a-smarter-choice-than-a-l2-rollup-in-2025/">Is Avalanche L1 Actually a Smarter Choice Than a L2 Rollup in 2025?</a>. <span class="venue">Zeeve blog (managed-node vendor), 2025</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-29"><span class="authors">Cosmos</span>. <a href="https://github.com/cosmos/cosmos-sdk">cosmos/cosmos-sdk</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-30"><span class="authors">Gelato</span>. <a href="https://gelato.cloud/blog/l1-blockchain-stacks-avalanche-vs-cosmos">L1 Blockchain Stacks: Avalanche vs Cosmos</a>. <span class="venue">Gelato blog (rollup-as-a-service vendor), 2025</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-31"><span class="authors">—</span>. <a href="https://enterpriseblockchainplaybook.substack.com/p/appchains-vs-rollups-a-practical">AppChains vs Rollups: A Practical Decision Framework for Enterprises</a>. <span class="venue">Enterprise Blockchain Playbook (Substack), 2025</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-32"><span class="authors">Eco</span>. <a href="https://eco.com/support/en/articles/12168599-what-is-avalanche-avax-l1s-and-subnets-in-2026">What Is Avalanche? AVAX, L1s, and Subnets in 2026</a>. <span class="venue">eco.com support, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-33"><span class="authors">Nansen</span>. <a href="https://nansen.ai/post/avalanche-q1-2026-report">Avalanche Q1 2026 Report</a>. <span class="venue">Nansen Research, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+      <li id="ref-34"><span class="authors">Coin Bureau</span>. <a href="https://coinbureau.com/review/avalanche-avax">Avalanche Review 2026: AVAX, Avalanche9000, L1s and Risks</a>. <span class="venue">Coin Bureau, 2026</span>. <span class="accessed">Accessed 2026-09-10.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-09-10. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

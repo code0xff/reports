@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Avalanche Subnet-EVM: 띄우기, 운영, 그리고 L2·독립 체인과의 비교 — Deepsearch</title>
+<meta name="description" content="Etna 이후 Subnet-EVM L1을 띄우고 운영하는 실제 절차, 그리고 롤업·Cosmos 앱체인과 무엇이 다른가">
+<link rel="canonical" href="https://code0xff.github.io/reports/avalanche-subnet-evm-l1-ops/">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="en" href="en/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="Avalanche Subnet-EVM: 띄우기, 운영, 그리고 L2·독립 체인과의 비교">
+<meta property="og:description" content="Etna 이후 Subnet-EVM L1을 띄우고 운영하는 실제 절차, 그리고 롤업·Cosmos 앱체인과 무엇이 다른가">
+<meta property="og:url" content="https://code0xff.github.io/reports/avalanche-subnet-evm-l1-ops/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Avalanche Subnet-EVM: 띄우기, 운영, 그리고 L2·독립 체인과의 비교">
+<meta name="twitter:description" content="Etna 이후 Subnet-EVM L1을 띄우고 운영하는 실제 절차, 그리고 롤업·Cosmos 앱체인과 무엇이 다른가">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="en/index.html" hreflang="en">English</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="GitHub에서 Deepsearch 보기" title="GitHub에서 Deepsearch 보기">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>Avalanche Subnet-EVM: 띄우기, 운영, 그리고 L2·독립 체인과의 비교</h1>
+    <p class="subtitle">Etna 이후 Subnet-EVM L1을 띄우고 운영하는 실제 절차, 그리고 롤업·Cosmos 앱체인과 무엇이 다른가</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-09-10</span>
+      <span><strong>태그</strong> avalanche, subnet-evm, l1, rollups, infrastructure</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="avalanche-subnet-evm-l1-ops.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>Subnet-EVM은 Avalanche C-Chain의 coreth를 단순화한 EVM 구현으로, 자기 밸리데이터 셋을 가진 별도 체인에 올리기 위해 만들어졌다. 2024년 12월 16일 Etna 업그레이드(ACP-77)가 이 "별도 체인"의 경제 모델을 바꿨다. 밸리데이터가 Primary Network에 2,000 AVAX를 걸 필요가 없어졌고, 대신 P-Chain에 월 약 1.33 AVAX 수준의 연속 수수료를 내며, 밸리데이터 셋 변경은 L1 위의 Validator Manager 컨트랙트가 Warp 메시지로 P-Chain에 통보한다. 이 보고서는 그 구조를 코드와 문서 기준으로 정리하고, 실제로 띄우는 순서(로컬 → Fuji → 메인넷, 세 개의 P-Chain 트랜잭션, 밸리데이터 등록), 운영에서 깨지는 지점(80% 연결 가중치, upgrade.json 조율, 릴레이어, 잔액 소진), 그리고 롤업·Cosmos 앱체인과의 차이를 다룬다. 2026년 9월 시점의 주의점 두 가지도 기록한다. 독립 저장소 <code>ava-labs/subnet-evm</code>은 아카이브되어 AvalancheGo 모노레포로 흡수됐고, <code>avalanche-cli</code>는 2025년 12월부터 유지보수 모드다.</p>
+  </section>
+
+  <main class="body">
+<h2>1. 서론</h2>
+<p>"Avalanche Subnet"과 "Avalanche L1"은 같은 것을 가리킨다. Ava Labs 문서는 두 용어를 섞어 쓰며, L1을 "멤버십과 토큰 경제에 대한 자기 규칙을 정의하는 주권 네트워크"로 정의한다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 이름이 바뀐 계기는 ACP-77 "Reinventing Subnets"다. 제안서는 옛 모델의 문제를 직접 적었다. 노드 운영자는 Subnet 밸리데이터가 되기 전에 먼저 Primary Network 밸리데이터로 최소 2,000 AVAX(작성 당시 약 7만 달러)를 스테이킹해야 했고, 허가형 스마트컨트랙트 체인(C-Chain)의 검증이 금지된 규제 기관은 Primary Network 검증을 거부할 수 없어 Subnet을 아예 만들 수 없었다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Etna는 이 요구를 없애고 "동적 연속 수수료"로 대체했다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>Subnet-EVM은 그 L1 위에서 돌아가는 VM 중 가장 흔한 선택이다. 이 문서의 질문은 세 가지다. Subnet-EVM은 무엇이고 C-Chain과 어떻게 다른가. 어떻게 띄우고 무엇을 운영해야 하는가. OP Stack·Arbitrum Orbit 같은 롤업이나 Cosmos SDK 앱체인과 비교했을 때 무엇을 얻고 무엇을 포기하는가.</p>
+<h2>2. 배경: Avalanche 아키텍처와 Etna 이후의 L1 모델</h2>
+<p>Primary Network는 P-Chain, X-Chain, C-Chain으로 구성되며, 모든 L1 밸리데이터는 상호운용성을 위해 P-Chain을 동기화해야 한다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> <em>(unverified — single source)</em>. P-Chain은 밸리데이터 등록부다. L1의 밸리데이터가 누구이고 가중치가 얼마인지, BLS 공개키가 무엇인지가 여기에 기록되고, 다른 체인은 이 등록부를 보고 Warp 메시지 서명을 검증한다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<pre class="mermaid">flowchart TB
+  subgraph PN[&quot;Primary Network&quot;]
+    P[&quot;P-Chain&lt;br/&gt;밸리데이터 등록부&quot;]
+    X[&quot;X-Chain&quot;]
+    C[&quot;C-Chain&lt;br/&gt;(coreth)&quot;]
+  end
+  subgraph L1A[&quot;Avalanche L1 A&quot;]
+    VA[&quot;밸리데이터 A1..An&lt;br/&gt;Subnet-EVM&quot;]
+    VMA[&quot;ValidatorManager&lt;br/&gt;(PoA 또는 PoS)&quot;]
+  end
+  subgraph L1B[&quot;Avalanche L1 B&quot;]
+    VB[&quot;밸리데이터 B1..Bm&quot;]
+  end
+  VMA -- &quot;RegisterL1ValidatorMessage&lt;br/&gt;L1ValidatorWeightMessage (Warp)&quot; --&gt; P
+  P -- &quot;L1ValidatorRegistrationMessage (Warp)&quot; --&gt; VMA
+  VA -. &quot;P-Chain 동기화&quot; .-&gt; P
+  VB -. &quot;P-Chain 동기화&quot; .-&gt; P
+  VA &lt;-- &quot;ICM (BLS 집계 서명)&quot; --&gt; VB
+  VA &lt;-- &quot;ICM&quot; --&gt; C</pre>
+<p><em>그림 1 — Etna 이후 구조. L1은 자기 밸리데이터가 블록을 만들고, P-Chain은 밸리데이터 셋의 공적 기록만 맡는다. 셋 변경은 L1 위 Validator Manager가 Warp 메시지로 P-Chain에 전달하고, P-Chain이 확인 메시지를 돌려준다. 체인 간 메시지는 밸리데이터 BLS 서명을 집계해 검증한다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></em></p>
+<h3>2.1 Etna 이전과 이후</h3>
+<p>ACP-77이 도입한 P-Chain 트랜잭션은 다섯 개다. <code>ConvertSubnetToL1Tx</code>, <code>RegisterL1ValidatorTx</code>, <code>SetL1ValidatorWeightTx</code>, <code>DisableL1ValidatorTx</code>, <code>IncreaseL1ValidatorBalanceTx</code><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 핵심은 첫 번째다. 기존 방식으로 만든 Subnet을 한 번 "변환"하면 그 이후 밸리데이터 셋은 P-Chain 트랜잭션이 아니라 지정된 Validator Manager 컨트랙트가 결정한다. "P-Chain은 L1의 밸리데이터 셋을 변경하는 Warp 메시지를 소비한다"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>Etna는 AvalancheGo v1.12.0으로 2024년 12월 16일 17:00 UTC에 메인넷에 활성화됐고, ACP-77 외에 P-Chain 동적 수수료(ACP-103), Warp 서명 인터페이스 표준(ACP-118), C-Chain과 Subnet-EVM의 Cancun EIP 활성화(ACP-131) 등을 함께 실었다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. Avalanche 재단은 이를 "초기 비용 99.9% 이상 절감"으로 표현했다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<h3>2.2 연속 수수료</h3>
+<p>L1 밸리데이터는 스테이킹 대신 P-Chain에 잔액(Balance)을 예치하고, 그 잔액에서 초 단위로 수수료가 차감된다. 초기 파라미터는 최소 요율 512 nAVAX/s(월 약 1.33 AVAX), 목표 밸리데이터 수 10,000이며, 활성 L1 밸리데이터가 목표를 넘으면 요율이 지수적으로 오른다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 재단 블로그는 "초기에는 월 약 1.3 AVAX"라고 썼고<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>, AvaCloud 요금표는 이를 "노드당 월 1.33 AVAX"로 고객에게 전가한다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 잔액이 0이 되면 밸리데이터는 "비활성"이 되어 검증에 참여하지 못한다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. CLI 메인넷 가이드는 "1 AVAX면 약 한 달"이라고 안내한다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p>이 수치는 바닥값이다. 요율이 밸리데이터 수에 따라 움직이므로 장기 비용 예측에 그대로 쓰면 안 된다.</p>
+<h2>3. Subnet-EVM 내부</h2>
+<h3>3.1 coreth와의 관계</h3>
+<p>저장소 README는 Subnet-EVM을 "Coreth VM(C-Chain)의 단순화 버전"으로 소개하고 차이를 네 줄로 요약한다. genesis에서 수수료와 가스 한도를 설정할 수 있게 했고, Avalanche 하드포크들을 단일 "Subnet EVM" 하드포크로 합쳤으며, Atomic Tx와 Shared Memory를 제거했고, Multicoin 컨트랙트와 상태를 제거했다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 제거된 것들이 C-Chain을 Primary Network에 묶어두던 부분이다. Foundry, Remix 등 "거의 모든 이더리움 도구"와 호환된다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p>2026년 9월 현재 독립 저장소는 아카이브 상태다. README와 노드 운영 문서 모두 "Subnet-EVM은 이제 AvalancheGo 모노레포의 일부"라고 적고, 빌드는 모노레포 안의 Subnet-EVM 디렉터리에서 한다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. 마지막 독립 릴리스 호환표는 v0.8.0 → AvalancheGo v1.14.0(프로토콜 44), v0.7.9 → v1.13.5다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 이전에는 VM과 노드 버전을 따로 맞춰야 했다면, 앞으로는 한 저장소의 한 버전이다.</p>
+<h3>3.2 genesis와 수수료 설정</h3>
+<p>genesis JSON에는 세 층이 있다. 이더리움식 체인 설정(chainId, 하드포크 블록 번호), Subnet-EVM 고유의 <code>feeConfig</code>, 그리고 프리컴파일 활성화 목록이다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. chainId는 "다른 체인과 충돌하면 문제가 생기므로 신중히 골라야 한다"<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<p><code>feeConfig</code> 필드와 문서의 권장 범위는 다음과 같다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<table><thead><tr><th>필드</th><th>의미</th><th>권장 범위</th><th>비고</th></tr></thead><tbody><tr><td><code>gasLimit</code></td><td>블록당 최대 가스</td><td>8M–100M</td><td>ACP-224/Helicon 이후 무효화 예정</td></tr><tr><td><code>targetBlockRate</code></td><td>목표 블록 간격(초)</td><td>2–10</td><td>Granite에서 폐기</td></tr><tr><td><code>minBaseFee</code></td><td>최소 base fee(wei)</td><td>25–500 gwei</td><td></td></tr><tr><td><code>targetGas</code></td><td>최근 10초 목표 가스</td><td>5M–50M</td><td></td></tr><tr><td><code>baseFeeChangeDenominator</code></td><td>base fee 변화 속도</td><td>8–1000</td><td>ACP-224/Helicon 이후 무효화 예정</td></tr><tr><td><code>minBlockGasCost</code> / <code>maxBlockGasCost</code> / <code>blockGasCostStep</code></td><td>블록 가스 비용</td><td></td><td>Granite에서 폐기</td></tr></tbody></table>
+<p>폐기 표시가 많은 이유는 두 번의 업그레이드다. Granite에 포함된 ACP-226은 "밸리데이터가 집단적으로, 동적으로 블록 간 최소 시간을 결정"하게 하고 헤더의 <code>blockGasCost</code>를 0으로 고정했다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. 다음 업그레이드 Helicon에 실릴 ACP-224는 ACP-176 방식의 동적 가스 한도를 Subnet-EVM에 들여오는데, 제안서가 명시하듯 "기존 FeeManagerPrecompile은 ACP-176 수수료 메커니즘과 호환되지 않으며" <code>GasLimit</code>과 <code>BaseFeeChangeDenominator</code> 설정이 무효화된다<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. 지금 genesis를 작성한다면 이 표의 절반은 곧 의미를 잃는다는 뜻이다.</p>
+<h3>3.3 상태 저장 프리컴파일</h3>
+<p>Subnet-EVM이 C-Chain과 가장 다른 지점이다. 기본 제공 여섯 개는 Deployer AllowList, Transaction AllowList, Native Minter, Fee Manager, Reward Manager, Warp Messenger다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<ul>
+<li><strong>AllowList 계열</strong>: Deployer AllowList에서는 Enabled 주소만 컨트랙트를 배포할 수 있고, Transaction AllowList에서는 Enabled 주소만 트랜잭션을 낼 수 있다. 역할은 Admin(모든 역할 추가·삭제), Manager(Enabled만 추가·삭제), Enabled(기능 사용) 세 단계다<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. KYC를 거친 주소만 거래하게 하는 허가형 체인이 이걸로 만들어진다.</li>
+<li><strong>Native Minter</strong>: "네트워크 출시 후 승인된 주소가 토큰을 추가 발행"할 수 있게 한다. 문서가 드는 용도는 발행 스케줄, 밸리데이터 보상, 통화 정책이다<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. PoS Validator Manager는 보상 지급을 위해 이 프리컴파일의 admin이어야 한다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</li>
+<li><strong>Fee Manager</strong>: 주소 <code>0x0200000000000000000000000000000000000003</code>에 있으며 수수료 파라미터를 온체인에서 조정한다. 접근 제어는 AllowList 인터페이스를 따른다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</li>
+<li><strong>Warp Messenger</strong>: ICM의 VM 쪽 진입점이다(§5.3).</li>
+</ul>
+<h3>3.4 네트워크 업그레이드</h3>
+<p>프리컴파일을 출시 후에 켜거나 끄려면 <code>upgrade.json</code>을 쓴다. 파일은 <code>config.json</code>과 같은 디렉터리에 두고, <code>precompileUpgrades</code>의 각 항목은 프리컴파일 하나를 지정하며 <code>blockTimestamp</code>는 "체인 헤드 기준으로 미래"여야 하고 항목 간 타임스탬프는 증가해야 한다<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. 한 번 활성화된 업그레이드는 "활성화 당시 설정과 정확히 같은 내용으로 항상 upgrade.json에 있어야 하며, 아니면 노드가 시작을 거부한다"<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. 운영상 함의는 §5.1에서 다룬다.</p>
+<h2>4. 띄우기</h2>
+<h3>4.1 도구 지형(2026년 9월)</h3>
+<p>공식 CLI인 <code>avalanche-cli</code>는 로컬·Fuji·메인넷 배포를 모두 지원하고 <code>avalanche blockchain create</code> → <code>avalanche blockchain deploy</code>가 기본 흐름이다<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. 그러나 README는 2025년 12월부터 "유지보수 모드, 보안 패치와 치명적 버그 수정만" 다룬다고 밝힌다<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. Builder Hub 문서는 여전히 이 CLI 기준으로 메인넷 배포를 설명하고<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>, 프로덕션 인프라용으로는 Terraform과 <code>platform-cli</code>로 노드를 띄우는 <code>avalanche-deploy</code>가 별도로 있다<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>. 매니지드 경로는 AvaCloud로, Starter/Pro/Enterprise 요금제에 메인넷 밸리데이터 수수료를 노드당 월 1.33 AVAX로 얹는다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Builder Hub의 웹 기반 L1 Launcher와 L1 Toolbox도 있으나 이 보고서에서는 페이지 본문을 확인하지 못했다(§8).</p>
+<h3>4.2 메인넷 배포 순서</h3>
+<p>CLI 문서 기준 전제 조건은 네 가지다. 메인넷에 완전히 부트스트랩된 AvalancheGo 노드, P-Chain의 AVAX, Fuji에서 먼저 같은 L1을 배포해 본 경험, 그리고 Ledger 기기다. "보안을 위해 모든 Avalanche-CLI 메인넷 작업은 연결된 Ledger 기기를 요구한다"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<pre class="mermaid">sequenceDiagram
+  participant Op as 운영자&lt;br/&gt;(Ledger)
+  participant P as P-Chain
+  participant BV as 부트스트랩&lt;br/&gt;밸리데이터
+  participant VM as Validator&lt;br/&gt;Manager
+  Op-&gt;&gt;P: CreateSubnetTx
+  Op-&gt;&gt;P: CreateChainTx (genesis, VMID)
+  Op-&gt;&gt;P: ConvertSubnetToL1Tx&lt;br/&gt;(NodeID, BLS 키, VM 주소)
+  P--&gt;&gt;BV: SubnetToL1Conversion (Warp)
+  BV-&gt;&gt;VM: initialize&lt;br/&gt;(변환 메시지 + BLS 집계 서명)
+  Note over Op,VM: 이후 밸리데이터 변경은 VM에서 시작한다
+  Op-&gt;&gt;VM: initiateValidatorRegistration&lt;br/&gt;(PoA: owner, PoS: 스테이크)
+  VM--&gt;&gt;P: RegisterL1ValidatorMessage&lt;br/&gt;→ RegisterL1ValidatorTx
+  P--&gt;&gt;VM: L1ValidatorRegistrationMessage (Warp)
+  Op-&gt;&gt;VM: completeValidatorRegistration</pre>
+<p><em>그림 2 — 메인넷 L1 생성 순서. 세 개의 P-Chain 트랜잭션은 Ledger 서명이 필요하고, 변환 후 밸리데이터 셋의 권한은 Validator Manager로 넘어간다. 밸리데이터 등록은 컨트랙트에서 시작해 P-Chain 왕복 Warp 메시지로 완료된다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup></em></p>
+<p><code>ConvertSubnetToL1Tx</code>를 낼 때 부트스트랩 밸리데이터의 NodeID, BLS 공개키, 소유 증명(proof of possession)을 넣는다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. CLI는 로컬 머신을 부트스트랩 밸리데이터로 쓰는 <code>--use-local-machine</code> 옵션을 주지만, 메인넷 가이드는 그 프롬프트에 "No"를 고르고 별도 노드를 지정하는 예를 든다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. <code>avalanche-deploy</code> 경로에서는 <code>create-l1</code> 도구가 <code>SUBNET_ID</code>, <code>CHAIN_ID</code>, <code>CONVERSION_TX</code>, <code>EVM_CHAIN_ID</code>를 <code>l1.env</code>로 내보내고, genesis에 ValidatorManager 프록시가 포함돼 있으면 "BLS 집계된 SubnetToL1Conversion warp 메시지"로 따로 초기화한다<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>.</p>
+<h3>4.3 Validator Manager 선택</h3>
+<p>공식 컨트랙트 구성은 <code>ValidatorManager</code> 하나에 <code>PoAManager</code>, <code>NativeTokenStakingManager</code>, <code>ERC20TokenStakingManager</code> 중 하나를 붙이는 형태다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. PoA는 <code>initialize</code>에 owner를 넘겨 만들고, "owner만 밸리데이터 셋 변경을 시작할 수 있지만 완료는 누구나 할 수 있다"<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. PoS는 <code>initiateValidatorRegistration</code>을 호출한 주소가 그 밸리데이터의 owner가 되며 owner만 제거할 수 있고, PoA와 달리 가중치를 줄일 수 없다<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. 두 모드 모두 churn 제한이 있어 "설정 가능한 기간 안에 총 가중치의 설정 가능한 비율까지만" 추가·제거된다<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>.</p>
+<p>등록 절차는 그림 2의 아래 절반이다. 컨트랙트가 <code>RegisterL1ValidatorMessage</code>를 만들어 P-Chain으로 보내고, P-Chain이 <code>L1ValidatorRegistrationMessage</code>로 등록을 확인하며, 제거는 가중치 0의 <code>L1ValidatorWeightMessage</code>다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<h3>4.4 밸리데이터 노드 사양</h3>
+<p>Primary Network 밸리데이터와 L1 밸리데이터의 요구 사양은 다르다. 공식 문서는 L1을 처리량 기준 세 등급으로 나눈다. 10 TPS 미만은 2코어·4GB·100GB, 10–100 TPS는 4코어·8GB·500GB SSD, 100 TPS 이상은 8코어 이상·16GB 이상·1TB NVMe다. 모든 노드는 9651 포트 인바운드가 열려야 하고, 스토리지는 "최소 3000 IOPS의 로컬 NVMe"를 요구하며 클라우드 블록 스토리지는 지연 때문에 배제한다<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup> <em>(unverified — single source)</em>. Primary Network 밸리데이터(4코어/16GB/1TB부터)보다 낮은 사양이 가능한 것은 L1 노드가 C-Chain 상태를 들고 있을 필요가 없기 때문이다.</p>
+<p>노드 쪽 설정은 두 가지다. VM 바이너리를 <code>~/.avalanchego/plugins/</code>에 그 L1의 VMID 이름으로 두고, <code>config.json</code>의 <code>track-subnets</code>(또는 <code>--track-subnets</code> 플래그)에 SubnetID를 넣는다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<h2>5. 운영</h2>
+<h3>5.1 업그레이드 조율</h3>
+<p>L1 운영의 가장 큰 리스크는 여기 있다. AvalancheGo 버전 업그레이드와 <code>upgrade.json</code> 네트워크 업그레이드 모두 "L1의 모든 밸리데이터가 동일한 업그레이드를 수행해야" 한다<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>. 문서의 경고는 직설적이다. "네트워크 업그레이드 설정이나 밸리데이터 간 조율의 실수는 네트워크를 멈출 수 있고 복구는 어려울 수 있다"<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. 활성화 시각 전에 모든 밸리데이터에게 사전 통지를 "일정으로 잡아야" 한다<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>. 롤업이라면 시퀀서 운영자 한 명이 버전을 올리면 끝나는 일이, 여기서는 n명의 운영자와 마감 시각을 맞추는 일이 된다.</p>
+<h3>5.2 80% 연결 가중치</h3>
+<p>"Avalanche L1은 누적 밸리데이터 가중치의 80% 이상이 연결돼 있을 때만 정상 동작한다. 연결된 스테이크가 80% 근처나 아래로 떨어지면 최종성 시간이 나빠지고 결국 L1은 멈춘다(트랜잭션 처리 중단)"<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>. 운영자는 "무엇을 하든 밸리데이터 누적 가중치의 80% 이상이 항상 연결되고 동작하도록" 보장해야 한다<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>.</p>
+<p>이 숫자는 밸리데이터 셋 설계를 규정한다. 밸리데이터 5개 PoA에서 하나가 죽으면 연결 가중치가 80%가 되어 경계에 닿는다. 업그레이드 롤링 중에 두 개가 동시에 꺼지면 체인이 선다. 잔액 소진으로 "비활성"이 된 밸리데이터도 같은 효과를 낸다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 롤업의 시퀀서 다운은 블록 생성을 멈추되 L1에 강제 포함 경로가 남는 반면, L1의 가중치 미달은 체인 자체의 정지다.</p>
+<h3>5.3 ICM과 릴레이어</h3>
+<p>체인 간 메시지는 프로토콜이 서명·검증하지만 전달은 하지 않는다. "출발 L1 밸리데이터에서 목적지 L1 밸리데이터로 데이터를 어떻게 옮길지는 L1과 사용자가 결정할 일이다"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 그 빈자리를 채우는 것이 오프체인 <code>icm-relayer</code>로, "특정 출발·목적지 체인 쌍을 듣고 설정된 규칙에 따라 메시지를 중계"하며, 별도의 signature-aggregator 서비스가 밸리데이터로부터 서명을 모은다<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>.</p>
+<p>컨트랙트 쪽 인터페이스는 <code>TeleporterMessenger</code>다. 메시지마다 ERC20 자산으로 릴레이어 수수료를 붙일 수 있고, <code>allowedRelayerAddresses</code>로 전달 가능한 릴레이어를 제한할 수 있다<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup>. 수수료는 선택 사항이므로, 자기 릴레이어를 직접 띄우는 L1은 수수료 없이 운영할 수 있다. 반대로 말하면, 아무도 릴레이어를 띄우지 않으면 메시지는 서명된 채로 어디에도 도착하지 않는다. ICM을 쓰는 L1 운영자는 밸리데이터 외에 릴레이어와 서명 집계기라는 두 개의 오프체인 서비스를 더 책임진다.</p>
+<p>수신 측 검증 임계값은 체인마다 정할 수 있다. 문서의 예는 "L1 A는 L1 B의 스테이크 70% 이상이 서명한 메시지를 수락한다"이다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<h3>5.4 모니터링</h3>
+<p>Ava Labs가 제공하는 것은 Prometheus + Grafana + node_exporter 설치 스크립트와 대시보드, 그리고 지표별 권장 범위와 경보 임계값 문서다<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>. 문서가 강조하는 한 가지는 노출 범위다. "여기 설명한 시스템은 공개 인터넷에 열어서는 안 된다. Prometheus도 Grafana도 무단 접근에 대해 강화돼 있지 않다"<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>. L1 특화 지표 문서는 없고, 일반 AvalancheGo 모니터링을 L1 노드에 그대로 적용한다.</p>
+<p>PoS L1에서는 밸리데이터 업타임이 보상과 연결된다. Staking Manager는 업타임 추적을 기반으로 보상을 산정하고, 업타임 미달 상태에서는 정상 종료 대신 강제 종료 경로를 써야 한다<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup> <em>(early signal — 임계값 수치는 접근 가능한 1차 문서에서 확인하지 못함)</em>.</p>
+<h3>5.5 운영 체크리스트</h3>
+<p>문서에서 뽑아낸 반복 업무를 한 표로 모은다.</p>
+<table><thead><tr><th>주기</th><th>할 일</th><th>근거</th></tr></thead><tbody><tr><td>상시</td><td>연결 가중치 ≥ 80% 유지, 밸리데이터 다운 즉시 대응</td><td><sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup></td></tr><tr><td>월</td><td>각 밸리데이터의 P-Chain 잔액 확인, <code>IncreaseL1ValidatorBalanceTx</code>로 충전</td><td><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></td></tr><tr><td>릴리스마다</td><td>AvalancheGo(모노레포 내 VM 포함) 버전 롤아웃, 호환표 확인</td><td><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></td></tr><tr><td>필요 시</td><td><code>upgrade.json</code> 배포 → 활성화 시각 전 전 밸리데이터 적용 확인</td><td><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup></td></tr><tr><td>상시</td><td>릴레이어·서명 집계기 가동, 릴레이어 지갑 잔액</td><td><sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup><sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup></td></tr><tr><td>상시</td><td>Prometheus/Grafana 경보, 외부 노출 차단</td><td><sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup></td></tr></tbody></table>
+<h2>6. 비교: 롤업, Cosmos 앱체인, Avalanche L1</h2>
+<h3>6.1 보안이 어디서 오는가</h3>
+<p>세 모델의 차이는 한 문장으로 갈린다. 누가 블록의 유효성을 최종 보증하는가.</p>
+<p>OP Stack 롤업은 "자체 합의를 제공하는 대신 부모 체인의 합의 메커니즘을 활용"하고, 블록은 EIP-4844 블롭으로 L1에 게시되며 "L1에 쓰는 것이 OP Mainnet 트랜잭션의 주된 비용"이다. 블록 생성은 "시퀀서라는 단일 주체"가 맡고, 상태 커밋은 7일 챌린지 기간이 지나야 최종이며 출금도 그 뒤에 완료된다<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>. Arbitrum Orbit은 여기에 AnyTrust 옵션을 더한다. 데이터를 이더리움 대신 "운영자가 고르고 운영하는 허가형 노드 집단인 데이터 가용성 위원회"에 오프체인으로 저장한다<sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup>.</p>
+<p>Avalanche L1은 자기 밸리데이터 셋이 보안 전부다. Zeeve의 비교는 이를 "롤업은 보안·운영·거버넌스를 지지 L1에 묶어두는" 반면 L1은 "토큰 경제와 밸리데이터 멤버십을 스스로 정한다"로 요약한다<sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup> <em>(vendor-stated)</em>. 밸리데이터가 다섯인 PoA L1의 보안은 그 다섯 기관의 정직성이지, 이더리움도 Avalanche Primary Network도 아니다. P-Chain은 밸리데이터 셋을 기록하고 Warp 서명을 검증할 근거를 제공할 뿐<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, 블록 유효성을 검증하지 않는다.</p>
+<p>Cosmos SDK 체인도 주권 밸리데이터 셋 모델이다. SDK는 "완전한 커스터마이징이 가능한 L1 체인을 만드는 모듈형 SDK"로 CometBFT를 권장 합의 엔진으로 두고 IBC를 기본 탑재한다<sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup>. Avalanche와의 차이는 Gelato의 비교표에 요약돼 있다. 합의는 서브샘플링 기반 확률적 Snowman(1초 미만 최종성) 대 결정적 BFT(수 초), 밸리데이터는 P-Chain 등록부를 공유하는 동적 참여 대 "체인마다 독립적으로 셋을 구성"하는 고정 셋, 상호운용은 BLS 집계 기반 AWM 대 IBC다<sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup> <em>(vendor-stated)</em>. Cosmos에는 Hub의 밸리데이터 셋을 빌리는 Interchain Security가 있어<sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup> 셋 부트스트랩 부담을 피할 수 있으나, Avalanche L1에는 그에 대응하는 공식 공유 보안 옵션이 없다.</p>
+<pre class="mermaid">flowchart TD
+  Q1{&quot;밸리데이터 셋을&lt;br/&gt;직접 꾸릴 수 있는가?&quot;}
+  Q2{&quot;이더리움 유동성·&lt;br/&gt;보안 상속이 필수인가?&quot;}
+  Q3{&quot;커스텀 가스 토큰,&lt;br/&gt;허가형 접근, 1초 미만 최종성이&lt;br/&gt;필수인가?&quot;}
+  Q4{&quot;EVM이 필수인가?&quot;}
+  R[&quot;롤업 (OP Stack / Orbit)&quot;]
+  A[&quot;Avalanche L1 + Subnet-EVM&quot;]
+  C[&quot;Cosmos SDK 앱체인&quot;]
+  C2[&quot;Cosmos ICS 소비자 체인&quot;]
+  Q1 -- 아니오 --&gt; Q2
+  Q1 -- 예 --&gt; Q3
+  Q2 -- 예 --&gt; R
+  Q2 -- 아니오 --&gt; C2
+  Q3 -- 아니오 --&gt; R
+  Q3 -- 예 --&gt; Q4
+  Q4 -- 예 --&gt; A
+  Q4 -- 아니오 --&gt; C</pre>
+<p><em>그림 3 — 선택 기준. 첫 질문이 밸리데이터 셋인 이유는 롤업만이 그것을 요구하지 않기 때문이다. 나머지 분기는 각 문서가 명시한 강점에서 나왔다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup><sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup><sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup><sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup><sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup></em></p>
+<h3>6.2 실패 모드</h3>
+<table><thead><tr><th></th><th>롤업</th><th>Avalanche L1</th><th>Cosmos 앱체인</th></tr></thead><tbody><tr><td>블록 생성자 다운</td><td>시퀀서 정지, L1 강제 포함 경로 존재<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup></td><td>연결 가중치 &lt; 80%면 체인 정지<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup></td><td>밸리데이터 ⅔ 미만이면 정지 (BFT)<sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup></td></tr><tr><td>업그레이드</td><td>시퀀서 운영자가 수행</td><td>전 밸리데이터 동시 적용, 실수 시 정지<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup></td><td>전 밸리데이터 조율</td></tr><tr><td>출금·최종성</td><td>7일 챌린지(optimistic)<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup></td><td>1초 미만<sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup> <em>(vendor-stated)</em></td><td>수 초<sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup> <em>(vendor-stated)</em></td></tr><tr><td>데이터 가용성</td><td>이더리움 블롭 또는 DAC<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup><sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup></td><td>자체 밸리데이터</td><td>자체 밸리데이터</td></tr></tbody></table>
+<h3>6.3 비용 구조</h3>
+<p>롤업의 한계 비용은 L1 데이터 게시량에 비례한다<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>. Avalanche L1의 고정 비용은 밸리데이터당 연속 수수료(초기 월 1.33 AVAX)에 노드 인프라를 더한 것이고<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>, 트랜잭션량이 늘어도 P-Chain에 내는 돈은 늘지 않는다. Zeeve는 단순 전송 기준 Avalanche 0.01–0.03달러 대 Arbitrum 0.05–0.10달러, Optimism 0.05–0.15달러를 제시한다<sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup> <em>(vendor-stated)</em>. Substack의 기업용 프레임워크는 같은 결론을 시간축으로 바꿔 말한다. "제품-시장 적합성을 아직 검증 중이면 롤업이 실용적 진입점이고, 체인이 운영 모델의 핵심이며 5–10년을 본다면 주권 L1이 보상을 준다"<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup>.</p>
+<h3>6.4 채택</h3>
+<p>Etna 이후 기존 Subnet들은 12개월 전환 기간을 받았고 Beam과 Dexalot 등 활성 L1 대부분이 첫 분기 안에 이전했다는 설명이 있다<sup class="footnote-ref"><a href="#ref-32" id="cite-32">[32]</a></sup> <em>(unverified — single source)</em>. 기관 쪽에서는 Progmat가 20억 달러 이상의 토큰화 자산을 전용 L1로 옮기고, KB국민카드가 스테이블코인 결제용 전용 L1을 구축 중이며, 게임 체인 CX Chain이 AvaCloud로 배포됐다는 보고가 있다<sup class="footnote-ref"><a href="#ref-33" id="cite-33">[33]</a></sup>. Ava Labs 문서가 L1의 강점으로 드는 "밸리데이터가 특정 국가에 있어야 한다, KYC/AML을 통과해야 한다, 특정 면허를 보유해야 한다"는 조건<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>은 정확히 이런 고객을 겨냥한 것이다.</p>
+<h2>7. 장단점과 선택 기준</h2>
+<p>Avalanche L1 + Subnet-EVM을 고를 근거는 문서가 명시한 것과 일치한다. 자기 가스 토큰(Native Minter)<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>, 주소 단위 허가(AllowList)<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>, 밸리데이터 자격 조건<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, 그리고 다른 체인의 부하와 격리된 처리량<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 롤업은 이 넷 중 어느 것도 프로토콜 수준에서 주지 않는다.</p>
+<p>포기하는 것도 분명하다.</p>
+<ul>
+<li><strong>보안 예산을 직접 산다.</strong> 밸리데이터 셋을 모으고 유지하는 것이 운영자의 일이다. 작은 L1이 큰 네트워크 수준의 탈중앙화를 갖기 어렵고, 80% 규칙 때문에 작은 셋은 한두 노드 장애에 취약하다<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>.</li>
+<li><strong>이더리움 유동성과 단절된다.</strong> L1 X의 토큰은 L1 Y의 같은 토큰과 네이티브로 같은 자산이 아니며, "활동이 여러 L1로 퍼지면 유동성이 얇아지고 브리지가 늘고 DeFi 활동이 분산된다"<sup class="footnote-ref"><a href="#ref-34" id="cite-34">[34]</a></sup>. ICM이 이를 줄이지만 릴레이어라는 운영 부담을 대가로 한다(§5.3).</li>
+<li><strong>도구가 움직인다.</strong> 독립 저장소 아카이브<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>, CLI 유지보수 모드<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>, FeeManager 교체 예고<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>가 모두 최근 9개월 안에 일어났다. 오늘 작성한 genesis와 운영 스크립트는 다음 업그레이드에서 수정이 필요할 가능성이 높다.</li>
+<li><strong>AVAX 가치 귀속과 별개다.</strong> 커스텀 가스 토큰을 쓰는 L1의 성장이 "AVAX 보유자에게 온전히 돌아가지 않을 수 있다"는 지적<sup class="footnote-ref"><a href="#ref-34" id="cite-34">[34]</a></sup>은 투자자 관점의 문제지만, 재단의 인센티브 방향이 어디를 향할지에 영향을 준다.</li>
+</ul>
+<p>롤업을 고를 근거는 반대편이다. 이더리움 보안과 유동성 안에 머물러야 하는 DeFi, 밸리데이터를 모을 수 없는 소규모 팀, 아직 제품-시장 적합성을 보고 있는 프로젝트<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup>. Cosmos는 EVM이 필수가 아니고 IBC 생태계가 목표일 때, 또는 ICS로 셋 부트스트랩을 건너뛰고 싶을 때<sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup><sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup>.</p>
+<p>가장 흔한 오판은 "L1이니까 보안이 더 강하다"는 가정이다. 이름과 달리 Avalanche L1의 보안은 Primary Network에서 상속되지 않는다. 다섯 노드짜리 PoA는 다섯 노드짜리 PoA다.</p>
+<h2>8. 한계</h2>
+<ul>
+<li>노드 사양 표(§4.4)와 Beam·Dexalot 이전 시점(§6.4)은 각각 출처가 하나뿐이다.</li>
+<li>PoS 보상의 업타임 임계값은 검색 스니펫에서 80%로 보였으나 해당 문서 두 곳이 모두 404를 반환해 수치를 본문에 넣지 않았다.</li>
+<li>Granite 활성화 날짜(2025-11-19)는 블로그 본문을 가져오지 못해 본문에서 날짜를 생략했다.</li>
+<li>L2BEAT 프로젝트 페이지는 크기 제한으로 읽지 못했고, 시퀀서 장애·강제 포함 서술은 OP 공식 문서에만 기댔다.</li>
+<li>Cosmos Interchain Security는 벤더 비교 글에서만 확인했고 Cosmos 공식 문서는 읽지 못했다.</li>
+<li>활성 L1 수는 정의에 따라 52·69·524로 갈려 숫자를 제시하지 않았다.</li>
+<li>Builder Hub의 웹 기반 L1 Launcher와 L1 Toolbox는 페이지 본문이 읽히지 않아 절차를 설명하지 못했다. CLI가 유지보수 모드인 만큼 이 공백은 실무에서 의미가 크다.</li>
+<li>비교의 비용·최종성 수치는 모두 벤더 출처다.</li>
+</ul>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/avalanche-l1s">Avalanche L1s — Overview</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-2"><span class="authors">Dhruba Basu</span>. <a href="https://github.com/avalanche-foundation/ACPs/blob/main/ACPs/77-reinventing-subnets/README.md">ACP-77: Reinventing Subnets</a>. <span class="venue">Avalanche Community Proposals, 2024</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-3"><span class="authors">Avalanche Foundation</span>. <a href="https://www.avax.network/about/blog/etna-enhancing-the-sovereignty-of-avalanche-l1-networks">Etna: Enhancing the Sovereignty of Avalanche L1 Networks</a>. <span class="venue">avax.network blog, 2024</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-4"><span class="authors">Ava Labs</span>. <a href="https://github.com/ava-labs/avalanchego/releases/tag/v1.12.0">AvalancheGo v1.12.0 — Etna: Reinventing Subnets</a>. <span class="venue">GitHub Releases, 2024</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-5"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/cross-chain/avalanche-warp-messaging/overview">Avalanche Warp Messaging — Overview</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-6"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/avalanche-l1s/validator-manager/contract">Validator Manager Contracts</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-7"><span class="authors">Ava Labs</span>. <a href="https://docs.avacloud.io/getting-started/plans">AvaCloud Plans</a>. <span class="venue">AvaCloud Docs, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-8"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/tooling/avalanche-cli/create-deploy-avalanche-l1s/deploy-on-mainnet">Deploy an Avalanche L1 on Mainnet (avalanche-cli)</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-9"><span class="authors">Ava Labs</span>. <a href="https://github.com/ava-labs/subnet-evm">ava-labs/subnet-evm: Launch your own EVM as an Avalanche Subnet</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-10"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/nodes/run-a-node/avalanche-l1-nodes">Run an Avalanche L1 node</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-11"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/avalanche-l1s/evm-configuration/evm-l1-customization">EVM L1 Customization — genesis and chain configuration</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-12"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/avalanche-l1s/evm-configuration/transaction-fees">Transaction fees and the Fee Manager precompile</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-13"><span class="authors">Avalanche Community Proposals</span>. <a href="https://build.avax.network/docs/acps/226-dynamic-minimum-block-times">ACP-226: Dynamic Minimum Block Times</a>. <span class="venue">Avalanche Builder Hub, 2025</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-14"><span class="authors">Avalanche Community Proposals</span>. <a href="https://build.avax.network/docs/acps/224-dynamic-gas-limit-in-subnet-evm">ACP-224: Dynamic Gas Limit in Subnet-EVM</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-15"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/avalanche-l1s/evm-configuration/permissions">Permissions — Deployer and Transaction AllowLists</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-16"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/avalanche-l1s/evm-configuration/tokenomics">Tokenomics — Native Minter precompile</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-17"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/avalanche-l1s/upgrade/customize-avalanche-l1">Customize your Avalanche L1 — network upgrades (upgrade.json)</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-18"><span class="authors">Ava Labs</span>. <a href="https://github.com/ava-labs/avalanche-cli">ava-labs/avalanche-cli</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-19"><span class="authors">Ava Labs</span>. <a href="https://github.com/ava-labs/avalanche-deploy/blob/main/docs/l1/DEPLOYMENT.md">avalanche-deploy — L1 deployment guide</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-20"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/avalanche-l1s/validator-manager/poa-vs-pos">PoA vs PoS validator management</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-21"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/nodes/system-requirements">AvalancheGo node system requirements</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-22"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/avalanche-l1s/upgrade/considerations">Avalanche L1 upgrade considerations</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-23"><span class="authors">Ava Labs</span>. <a href="https://github.com/ava-labs/icm-services">ava-labs/icm-services — ICM relayer and signature aggregator</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-24"><span class="authors">Ava Labs</span>. <a href="https://github.com/ava-labs/icm-contracts/blob/main/contracts/teleporter/README.md">TeleporterMessenger README (icm-contracts)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-25"><span class="authors">Ava Labs</span>. <a href="https://build.avax.network/docs/nodes/maintain/monitoring">Monitoring an AvalancheGo node</a>. <span class="venue">Avalanche Builder Hub, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-26"><span class="authors">Optimism Collective</span>. <a href="https://docs.optimism.io/stack/rollup/overview">OP Stack — Rollup overview</a>. <span class="venue">Optimism Docs, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-27"><span class="authors">Offchain Labs</span>. <a href="https://docs.arbitrum.io/launch-arbitrum-chain/features/common/data-availability/choose-anytrust">Why choose AnyTrust for data availability on your Arbitrum chain</a>. <span class="venue">Arbitrum Docs, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-28"><span class="authors">Zeeve</span>. <a href="https://www.zeeve.io/blog/is-avalanche-l1-actually-a-smarter-choice-than-a-l2-rollup-in-2025/">Is Avalanche L1 Actually a Smarter Choice Than a L2 Rollup in 2025?</a>. <span class="venue">Zeeve blog (managed-node vendor), 2025</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-29"><span class="authors">Cosmos</span>. <a href="https://github.com/cosmos/cosmos-sdk">cosmos/cosmos-sdk</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-30"><span class="authors">Gelato</span>. <a href="https://gelato.cloud/blog/l1-blockchain-stacks-avalanche-vs-cosmos">L1 Blockchain Stacks: Avalanche vs Cosmos</a>. <span class="venue">Gelato blog (rollup-as-a-service vendor), 2025</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-31"><span class="authors">—</span>. <a href="https://enterpriseblockchainplaybook.substack.com/p/appchains-vs-rollups-a-practical">AppChains vs Rollups: A Practical Decision Framework for Enterprises</a>. <span class="venue">Enterprise Blockchain Playbook (Substack), 2025</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-32"><span class="authors">Eco</span>. <a href="https://eco.com/support/en/articles/12168599-what-is-avalanche-avax-l1s-and-subnets-in-2026">What Is Avalanche? AVAX, L1s, and Subnets in 2026</a>. <span class="venue">eco.com support, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-33"><span class="authors">Nansen</span>. <a href="https://nansen.ai/post/avalanche-q1-2026-report">Avalanche Q1 2026 Report</a>. <span class="venue">Nansen Research, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-34"><span class="authors">Coin Bureau</span>. <a href="https://coinbureau.com/review/avalanche-avax">Avalanche Review 2026: AVAX, Avalanche9000, L1s and Risks</a>. <span class="venue">Coin Bureau, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-09-10 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
