@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cloudflare Pay-per-Crawl: 퍼블리셔에게 수입인가 푼돈인가 — Deepsearch</title>
+<meta name="description" content="Leaky Paywall의 &quot;푼돈&quot; 계산을 검증하고, 결제 스위치가 아니라 기본 차단과 402 인프라가 실제 가치였음을 짚는다">
+<link rel="canonical" href="https://code0xff.github.io/reports/cloudflare-pay-per-crawl/">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="en" href="en/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="Cloudflare Pay-per-Crawl: 퍼블리셔에게 수입인가 푼돈인가">
+<meta property="og:description" content="Leaky Paywall의 &quot;푼돈&quot; 계산을 검증하고, 결제 스위치가 아니라 기본 차단과 402 인프라가 실제 가치였음을 짚는다">
+<meta property="og:url" content="https://code0xff.github.io/reports/cloudflare-pay-per-crawl/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Cloudflare Pay-per-Crawl: 퍼블리셔에게 수입인가 푼돈인가">
+<meta name="twitter:description" content="Leaky Paywall의 &quot;푼돈&quot; 계산을 검증하고, 결제 스위치가 아니라 기본 차단과 402 인프라가 실제 가치였음을 짚는다">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="en/index.html" hreflang="en">English</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="GitHub에서 Deepsearch 보기" title="GitHub에서 Deepsearch 보기">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>Cloudflare Pay-per-Crawl: 퍼블리셔에게 수입인가 푼돈인가</h1>
+    <p class="subtitle">Leaky Paywall의 &quot;푼돈&quot; 계산을 검증하고, 결제 스위치가 아니라 기본 차단과 402 인프라가 실제 가치였음을 짚는다</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-09-10</span>
+      <span><strong>태그</strong> cloudflare, pay-per-crawl, http-402, x402, publishing, ai-crawlers</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="cloudflare-pay-per-crawl.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>Leaky Paywall은 2026년 7월 17일 글에서 Cloudflare의 pay-per-crawl을 "payroll이 아니라 proof-of-concept"이라 불렀다. 봇이 페이지뷰의 1–2%이고 페이지당 $0.001–0.01을 받는다면 월 100만 뷰 사이트의 수입은 $20–200이라는 계산이다. 이 보고서는 그 계산을 검증하고, 계산이 놓친 것을 채운다. 검증 결과 산수는 맞지만 입력값이 의심스럽다. Cloudflare 네트워크에서 HTML 요청의 57.4%가 봇이고 TollBit은 사람 31명당 AI 봇 1회 방문을 관측하므로, "1–2%"는 특정 사이트의 페이지뷰 지표일 뿐 크롤 요청량이 아니다. 그러나 결론은 다른 이유로 더 강하게 성립한다. 프라이빗 베타 14개월째 어떤 퍼블리셔도 수입을 공개하지 않았고, Stack Overflow가 보고한 유일한 효과는 "크롤러들이 트래픽을 끊었다"는 것이며, Cloudflare 자신이 글 발행 16일 전인 2026년 7월 1일에 "크롤은 가치의 조악한 척도"라며 답변에 인용될 때 지불하는 Pay Per Use로 방향을 틀었다. pay-per-crawl이 실제로 남긴 것은 수입 밖의 두 가지 부수 효과다. 기본 차단이 만든 희소성이 직접 라이선스 협상의 지렛대가 됐고, 402와 Web Bot Auth가 에이전트 결제 인프라(x402, Monetization Gateway)의 바닥이 됐다.</p>
+  </section>
+
+  <main class="body">
+<h2>1. 서론</h2>
+<p>문제의 글은 WordPress 계량형 페이월 플러그인 Leaky Paywall(ZEEN101)의 블로그에 실렸다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 주장은 단순하다. "AI 봇이 사이트 문을 두드리면 Cloudflare는 당신이 정한 규칙을 확인한다: 들여보내거나, 막거나, 돈을 내게 하거나." 봇 트래픽은 통상 페이지뷰의 1–2%이므로 월 100만 뷰면 봇 히트 1–2만 건, 페이지당 $0.001이면 월 약 $20, $0.01이면 약 $200이다. 구독자 한 명이 연 $50–100의 가치를 가지는 것과 비교해 "proof-of-concept이지 payroll이 아니다"라고 결론짓고, 등록벽과 뉴스레터를 권한다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>세 가지를 따져본다. 이 계산의 입력값이 맞는가. pay-per-crawl은 실제로 무엇이며 누가 썼는가. 그리고 글이 쓰인 2026년 7월 시점에 Cloudflare 자신은 이 모델을 어떻게 보고 있었는가. 마지막 질문이 결정적이다. 글이 나오기 보름 전 Cloudflare가 이미 같은 결론을 다른 말로 발표했기 때문이다.</p>
+<h2>2. 배경: 2025년 7월 1일</h2>
+<p>Cloudflare는 2025년 7월 1일을 "Content Independence Day"로 선언하고 두 가지를 동시에 바꿨다. 신규 도메인의 기본값을 "크리에이터에게 대가를 지불하지 않는 AI 크롤러는 차단"으로 돌렸고, 같은 날 pay-per-crawl 프라이빗 베타를 열었다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. CEO Matthew Prince의 근거는 크롤-대-참조 비율이었다. 옛 Google에 비해 OpenAI로부터 트래픽을 얻기는 750배, Anthropic으로부터는 30,000배 어렵다는 것이다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>이 비율은 Cloudflare Radar가 정의한 지표다. 특정 AI 플랫폼의 사용자 에이전트가 보낸 HTML 요청 수를, 그 플랫폼을 Referer로 가진 HTML 요청 수로 나눈다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 2025년 6월 마지막 주 Anthropic은 70,900:1, Mistral은 0.1:1이었고<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, 7월 집계에서는 Anthropic 38,065:1, OpenAI 1,091:1, Perplexity 194:1, Microsoft 40.7:1, Google 5.4:1이었다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Radar 자체가 경고하듯 네이티브 앱은 Referer를 보내지 않으므로 이 숫자는 실제보다 부풀려 있다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 한 달 사이 Anthropic 수치가 절반으로 줄어든 것도 측정의 거칠기를 보여준다. 방향은 분명하되 자릿수까지 믿을 지표는 아니다.</p>
+<p>같은 날 Cloudflare는 Verified Bots 프로그램에 HTTP Message Signatures를 넣었다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 크롤러가 요청에 서명하고 서버가 그 서명을 검증하는 이 구조(Web Bot Auth)가 없으면 과금은 불가능하다. User-Agent만으로는 "누구든 그 에이전트인 척할 수 있기" 때문이다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<h2>3. 메커니즘</h2>
+<p>pay-per-crawl은 HTTP 402 위에 얹혀 있다. 402는 "디지털 캐시나 소액결제 시스템을 위해 만들어졌지만 표준 사용 관례가 없고, 예약만 되고 정의되지 않은" 상태 코드다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Cloudflare는 여기에 네 개의 헤더를 정의했다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<pre class="mermaid">sequenceDiagram
+  participant Cr as AI 크롤러&lt;br/&gt;(Web Bot Auth 서명)
+  participant CF as Cloudflare 엣지
+  participant Pub as 퍼블리셔 origin
+  Cr-&gt;&gt;CF: GET /article (Signature, Signature-Input, Signature-Agent)
+  CF-&gt;&gt;CF: 서명 검증, 이 크롤러에 대한 규칙 조회&lt;br/&gt;(allow / charge / block)
+  alt 규칙 = charge, 지불 의사 없음
+    CF--&gt;&gt;Cr: 402 Payment Required&lt;br/&gt;crawler-price: 0.001 USD
+    Cr-&gt;&gt;CF: GET /article + crawler-exact-price: 0.001
+  else 선제 지불 의사
+    Cr-&gt;&gt;CF: GET /article + crawler-max-price: 0.01
+  end
+  CF-&gt;&gt;Pub: 요청 전달
+  Pub--&gt;&gt;CF: 200 + 본문
+  CF--&gt;&gt;Cr: 200 + crawler-charged: 0.001
+  Note over CF: 일 단위로 집계해 카드·계좌에 청구&lt;br/&gt;(Cloudflare = merchant of record)</pre>
+<p><em>그림 1 — pay-per-crawl 요청 흐름. 가격은 도메인 전체에 하나이고, 과금은 200 응답이 성공했을 때만 발생한다. 정산은 x402 "deferred" 스킴 설명에 따르면 하루 단위 일괄이다.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup></em></p>
+<p>퍼블리셔 쪽 설정은 세 개의 선택지다. 크롤러별로 Allow, Charge, Block 중 하나를 고르고, 과금 가격은 "존(zone) 단위" 하나다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. 최소 가격은 $0.001이며 "성공한 콘텐츠 검색(HTTP 200 응답)마다" 청구된다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 크롤러 쪽은 Ed25519 키 쌍을 만들고, 공개키를 <code>/.well-known/http-message-signatures-directory</code>에 JWKS로 게시하고, Cloudflare에 그 디렉터리 URL을 등록해야 한다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. 결제 헤더는 2025년 12월부터 서명 대상에 포함돼야 하고, 참여 도메인은 Discovery API로 조회할 수 있는데 이 API 역시 Web Bot Auth 서명이 필수다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</p>
+<p>Web Bot Auth의 근거 문서는 IETF 개인 초안이다. 아키텍처 초안 05판은 2026년 3월에 나와 9월 3일에 만료됐고 프로토콜 초안으로 대체됐다. IETF 표준 절차에서 "공식 지위가 없다"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 따라서 이 결제 흐름의 신원 층은 Cloudflare가 정의하고 Cloudflare가 검증하는 것이지 웹 표준이 아니다.</p>
+<p>Cloudflare는 이 정산을 x402로 옮길 계획을 2025년 9월에 밝혔다. 크롤러가 "많은 페이지를 쉽게 크롤하고 감사 로그를 생성한 뒤 하루가 끝날 때 연결된 카드나 계좌로 단일 수수료를 청구받는" 현 방식을 x402의 deferred 스킴으로 형식화하겠다는 것이다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 2026년 7월에는 이를 일반화한 Monetization Gateway를 예고했다. "웹 페이지, 데이터셋, API, MCP 도구" 어느 것에든 과금하고 스테이블코인으로 x402 위에서 정산하며, 예시 가격은 요청당 $0.01, 기본 $0.001에 MB당 $0.01 등이다<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. x402 자체는 이 사이트의 다른 보고서들이 다룬다.</p>
+<h2>4. 경제학: 글의 산수 검증</h2>
+<h3>4.1 산수는 맞다</h3>
+<p>월 100만 페이지뷰, 봇 비율 1–2%, 페이지당 $0.001–0.01이면 월 $10–200이다. 글의 $20–200과 일치한다. 최소 가격 $0.001은 Cloudflare 문서와 같다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 여기까지는 문제가 없다.</p>
+<h3>4.2 입력값이 의심스럽다</h3>
+<p>"봇 트래픽은 통상 페이지뷰의 1–2%"라는 전제는 출처가 없다. 반대 방향의 데이터는 많다.</p>
+<table><thead><tr><th>지표</th><th>값</th><th>출처</th></tr></thead><tbody><tr><td>Cloudflare 네트워크 HTML 요청 중 봇 비율 (2026-06)</td><td>57.4%</td><td><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup></td></tr><tr><td>그중 학습용 크롤러</td><td>50.6%</td><td><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup></td></tr><tr><td>사람 방문 대비 AI 봇 방문 (TollBit, 2025 Q4)</td><td>31:1</td><td><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup></td></tr><tr><td>같은 지표 2025 Q1</td><td>200:1</td><td><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup></td></tr><tr><td>AI 크롤 중 변경 없는 페이지 재수집</td><td>50% 이상</td><td><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup></td></tr></tbody></table>
+<p>두 지표는 같은 것을 재지 않는다. Leaky Paywall의 "페이지뷰"는 분석 도구가 세는 사람 방문이고, Cloudflare의 57.4%는 네트워크 전체 HTML 요청 중 자동화 비율이며, TollBit의 31:1은 "AI 봇"으로 분류된 방문만 센다. 그러나 pay-per-crawl은 페이지뷰가 아니라 요청에 과금한다. 봇 요청이 사람 요청보다 많다면 글의 봇 히트 1–2만 건은 자릿수 하나가 빠진 것이고, 그 절반이 재수집이라면 과금 가능한 요청은 다시 절반이다. 어느 쪽으로 계산해도 "월 수백 달러" 결론은 유지되지만, 그 결론에 이르는 경로는 글과 다르다. 봇이 적어서가 아니라 페이지당 가격이 낮아서다.</p>
+<h3>4.3 아무도 숫자를 내지 않았다</h3>
+<p>베타 시작 후 14개월 동안 pay-per-crawl 수입을 공개한 퍼블리셔는 찾지 못했다. 가장 자세한 공개 사례인 Stack Overflow(2026년 2월)조차 가격을 밝히지 않았고, 보고한 효과는 하나다. "Pay Per Crawl을 켜자... 그들이 우리 쪽으로 트래픽을 보내는 걸 멈췄다. 메시지를 받은 셈이다"<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. 같은 팀은 "이 402들이 전환을 이끌어 봇 뒤의 사람들이 결제 정보를 제공하길" 바란다고 했다<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. 즉 관측된 결과는 지불이 아니라 이탈이었다.</p>
+<p>OpenAI, Anthropic, Google이 pay-per-crawl 결제자로 등록했다는 공개 확인도 없다. 2026년 7월 발표에 이름이 오른 결제 측 파트너는 Ceramic.ai와 You.com 둘이다<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup><sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>.</p>
+<h3>4.4 비교 대상</h3>
+<p>글이 구독자 가치($50–100/년)를 비교 기준으로 든 것은 벤더의 자기 제품이다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 더 공정한 비교는 직접 라이선스다. News Corp–OpenAI는 5년 약 $2.5억<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>, Reddit–Google은 약 $6천만<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>이다. Cloudflare는 지난 1년간 "50건 이상의 주요 콘텐츠 라이선스 계약"이 체결됐다고 밝혔다<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>. 페이지당 $0.001로 $6천만을 만들려면 600억 페이지가 필요하다. 크롤 과금이 라이선스를 대체할 수 없다는 것은 Stack Overflow도 인정한다. "전통적 데이터 라이선스를 대체하는 것이 아니라 보완한다"<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup>.</p>
+<h2>5. 2026년 7월 1일: Cloudflare의 자기 수정</h2>
+<p>Leaky Paywall 글은 7월 17일에 나왔다. 7월 1일, 두 번째 Content Independence Day에 Cloudflare는 세 가지를 발표했다<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>.</p>
+<ul>
+<li><strong>Pay Per Use.</strong> "크롤은 가치의 조악한 척도"라는 진단 아래, 콘텐츠가 답변에 나타날 때 지불하는 모델로 확장한다. Ceramic.ai는 검색 결과에 콘텐츠가 나타나면, You.com은 에이전트가 특정 프리미엄 콘텐츠를 그때그때 사면 지불한다<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>.</li>
+<li><strong>9월 15일 기본 차단.</strong> 신규 사이트와 설정을 바꾸지 않은 무료 사용자에 대해, 광고가 있는 페이지에서 AI 학습·에이전트 크롤러를 기본 차단한다. 검색 인덱싱은 유지된다. 용도를 분리하지 않는 "mixed-use" 크롤러는 광고 페이지에서 막힌다<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup><sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>.</li>
+<li><strong>재수집 억제.</strong> 좋은 봇의 크롤 트래픽 절반 이상이 변경 없는 페이지 재수집이므로, 변경 없음을 알리는 신호를 시험한다<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>.</li>
+</ul>
+<pre class="mermaid">flowchart TB
+  A[&quot;2025-07-01&lt;br/&gt;Pay Per Crawl (프라이빗 베타)&lt;br/&gt;+ 신규 도메인 AI 크롤러 기본 차단&quot;]
+  B[&quot;2025-08-28&lt;br/&gt;AI Crawl Control GA&lt;br/&gt;402에 커스텀 메시지&quot;]
+  C[&quot;2025-09-23&lt;br/&gt;x402 Foundation&lt;br/&gt;deferred 스킴 예고&quot;]
+  D[&quot;2025-12-10&lt;br/&gt;Discovery API, 서명에 결제 헤더 포함,&lt;br/&gt;URI별 무료 예외&quot;]
+  E[&quot;2026-02-19&lt;br/&gt;Stack Overflow 도입 공개&quot;]
+  F[&quot;2026-07-01&lt;br/&gt;Pay Per Use + Monetization Gateway&lt;br/&gt;9/15 mixed-use 기본 차단&quot;]
+  G[&quot;2026-07-17&lt;br/&gt;Leaky Paywall:&lt;br/&gt;&#x27;spare change&#x27;&quot;]
+  A --&gt; B --&gt; C --&gt; D --&gt; E --&gt; F --&gt; G</pre>
+<p><em>그림 2 — pay-per-crawl 연표. 글이 평가한 대상은 발행 시점에 이미 후속 모델로 대체되는 중이었다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup><sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup><sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup></em></p>
+<p>Cloudflare의 진단은 Media Copilot이 요약한 문제와 같다. 크롤된 콘텐츠 하나가 "수백, 수천 개의 답변에 쓰일 수도 있고 한 번도 안 쓰일 수도 있다"<sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup>. 페이지당 과금은 이 둘을 구분하지 못한다. 그러니 pay-per-crawl이 푼돈이라는 글의 결론은 Cloudflare가 보름 먼저, 더 정확한 이유로 내린 것이다. 다만 글은 이를 언급하지 않는다.</p>
+<p>Pay Per Use가 얼마를 만들지는 아직 아무도 모른다. Cloudflare는 이를 "실험"이라 부르고<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>, 인용 여부를 어떻게 측정·감사하는지는 파트너별 합의 외에 공개된 것이 없다. Media Copilot의 회의는 구조적이다. AI 기업은 "항상 가장 적은 비용으로 가장 좋고 많은 데이터를 택할 것"이며, Cloudflare 경로가 더 싸지 않으면 "실험으로 남을 것"이다<sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup>.</p>
+<h2>6. 대안과 경쟁 모델</h2>
+<p>pay-per-crawl은 세 층 중 하나다.</p>
+<p><strong>선호 표기 층.</strong> IETF AIPREF 워킹그룹은 AI 관련 선호를 표현하는 어휘와 콘텐츠에 붙이는 방법을 표준화하되, "선호의 기술적 집행"과 "크롤러 인증·인가 프로토콜"은 명시적으로 범위 밖이다<sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup>. 돈과 무관한 신호 층이다.</p>
+<p><strong>라이선스 조건 층.</strong> RSL(Really Simple Licensing)은 2025년 9월 10일 Reddit, Yahoo, People Inc., Ziff Davis, Medium, O'Reilly 등의 지지로 출범했다. robots.txt에 기계가 읽을 수 있는 라이선스·로열티 조건을 넣고, 옵션에 free, attribution, subscription, pay-per-crawl, pay-per-inference를 둔다. 집행은 Fastly와 협력하며, RSL Collective가 ASCAP처럼 집단 협상을 맡는다<sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup><sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup>. 여기서 "pay-per-crawl"은 조건 유형의 이름이며 Cloudflare 제품과는 별개이고, "pay-per-inference"는 Cloudflare가 2026년 7월에 도달한 Pay Per Use와 같은 발상이다.</p>
+<p><strong>집행·정산 층.</strong> 이것이 Cloudflare의 자리다. 402를 실제로 돌려주고 서명을 검증하고 돈을 걷는다. RSL 발표 보도는 Cloudflare가 "결국 역할을 할 수도 있다"고 썼지만<sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup>, 두 진영은 별도로 움직인다.</p>
+<p>세 층 어느 것도 대형 퍼블리셔가 실제로 돈을 받는 경로가 아니다. 그 경로는 직접 계약이고, Cloudflare의 CSO Stephanie Cohen이 말하는 자사 도구의 가치도 거기 있다. "고객들이 우리 도구로 콘텐츠의 신뢰할 만한 희소성을 만들고, 그다음 더 나은 계약을 협상한다." Financial Times, The Atlantic, Ziff Davis, Condé Nast, AP가 예로 거론됐고, People Inc. CEO는 투자자에게 "Cloudflare 차단으로 거의 모두를 막을 수 있기 때문에 사람들이 우리 콘텐츠의 가치를 이해한다. 돈을 내야 한다"고 말했다<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup>.</p>
+<h2>7. 분석: 무엇이 푼돈이고 무엇이 아닌가</h2>
+<p>글의 결론에 동의하되 근거를 바꿔야 한다.</p>
+<p><strong>페이지당 과금은 롱테일에게 구조적으로 적다.</strong> 봇의 수와는 무관하다. 가격 바닥이 $0.001이고<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>, 크롤러가 값을 내느니 떠나는 쪽을 택하며<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>, 크롤 절반이 재수집이라 과금 대상에서 빠지기 때문이다<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>. 소액결제가 "처리 수고에 비해 단일 고객의 소액 수입이 가치가 없어" 역사적으로 실패했다는 지적<sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup>은 Cloudflare가 CDN 위치로 수고를 없앴다 해도 수입 쪽 문제를 풀지 못한다.</p>
+<p><strong>지렛대는 푼돈이 아니다.</strong> 기본 차단은 pay-per-crawl과 같은 날 나왔고, 실제 돈은 차단이 만든 희소성 위에서 체결된 50여 건의 라이선스 계약<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>과 그 협상 테이블<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup>에서 나왔다. Cloudflare 자신이 이 두 가지를 하나의 패키지로 판다. 글은 결제 기능만 떼어 평가했다.</p>
+<p><strong>인프라는 아직 값이 안 매겨졌다.</strong> Web Bot Auth 서명, 402 헤더 규약, 일 단위 정산은 pay-per-crawl을 위해 만들어졌지만 Monetization Gateway와 x402 deferred 스킴이 그대로 물려받는다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. 과금 대상이 "페이지"에서 "API, 데이터셋, MCP 도구"로 넓어지면 단가 $0.001의 문제는 다른 문제가 된다. 이 부분은 아직 대기자 명단 단계다<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>.</p>
+<p><strong>Pay Per Use는 이름이 바뀐 같은 질문이다.</strong> 인용당 지불이 페이지당 지불보다 정확한 척도인 것은 맞다. 누가 인용을 세고 누가 감사하며 AI 기업이 왜 이 경로를 택하는가는 답이 없다. 두 파트너 모두 대형 AI 랩이 아니다<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>.</p>
+<p>퍼블리셔에게 실용적인 결론은 글과 같다. pay-per-crawl 스위치는 켜되 수입으로 계산하지 말고, 차단이 만드는 협상력과 등록벽·뉴스레터 같은 직접 관계에 투자하라. 다만 글이 그렇게 권하는 회사가 등록벽 플러그인을 판다는 것은 적어둘 만하다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h2>8. 한계</h2>
+<ul>
+<li>글의 핵심 입력값(봇 = 페이지뷰의 1–2%)은 출처가 없어 반증할 수 없었다. 반대편 데이터(57.4%, 31:1)는 다른 지표를 잰다.</li>
+<li>pay-per-crawl 실제 수입 부재는 "찾지 못했다"이지 "없다"가 아니다. 베타 참여자는 NDA 아래 있을 수 있다.</li>
+<li>시장에서 관측된 페이지당 가격 분포는 확보하지 못했다. TollBit 보고서 본문은 읽히지 않았다.</li>
+<li>Cloudflare 네트워크가 하루 약 10억 건의 402를 낸다는 CSO 발언(CoinDesk, 2026-05)은 세 번 모두 429로 가져오지 못해 본문에서 뺐다.</li>
+<li>RFC 9110 §15.5.3 원문은 세 미러 모두 잘려서 MDN 인용으로 대신했다.</li>
+<li>News Corp–OpenAI $2.5억은 단일 출처다. Variety 원문은 TollBit이 게이트한 URL로 리다이렉트돼 402를 반환했다. 이 보고서 주제가 fetch 도중 그대로 재현된 셈이다.</li>
+<li>Pay Per Use의 측정·감사 방식은 어떤 출처에서도 설명되지 않았다.</li>
+<li>Leaky Paywall 글 자체는 벤더 블로그(tier 5)이며, 이 보고서는 그 글을 검증 대상으로 삼았지 근거로 삼지 않았다.</li>
+</ul>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">ZEEN101</span>. <a href="https://github.com/zeen101/leaky-paywall">zeen101/leaky-paywall: The #1 metered paywall for WordPress</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-2"><span class="authors">Carlo</span>. <a href="https://leakypaywall.com/cloudflare-pay-per-crawl-income-or-spare-change/">Cloudflare Pay-Per-Crawl: Income or Spare Change?</a>. <span class="venue">Leaky Paywall blog, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-3"><span class="authors">Cloudflare</span>. <a href="https://blog.cloudflare.com/introducing-pay-per-crawl/">Introducing pay per crawl: Enabling content owners to charge AI crawlers for access</a>. <span class="venue">Cloudflare Blog, 2025</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-4"><span class="authors">Matthew Prince</span>. <a href="https://blog.cloudflare.com/content-independence-day-no-ai-crawl-without-compensation/">Content Independence Day: no AI crawl without compensation</a>. <span class="venue">Cloudflare Blog, 2025</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-5"><span class="authors">Cloudflare Radar</span>. <a href="https://blog.cloudflare.com/ai-search-crawl-refer-ratio-on-radar/">The crawl before the fall of referrals: understanding AI impact on content providers</a>. <span class="venue">Cloudflare Blog, 2025</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-6"><span class="authors">Cloudflare Radar</span>. <a href="https://blog.cloudflare.com/crawlers-click-ai-bots-training/">The crawl-to-click gap: Cloudflare data on AI bots, training, and referrals</a>. <span class="venue">Cloudflare Blog, 2025</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-7"><span class="authors">Thibault Meunier, et al.</span>. <a href="https://datatracker.ietf.org/doc/html/draft-meunier-web-bot-auth-architecture">HTTP Message Signatures for automated traffic: Architecture (draft-meunier-web-bot-auth-architecture-05)</a>. <span class="venue">IETF Internet-Draft, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-8"><span class="authors">MDN</span>. <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/402">402 Payment Required — HTTP reference (MDN)</a>. <span class="venue">MDN Web Docs, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-9"><span class="authors">Cloudflare</span>. <a href="https://blog.cloudflare.com/x402/">Cloudflare, Coinbase and the x402 Foundation</a>. <span class="venue">Cloudflare Blog, 2025</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-10"><span class="authors">Cloudflare</span>. <a href="https://developers.cloudflare.com/ai-crawl-control/features/pay-per-crawl/what-is-pay-per-crawl/">What is Pay Per Crawl? — Cloudflare AI Crawl Control docs</a>. <span class="venue">Cloudflare Docs, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-11"><span class="authors">Cloudflare</span>. <a href="https://developers.cloudflare.com/ai-crawl-control/features/pay-per-crawl/use-pay-per-crawl-as-site-owner/set-a-pay-per-crawl-price/">Set a pay per crawl price — Cloudflare docs</a>. <span class="venue">Cloudflare Docs, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-12"><span class="authors">Cloudflare</span>. <a href="https://developers.cloudflare.com/bots/reference/bot-verification/web-bot-auth">Web Bot Auth — Cloudflare Bots docs</a>. <span class="venue">Cloudflare Docs, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-13"><span class="authors">Cloudflare</span>. <a href="https://developers.cloudflare.com/ai-crawl-control/features/pay-per-crawl/use-pay-per-crawl-as-ai-owner/discover-payable-content/">Discover payable content — Pay Per Crawl Discovery API</a>. <span class="venue">Cloudflare Docs, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-14"><span class="authors">Cloudflare</span>. <a href="https://developers.cloudflare.com/changelog/2025-12-10-pay-per-crawl-enhancements/">Pay Per Crawl enhancements (changelog, 2025-12-10)</a>. <span class="venue">Cloudflare Changelog, 2025</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-15"><span class="authors">Cloudflare</span>. <a href="https://blog.cloudflare.com/monetization-gateway/">Announcing the Monetization Gateway: charge for any resource behind Cloudflare via x402</a>. <span class="venue">Cloudflare Blog, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-16"><span class="authors">PPC Land</span>. <a href="https://ppc.land/cloudflare-stops-charging-ai-per-crawl-and-starts-paying-per-answer/">Cloudflare stops charging AI per crawl and starts paying per answer</a>. <span class="venue">PPC Land, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-17"><span class="authors">The Register</span>. <a href="https://www.theregister.com/software/2026/02/04/ai-bot-traffic-closing-in-on-human-web-visits-study-finds/4921090">AI bot traffic closing in on human web visits, study finds (TollBit State of the Bots Q3/Q4 2025)</a>. <span class="venue">The Register, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-18"><span class="authors">TechCrunch</span>. <a href="https://techcrunch.com/2026/07/01/cloudflares-new-policy-pushes-ai-companies-to-pay-for-publishers-content/">Cloudflare new policy pushes AI companies to pay for publishers content</a>. <span class="venue">TechCrunch, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-19"><span class="authors">Cloudflare</span>. <a href="https://blog.cloudflare.com/making-ai-search-smarter/">Making AI search smarter (Content Independence Day 2026)</a>. <span class="venue">Cloudflare Blog, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-20"><span class="authors">Stack Overflow</span>. <a href="https://stackoverflow.blog/2026/02/19/stack-overflow-cloudflare-pay-per-crawl/">Why Stack Overflow and Cloudflare launched a pay-per-crawl model</a>. <span class="venue">Stack Overflow Blog, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-21"><span class="authors">Cloudflare</span>. <a href="https://www.cloudflare.com/press/press-releases/2026/cloudflare-allows-the-agentic-internet-to-flourish-with-a-simple-philosophy-your-content-your-rules/">Cloudflare Allows the Agentic Internet to Flourish with a Simple Philosophy: Your Content, Your Rules</a>. <span class="venue">Cloudflare press release, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-22"><span class="authors">Storyboard18</span>. <a href="https://www.storyboard18.com/brand-marketing/news-corp-eyes-multi-llm-licensing-strategy-after-250-million-openai-deal-83831.htm">News Corp eyes multi-LLM licensing strategy after $250 million OpenAI deal</a>. <span class="venue">Storyboard18, 2025</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-23"><span class="authors">CBS News</span>. <a href="https://www.cbsnews.com/news/google-reddit-60-million-deal-ai-training/">Google strikes $60 million deal with Reddit, allowing search giant to train AI models on human posts</a>. <span class="venue">CBS News, 2024</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-24"><span class="authors">Stack Overflow</span>. <a href="https://stackoverflow.blog/2026/02/26/how-pay-per-crawl-is-reshaping-data-monetization/">Beyond block or allow: How pay-per-crawl is reshaping public data monetization</a>. <span class="venue">Stack Overflow Blog, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-25"><span class="authors">The Next Web</span>. <a href="https://thenextweb.com/news/cloudflare-block-ai-crawlers-pay-publishers">Cloudflare gives AI crawlers a September deadline: pay publishers or get blocked</a>. <span class="venue">TNW, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-26"><span class="authors">Cloudflare</span>. <a href="https://blog.cloudflare.com/introducing-ai-crawl-control/">The next step for content creators in working with AI bots: Introducing AI Crawl Control</a>. <span class="venue">Cloudflare Blog, 2025</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-27"><span class="authors">The Media Copilot</span>. <a href="https://mediacopilot.ai/cloudflares-new-plan-could-change-how-ai-pays-publishers/">Cloudflare new plan could change how AI pays publishers</a>. <span class="venue">The Media Copilot, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-28"><span class="authors">IETF</span>. <a href="https://datatracker.ietf.org/wg/aipref/about/">AI Preferences (aipref) Working Group charter</a>. <span class="venue">IETF Datatracker, 2025</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-29"><span class="authors">RSL Collective</span>. <a href="https://rslstandard.org/press/rsl-standard">New RSL Web Standard and Collective Rights Organization Automate Content Licensing for the AI-First Internet</a>. <span class="venue">rslstandard.org, 2025</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-30"><span class="authors">Engadget</span>. <a href="https://www.engadget.com/ai/reddit-yahoo-medium-and-more-are-adopting-a-new-licensing-standard-to-get-compensated-for-ai-scraping-180946671.html">Reddit, Yahoo, Medium and more are adopting a new licensing standard to get compensated for AI scraping</a>. <span class="venue">Engadget, 2025</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+      <li id="ref-31"><span class="authors">Press Gazette</span>. <a href="https://pressgazette.co.uk/platforms/cloudflare-says-bot-blocking-is-fueling-publisher-ai-deals/">Cloudflare says bot blocking is fuelling publisher AI deals</a>. <span class="venue">Press Gazette, 2026</span>. <span class="accessed">접근일 2026-09-10.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-09-10 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

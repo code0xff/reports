@@ -1,0 +1,10 @@
+title: Cloudflare Pay-per-Crawl: 퍼블리셔에게 수입인가 푼돈인가
+subtitle: Leaky Paywall의 "푼돈" 계산을 검증하고, 결제 스위치가 아니라 기본 차단과 402 인프라가 실제 가치였음을 짚는다
+title_en: Cloudflare Pay-per-Crawl: income or spare change for publishers?
+subtitle_en: Cloudflare Pay-per-Crawl: income or spare change for publishers?
+slug: cloudflare-pay-per-crawl
+lang: ko
+langs: [ko, en]
+date: 2026-09-10
+tags: [cloudflare, pay-per-crawl, http-402, x402, publishing, ai-crawlers]
+status: ready
