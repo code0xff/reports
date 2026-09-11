@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Three networks admit their agent-identity protocols don&#x27;t talk to each other — Deepsearch</title>
+<meta name="description" content="AI agent brief, 2026-09-12 — the Know Your Agent framework, Google&#x27;s tooling interoperability push, and OpenAI&#x27;s Data agent">
+<link rel="canonical" href="https://code0xff.github.io/reports/ai-agent-brief-2026-09-12/">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="ko" href="ko/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="Three networks admit their agent-identity protocols don&#x27;t talk to each other">
+<meta property="og:description" content="AI agent brief, 2026-09-12 — the Know Your Agent framework, Google&#x27;s tooling interoperability push, and OpenAI&#x27;s Data agent">
+<meta property="og:url" content="https://code0xff.github.io/reports/ai-agent-brief-2026-09-12/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Three networks admit their agent-identity protocols don&#x27;t talk to each other">
+<meta name="twitter:description" content="AI agent brief, 2026-09-12 — the Know Your Agent framework, Google&#x27;s tooling interoperability push, and OpenAI&#x27;s Data agent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>Three networks admit their agent-identity protocols don&#x27;t talk to each other</h1>
+    <p class="subtitle">AI agent brief, 2026-09-12 — the Know Your Agent framework, Google&#x27;s tooling interoperability push, and OpenAI&#x27;s Data agent</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-09-12</span>
+      <span><strong>Tags</strong> kya, agent-identity, agent-payments, adk, agent-plugins, chatgpt-work</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="ai-agent-brief-2026-09-12.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>Three payment networks admitted this week that their own agent-identity protocols do not talk to each other, and committed to shared principles for making them do so. Google, separately, pushed two different kinds of interoperability into its agent tooling: a packaging format any coding agent can install, and a fourth language for its Agent Development Kit. OpenAI added a narrower, enterprise-facing agent to ChatGPT Work. All three are commitments in different stages of becoming real, none a protocol actually shipping yet.</p>
+  </section>
+
+  <main class="body">
+<h2>Introduction</h2>
+<p>This edition of the <code>ai-agent-brief</code> series covers <strong>2026-09-09 through 2026-09-12</strong> (72 hours), per this harness's standing-brief protocol. The standing beat: agent frameworks and developer tooling; agent-to-agent and agent-to-merchant payment rails and protocols (x402, AP2, ACP, UCP, MPP, L402, Trusted Agent Protocol and successors); the card networks' and PSPs' agent-commerce products; agent identity and authorization; and the standards bodies behind all of it.</p>
+<p>The <a href="../ai-agent-brief-2026-09-11/">previous brief</a> covered OpenAI's Agents API, NPCI's "bounded and accountable agency" framing for UPI, and Anthropic's own audit of models that crossed exactly that kind of line. None of those threads moved again in this window. The site's longer report on <a href="../know-your-agent-kya/">Know Your Agent (KYA)</a> already decomposes the field's four competing identity implementations by layer; this brief covers the fifth: the networks trying to bridge the first three at once.</p>
+<h2>What moved</h2>
+<h3>Three payment networks admit their identity protocols don't interoperate</h3>
+<p>Ant International, Visa, and Mastercard announced a "Know Your Agent" (KYA) interoperability framework on 2026-09-09, unveiled at an event in São Paulo<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The three companies have each spent the past year building their own answer to the same question: Visa's Trusted Agent Protocol, launched October 2025 with a dozen partners; Mastercard's Verifiable Intent, an open-source protocol built with Google since March 2026; and Ant's Agentic Mobile Protocol, connecting wallets that moved $13 trillion in 2025<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. KYA does not merge them. It commits the three to shared principles instead: cross-network operator traceability that attributes an agent's actions to a validated person or business, certification requirements each network checks an agent against, and continuous monitoring that keeps checking a certified agent's behavior on an ongoing basis<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Ant's chief innovation officer, Jiang-Ming Yang, put the goal in plain terms: "If an agent registers with Ant, they don't need to register again with Visa, Mastercard"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Mastercard's chief digital officer, Pablo Fourez, framed it as a precondition for scale: "Interoperability across Know-Your-Agent frameworks is essential to making agentic commerce work at scale"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Ant's Yang added that as the collaboration matures, the three networks intend to keep widening what they check an agent against, to include "capabilities, behavior, execution performance and risk data"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>What KYA ships with is a press release, not a wire format. There is no published specification, no named governance body, and no rollout date — Forkast's framing of the announcement captures the gap directly: "Now Comes the Hard Part"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The companies cite a shared stake in getting this right: AI agents are projected to orchestrate $3 trillion to $5 trillion of global consumer commerce by 2030 <em>(vendor-stated)</em><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Whether that pressure produces an open standard the rest of the industry can join, or three incumbents cross-certifying each other while everyone else still integrates three separate ways, is exactly the question none of the coverage found an answer to.</p>
+<pre class="mermaid">graph LR
+    TAP[&quot;Visa TAP&lt;br/&gt;(Oct 2025)&quot;] --&gt; KYA[&quot;KYA shared principles:&lt;br/&gt;traceability, certification,&lt;br/&gt;monitoring&quot;]
+    VI[&quot;Mastercard&lt;br/&gt;Verifiable Intent&lt;br/&gt;(Mar 2026)&quot;] --&gt; KYA
+    AMP[&quot;Ant AMP&lt;br/&gt;(Apr 2026)&quot;] --&gt; KYA
+    KYA --&gt; Agent[&quot;An agent certified once,&lt;br/&gt;recognized by all three&quot;]</pre>
+<p><em>Figure 1 — KYA does not replace the three protocols; it wraps them in shared principles that, if implemented, would let one certification carry across all three networks<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</em></p>
+<h3>Google widens two seams in the agent-tooling stack</h3>
+<p>Google shipped ADK for Kotlin 1.0 on 2026-09-09, bringing its Agent Development Kit to "complete alignment with ADK Python and Java" — hierarchical multi-agent orchestration, session resumability, and human-in-the-loop confirmation flows, now in a fourth language after Python, Java, and Go<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Two days later, Google published the Google Cloud Developer Plugin for AI coding agents, built on an Agent Plugins specification that packages Agent Skills and MCP servers into a single bundle a coding agent installs in one step<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. The plugin format is not tied to Google's own tools: the same install command works in Antigravity, Claude Code, and Codex CLI<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<p>Neither release has independent coverage — every account found traces back to Google's own Cloud Blog or Developers Blog. That does not make the capability claims false, but it does mean no outside party has yet tried the Kotlin parity claim against Python ADK in practice, or installed the plugin against a non-Google coding agent to confirm the cross-tool claim holds.</p>
+<h3>OpenAI adds a narrower agent to ChatGPT Work</h3>
+<p>OpenAI launched a Data agent inside ChatGPT Work on 2026-09-10: an alpha-stage plugin that connects to a company's approved warehouses (Snowflake, BigQuery, Databricks, Redshift among others) and BI tools, then answers questions like why sales slowed or which accounts are at renewal risk, building a dashboard directly from the conversation<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Early customers named include NTT Data, Thermo Fisher, and ServiceTitan<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. This is a narrower move than OpenAI's Agents API from last week's brief: a packaged analytics chatbot built for business teams, not developers. It belongs on this beat as a data point on where OpenAI is spending its agent-product effort right now — enterprise verticals, alongside the infrastructure bet the Agents API represents.</p>
+<h2>Why it matters</h2>
+<p>Two unrelated groups hit the same wall this week and reached for the same fix. Three payment networks that each built a proprietary agent-identity protocol now say the fix is shared principles the other three can check an agent against, not a fourth protocol. Google, needing its coding-agent tooling to work across tools it doesn't control, reached for a shared packaging format any coding agent can install regardless of who built it. Both are admissions that the fragmentation each company itself created has become the real obstacle to scale. Neither fix has a neutral standards body behind it: for now, whichever companies choose to show up define the standard.</p>
+<h2>Signals to watch</h2>
+<ul>
+<li>Whether KYA produces a published technical specification before Ant, Visa, and Mastercard each report a working cross-network certification — or stays at the press-release stage past this quarter.</li>
+<li>A payment network or wallet provider outside the original three joining the KYA framework, the actual test of whether "interoperability" is open or closed.</li>
+<li>Independent developer reports on ADK for Kotlin 1.0's parity claim, or a non-Google coding agent installing the Google Cloud Developer Plugin without friction.</li>
+<li>Usage or accuracy figures for OpenAI's Data agent beyond the three named alpha customers.</li>
+</ul>
+<h2>Limitations</h2>
+<p>This brief covers a 72-hour window, so developments just before 2026-09-09 or after 2026-09-12 are out of scope by design. Cognition's $2 billion raise (2026-09-08) and Google's Antigravity SDK post (2026-09-08) both fell one day short of the window and are carried forward only as context, not cited as this window's news. Bluesky and Reddit remain unusable on this machine, a gap carried forward from every prior brief. OpenAI's own page for the Data agent (openai.com/index/put-data-to-work) returned HTTP 403 to this harness's fetcher; the claims about it here rely on Unite.AI's independent write-up, not a direct fetch. No independent, adversarial analysis of the KYA framework was found — every source is either the companies' own release or trade press repeating it. Neither Google announcement covered here has independent press coverage; both are sourced to Google's own blogs and treated as vendor-stated capability claims. No card-network, PSP, or NPCI development beyond KYA surfaced in this window, and the papers lane returned nothing new in-window.</p>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://www.businesswire.com/news/home/20260909003891/en/Ant-International-Mastercard-and-Visa-Initiate-Collaboration-on-Know-Your-Agent-Interoperability-to-Scale-Agentic-Commerce">Ant International, Mastercard and Visa Initiate Collaboration on Know-Your-Agent Interoperability to Scale Agentic Commerce</a>. <span class="venue">Business Wire, 2026</span>. <span class="accessed">Accessed 2026-09-12.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://forkast.news/ant-international-visa-and-mastercard-agree-on-agent-identity-standard-now-comes-the-hard-part/">Ant International, Visa, and Mastercard Agree on Agent Identity Standard. Now Comes the Hard Part.</a>. <span class="venue">Forkast, 2026</span>. <span class="accessed">Accessed 2026-09-12.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://www.biometricupdate.com/202609/ant-international-visa-mastercard-work-to-make-agentic-protocols-interoperable">Ant International, Visa, Mastercard work to make agentic protocols interoperable</a>. <span class="venue">Biometric Update, 2026</span>. <span class="accessed">Accessed 2026-09-12.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://www.pymnts.com/cybersecurity/2026/visa-mastercard-team-with-ant-know-your-agent-framework">Visa and Mastercard Team With Ant on Know Your Agent Framework</a>. <span class="venue">PYMNTS, 2026</span>. <span class="accessed">Accessed 2026-09-12.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://developers.googleblog.com/announcing-adk-for-kotlin-10-building-production-ready-ai-agents-in-kotlin-android-and-beyond/">Announcing ADK for Kotlin 1.0: Building Production-Ready AI Agents in Kotlin, Android, and Beyond</a>. <span class="venue">Google Developers Blog, 2026</span>. <span class="accessed">Accessed 2026-09-12.</span></li>
+      <li id="ref-6"><span class="authors">—</span>. <a href="https://cloud.google.com/blog/topics/developers-practitioners/introducing-the-google-cloud-developer-plugin-for-ai-coding-agents/">Introducing the Google Cloud Developer Plugin for AI Coding Agents</a>. <span class="venue">Google Cloud Blog, 2026</span>. <span class="accessed">Accessed 2026-09-12.</span></li>
+      <li id="ref-7"><span class="authors">—</span>. <a href="https://openai.com/index/put-data-to-work">Now everyone can put data to work</a>. <span class="venue">OpenAI News, 2026</span>. <span class="accessed">Accessed 2026-09-12.</span></li>
+      <li id="ref-8"><span class="authors">—</span>. <a href="https://www.unite.ai/openai-introduces-data-agent-in-chatgpt-work-to-analyze-company-data/">OpenAI Introduces Data Agent in ChatGPT Work to Analyze Company Data</a>. <span class="venue">Unite.AI, 2026</span>. <span class="accessed">Accessed 2026-09-12.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-09-12. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

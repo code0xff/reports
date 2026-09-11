@@ -1,0 +1,9 @@
+# Gaps
+
+- **Bluesky and Reddit are unreachable.** `search_social.py` prints "set BLUESKY_HANDLE and BLUESKY_APP_PASSWORD" and "set REDDIT_CLIENT_ID and REDDIT_CLIENT_SECRET" rather than returning results. Carried forward unchanged from every prior brief — the credentials still are not present in this environment.
+- **No governance body, technical spec, or timeline behind the KYA framework.** Businesswire's press release and every outlet covering it (Forkast, PYMNTS, Biometric Update) describe shared principles only — no published wire format, certification criteria, or date by which the three networks' existing protocols (TAP, Verifiable Intent, AMP) actually interoperate.
+- **No independent, adversarial analysis of KYA.** Every source found is either the companies' own release or trade press repeating it without pushback. Biometric Update came closest by flagging the absence of dispute-resolution detail, but that is still descriptive, not critical.
+- **openai.com/index/put-data-to-work returned HTTP 403 to this harness's fetcher.** The claims about the Data agent rely on Unite.AI's independent write-up and other secondary coverage (PANews, xda-developers, cryptobriefing), not a direct fetch of OpenAI's own page.
+- **No card-network or PSP news beyond KYA this window.** Stripe, PayPal, and NPCI's Unified Agent Protocol produced no dated development between 2026-09-09 and 2026-09-12; searches surfaced only stories already cited in prior briefs.
+- **Papers lane silent.** No new arXiv or Semantic Scholar results on this beat within the window.
+- **GitHub spec-repo activity (x402, AP2, MPP) this window is third-party chatter, not maintainer-driven changes.** Coinbase's `x402` and Google's `AP2` repos show only community issues (broken discovery listings, interop questions); `tempoxyz/mpp-specs` shows only automated `spec-artifacts-*` CI tags, not a human-authored release. None of it rises to a citable development.

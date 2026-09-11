@@ -1,0 +1,8 @@
+# Claims — ai-agent-brief-2026-09-12
+
+- c01: Ant International, Visa, and Mastercard announced the Know Your Agent (KYA) interoperability framework on 2026-09-09/10 in São Paulo, intended to bridge Visa's Trusted Agent Protocol, Mastercard's Verifiable Intent, and Ant's Agentic Mobile Protocol so an agent certified once does not need to re-certify with each network.
+- c02: The KYA framework ships as a set of shared principles (cross-network operator traceability, shared certification requirements, continuous transaction monitoring) with no published technical specification, governance body, or rollout timeline — it is a commitment to interoperate, not an interoperable system yet.
+- c03: Google published the Google Cloud Developer Plugin for AI coding agents on 2026-09-11, built on the Agent Plugins specification — a vendor-neutral format for packaging Agent Skills and MCP servers that already installs into Antigravity, Claude Code, and Codex CLI.
+- c04: Google shipped ADK for Kotlin 1.0 on 2026-09-09, bringing the Kotlin agent framework to full feature parity with ADK's Python and Java cores, extending Google's Agent Development Kit to a fourth language.
+- c05: OpenAI launched a Data agent inside ChatGPT Work on 2026-09-10, an alpha-stage enterprise product that connects to warehouses (Snowflake, BigQuery, Databricks, Redshift) and BI tools to investigate metric changes and build dashboards from natural-language prompts.
+- c06: Two unrelated moves this window — one in payments identity, one in coding-agent tooling — both converge on the same fix (a shared packaging/certification format instead of one-off bilateral integrations), while neither has a neutral standards body behind it yet.

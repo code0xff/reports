@@ -1,0 +1,7 @@
+# Uncertainties
+
+- **The $3-5 trillion by 2030 figure (KYA).** Cited by Businesswire's release and repeated by PYMNTS with no independent source attribution — it is the three companies' own projection about a market their own framework is meant to serve. Vendor-stated.
+- **Whether the KYA framework becomes an open standard or a gated ecosystem favoring the three incumbents.** Forkast raises this directly; nothing in the record yet answers it either way, since no governance body or membership terms have been published.
+- **Google Cloud Developer Plugin and ADK for Kotlin 1.0 have no independent press coverage found.** Every source is Google's own blog network (Cloud Blog, Developers Blog) or downstream developer reposts (Substack, dev forums). Treated as vendor-stated capability claims, not independently verified adoption or performance.
+- **OpenAI's Data agent is alpha-stage with named early customers (NTT Data, Thermo Fisher, ServiceTitan) but no usage or accuracy figures.** Whether it performs as described in production is untested by any source found.
+- **Whether Google's Developer Plugin and Kotlin ADK, and OpenAI's Data agent, are actually the same kind of event** (one is a packaging/interop spec, the other is a language port, the third is a product feature) is a claim this brief makes explicitly in "Why it matters" — a reader should treat that grouping as this brief's synthesis, not as the companies' own framing.
