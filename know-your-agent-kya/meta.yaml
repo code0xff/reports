@@ -1,0 +1,10 @@
+title: Know Your Agent(KYA): AI 에이전트 신원·자격 검증의 현재
+subtitle: 같은 이름이 붙은 네 가지 구현을 신원·주체 바인딩·권한 범위·감사 네 층으로 분해한다
+title_en: Know Your Agent (KYA): verifying AI agent identity and authority, as of 2026
+subtitle_en: Know Your Agent (KYA): verifying AI agent identity and authority, as of 2026
+slug: know-your-agent-kya
+lang: ko
+langs: [ko, en]
+date: 2026-09-11
+tags: [kya, agent-identity, ap2, mastercard, visa, cloudflare, fido, dif]
+status: ready

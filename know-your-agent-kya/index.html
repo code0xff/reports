@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Know Your Agent(KYA): AI 에이전트 신원·자격 검증의 현재 — Deepsearch</title>
+<meta name="description" content="같은 이름이 붙은 네 가지 구현을 신원·주체 바인딩·권한 범위·감사 네 층으로 분해한다">
+<link rel="canonical" href="https://code0xff.github.io/reports/know-your-agent-kya/">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="en" href="en/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="Know Your Agent(KYA): AI 에이전트 신원·자격 검증의 현재">
+<meta property="og:description" content="같은 이름이 붙은 네 가지 구현을 신원·주체 바인딩·권한 범위·감사 네 층으로 분해한다">
+<meta property="og:url" content="https://code0xff.github.io/reports/know-your-agent-kya/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Know Your Agent(KYA): AI 에이전트 신원·자격 검증의 현재">
+<meta name="twitter:description" content="같은 이름이 붙은 네 가지 구현을 신원·주체 바인딩·권한 범위·감사 네 층으로 분해한다">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="en/index.html" hreflang="en">English</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="GitHub에서 Deepsearch 보기" title="GitHub에서 Deepsearch 보기">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>Know Your Agent(KYA): AI 에이전트 신원·자격 검증의 현재</h1>
+    <p class="subtitle">같은 이름이 붙은 네 가지 구현을 신원·주체 바인딩·권한 범위·감사 네 층으로 분해한다</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-09-11</span>
+      <span><strong>태그</strong> kya, agent-identity, ap2, mastercard, visa, cloudflare, fido, dif</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="know-your-agent-kya.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>"Know Your Agent"는 하나의 표준이 아니다. 적어도 네 가지를 가리키는 이름이다. Skyfire의 서명 JWT(에이전트 소유자 정보), Sumsub의 인간 바인딩 제품, DIF가 관리하는 DID/VC 기반 스펙 KYA-OS, 그리고 Mastercard Agent Pay 안의 등록 절차가 모두 KYA라 불린다. 이 보고서는 그 네 가지와, KYA라는 이름을 쓰지 않으면서 같은 문제를 푸는 셋(Visa Trusted Agent Protocol, Cloudflare Web Bot Auth, Google AP2)을 층별로 분해한다. 층은 넷이다. 에이전트가 누구인가(신원), 누구를 대신하는가(주체 바인딩), 무엇까지 허락받았는가(권한 범위), 실제로 무엇을 했는가(감사). 어떤 제품도 네 층을 다 덮지 않는다. Cloudflare와 Visa는 첫 층만, Sumsub는 둘째 층만, AP2와 Mastercard Verifiable Intent는 셋째 층에 집중하며, 넷째 층은 학술 제안 단계다. 표준화는 세 곳에서 병렬로 진행된다. FIDO(결제·에이전트 인증 WG, 2026-04), DIF(KYA-OS, 2026-03), OpenID(AuthZEN 드래프트, 2026-06). EU AI Act 50조(2026-08-02 시행)는 에이전트가 누구를 대신하는지 밝히라고 요구할 뿐 에이전트 검증을 요구하지 않으므로, "규제가 KYA를 강제한다"는 벤더 주장은 원문으로 뒷받침되지 않는다. 학술 쪽은 문제를 더 넓게 본다. 인가는 위임 그래프 전체의 흐름 속성이고, 재귀적 위임의 책임 귀속과 에이전트 신원의 전역 유일성은 어느 구현도 풀지 못했다.</p>
+  </section>
+
+  <main class="body">
+<h2>1. 서론</h2>
+<p>이 사이트의 Mastercard Agent Pay 보고서는 KYA를 한 문장으로 지나갔다. Mastercard CDO Pablo Fourez의 말을 빌리면 "토큰에 접근하려면 에이전트가 등록돼야 한다. 우리는 이를 Know Your Agent라 부르는데, 기본적으로 KYC 절차다"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 그 한 문장 뒤에 있는 것이 이 보고서의 주제다.</p>
+<p>용어의 기원은 Skyfire로 알려져 있다. 한 해설은 "이 용어는 2024년 Skyfire의 제품명에서 나왔고, KYAPay가 첫 상업적 표현이었으며, 2026년에는 생태계 통칭으로 넓어졌다"고 쓴다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> <em>(unverified — single source)</em>. Skyfire 자신은 2025년 6월 26일 KYAPay 프로토콜을 공개하면서 KYA를 "서비스가 계정 자격증명을 만드는 데 필요한, 에이전트 소유자에 관한 검증된 정보를 담은 표준화된 서명 JWT"로 정의했다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 그 뒤로 이름은 제품에서 떨어져 나왔다. 같은 해설이 지적하듯 "Visa, Mastercard, Cloudflare는 KYA를 제품명으로 쓰지 않지만, 공개된 스펙은 모두 같은 신원 문제를 풀고 서로 조합된다"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>그래서 이 보고서는 "KYA란 무엇인가"를 묻지 않는다. 대신 각 구현이 무엇을 검증하고 무엇을 검증하지 않는지를 묻는다.</p>
+<h2>2. 배경: KYC가 답이 아닌 이유</h2>
+<p>KYC는 계좌를 여는 사람을 검증한다. 에이전트 문제는 다르다. OpenID Foundation 백서는 "에이전트가 사용자와 구별되지 않게 행동하는 경우가 많아 책임 공백과 보안 위험이 생긴다"고 진단하고, "진정한 위임에는 에이전트가 위임받은 범위를 증명하면서도 자신이 대리하는 사용자와 구별되는 존재로 남는 명시적 on-behalf-of 흐름이 필요하다"고 쓴다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 검증해야 할 것이 하나(사람)에서 셋(사람, 에이전트, 둘 사이의 위임)으로 늘어난 것이다.</p>
+<p>이 프레이밍의 학술적 출발점은 2025년 1월의 Authenticated Delegation 논문이다. OAuth 2.0과 OpenID Connect를 "에이전트 전용 자격증명과 메타데이터로 확장"해 "사용자가 에이전트의 권한과 범위를 안전하게 위임·제한하면서 명확한 책임 사슬을 유지"하는 프레임워크를 제안한다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. 기존 인프라와의 호환을 전제로 한다는 점에서, 이후 상용 구현 대부분이 OAuth/JWT 위에 올라간 것과 맥이 닿는다. 다만 백서는 그 한계도 적는다. "OAuth 2.1 프레임워크는 에이전트와 함께 쓸 때 단일 신뢰 도메인 안의 동기적 에이전트 동작에서는 잘 작동한다"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 도메인을 넘고 비동기가 되면 다른 것이 필요하다.</p>
+<h2>3. 무엇을 검증하는가: 네 개의 층</h2>
+<p>구현들을 나란히 놓으면 네 개의 질문으로 갈린다.</p>
+<pre class="mermaid">flowchart TB
+  subgraph L1[&quot;층 1 — 에이전트 신원: 어느 에이전트가 보냈나&quot;]
+    direction LR
+    WBA[&quot;Cloudflare Web Bot Auth&lt;br/&gt;HTTP Message Signatures, Ed25519&quot;]
+    TAP[&quot;Visa Trusted Agent Protocol&lt;br/&gt;Web Bot Auth + Agent Intent 헤더&quot;]
+    SKY1[&quot;Skyfire KYA 토큰&lt;br/&gt;서명 JWT, 소유자 정보&quot;]
+  end
+  subgraph L2[&quot;층 2 — 주체 바인딩: 어느 사람이 뒤에 있나&quot;]
+    direction LR
+    SUM[&quot;Sumsub AI Agent Verification&lt;br/&gt;라이브니스로 인간에 바인딩&quot;]
+    KYAOS[&quot;DIF KYA-OS&lt;br/&gt;에이전트 DID + 주체 VC&quot;]
+    BIND[&quot;BIND (논문)&lt;br/&gt;생체 ↔ 에이전트 ID 암호 바인딩&quot;]
+  end
+  subgraph L3[&quot;층 3 — 권한 범위: 무엇까지 허락받았나&quot;]
+    direction LR
+    AP2[&quot;Google AP2&lt;br/&gt;사용자 서명 mandate&quot;]
+    VI[&quot;Mastercard Verifiable Intent&lt;br/&gt;SD-JWT 체인, 의도+결과&quot;]
+    SKY2[&quot;Skyfire Programmable Payment&lt;br/&gt;지출 한도 JWT&quot;]
+  end
+  subgraph L4[&quot;층 4 — 감사: 실제로 무엇을 했나&quot;]
+    direction LR
+    AUTHZ[&quot;OpenID AuthZEN AARP/COAZ&lt;br/&gt;정책이 결정권, 승인·위임은 입력&quot;]
+    PROP[&quot;권한 전파 (논문)&lt;br/&gt;위임 그래프 전체의 흐름 속성&quot;]
+  end
+  WBA --&gt; SUM --&gt; AP2 --&gt; AUTHZ</pre>
+<p><em>그림 1 — 2026년 9월 기준 KYA 구현을 네 층에 배치한 것. 화살표는 논리적 의존이다. 주체를 묶으려면 에이전트가 식별돼야 하고, 범위를 주려면 주체가 있어야 하며, 감사는 앞의 셋을 기록한다. 같은 이름(KYA)이 층 1·2·3에 걸쳐 있다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup></em></p>
+<h3>3.1 층 1: 에이전트 신원</h3>
+<p>가장 먼저 상용화된 층이고, 가장 좁다. Cloudflare Web Bot Auth는 "공개키 암호를 쓰는 HTTP Message Signatures로 에이전트가 안정된 식별자를 제공"하게 한다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. Visa는 2025년 10월 14일 Trusted Agent Protocol을 발표하면서 이를 그대로 밑바닥으로 썼다. "에이전트별 암호 서명"과 RFC 9421 HTTP Message Signatures로 에이전트를 인증하고, "Agent Intent(신뢰된 에이전트가 조회 의도를 가졌다는 표시), Consumer Recognition, Payment Information" 세 종류의 정보를 상점에 전달한다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. 상점이 검증하는 것은 서명 헤더, keyid, 타임스탬프, nonce, 태그(browsing인지 paying인지), 그리고 "keyid로 제공된 키를 쓴 ed25519 서명"이다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+<p>이 층이 답하는 질문은 "이 요청이 등록된 키의 소유자에게서 왔는가"까지다. Cloudflare 글은 사람 카드소유자가 거래를 승인했는지의 검증은 다루지 않고, 그 책임은 "결제 네트워크가 에이전트 인증 층과 별도로" 진다고 정리한다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. Skyfire의 KYA 토큰도 여기 속한다. JWT에 담기는 것은 "에이전트 소유자에 관한 검증된 정보"이고, 계정 생성은 "KYA 토큰을 액세스 토큰으로 교환"하는 OAuth 보완 흐름이다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Skyfire 사이트는 "플랫폼, 에이전트, 인간 주체 신원과 사용자 mandate를 묶는다"고도 쓰지만<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>, 제품 설명 페이지의 검증 방법은 "기존 인증, Skyfire 거래 이력, 개발자 식별" 같은 "디지털 체크포인트"와 여러 제공자가 주는 "블루 체크마크"다<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. 어느 쪽이 실제 검증 강도인지는 문서로 판단할 수 없다.</p>
+<h3>3.2 층 2: 주체 바인딩</h3>
+<p>Sumsub는 층 1을 건너뛴다. CTO의 표현으로 "에이전트 자체를 맹목적으로 신뢰하려 하지 않고, 그 뒤의 사람을 검증하는 데 집중한다"<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. 2026년 1월 29일 출시한 AI Agent Verification은 "AI 에이전트를 검증된 인간 신원에 대규모로 바인딩"하며, 위험 임계값을 넘으면 "실제 사람이 있고 승인했음을 확인하는 표적 라이브니스 테스트"를 요구한다<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>. 근거는 사기 방지다. "AI 에이전트가 실제 사람 없이 자율적으로 돈을 옮기고 계정을 만들고 대규모로 거래할 수 있게 되면 사기는 거의 막을 수 없게 된다"<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>.</p>
+<p>DIF의 KYA-OS는 같은 층을 표준으로 풀려 한다. Vouched가 2026년 3월 6일 MCP-I(Model Context Protocol – Identity)를 기부했고<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>, DIF는 4월 22일 이를 KYA-OS로 개명해 Trusted AI Agents WG 산하 태스크포스로 옮겼다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 구조는 "암호학적으로 검증 가능한 에이전트 신원을 주는 DID, 명시적 범위를 가진 위변조 방지 자격증명으로 위임을 표현하는 VC, 사전 조율 없는 조직 간 검증"의 셋이다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. 2025년 10월의 학술 논문이 같은 설계를 제안했다. "원장에 고정된 W3C DID와 제3자가 발급한 W3C VC 집합"으로 에이전트가 "대화 시작 시 자체 호스팅한 DID 바인딩 VC를 즉석에서 교환"해 사전 관계 없이 신뢰를 세운다<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>. 신원 벤더 Iden의 평가는 "스펙은 활발히 개발 중이고 프로덕션 구현은 드물다"이다<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup> <em>(vendor-stated)</em>.</p>
+<p>가장 강한 바인딩은 아직 논문이다. 2026년 8월의 BIND는 "인가 시점에 사용자의 생체 정보를 에이전트 ID와 권한 범위(작업별 제약)에 안전하게 바인딩"하고, Identity Auditor가 "생체로 사람을 인증하면서 동시에 에이전트 신원과 인가된 작업 범위를 복원"하는 1024비트 토큰을 만든다<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>. 층 2와 층 3을 하나의 암호 객체로 합친 셈이다.</p>
+<h3>3.3 층 3: 권한 범위</h3>
+<p>결제 네트워크가 실제로 힘을 쓰는 층이다. Mastercard의 흐름은 Fourez의 설명이 가장 간명하다. 등록된 에이전트만 Agentic Token을 받고, 사용자 의도("아디다스 신발, 사이즈 10, €80")가 "토큰과 함께 거래의 각 참여자에게 전달"된다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 2026년 3월 5일 Mastercard는 이 의도를 검증 가능한 객체로 만든 Verifiable Intent를 공개했다. "소비자 신원, 구체적 지시, 거래 결과를 하나의 위변조 방지 기록으로 잇는" 프레임워크로, FIDO·EMVCo·IETF·W3C 표준 위에 있다고 밝혔다<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup>. 페이월 앞부분까지 읽히는 기술 해설은 구조를 세 층의 SD-JWT로 설명한다. 발급사가 발급해 지갑에 넣는 1층, 1층에 묶인 사용자 키로 서명하는 2층, 그리고 "이행 세부를 제시하는 단기·키 바인딩 SD-JWT"를 에이전트가 서명하는 3층이다. "단순한 에이전트 헤더가 아니라 여러 당사자가 독립적으로 검증할 수 있는 조합 가능한 증거 객체"라는 것이 요지다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<p>Google AP2는 처음부터 이 층에서 출발했다. 원칙은 "추론된 행동이 아니라 검증 가능한 의도: 결제의 신뢰는 사용자로부터의 결정적·부인 방지 의도 증명에 고정된다"이고, mandate는 "거래의 구성 요소가 되는 위변조 방지·암호 서명 디지털 객체"다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. 에이전트가 누구인지보다 사용자가 무엇에 서명했는지가 먼저다. Skyfire의 Programmable Payment JWT("USDC 또는 토큰화 카드로 인가된 지출 금액")<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>도 같은 층의 단순한 형태다.</p>
+<p>이 층의 세 구현은 서로 다른 트러스트 앵커를 갖는다. Mastercard는 발급사, AP2는 사용자 키, Skyfire는 Skyfire다. 한 상점이 셋 다 받으려면 셋 다 구현해야 한다.</p>
+<h3>3.4 층 4: 감사와 정책</h3>
+<p>가장 덜 상용화된 층이다. OpenID AuthZEN WG는 2026년 6월 15일 두 드래프트를 채택했다. AARP는 "정책이 아직 행동을 인가할 수 없을 때" 전제 조건을 "요청·추적·충족·재평가하는 상호운용 패턴"을 정의하고, COAZ는 "MCP 도구가 호출에 필요한 인가 검사를 노출"하게 한다. 원칙은 "승인, 동의, 위임, 증명, 위험 평가가 각각 결정의 입력이 되고, 정책이 결정권자로 남는다"이다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> <em>(unverified — single source)</em>.</p>
+<p>학술 쪽은 이 층을 더 밀어붙인다. 2026년 5월의 권한 전파 논문은 다중 에이전트 시스템에서 인가가 "비인간 주체가 데이터를 가져오고 작업을 위임하고 결과를 합성하는 워크플로 수준 속성"이며, 전이적 위임·집계 추론·시간적 유효성 세 문제를 형식화한 뒤 "신원 거버넌스는 인프라로 취급돼야 한다: 지속적으로 평가되고 모든 상호작용 경계에서 집행되는"이라고 결론짓는다<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>. 개별 요청의 서명을 검증하는 층 1이 답할 수 없는 질문이다. 에이전트 A가 B에게, B가 C에게 위임했을 때 C의 요청이 원래 사용자의 범위 안에 있는지는 어느 한 홉의 서명으로 알 수 없다.</p>
+<h2>4. 한 거래의 검증 순서</h2>
+<p>네 층이 한 결제에서 어떻게 겹치는지를 순서로 보면 다음과 같다. Mastercard Agent Pay와 Visa TAP의 공개 설명을 합친 것이며, 두 네트워크가 실제로 이 순서 그대로 동작한다는 뜻은 아니다.</p>
+<pre class="mermaid">sequenceDiagram
+  participant U as 사용자
+  participant A as 에이전트
+  participant M as 상점
+  participant N as 결제 네트워크 / 발급사
+  U-&gt;&gt;A: 위임 (의도·한도·지갑)&lt;br/&gt;AP2 mandate 또는 SD-JWT 서명
+  Note over U,A: 층 2·3: 주체 바인딩과&lt;br/&gt;범위가 여기서 정해진다
+  A-&gt;&gt;N: 에이전트 등록 (KYA)&lt;br/&gt;→ Agentic Token
+  Note over A,N: 층 1: 네트워크가&lt;br/&gt;에이전트 소유자를 안다
+  A-&gt;&gt;M: 요청 + HTTP Message Signature&lt;br/&gt;+ Agent Intent / 의도
+  M-&gt;&gt;M: 서명·keyid·nonce·태그 검증
+  Note over M: 층 1: 상점은&lt;br/&gt;키 소유자만 안다
+  M-&gt;&gt;N: 인가 요청 + 토큰 + 의도
+  N-&gt;&gt;N: 토큰 ↔ 에이전트 ↔ 의도 ↔ 사용자
+  Note over N: 층 3: 사용자·에이전트·범위가&lt;br/&gt;여기서만 한 번에 맞춰진다
+  N--&gt;&gt;M: 승인 + 검증 가능한 기록
+  Note over M,N: 층 4: 분쟁 시 책임 귀속은&lt;br/&gt;네트워크 규칙 미공개</pre>
+<p><em>그림 2 — 결제형 KYA에서 검증이 일어나는 지점. 상점은 층 1만 보고, 층 2·3은 사용자와 네트워크 사이에서 닫히며, 층 4의 책임 귀속은 공개 문서에 없다.<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup></em></p>
+<p>이 그림에서 눈에 띄는 것은 상점의 위치다. 상점이 직접 확인할 수 있는 것은 "이 서명이 등록된 키와 맞는가"뿐이다. 사용자가 실제로 이 구매를 승인했는지는 네트워크가 대신 판단하고, 상점은 그 결과를 받는다. Cloudflare가 "사람 카드소유자의 승인 검증은 이 문서의 기술 범위 밖"이라고 쓴 이유다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+<h2>5. 표준화: 세 곳에서 병렬로</h2>
+<p><strong>FIDO Alliance.</strong> 2026년 4월 28일 두 워킹그룹을 통해 에이전트 표준을 만들겠다고 발표했다. Agentic Authentication TWG(CVS Health·Google·OpenAI 의장)와 Payments TWG(Mastercard·Visa 의장)이며, 범위는 "사용자가 피싱 저항 메커니즘으로 에이전트를 인가해 에이전트가 승인된 행동만 하게 하는" Verifiable User Instructions, 에이전트 인증, "사용자가 통제하는 경계 안에서 검증 가능한 인가로 에이전트 거래를 실행하는" Trusted Delegation for Commerce다. Google이 AP2를, Mastercard가 Verifiable Intent를 기여했다<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup> <em>(unverified — single source)</em>. 층 2·3의 결제 특화 표준이 될 후보다.</p>
+<p><strong>DIF.</strong> KYA-OS는 층 2를 DID/VC로 푸는 유일한 공개 스펙이다. Trusted AI Agents WG의 작업 항목에는 "오늘날 AuthZ 프로토콜 안의 위임된 권한 분석" 보고서와 "MCP를 위한 위임, 증명 생성, 세션 수명주기, 암호 신원"의 참조 구현이 있다<sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup>. DIF 사무총장은 기부 이후 "Trusted Agentic AI WG에 참여하려고 가입하는 신규 회원이 의미 있게 늘었다"고 했다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> <em>(vendor-stated)</em>.</p>
+<p><strong>OpenID Foundation.</strong> AuthZEN의 AARP·COAZ가 층 4를 맡는다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. 배경 문서인 백서는 OAuth 2.1과 SPIFFE를 출발점으로 권한다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<p><strong>IETF.</strong> 직접적인 KYA 작업은 없다. WIMSE는 "특정 목적으로 실행 중인 소프트웨어 인스턴스"인 워크로드의 런타임 신원을 다루고, "개인 신원"은 명시적으로 범위 밖이다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 층 1의 기반이 될 수는 있어도 층 2는 아니다. Web Bot Auth는 Cloudflare가 낸 개인 초안 단계다.</p>
+<p>세 재단이 같은 문제의 다른 층을 맡고 있으니 겹치지는 않는다. 그러나 셋 사이에 자격증명 형식(SD-JWT, VC, 서명 JWT)이나 트러스트 루트를 맞추는 작업은 어디에도 없다. 4월의 서베이 논문이 "선언된 것과 관찰된 것 사이의 지속적 관계"로 AI 신원을 정의하고 "의미적 의도 검증, 재귀적 위임 책임, 에이전트 신원 무결성, 거버넌스 불투명성, 운영 지속성" 다섯 공백을 든 뒤 "어느 것도 비결정적이고 경계를 넘는 개체를 다스리는 문제를 충분히 다루지 못한다"고 결론지은 것<sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup>은 이 재단들의 발표 며칠 전이다.</p>
+<h2>6. 규제는 KYA를 요구하는가</h2>
+<p>벤더 글들은 EU AI Act를 KYA의 근거로 든다. 원문은 다르다. 2026년 8월 2일 시행된 50조는 "사람들이 AI와 상호작용하고 있음을 알게 하고, 에이전트가 다른 이를 대신해 행동하는 경우 그 사람이나 조직의 신원을" 밝히라고 요구한다. 법률 해설의 정리로는 "대리하는 주체를 밝히라는 것이지 중개자를 인증하라는 것이 아니다"<sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup>. 벌금은 최대 1,500만 유로 또는 전 세계 매출 3%다<sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup>. 즉 50조는 층 2의 공개 의무이지 층 1의 검증 의무가 아니다. KYA 제품이 50조 준수를 돕는다는 말은 성립하지만, 50조가 KYA를 요구한다는 말은 성립하지 않는다.</p>
+<h2>7. 분석</h2>
+<p><strong>KYA는 시장의 이름이지 층의 이름은 못 된다.</strong> 네 벤더가 네 층에 같은 이름을 붙였다. 구매자가 "KYA를 도입했다"고 할 때 Skyfire JWT를 받는 것인지, Sumsub 라이브니스를 붙인 것인지, KYA-OS DID를 발급한 것인지, Mastercard에 에이전트를 등록한 것인지는 이름만으로 알 수 없다. 이 보고서가 층으로 분해한 이유다.</p>
+<p><strong>가장 넓게 깔린 것은 가장 얇은 층이다.</strong> Web Bot Auth 기반의 층 1은 Cloudflare·Visa·Mastercard가 공유하고 Skyfire도 "웹의 60% 이상"을 덮는다고 주장한다<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup> <em>(vendor-stated)</em>. 그러나 층 1이 답하는 것은 키 소유자뿐이다. A2A 위협 모델링 논문이 지적한 "자기 선언 신원, 전역 유일성 강제 없음"은 이 층의 구조적 한계이고, 서명은 그것을 바꾸지 않는다.</p>
+<p><strong>결제가 앞서 가고 범용 표준이 뒤따른다.</strong> Mastercard의 등록부, Visa의 서명 디렉터리, AP2의 mandate는 모두 결제라는 좁은 맥락에서 층 2·3을 닫았다. FIDO의 WG 구성(의장이 Mastercard·Visa)이 이를 공식화한다. 결제 밖의 에이전트(고객 지원, 조달, 코딩)에는 DIF KYA-OS와 AuthZEN이 있지만 "프로덕션 구현은 드물다"<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>.</p>
+<p><strong>풀리지 않은 것은 두 가지다.</strong> 하나는 재귀적 위임의 책임 귀속이다. 권한 전파 논문<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>과 AI 신원 서베이<sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup>가 같은 지점을 짚는다. 두 홉 이상의 위임에서 누구의 범위가 적용되는지, 어느 구현도 답하지 않는다. 다른 하나는 분쟁이다. 그림 2의 마지막 줄처럼, 검증 가능한 기록이 만들어져도 그 기록으로 누가 책임지는지는 네트워크 규칙에 달렸고, 그 규칙은 공개되지 않았다.</p>
+<p>실무자에게 남는 질문은 "어느 KYA를 쓸까"가 아니다. 우리 에이전트가 어느 층에서 검증받아야 하고, 그 층을 지금 누가 제공하는가다.</p>
+<h2>8. 한계</h2>
+<ul>
+<li>KYA 용어의 2024년 기원은 tier-5 해설 하나에 의존한다. Skyfire의 1차 자료는 2025년 6월 KYAPay 발표뿐이다.</li>
+<li>Mastercard Verifiable Intent의 SD-JWT 구조는 페이월 앞부분만 읽었다(<code>access_limited</code>). Mastercard 자체 프레임워크 페이지와 Skyfire의 원 보도자료는 403을 반환해 전재본을 썼다.</li>
+<li>Visa TAP에 "Verified Agent ID"나 Visa 운영 디렉터리가 있다는 서술은 tier-5 출처에만 있어 본문에서 뺐다. Visa 1차 자료는 서명 헤더만 말한다.</li>
+<li>FIDO WG 발표와 OpenID AuthZEN 드래프트는 각각 단일 1차 출처다.</li>
+<li>어떤 KYA 제품에 대해서도 벤더도 학계도 아닌 독립 평가는 찾지 못했다.</li>
+<li>결제 네트워크의 분쟁·책임 규칙은 공개 문서에 없어 그림 2의 층 4는 공백으로 표시했다.</li>
+<li>학술 제안(BIND, DID/VC 에이전트, 권한 전파)은 모두 제안이며 배포 사례를 보고하지 않는다.</li>
+</ul>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Checkout.com, Pablo Fourez</span>. <a href="https://www.checkout.com/blog/mastercard-checkout-discuss-agentic-commerce-agent-pay">Mastercard x Checkout: A discussion on agentic commerce</a>. <span class="venue">Checkout.com blog, 2025</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-2"><span class="authors">Eco</span>. <a href="https://eco.com/support/en/articles/14846277-know-your-agent-kya-identity-for-agent-payments">Know Your Agent (KYA): Identity for Agent Payments</a>. <span class="venue">eco.com support, 2026</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-3"><span class="authors">Skyfire Systems (press release)</span>. <a href="https://salestechstar.com/predictive-ai-artificial-intelligence/skyfire-launches-open-kyapay-protocol-with-agent-checkout/">Skyfire Launches Open KYAPay Protocol With Agent Checkout</a>. <span class="venue">SalesTechStar (syndicated release), 2025</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-4"><span class="authors">Tobin South, Subramanya Nagabhushanaradhya, Ayesha Dissanayaka, Sarah Cecchetti, George Fletcher, et al., Alex Pentland</span>. <a href="https://arxiv.org/abs/2510.25819">Identity Management for Agentic AI: The new frontier of authorization, authentication, and security for an AI agent world</a>. <span class="venue">arXiv (OpenID Foundation whitepaper), 2025</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-5"><span class="authors">Tobin South, et al.</span>. <a href="https://arxiv.org/html/2510.25819v1">Identity Management for Agentic AI (HTML full text)</a>. <span class="venue">arXiv, 2025</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-6"><span class="authors">Tobin South, Samuele Marro, Thomas Hardjono, Robert Mahari, Cedric Deslandes Whitney, Dazza Greenwood, Alan Chan, Alex Pentland</span>. <a href="https://arxiv.org/abs/2501.09674">Authenticated Delegation and Authorized AI Agents</a>. <span class="venue">arXiv, 2025</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-7"><span class="authors">Fintech Wrap Up</span>. <a href="https://www.fintechwrapup.com/p/deep-dive-mastercard-verifiable-intent">Deep Dive: Mastercard Verifiable Intent vs Visa Trusted Agent Protocol</a>. <span class="venue">Fintech Wrap Up (Substack), 2026</span>. <span class="accessed">접근일 2026-09-11.</span> <span class="unverified">[접근 제한]</span></li>
+      <li id="ref-8"><span class="authors">OpenID Foundation</span>. <a href="https://openid.net/openid-foundation-advances-authorization-for-the-agent-era-with-new-authzen-working-group-drafts/">OpenID Foundation advances authorization for the agent era with new AuthZEN Working Group Drafts</a>. <span class="venue">openid.net, 2026</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-9"><span class="authors">IETF</span>. <a href="https://datatracker.ietf.org/wg/wimse/about/">Workload Identity in Multi System Environments (wimse) charter</a>. <span class="venue">IETF Datatracker, 2026</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-10"><span class="authors">Google, AP2 contributors</span>. <a href="https://ap2-protocol.org/">AP2 — Agent Payments Protocol Documentation</a>. <span class="venue">ap2-protocol.org, 2026</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-11"><span class="authors">Decentralized Identity Foundation</span>. <a href="https://blog.identity.foundation/kya-os/">DIF and Vouched Advance Agentic Identity with KYA-OS as International Demand for Open Agent Identity Standards Grows</a>. <span class="venue">DIF blog, 2026</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-12"><span class="authors">Visa</span>. <a href="https://investor.visa.com/news/news-details/2025/Visa-Introduces-Trusted-Agent-Protocol-An-Ecosystem-Led-Framework-for-AI-Commerce/default.aspx">Visa Introduces Trusted Agent Protocol: An Ecosystem-Led Framework for AI Commerce</a>. <span class="venue">Visa investor relations, 2025</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-13"><span class="authors">Cloudflare</span>. <a href="https://blog.cloudflare.com/secure-agentic-commerce/">Securing agentic commerce: helping AI Agents transact with Visa and Mastercard</a>. <span class="venue">Cloudflare Blog, 2025</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-14"><span class="authors">Digital Transactions</span>. <a href="https://www.digitaltransactions.net/visa-launches-trusted-agent-an-agentic-commerce-protocol/">Visa Launches Trusted Agent, an Agentic Commerce Protocol</a>. <span class="venue">Digital Transactions, 2025</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-15"><span class="authors">Skyfire Systems</span>. <a href="https://skyfire.xyz/">Skyfire — Know Your Agent (KYA) and Agentic Wallet</a>. <span class="venue">skyfire.xyz, 2026</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-16"><span class="authors">Skyfire Systems</span>. <a href="https://skyfire.xyz/know-your-agent-kya/">Know Your Agent (KYA) — Skyfire</a>. <span class="venue">skyfire.xyz, 2026</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-17"><span class="authors">PYMNTS</span>. <a href="https://www.pymnts.com/news/artificial-intelligence/2026/sumsub-adds-ai-verification-know-your-agent-framework/">Sumsub Adds AI Agent Verification to Know Your Agent Framework</a>. <span class="venue">PYMNTS, 2026</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-18"><span class="authors">Sumsub</span>. <a href="https://sumsub.com/blog/know-your-agent/">From AI Agents to Know Your Agent: Why KYA Is Critical for Secure Autonomous AI</a>. <span class="venue">Sumsub blog, 2026</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-19"><span class="authors">Help Net Security</span>. <a href="https://www.helpnetsecurity.com/2026/01/29/sumsub-ai-agent-verification/">Sumsub AI Agent Verification binds automation to verified human identity</a>. <span class="venue">Help Net Security, 2026</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-20"><span class="authors">Biometric Update</span>. <a href="https://www.biometricupdate.com/202603/vouched-donates-mcp-i-framework-to-decentralized-identity-foundation">Vouched donates MCP-I framework to Decentralized Identity Foundation</a>. <span class="venue">Biometric Update, 2026</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-21"><span class="authors">Sandro Rodriguez Garzon, Awid Vaziry, Enis Mert Kuzu, Dennis Enrique Gehrmann, Buse Varkan, Alexander Gaballa, Axel Küpper</span>. <a href="https://arxiv.org/abs/2511.02841">AI Agents with Decentralized Identifiers and Verifiable Credentials</a>. <span class="venue">arXiv, 2025</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-22"><span class="authors">Iden</span>. <a href="https://idenhq.com/blog/ai-agent-identity-management-2026">AI Agent Identity Management 2026: Standards, Players, and the Governance Gap</a>. <span class="venue">Iden blog (identity vendor), 2026</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-23"><span class="authors">Joseph Geo Benjamin, Anil K Jain, Karthik Nandakumar</span>. <a href="https://arxiv.org/abs/2608.04292">Binding Biometrics with AI Agent Identifiers for Delegation of Authority</a>. <span class="venue">arXiv, 2026</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-24"><span class="authors">PYMNTS</span>. <a href="https://www.pymnts.com/mastercard/2026/mastercard-unveils-open-standard-to-verify-ai-agent-transactions/">Mastercard Unveils Open Standard to Verify AI Agent Transactions</a>. <span class="venue">PYMNTS, 2026</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-25"><span class="authors">Krti Tallam</span>. <a href="https://arxiv.org/abs/2605.05440">Authorization Propagation in Multi-Agent AI Systems: Identity Governance as Infrastructure</a>. <span class="venue">arXiv, 2026</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-26"><span class="authors">FIDO Alliance</span>. <a href="https://fidoalliance.org/fido-alliance-to-develop-standards-for-trusted-ai-agent-interactions/">FIDO Alliance to Develop Standards for Trusted AI Agent Interactions</a>. <span class="venue">fidoalliance.org, 2026</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-27"><span class="authors">Decentralized Identity Foundation</span>. <a href="https://identity.foundation/working-groups/trusted-agents.html">DIF Trusted AI Agents Working Group</a>. <span class="venue">identity.foundation, 2026</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-28"><span class="authors">Takumi Otsuka, Kentaroh Toyoda, Alex Leung</span>. <a href="https://arxiv.org/abs/2604.23280">AI Identity: Standards, Gaps, and Research Directions for AI Agents</a>. <span class="venue">arXiv, 2026</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+      <li id="ref-29"><span class="authors">Travers Smith</span>. <a href="https://www.traverssmith.com/knowledge/knowledge-container/is-it-a-bot-eu-ai-act-transparency-rules-take-effect-2-august-2026/">Is it a bot? EU AI Act transparency rules take effect 2 August 2026</a>. <span class="venue">Travers Smith (law firm), 2026</span>. <span class="accessed">접근일 2026-09-11.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-09-11 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
