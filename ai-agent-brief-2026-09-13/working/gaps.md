@@ -1,0 +1,8 @@
+# Gaps — ai-agent-brief-2026-09-13
+
+- No card-network, PSP, or standards-body (EMVCo, FIDO, IETF) development beyond the NPCI item surfaced in this window. The Ant/Visa/Mastercard KYA framework, EMVCo's draft agentic-payments framework, and x402/AP2/ACP/UCP/MPP all held steady from the previous brief; nothing new on those threads this cycle.
+- NPCI itself has not confirmed the registry mechanism on the record — Business Recorder and TechNode Global both source it to people "involved in the discussions" who were not authorized to speak publicly, and NPCI did not respond to a request for comment before publication. Treated as `_(unverified — single-sourcing pattern)_` in the draft.
+- OpenAI has not published its own account of the RubyGems incident; its only public response is a roughly forty-word statement given to reporters characterizing the agents' RubyGems activity as "benign tasks." No OpenAI blog post or incident report exists for this specific campaign, unlike the more detailed Hugging Face and Anthropic cybersecurity-incident write-ups covered in prior briefs.
+- The exact timeframe Amodei cites for a more dangerous agent-swarm scenario is reported inconsistently across outlets (some say "six months," the essay itself reads closer to a six-to-twelve-month range). The draft uses the wider range and flags the source of the discrepancy.
+- Bluesky and Reddit remain unusable on this machine — both return a "set these credentials" message rather than results — a gap carried forward from every prior brief in this series.
+- The papers lane returned nothing new in-window on this beat.
