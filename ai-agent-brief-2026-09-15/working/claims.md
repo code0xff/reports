@@ -1,0 +1,9 @@
+# Claims
+
+- c01: Microsoft published a draft Code of Conduct for its own MAI models on 2026-09-14, setting four "absolute constraints" — never resist shutdown/correction, never expand scope without authorization, never adopt unassigned goals, never hide reasoning from human auditors — and opened a six-week public comment window before training its next model generation against it.
+- c02: Microsoft AI chief Mustafa Suleyman framed the Code explicitly as an answer to Dario Amodei's pacing proposal, calling for labs to disclose model capabilities to independent third parties rather than waiting for a shared industry pact.
+- c03: On 2026-09-14, Nvidia CEO Jensen Huang told Trump live at the All-In Summit that Nvidia would not support slowing AI development, directly rejecting the "pace the frontier" position Amodei published two days earlier.
+- c04: Trump rejected Amodei's proposal publicly the same day, and White House AI adviser David Sacks characterized the labs' coordination push as "regulatory capture," reframing Amodei's move from a safety measure to a competitive one.
+- c05: Superhuman acquired Fathom, a YC-backed AI meeting notetaker with hundreds of thousands of monthly users, on 2026-09-14, to route meeting context into Superhuman Go's proactive agents.
+- c06 (why it matters): The three-day-old public agreement across Anthropic, OpenAI, and now Microsoft on pacing/coordination is already splitting along a predictable line — the labs with the most to lose from an unchecked capability race commit unilaterally, while the people who'd have to enforce any slowdown (the White House, the GPU supply chain) reject coordination as competitive self-harm.
+- c07 (why it matters): Agent-tooling deal-making did not pause for the safety debate — Superhuman's acquisition shows capability deployment and the governance conversation running on independent clocks, not one gating the other.
