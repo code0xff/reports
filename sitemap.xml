@@ -39,94 +39,6 @@
     <lastmod>2026-05-20</lastmod>
   </url>
   <url>
-    <loc>https://code0xff.github.io/reports/ai-agent-brief-2026-08-31/</loc>
-    <lastmod>2026-08-31</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/ai-agent-brief-2026-08-31/ko/</loc>
-    <lastmod>2026-08-31</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/ai-agent-brief-2026-09-02/</loc>
-    <lastmod>2026-09-02</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/ai-agent-brief-2026-09-02/ko/</loc>
-    <lastmod>2026-09-02</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/ai-agent-brief-2026-09-03/</loc>
-    <lastmod>2026-09-03</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/ai-agent-brief-2026-09-03/ko/</loc>
-    <lastmod>2026-09-03</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/ai-agent-brief-2026-09-04/</loc>
-    <lastmod>2026-09-04</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/ai-agent-brief-2026-09-04/ko/</loc>
-    <lastmod>2026-09-04</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/ai-agent-brief-2026-09-05/</loc>
-    <lastmod>2026-09-05</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/ai-agent-brief-2026-09-05/ko/</loc>
-    <lastmod>2026-09-05</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/ai-agent-brief-2026-09-09/</loc>
-    <lastmod>2026-09-09</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/ai-agent-brief-2026-09-09/ko/</loc>
-    <lastmod>2026-09-09</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/ai-agent-brief-2026-09-10/</loc>
-    <lastmod>2026-09-10</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/ai-agent-brief-2026-09-10/ko/</loc>
-    <lastmod>2026-09-10</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/ai-agent-brief-2026-09-11/</loc>
-    <lastmod>2026-09-11</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/ai-agent-brief-2026-09-11/ko/</loc>
-    <lastmod>2026-09-11</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/ai-agent-brief-2026-09-12/</loc>
-    <lastmod>2026-09-12</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/ai-agent-brief-2026-09-12/ko/</loc>
-    <lastmod>2026-09-12</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/ai-agent-brief-2026-09-13/</loc>
-    <lastmod>2026-09-13</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/ai-agent-brief-2026-09-13/ko/</loc>
-    <lastmod>2026-09-13</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/ai-agent-brief-2026-09-15/</loc>
-    <lastmod>2026-09-15</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/ai-agent-brief-2026-09-15/ko/</loc>
-    <lastmod>2026-09-15</lastmod>
-  </url>
-  <url>
     <loc>https://code0xff.github.io/reports/ai-agent-identity-eas-vs-did/</loc>
     <lastmod>2026-04-20</lastmod>
   </url>
@@ -165,14 +77,6 @@
   <url>
     <loc>https://code0xff.github.io/reports/aml-fiu-reporting-operations/en/</loc>
     <lastmod>2026-08-04</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/avalanche-subnet-evm-l1-ops/</loc>
-    <lastmod>2026-09-10</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/avalanche-subnet-evm-l1-ops/en/</loc>
-    <lastmod>2026-09-10</lastmod>
   </url>
   <url>
     <loc>https://code0xff.github.io/reports/bitcoin-lightning-network-ai-agent/</loc>
@@ -239,14 +143,6 @@
     <lastmod>2026-05-20</lastmod>
   </url>
   <url>
-    <loc>https://code0xff.github.io/reports/cloudflare-pay-per-crawl/</loc>
-    <lastmod>2026-09-10</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/cloudflare-pay-per-crawl/en/</loc>
-    <lastmod>2026-09-10</lastmod>
-  </url>
-  <url>
     <loc>https://code0xff.github.io/reports/cloudflare-x402-payment-tools/</loc>
     <lastmod>2026-07-02</lastmod>
   </url>
@@ -309,6 +205,14 @@
   <url>
     <loc>https://code0xff.github.io/reports/eip-8004-validation/ko/</loc>
     <lastmod>2026-05-26</lastmod>
+  </url>
+  <url>
+    <loc>https://code0xff.github.io/reports/eip-8130-and-eip-8141/</loc>
+    <lastmod>2026-09-15</lastmod>
+  </url>
+  <url>
+    <loc>https://code0xff.github.io/reports/eip-8130-and-eip-8141/en/</loc>
+    <lastmod>2026-09-15</lastmod>
   </url>
   <url>
     <loc>https://code0xff.github.io/reports/erc-1155/</loc>
@@ -445,14 +349,6 @@
   <url>
     <loc>https://code0xff.github.io/reports/httpauth-payment-scheme-draft/en/</loc>
     <lastmod>2026-06-04</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/know-your-agent-kya/</loc>
-    <lastmod>2026-09-11</lastmod>
-  </url>
-  <url>
-    <loc>https://code0xff.github.io/reports/know-your-agent-kya/en/</loc>
-    <lastmod>2026-09-11</lastmod>
   </url>
   <url>
     <loc>https://code0xff.github.io/reports/korea-stablecoin-payment-laws/</loc>

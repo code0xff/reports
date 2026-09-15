@@ -1,0 +1,10 @@
+title: "EIP-8130과 EIP-8141: 네이티브 계정 추상화로 가는 두 갈래"
+subtitle: 두 초안 명세를 조항 단위로 읽고, 멤풀 DoS라는 같은 문제에 내놓은 선언된 인증자와 경계 지어진 시뮬레이션이라는 두 답을 대조한다.
+title_en: "EIP-8130 and EIP-8141: Two Routes to Native Account Abstraction"
+subtitle_en: Reading both draft specifications clause by clause and setting their answers to the same mempool problem — declared authenticators against bounded simulation — against each other.
+slug: eip-8130-and-eip-8141
+lang: ko
+langs: [ko, en]
+date: 2026-09-15
+tags: [ethereum, account-abstraction, EIP-8130, EIP-8141, keystore-accounts, frame-transaction, mempool, ERC-4337, EIP-7702, Hegota]
+status: ready
