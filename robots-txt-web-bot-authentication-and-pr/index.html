@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>robots.txt, web bot authentication, and protocols for denying or authenticating bot and agent access — Deepsearch</title>
+<meta name="description" content="Research report generated via the Deepsearch harness.">
+<link rel="canonical" href="https://code0xff.github.io/reports/robots-txt-web-bot-authentication-and-pr/">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="ko" href="ko/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="robots.txt, web bot authentication, and protocols for denying or authenticating bot and agent access">
+<meta property="og:description" content="Research report generated via the Deepsearch harness.">
+<meta property="og:url" content="https://code0xff.github.io/reports/robots-txt-web-bot-authentication-and-pr/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="robots.txt, web bot authentication, and protocols for denying or authenticating bot and agent access">
+<meta name="twitter:description" content="Research report generated via the Deepsearch harness.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>robots.txt, web bot authentication, and protocols for denying or authenticating bot and agent access</h1>
+    <p class="subtitle">Research report generated via the Deepsearch harness.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-09-15</span>
+      <span><strong>Tags</strong> —</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="robots-txt-web-bot-authentication-and-pr.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p><code>robots.txt</code> is a cooperative crawler policy, not authentication or access control.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> Actual denial requires server-side authentication, authorization, WAF, tokens, certificates, or rate limits.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> Web Bot Auth adds an emerging cryptographic identity layer based on HTTP Message Signatures and key directories, enabling selective policy for registered automated clients.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> The durable pattern is layered: publish preferences, verify identity when needed, authorize each operation, and enforce the result at the edge or origin.</p>
+  </section>
+
+  <main class="body">
+<h1>robots.txt, Web Bot Authentication, and Access Control for Bots and Agents</h1>
+<h2>Introduction</h2>
+<p>Bot access has four separate questions: may a cooperative crawler fetch a path, can the server identify it, is this operation authorized, and what happens when it ignores policy? HTTP distinguishes authentication, which establishes credentials, from authorization, which decides whether a request is allowed.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p>OpenAI, Google, and Anthropic document multiple crawler or fetcher identities and purposes.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> A sound design therefore combines a public policy signal, identity verification where useful, request-level authorization, and enforcement at the edge or origin.</p>
+<h2>What robots.txt does</h2>
+<p>RFC 9309 defines the Robots Exclusion Protocol for service owners to express how automatic clients may access content.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> It specifies crawler and path matching, caching, and error handling. It is a requested-behavior protocol for clients that choose to comply.</p>
+<p>robots.txt does not authenticate a requester or prove that its <code>User-Agent</code> is truthful. It also does not replace access control. HTTP authentication and authorization are the mechanisms for credentials and permission decisions.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> Private material must be protected before delivery; publishing it and relying on <code>Disallow</code> is not protection.</p>
+<p>The file remains valuable for compliant operators: it communicates path and purpose preferences, reduces unwanted discovery, and gives humans an inspectable policy. Its boundary is equally important: a non-compliant client can ignore it, and a false crawler name can imitate a compliant one.</p>
+<h2>Authentication and Web Bot Auth</h2>
+<p>Basic or bearer authentication, scoped delegation tokens, mutual TLS, WAF rules, and rate limits answer the enforcement problem. They should be combined with least privilege, expiry, rotation, logging, and replay protection.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<p>HTTP Message Signatures provide a standard way to sign and verify HTTP messages.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> Web Bot Auth builds on this direction: an automated client signs selected request components and publishes or points to key material that the recipient can verify.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> Cloudflare’s implementation uses <code>Signature-Agent</code>, <code>Signature-Input</code>, and <code>Signature</code>, recommends signing the destination authority, and uses creation and expiry times. It documents short expiry as its current practical replay defense.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<p>A valid signature proves control of a key and binds that key to selected fields. It does not mean the agent may read the whole site. Authorization remains the site’s decision: a registered agent may receive a separate rate limit, while an unsigned or out-of-scope request is denied.</p>
+<pre class="mermaid">sequenceDiagram
+    participant A as Bot or agent
+    participant E as Edge or WAF
+    participant O as Origin
+    A-&gt;&gt;E: Request and optional robots compliance
+    E-&gt;&gt;E: Verify token, mTLS, or Web Bot Auth
+    E-&gt;&gt;E: Apply identity, path, purpose, rate, expiry
+    E-&gt;&gt;O: Authorized request
+    O--&gt;&gt;E: Response
+    E--&gt;&gt;A: Allow, throttle, challenge, or deny</pre>
+<p>The diagram separates policy, identity, authorization, and enforcement. robots.txt can guide a cooperative client; only the edge or origin can reliably refuse delivery.</p>
+<h2>AI crawler controls</h2>
+<p>Provider documentation separates training, search, and product retrieval in different ways.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> Operators can use documented crawler names in targeted robots groups, but the result depends on stable identifiers and compliance. A name is not proof of origin, and a training rule may not govern user-triggered retrieval or browser agents.</p>
+<p>Independent research is beginning to test assistant behavior rather than assuming that a visible robots file predicts every workflow.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> robots.txt is evidence of a site preference; logs and server controls are needed to establish what actually happened. A publisher may allow search indexing, deny training, admit a contracted signed agent, and throttle anonymous automation. Those are separate decisions.</p>
+<h2>Deployment pattern</h2>
+<p>Write a purpose-and-resource policy table. Put cooperative discovery preferences in robots.txt and keep it versioned. Do not put secrets or internal URLs there.</p>
+<p>Enforce protected resources at the origin or edge. Use authentication for identity, authorization for scope, short-lived credentials for delegation, and rate and abuse controls for capacity. OWASP recommends combining controls against automated abuse.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> Log the path, credential or key identity, policy result, response, rate decision, and failure reason.</p>
+<p>If selective admission matters, pilot Web Bot Auth at a separate endpoint or policy class. Register keys securely, sign the destination and required fields, use short expiries, rotate keys, and make authorization a separate decision.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> Test forged user agents, ignored robots rules, expired and replayed signatures, key rotation, clock skew, redirects, bursts, and compromised keys.</p>
+<h2>Limitations</h2>
+<p>Robots Exclusion Protocol is standardized, while Web Bot Auth remains an active IETF work item and can change.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> Cloudflare’s documentation describes one deployed interpretation, not universal verifier behavior.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> Provider crawler names and purposes are operational documentation and may change.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> Independent compliance evidence remains limited; the cited assistant study is an early signal rather than a complete measurement.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></p>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://www.rfc-editor.org/rfc/rfc9110.html">RFC 9110: HTTP Semantics</a>. <span class="venue">IETF, 2022</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://platform.openai.com/docs/bots">Overview of OpenAI crawlers</a>. <span class="venue">OpenAI</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://developers.google.com/search/docs/crawling-indexing/overview-google-crawlers">Google crawlers and fetchers</a>. <span class="venue">Google</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://docs.anthropic.com/en/docs/about-claude/crawlers">Claude web crawler overview</a>. <span class="venue">Anthropic</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://www.rfc-editor.org/rfc/rfc9309.html">RFC 9309: Robots Exclusion Protocol</a>. <span class="venue">IETF, 2022</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-6"><span class="authors">—</span>. <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication">HTTP authentication - HTTP | MDN</a>. <span class="venue">MDN Web Docs</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-7"><span class="authors">—</span>. <a href="https://owasp.org/www-community/controls/Blocking_Brute_Force_Attacks">Blocking Brute Force Attacks</a>. <span class="venue">OWASP</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-8"><span class="authors">—</span>. <a href="https://www.rfc-editor.org/rfc/rfc9421.html">RFC 9421: HTTP Message Signatures</a>. <span class="venue">IETF, 2023</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-9"><span class="authors">—</span>. <a href="https://datatracker.ietf.org/wg/webbotauth/">Web Bot Auth working group</a>. <span class="venue">IETF</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-10"><span class="authors">—</span>. <a href="https://developers.cloudflare.com/bots/reference/bot-verification/web-bot-auth/">Web Bot Auth</a>. <span class="venue">Cloudflare</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-11"><span class="authors">—</span>. <a href="https://blog.cloudflare.com/web-bot-auth/">Forget IPs: using cryptography to verify bot and agent traffic</a>. <span class="venue">Cloudflare, 2024</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-12"><span class="authors">—</span>. <a href="https://arxiv.org/abs/2607.14447">Do Generative AI Assistants Respect robots.txt?</a>. <span class="venue">arXiv, 2026</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-09-15. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

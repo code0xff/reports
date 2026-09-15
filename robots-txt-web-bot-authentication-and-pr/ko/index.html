@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>robots.txt, 웹 봇 인증, 봇과 에이전트 접근 거부·인증 프로토콜 — Deepsearch</title>
+<meta name="description" content="봇 접근 정책 신호와 실제 서버 통제를 구분하는 리서치 보고서">
+<link rel="canonical" href="https://code0xff.github.io/reports/robots-txt-web-bot-authentication-and-pr/ko/">
+<link rel="alternate" hreflang="en" href="../index.html">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="robots.txt, 웹 봇 인증, 봇과 에이전트 접근 거부·인증 프로토콜">
+<meta property="og:description" content="봇 접근 정책 신호와 실제 서버 통제를 구분하는 리서치 보고서">
+<meta property="og:url" content="https://code0xff.github.io/reports/robots-txt-web-bot-authentication-and-pr/ko/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="robots.txt, 웹 봇 인증, 봇과 에이전트 접근 거부·인증 프로토콜">
+<meta name="twitter:description" content="봇 접근 정책 신호와 실제 서버 통제를 구분하는 리서치 보고서">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../ko/index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="en">English</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="GitHub에서 Deepsearch 보기" title="GitHub에서 Deepsearch 보기">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../ko/index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>robots.txt, 웹 봇 인증, 봇과 에이전트 접근 거부·인증 프로토콜</h1>
+    <p class="subtitle">봇 접근 정책 신호와 실제 서버 통제를 구분하는 리서치 보고서</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-09-15</span>
+      <span><strong>태그</strong> —</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="robots-txt-web-bot-authentication-and-pr.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p><code>robots.txt</code>는 협조적 크롤러 정책이며 인증이나 접근 제어가 아니다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 실제 거부에는 서버 측 인증·인가, WAF, 토큰, 인증서, rate limit이 필요하다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> Web Bot Auth는 HTTP Message Signatures와 키 디렉터리에 기반한 초기 암호학적 신원 계층으로 등록된 자동 클라이언트에 선별 정책을 적용하게 한다.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> 지속 가능한 방식은 선호를 공개하고, 필요할 때 신원을 검증하고, 작업별로 인가하고, 엣지 또는 원본에서 집행하는 것이다.</p>
+  </section>
+
+  <main class="body">
+<h1>robots.txt, 웹 봇 인증, 봇과 에이전트 접근 통제</h1>
+<h2>서론</h2>
+<p>봇 접근에는 협조적인 크롤러가 경로를 가져가도 되는지, 서버가 요청자를 식별할 수 있는지, 작업이 인가되었는지, 정책을 무시하면 어떻게 처리할지라는 네 질문이 있다. HTTP도 인증은 자격 증명을 확인하고 인가는 요청 허용 여부를 결정하는 과정으로 구분한다.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p>OpenAI·Google·Anthropic은 목적이 다른 crawler와 fetcher를 문서화한다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> 따라서 공개 정책 신호, 필요할 때의 신원 검증, 요청별 인가, 엣지 또는 원본에서의 집행을 나누어 설계해야 한다.</p>
+<h2>robots.txt의 역할</h2>
+<p>RFC 9309는 서비스 운영자가 자동 클라이언트의 콘텐츠 접근 방식을 표현하는 Robots Exclusion Protocol을 정의한다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> 크롤러·경로 매칭과 캐시·오류 처리 규칙을 정하지만, 준수하기로 한 클라이언트가 따르는 행동 요청 프로토콜이다.</p>
+<p>robots.txt는 요청자를 인증하지 않으며 <code>User-Agent</code>가 진짜라는 증거도 만들지 않는다. 접근 제어도 대신하지 않는다. 자격 증명과 권한 판단은 HTTP 인증·인가와 서버 통제가 담당한다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> 보호 자료는 반환 전에 잠가야 하며, 공개한 뒤 <code>Disallow</code>에 기대서는 안 된다.</p>
+<p>그래도 robots.txt는 유용하다. 준수하는 운영자에게 경로·목적별 선호를 전달하고 원치 않는 발견을 줄이며 사람이 읽을 수 있는 공개 정책을 만든다. 반면 준수하지 않는 클라이언트는 무시할 수 있고, 가짜 이름으로 정상 크롤러를 흉내 낼 수도 있다.</p>
+<h2>인증과 Web Bot Auth</h2>
+<p>Basic·bearer 인증, 범위 제한 토큰, 상호 TLS, WAF, rate limit은 실제 집행 문제를 해결한다. 최소 권한, 만료, 키 교체, 로깅, 재전송 방지와 함께 써야 한다.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></p>
+<p>HTTP Message Signatures는 HTTP 메시지를 서명하고 검증하는 표준 방법을 제공한다.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> Web Bot Auth는 자동 클라이언트가 요청 일부를 서명하고 검증 가능한 키 자료를 공개하거나 가리키는 방식으로 이 방향을 활용한다.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> Cloudflare 구현은 <code>Signature-Agent</code>, <code>Signature-Input</code>, <code>Signature</code>를 사용하고 목적지 권한과 생성·만료 시각을 다룬다. 현재 구현의 재전송 방어로 짧은 만료도 설명한다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup></p>
+<p>유효한 서명은 키를 통제하고 선택된 필드를 결합했다는 뜻이다. 사이트 전체를 읽을 권한을 뜻하지는 않는다. 인가는 사이트의 별도 결정이며, 등록된 에이전트에도 별도 rate limit을 적용할 수 있고 서명 없거나 범위를 벗어난 요청은 거부할 수 있다.</p>
+<pre class="mermaid">sequenceDiagram
+    participant A as 봇 또는 에이전트
+    participant E as 엣지 또는 WAF
+    participant O as 원본 서버
+    A-&gt;&gt;E: 요청과 선택적 robots 준수
+    E-&gt;&gt;E: 토큰·mTLS·Web Bot Auth 검증
+    E-&gt;&gt;E: 신원·경로·목적·속도·만료 정책 적용
+    E-&gt;&gt;O: 인가된 요청
+    O--&gt;&gt;E: 응답
+    E--&gt;&gt;A: 허용·제한·도전 또는 거부</pre>
+<p>정책, 신원, 인가, 집행을 분리해야 한다. robots.txt는 협조적 클라이언트를 안내할 수 있지만 실제 전달을 거부하는 것은 엣지나 원본이다.</p>
+<h2>AI 크롤러 통제</h2>
+<p>공급자 문서는 학습·검색·제품 retrieval을 서로 다른 방식으로 나눈다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> 운영자는 문서화된 이름을 robots 그룹에 쓸 수 있지만, 안정적인 식별자와 준수가 전제다. 이름은 출처 증명이 아니며 학습 규칙이 사용자 요청 fetch나 브라우저 에이전트까지 자동으로 규율하지 않는다.</p>
+<p>독립 연구는 robots 파일만으로 모든 assistant 워크플로를 가정하지 않고 실제 행태를 시험하기 시작했다.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> robots.txt는 사이트 선호의 증거이고, 실제 결과는 로그와 서버 통제로 확인해야 한다. 검색은 허용하고 학습은 거부하며 계약 에이전트는 서명으로 받고 익명 자동화는 제한하는 식으로 결정은 분리될 수 있다.</p>
+<h2>배포 패턴</h2>
+<p>목적과 리소스별 정책표를 먼저 만든다. 협조적 발견 선호는 robots.txt에 쓰고 버전 관리한다. 비밀과 내부 URL은 넣지 않는다.</p>
+<p>보호 리소스는 엣지나 원본에서 집행한다. 신원에는 인증, 범위에는 인가, 위임에는 짧은 자격 증명, 용량에는 rate와 abuse 통제를 사용한다. OWASP도 자동화 남용에 여러 통제를 조합할 것을 권고한다.<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> 경로, 자격 증명 또는 키 신원, 정책 결과, 응답, rate 판단, 실패 이유를 기록한다.</p>
+<p>선별 허용이 필요하면 별도 endpoint나 정책 등급에서 Web Bot Auth를 시범 운영한다. 키를 안전하게 등록하고 목적지와 필요한 필드를 서명하며 만료를 짧게 하고 교체한다. 검증 뒤 별도 인가를 수행한다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> 위조 user agent, 무시된 robots 규칙, 만료·재전송 서명, 키 교체, 시계 오차, redirect, burst, 탈취 키를 시험해야 한다.</p>
+<h2>한계</h2>
+<p>Robots Exclusion Protocol은 표준화되었지만 Web Bot Auth는 진행 중인 IETF 작업이며 바뀔 수 있다.<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> Cloudflare 문서는 한 구현의 해석이지 모든 검증기의 동작을 보장하지 않는다.<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> 공급자 crawler 이름과 목적도 바뀔 수 있다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> 독립적인 준수 근거는 아직 제한적이며, 인용한 assistant 연구는 완결된 측정이 아닌 초기 신호다.<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></p>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://www.rfc-editor.org/rfc/rfc9110.html">RFC 9110: HTTP Semantics</a>. <span class="venue">IETF, 2022</span>. <span class="accessed">접근일 2026-09-16.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://platform.openai.com/docs/bots">Overview of OpenAI crawlers</a>. <span class="venue">OpenAI</span>. <span class="accessed">접근일 2026-09-16.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://developers.google.com/search/docs/crawling-indexing/overview-google-crawlers">Google crawlers and fetchers</a>. <span class="venue">Google</span>. <span class="accessed">접근일 2026-09-16.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://docs.anthropic.com/en/docs/about-claude/crawlers">Claude web crawler overview</a>. <span class="venue">Anthropic</span>. <span class="accessed">접근일 2026-09-16.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://www.rfc-editor.org/rfc/rfc9309.html">RFC 9309: Robots Exclusion Protocol</a>. <span class="venue">IETF, 2022</span>. <span class="accessed">접근일 2026-09-16.</span></li>
+      <li id="ref-6"><span class="authors">—</span>. <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication">HTTP authentication - HTTP | MDN</a>. <span class="venue">MDN Web Docs</span>. <span class="accessed">접근일 2026-09-16.</span></li>
+      <li id="ref-7"><span class="authors">—</span>. <a href="https://owasp.org/www-community/controls/Blocking_Brute_Force_Attacks">Blocking Brute Force Attacks</a>. <span class="venue">OWASP</span>. <span class="accessed">접근일 2026-09-16.</span></li>
+      <li id="ref-8"><span class="authors">—</span>. <a href="https://www.rfc-editor.org/rfc/rfc9421.html">RFC 9421: HTTP Message Signatures</a>. <span class="venue">IETF, 2023</span>. <span class="accessed">접근일 2026-09-16.</span></li>
+      <li id="ref-9"><span class="authors">—</span>. <a href="https://datatracker.ietf.org/wg/webbotauth/">Web Bot Auth working group</a>. <span class="venue">IETF</span>. <span class="accessed">접근일 2026-09-16.</span></li>
+      <li id="ref-10"><span class="authors">—</span>. <a href="https://developers.cloudflare.com/bots/reference/bot-verification/web-bot-auth/">Web Bot Auth</a>. <span class="venue">Cloudflare</span>. <span class="accessed">접근일 2026-09-16.</span></li>
+      <li id="ref-11"><span class="authors">—</span>. <a href="https://blog.cloudflare.com/web-bot-auth/">Forget IPs: using cryptography to verify bot and agent traffic</a>. <span class="venue">Cloudflare, 2024</span>. <span class="accessed">접근일 2026-09-16.</span></li>
+      <li id="ref-12"><span class="authors">—</span>. <a href="https://arxiv.org/abs/2607.14447">Do Generative AI Assistants Respect robots.txt?</a>. <span class="venue">arXiv, 2026</span>. <span class="accessed">접근일 2026-09-16.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-09-15 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
