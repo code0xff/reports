@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EIP-1271 in Detail: The Blanks the Specification Left, and the Standards That Tried to Fill Them — Deepsearch</title>
+<meta name="description" content="A standard of one function and one magic value, read through its revision history, its implementations, the 2023 cross-account replay incident, and the three proposals that followed.">
+<link rel="canonical" href="https://code0xff.github.io/reports/eip-1271/en/">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="EIP-1271 in Detail: The Blanks the Specification Left, and the Standards That Tried to Fill Them">
+<meta property="og:description" content="A standard of one function and one magic value, read through its revision history, its implementations, the 2023 cross-account replay incident, and the three proposals that followed.">
+<meta property="og:url" content="https://code0xff.github.io/reports/eip-1271/en/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="EIP-1271 in Detail: The Blanks the Specification Left, and the Standards That Tried to Fill Them">
+<meta name="twitter:description" content="A standard of one function and one magic value, read through its revision history, its implementations, the 2023 cross-account replay incident, and the three proposals that followed.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>EIP-1271 in Detail: The Blanks the Specification Left, and the Standards That Tried to Fill Them</h1>
+    <p class="subtitle">A standard of one function and one magic value, read through its revision history, its implementations, the 2023 cross-account replay incident, and the three proposals that followed.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-09-18</span>
+      <span><strong>Tags</strong> eip-1271, erc-7739, erc-6492, eip-7702, eip-712, smart-accounts, account-abstraction, signature-validation, signature-replay, safe, openzeppelin, solady, ethereum</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="eip-1271.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>EIP-1271 is the standard that lets a contract sign. It consists of one function, one magic value, and a five-sentence security section<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Most of Ethereum's smart account ecosystem rests on it.</p>
+<p>This report reads the standard out of its own text, its revision history, the source of the implementations that carry it, the three standards that came afterwards, and the incident that broke several account implementations at once in 2023. The argument is that <strong>what EIP-1271 left unsaid shaped its history more than what it specified.</strong> How to derive the hash, how to bind a signature to an account, what to do about accounts that are not deployed yet, how a verifier is supposed to tell an EOA from a contract: the specification answers none of these, and all four came back later as separate ERCs or core EIP proposals.</p>
+<p>Three things are shown concretely. The specification's own reference implementation is structurally the code ERC-7739 labels "NOT safe", and that exact shape is what failed across a set of smart accounts in October 2023; the successor standard names it "the mistake of ERC-1271"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. On the verifier side there is no correct answer available: OpenZeppelin moved in 2024 from "try ECDSA, fall back to ERC-1271" to a <code>code.length</code> dispatch, because the first form makes key revocation impossible and the second breaks EIP-7702 delegated EOAs; the resolution now hangs on two core EIPs, neither scheduled for a fork<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. And the standardisation clock runs backwards relative to risk: ERC-6492, which handles undeployed accounts, reached Final in six months<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>, while ERC-7739, which closes the security gap, has been Draft for over two years and its file has not been touched since 2025-06-17<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p>Every magic value and typehash quoted here was recomputed from its preimage rather than copied from a comment, and the cross-account replay was demonstrated by executing the verification logic. Scripts and logs are in <code>working/verify/</code>.</p>
+  </section>
+
+  <main class="body">
+<h2>1. What the standard specifies, and what it leaves open</h2>
+<h3>1.1 Specified</h3>
+<p>The substance of the specification is a single signature:</p>
+<pre><code>function isValidSignature(bytes32 _hash, bytes memory _signature)
+    public view returns (bytes4 magicValue);</code></pre>
+<p>Three requirements attach to it. It MUST return the magic value <code>0x1626ba7e</code> on success, it MUST NOT modify state, and it MUST allow external calls<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>The magic value is the function's own selector. The specification's comment gives it as <code>bytes4(keccak256("isValidSignature(bytes32,bytes)"))</code>; rather than trust the comment, we recomputed it from the preimage and confirmed <code>0x1626ba7e</code>.</p>
+<p>Returning <code>bytes4</code> instead of <code>bool</code> is a choice the specification defends: it wants "stricter and simpler verification"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. In practice it guards against a contract that never implemented the interface happening to return something truthy. Getting the selector back is close to evidence that the callee knows what was asked of it.</p>
+<p>The <code>view</code> constraint has a stated reason too. Allowing state changes would open "<code>GasToken</code> minting or similar attack vectors"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. It blocks burning gas during a verification to mint a token, and as a side effect it makes the function callable off-chain.</p>
+<p>The security section runs to two paragraphs. One says not to hardcode a gas limit when calling the method. The other says this: "each contract implementing this method is responsible to ensure that the signature passed is indeed valid, otherwise catastrophic outcomes are to be expected"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h3>1.2 Left open</h3>
+<p>That sentence is the standard in miniature. The whole safety of verification is delegated to the implementer, and the specification does not say what a safe implementation looks like. Five things are missing in particular.</p>
+<p><strong>The failure return value.</strong> The specification only requires the magic value on success. What to return on failure is unspecified. The reference implementation uses <code>0xffffffff</code> and implementations follow it. Solady's comment records exactly that provenance: "We use <code>0xffffffff</code> for invalid, in convention with the reference implementation"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. It causes no trouble in practice, because a verifier only ever checks for equality with the magic value. Trail of Bits gives the same advice: enforce "exact ERC-1271 magic value return (<code>0x1626ba7e</code>) on success; anything else is failure"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p><strong>How the hash is built.</strong> The specification takes a <code>bytes32 _hash</code> and stops there. Its Rationale explains that a hash is taken rather than the raw message "since contracts could expect a certain hashing function that is not standard, such as with EIP-712"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. That latitude is deliberate, and it is what §3 turns into an incident.</p>
+<p><strong>Account binding.</strong> Nothing requires the hash to say which account the signature is for. The reference implementation does not bind it.</p>
+<p><strong>Undeployed accounts.</strong> If the contract does not exist yet there is nothing to call. The specification does not consider the case.</p>
+<p><strong>Verifier behaviour.</strong> The specification says applications "should call this method if the signer is a contract"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> and never says how to determine that the signer is a contract. In 2018 the question answered itself. After EIP-7702 it does not.</p>
+<p>A further property goes unmentioned. Contract signatures are <strong>revocable</strong>. Unlike an ecrecover result, <code>isValidSignature</code> depends on contract state, so its answer moves over time. OpenZeppelin's <code>SignatureChecker</code> states this in a function comment: "Unlike ECDSA signatures, contract signatures are revocable, and the outcome of this function can thus change through time. It could return true at block N and false at block N+1 (or the opposite)"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The specification contains no equivalent sentence.</p>
+<h2>2. The day the magic value changed</h2>
+<p>Created on 2018-07-25, the standard became Final on 2022-01-28<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>: three and a half years. It sat as a Draft until mid-2021, then moved to Review on 2021-06-29 and Last Call on 2021-07-09 before finalising the following January<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<p>Somewhere in the middle of that long Draft, the interface changed. Commit <code>92a81d5</code>, dated 2020-07-09, replaced the function signature and the magic value in one edit<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>:</p>
+<pre><code>-  // bytes4(keccak256(&quot;isValidSignature(bytes,bytes)&quot;)
+-  bytes4 constant internal MAGICVALUE = 0x20c13b0b;
++  // bytes4(keccak256(&quot;isValidSignature(bytes32,bytes)&quot;)
++  bytes4 constant internal MAGICVALUE = 0x1626ba7e;
+...
+-    bytes memory _data,
++    bytes32 _hash,</code></pre>
+<p>Both values were recomputed here. <code>bytes4(keccak256("isValidSignature(bytes,bytes)"))</code> is <code>0x20c13b0b</code> and <code>bytes4(keccak256("isValidSignature(bytes32,bytes)"))</code> is <code>0x1626ba7e</code>. Different functions, different selectors, no ABI compatibility between an old implementation and a new caller.</p>
+<p>The commit that landed on master is titled "Automatically merged updates to draft EIP(s) 1271"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. That is a bot's title, so reading the file's history alone gives no sign that the interface moved.</p>
+<p>Deliberation did happen, though, one hop away. PR #2776 is titled "Change ERC1271 to bytes32 hash" and its body states the reason: taking a hash avoids "the requirement of specific implementation checks within this signature verification functions". Dissent is on the record too, with one participant objecting that "I have use-case where I need to pass the whole data to the contract, not just it hash, because the data defines if the signature can be validated or not." The automerge bot itself declined to merge, replying that "EIP 1271 requires approval from one of" its authors<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. The discussion is in the pull request; the commit log carries none of it.</p>
+<p>What that discussion settled is the more interesting part. One participant argued that "we should aim ERC-1271 to provide the same level of functionality as ecrecover does off-chain... introducing additional validation seems to be out-of-scope of this standard", and the proposer concluded that "any extra validation scheme should be standardised separately"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. The two follow-on standards in §4 and §5 are the direct issue of that decision.</p>
+<p>The change was legitimate in the sense that the standard was still a Draft and Drafts are allowed to move. Production implementations already existed all the same: the same commit edited an "Existing implementations" list naming 0x protocol v2 and the ERC725 account<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>, and proposal to merge took one day<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Two months later EIP-1654, a separate proposal then in flight, was revised "to reflect the recent changes to EIP-1271" and to take 1271 as a required dependency; that proposal was never merged<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p>The result is still on chain. Safe v1.3.0's <code>CompatibilityFallbackHandler</code> implements <strong>both</strong> functions<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>:</p>
+<pre><code>bytes4 internal constant UPDATED_MAGIC_VALUE = 0x1626ba7e;
+
+function isValidSignature(bytes calldata _data, bytes calldata _signature)
+    public view override returns (bytes4)
+{ ... return EIP1271_MAGIC_VALUE; }
+
+function isValidSignature(bytes32 _dataHash, bytes calldata _signature)
+    external view returns (bytes4)
+{
+    ISignatureValidator validator = ISignatureValidator(msg.sender);
+    bytes4 value = validator.isValidSignature(abi.encode(_dataHash), _signature);
+    return (value == EIP1271_MAGIC_VALUE) ? UPDATED_MAGIC_VALUE : bytes4(0);
+}</code></pre>
+<p>The naming tells the story. In this version <code>EIP1271_MAGIC_VALUE</code> holds the old <code>0x20c13b0b</code><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>, and the value the standard actually specifies lives under the name <code>UPDATED_MAGIC_VALUE</code>. The new function wraps the hash with <code>abi.encode</code>, hands it to the old one, and translates the return. On Safe's current main branch the legacy function is gone and the identifier <code>EIP1271_MAGIC_VALUE</code> now holds <code>0x1626ba7e</code><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. The same name means two different constants depending on which Safe you are looking at.</p>
+<p>The specification was edited twice after Final, on 2022-10-28 and 2023-08-08, both times to the examples rather than the normative text<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<h2>3. Replay across accounts</h2>
+<h3>3.1 October 2023</h3>
+<p>On 27 October 2023 Alchemy found an ERC-1271 contract signature replay vulnerability. The affected smart account implementations were LightAccount, Kernel (ZeroDev), Biconomy, Soul Wallet, EIP4337Fallback, AmbireAccount, OKX SmartAccount, Argent BaseWallet and Fuse Wallet; Permit2 and CowSwap were named as applications at risk. An independent security researcher had found the same issue a month earlier<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. That researcher's own writeup is published on mirror.xyz but could not be read here, because the host answers scripted requests with a Cloudflare challenge<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>, so none of it is quoted. What was confirmed directly is that Solady's <code>ERC1271</code> source cites that exact URL as the reference for why defensive rehashing exists<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>The disclosure states that nothing was lost: "At this point, no funds are at risk and the impact to applications is fairly limited"<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> <em>(the discovering party's own account)</em>.</p>
+<h3>3.2 The shape of the flaw</h3>
+<p>The precondition is undemanding. One EOA owns several smart accounts, and the application builds a hash that does not name an account. A signature made for one account then verifies against the others. ERC-7739's Motivation describes exactly this and names Permit2 as a live example<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</p>
+<pre class="mermaid">flowchart LR
+    O[&quot;owner EOA&lt;br/&gt;one private key&quot;] --&gt; A[&quot;smart account A&quot;]
+    O --&gt; B[&quot;smart account B&quot;]
+    H[&quot;hash built by the app&lt;br/&gt;no account address in it&quot;] --&gt; S[&quot;one signature&quot;]
+    S --&gt;|&quot;produced for A&quot;| A
+    S -.-&gt;|&quot;also passes on B&quot;| B
+    A --&gt; V1[&quot;0x1626ba7e&quot;]
+    B --&gt; V2[&quot;0x1626ba7e&quot;]</pre>
+<p><em>Figure 1 — the precondition for cross-account replay. When the hash names no account, both accounts recover the same signer<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</em></p>
+<p>We checked this by running it. The verification logic was reimplemented in JavaScript, a key was generated in-process, a real secp256k1 signature was produced, and both accounts were asked to validate it.</p>
+<pre><code>naive implementation (EIP-1271 reference shape)
+PASS  signature produced for account A is accepted by A   -&gt; 0x1626ba7e
+PASS  the SAME signature is also accepted by account B    -&gt; 0x1626ba7e</code></pre>
+<p>This is a reimplementation of verification logic, not an on-chain test: no contract was deployed and no EVM was run. It shows the arithmetic fact that an unbound hash recovers to the owner under both accounts. It is not a claim about the current state of any particular implementation.</p>
+<h3>3.3 The reference implementation</h3>
+<p>An uncomfortable comparison follows. Here is the example ERC-7739 presents under a "NOT safe" annotation<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>:</p>
+<pre><code>/// @dev This implementation is NOT safe.
+function isValidSignature(bytes32 hash, bytes calldata signature)
+    external override view returns (bytes4)
+{
+    ...
+    address signer = ecrecover(hash, v, r, s);
+    if (signer == owner) { return 0x1626ba7e; } else { return 0xffffffff; }
+}</code></pre>
+<p>And here is EIP-1271's own Reference Implementation<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>:</p>
+<pre><code>function isValidSignature(bytes32 _hash, bytes calldata _signature)
+    external override view returns (bytes4)
+{
+    if (recoverSigner(_hash, _signature) == owner) {
+      return 0x1626ba7e;
+    } else {
+      return 0xffffffff;
+    }
+}</code></pre>
+<p>Both recover a signer from the hash and compare it to <code>owner</code>. Both reject malleable signatures and zero-address recovery. Neither binds the account address into the hash. The structures match.</p>
+<p>The comparison is not only ours. ERC-7739 says it outright when introducing its own reference implementation: "The reference implementation is intentionally not minimalistic. This is to avoid repeating <strong>the mistake of ERC-1271</strong>, where a minimalist reference implementation is wrongly assumed to be safe for production use"<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. A successor standard naming its predecessor's reference implementation as a mistake is about as explicit as this gets. Set beside Francisco Giordano's appearance as an author of both, it reads as a standard belatedly documenting the hazard in its own example code.</p>
+<p>One can still argue that a reference implementation is an illustration of an interface rather than a deployment template. ERC-7739's sentence is the observation that this reading did not survive contact with practice.</p>
+<h3>3.4 Why Safe was untouched</h3>
+<p>Alchemy records that Gnosis Safe was not vulnerable to this vector<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>, and the source shows why. Safe's <code>CompatibilityFallbackHandler</code> does not verify the incoming hash directly; it rehashes it into a <code>SafeMessage</code> under the Safe's own domain<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>:</p>
+<pre><code>bytes memory messageData = encodeMessageDataForSafe(safe, abi.encode(_dataHash));
+bytes32 messageHash = keccak256(messageData);
+safe.checkSignatures(address(0), messageHash, _signature);</code></pre>
+<p><code>encodeMessageDataForSafe</code> builds the final hash from the EIP-712 domain separator and the <code>SafeMessage(bytes message)</code> typehash. The domain separator contains that Safe's address, so the signature is valid only for it. The typehash <code>0x60b3cbf8…</code> was recomputed from its preimage and matches.</p>
+<p>Adding the same rehashing to the verification script inverts the outcome:</p>
+<pre><code>Safe-style domain binding
+PASS  signature produced for account A is accepted by A   -&gt; 0x1626ba7e
+PASS  the SAME signature is rejected by account B         -&gt; 0xffffffff</code></pre>
+<p>A distinction is worth preserving. <code>EIP4337Fallback</code> does appear on Alchemy's affected list, and it is not Safe core but a separate adapter connecting a Safe to ERC-4337<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. The same wallet could land on either side of the line depending on which path verified the signature.</p>
+<h3>3.5 What ERC-7739 does</h3>
+<p>ERC-7739 standardises what Safe did by hand. A smart account must build its final hash from at least (1) the hash, (2) its own address, and (3) the chain ID<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. The technique is called defensive rehashing.</p>
+<pre class="mermaid">flowchart TD
+    C[&quot;what the app wants signed&lt;br/&gt;e.g. a Permit2 approval&quot;] --&gt; H1[&quot;app EIP-712 hash&lt;br/&gt;no account address&quot;]
+    H1 --&gt; N{&quot;defensive&lt;br/&gt;rehashing&quot;}
+    N --&gt;|&quot;no&quot;| R[&quot;isValidSignature verifies this hash as-is&lt;br/&gt;replayable across accounts&quot;]
+    N --&gt;|&quot;yes&quot;| W[&quot;nested TypedDataSign&lt;br/&gt;plus account address&lt;br/&gt;plus chain ID&quot;]
+    W --&gt; H2[&quot;final hash&lt;br/&gt;valid only for this account&quot;]
+    H2 --&gt; OK[&quot;isValidSignature verifies&lt;br/&gt;the final hash&quot;]</pre>
+<p><em>Figure 2 — where defensive rehashing inserts itself. The application's hash is left alone and the account adds a layer over it<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>.</em></p>
+<p>The design difficulty was readability. Nesting naively puts an opaque hash on the wallet's confirmation screen. ERC-7739 nests through EIP-712 structures arranged so the original contents stay visible, and it takes EIP-712 and ERC-5267's <code>eip712Domain()</code> as REQUIRED dependencies<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>.</p>
+<p>Its capability detection is an interesting consequence of the base standard. EIP-1271 offers no way to ask an account what it supports, so ERC-7739 borrows the <strong>hash space</strong> instead: pass <code>0x7739…7739</code> with an empty signature and a supporting account answers <code>0x77390001</code><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Solady computes that sentinel rather than storing it, as <code>~signature.length / 0xffff * 0x7739</code>, to save bytecode. We evaluated the expression and confirmed it yields <code>0x7739</code> repeated sixteen times.</p>
+<p>The standard also allows the rehashing to be skipped when the caller is already known to include the account in its hash. Solady exposes that as <code>_erc1271CallerIsSafe()</code> and ships one canonical multicaller address in the default allowlist<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<h2>4. Undeployed accounts and ERC-6492</h2>
+<p>The second gap is one of ordering. The best onboarding for a smart account defers deployment until the first transaction, yet many dApps ask for a login signature before any interaction. A contract that does not exist has no function to call, so ERC-1271 verification cannot happen<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>.</p>
+<p>ERC-6492 solves it with a wrapper. The signature carries the magic suffix <code>0x6492…6492</code>, preceded by an ABI encoding of <code>(create2Factory, factoryCalldata, originalERC1271Signature)</code>. A verifier that detects the suffix MUST perform the deployment before calling <code>isValidSignature</code><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>. The magic bytes are a literal constant rather than a hash, and we confirmed the 32 bytes are <code>6492</code> repeated.</p>
+<p>Verifier behaviour is specified in four ordered steps. If the magic bytes are present, <code>eth_call</code> a multicall contract that runs the factory first and then calls <code>isValidSignature</code>. Otherwise, if there is code at the address, do ordinary ERC-1271 verification. If that verification fails and the deploy was skipped because code already existed, run <code>factoryCalldata</code> and try again. If there is no code at all, fall back to <code>ecrecover</code><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>.</p>
+<p>Two specifications meet here without anyone reconciling them. EIP-1271 insists that <code>isValidSignature</code> must not modify state<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, while ERC-6492's verification path involves a deployment. In practice there is no conflict, because it happens inside an <code>eth_call</code> and chain state is untouched, but neither document says so.</p>
+<p>ERC-6492 went from proposal on 2023-02-24 to Review on 2023-03-10, Last Call on 2023-08-04, and Final on 2023-09-05<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. Roughly six months.</p>
+<h2>5. The verifier's dilemma</h2>
+<p>The previous two sections concerned the signing side. The remaining gap is on the verifying side, and it is the one still open.</p>
+<h3>5.1 Two shapes</h3>
+<p>Given an address, a hash and a signature, a verifier must decide: <code>ecrecover</code> if the address is an EOA, <code>isValidSignature</code> if it is a contract. EIP-1271 does not say how to make that decision.</p>
+<p>OpenZeppelin's <code>SignatureChecker</code> once tried ECDSA first and fell back to ERC-1271<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>:</p>
+<pre><code>(address recovered, ECDSA.RecoverError error, ) = ECDSA.tryRecover(hash, signature);
+return (error == ECDSA.RecoverError.NoError &amp;&amp; recovered == signer) ||
+       isValidERC1271SignatureNow(signer, hash, signature);</code></pre>
+<p>PR #4951, merged on 2024-03-14, replaced that with an explicit dispatch<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>:</p>
+<pre><code>if (signer.code.length == 0) {
+    (address recovered, ECDSA.RecoverError err, ) = ECDSA.tryRecover(hash, signature);
+    return err == ECDSA.RecoverError.NoError &amp;&amp; recovered == signer;
+} else {
+    return isValidERC1271SignatureNow(signer, hash, signature);
+}</code></pre>
+<p>The maintainer's own reasoning is on record. Under the <code>||</code> form, "an account whose address is derived from an ECDSA key can never fully revoke that key at the application level: whatever its <code>isValidSignature</code> returns, a raw ECDSA signature from the original key keeps validating." The dispatch lets such an account migrate off the key, "at the cost of one <code>EXTCODESIZE</code> and of making ERC-1271 the only accepted scheme once the account has code"<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>.</p>
+<h3>5.2 Enter EIP-7702</h3>
+<p>That cost becomes a problem under EIP-7702. For a delegated account, <code>EXTCODESIZE</code> returns 23, the size of the delegation indicator <code>0xef0100 || address</code><sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>.</p>
+<p>A delegated EOA therefore fails the <code>signer.code.length == 0</code> test and is routed to ERC-1271. If the delegate does not implement <code>isValidSignature</code>, the account's ordinary ECDSA signature stops validating. The private key is unchanged and still sends transactions from that account; only signature verification breaks.</p>
+<pre class="mermaid">flowchart TD
+    S[&quot;one address to verify&quot;] --&gt; Q{&quot;does the signature end&lt;br/&gt;in 0x6492...6492&quot;}
+    Q --&gt;|&quot;yes&quot;| D[&quot;run the factory inside eth_call&lt;br/&gt;then isValidSignature&quot;]
+    Q --&gt;|&quot;no&quot;| C{&quot;code.length == 0&quot;}
+    C --&gt;|&quot;yes&lt;br/&gt;plain EOA&quot;| E[&quot;ecrecover&quot;]
+    C --&gt;|&quot;no&quot;| K{&quot;is the code 23 bytes&lt;br/&gt;an EIP-7702 delegation indicator&quot;}
+    K --&gt;|&quot;no&lt;br/&gt;ordinary contract&quot;| I[&quot;isValidSignature&quot;]
+    K --&gt;|&quot;yes&quot;| P[&quot;does the delegate implement 1271&lt;br/&gt;if yes it passes&lt;br/&gt;if not a valid ECDSA signature fails&quot;]</pre>
+<p><em>Figure 3 — the branches a verifier actually faces. The bottom path appeared with EIP-7702 and no standard currently specifies how to handle it<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup><sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>.</em></p>
+<h3>5.3 Pushed down to the protocol</h3>
+<p>The library side has decided not to resolve this at the application layer. Issue #6773, opened on 2026-09-15 and labelled <code>on hold</code>, pins the resolution to two core EIPs<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>.</p>
+<p>EIP-8151 applies the EIP-3607 account-code restriction to the <code>ecRecover</code> precompile: after recovery it returns the address only if that account's raw code is empty or is exactly an EIP-7702 delegation indicator, and 32 zero bytes otherwise<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup>. EIP-8298 adds a <code>SETCODEFROM</code> instruction giving an EOA a migration path to holding regular code rather than a delegation indicator<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>. Together, an account that has migrated off its key ends up with regular code and <code>ecRecover</code> returns zero for it; the ECDSA branch of the <code>||</code> form can no longer shadow ERC-1271, the <code>code.length</code> dispatch becomes redundant, and the library can revert to the older shape<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>.</p>
+<p>The prospect should not be oversold. Neither EIP is primarily about ERC-1271, since their stated motivation is post-quantum authority migration<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup><sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>, and both are Drafts. Reading the Hegotá hardfork meta directly, both appear only under "Proposed for Inclusion", with nothing under "Scheduled for Inclusion" or "Considered for Inclusion"<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>. They have not advanced past being proposed.</p>
+<p>Which leaves the current position: the blank EIP-1271 left where verifier behaviour should have been offers only choices that break something at the application layer, and its resolution now depends on two unscheduled protocol proposals.</p>
+<h2>6. Three standards, three speeds</h2>
+<p>Laid side by side, the trajectories do not line up with the risk.</p>
+<table><thead><tr><th>Standard</th><th>Gap addressed</th><th>Proposed</th><th>Status now</th><th>Elapsed</th></tr></thead><tbody><tr><td>EIP-1271</td><td>contract signatures themselves</td><td>2018-07-25</td><td>Final 2022-01-28</td><td>~3 years 6 months</td></tr><tr><td>ERC-6492</td><td>undeployed accounts</td><td>2023-02-24</td><td>Final 2023-09-05</td><td>~6 months</td></tr><tr><td>ERC-7739</td><td>cross-account replay</td><td>2024-05-28</td><td><strong>Draft</strong></td><td>2+ years, ongoing</td></tr></tbody></table>
+<pre class="mermaid">timeline
+    title EIP-1271 and the standards that followed
+    2018-07-25 : EIP-1271 created
+    2020-07-09 : magic value 0x20c13b0b to 0x1626ba7e
+    2022-01-28 : EIP-1271 Final
+    2023-02-24 : ERC-6492 proposed
+    2023-09-05 : ERC-6492 Final
+    2023-10-27 : cross-account replay disclosed
+    2024-03-14 : OpenZeppelin adopts code.length dispatch
+    2024-05-28 : ERC-7739 created
+    2025-06-17 : ERC-7739 last edited
+    2026-09-15 : OpenZeppelin issue 6773 opened</pre>
+<p><em>Figure 4 — standards, incident and implementations in sequence. ERC-7739 is the only line without an endpoint<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup><sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup><sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup><sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</em></p>
+<p>The slowest of the three is the one closing a security gap. ERC-7739's file has four commits in the ERCs repository and none since 2025-06-17<sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup>. Implementations went ahead of it: Solady makes nested EIP-712 the default behaviour of its <code>ERC1271</code> mixin<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>, and OpenZeppelin ships it as <code>draft-ERC7739.sol</code>, the <code>draft-</code> prefix being that library's marker for an ERC that has not reached Final<sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup>.</p>
+<p>Nor does the field look settled. Trail of Bits published six common mistakes in ERC-4337 smart accounts on 2026-03-11; the fourth is the "ERC-1271 replay signature attack", and its vulnerable example carries the annotation "recovers over a raw hash, not bound to this contract or chainId"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. That is two years and five months after the disclosure. The same post does not mention ERC-7739.</p>
+<p>One further data point, offered as context rather than proof. An ICSE 2026 paper on signature replay vulnerabilities generally examined 1,419 audit reports, extracted 108 cases into five types, and measured that roughly 19.63% of Ethereum contracts using signatures carry a flaw of this family<sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup>. The figure is not specific to ERC-1271 and does not support this report's claims directly. It does suggest that the territory EIP-1271 handed wholesale to implementers is territory that gets implemented wrong at scale.</p>
+<h2>7. Limitations</h2>
+<ul>
+<li><strong>This is a 2026-09-18 snapshot.</strong> OpenZeppelin issue #6773 was opened three days earlier, and the Draft status of ERC-7739 and the Hegotá standing of EIP-8151 and EIP-8298 can all move. Sections 5 and 6 depend on those three facts.</li>
+<li><strong>The reproduction script is not an on-chain test.</strong> <code>verify_replay.mjs</code> reimplements three verification paths in JavaScript. The ECDSA signing and recovery are real, but no contract was deployed and no EVM was executed. What it shows is arithmetic, not the present state of any deployed implementation.</li>
+<li><strong>The independent researcher's own account could not be read.</strong> mirror.xyz answers with a Cloudflare challenge<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. The prior discovery is established only from the Alchemy disclosure and from Solady's source citing that URL.</li>
+<li><strong>The 2023 incident's scope and the "no funds at risk" statement come from the discovering party.</strong> The existence and nature of the flaw were confirmed independently through the ERC-7739 specification and the Trail of Bits post, but no third-party verification of the affected list's completeness or of the loss figure was found.</li>
+<li><strong>EIP-1271's adoption was not quantified.</strong> We could not count contracts implementing <code>isValidSignature</code> on chain or measure call volume. Statements that it is widely used are inferred from the implementing libraries and the affected list.</li>
+<li><strong>ERC-7739's adoption is likewise unmeasured.</strong> Confirmed only that Solady and OpenZeppelin implement it, not what fraction of deployed accounts use it.</li>
+<li><strong>The nine implementations from 2023 were not individually re-checked.</strong> Alchemy states that the accounts involved acknowledged the risk or shipped a fix; each one's present state was not verified here.</li>
+<li><strong>The comparison in §3.3 is our reading.</strong> That the reference implementation and ERC-7739's unsafe example are structurally the same comes from placing two code blocks side by side, and neither specification states the relationship. The counterargument, that a reference implementation is an illustration rather than a template, is given alongside it.</li>
+<li><strong>The 19.63% figure is not an ERC-1271 measurement.</strong> It covers signature replay flaws generally and is used here only as context.</li>
+<li><strong>Whether a revision of EIP-1271 is under discussion was not established.</strong> We confirmed only that the normative text has not changed since Final.</li>
+</ul>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Francisco Giordano, Matt Condon, Philippe Castonguay, Amir Bandeali, Jorge Izquierdo, Bertrand Masius</span>. <a href="https://eips.ethereum.org/EIPS/eip-1271">ERC-1271: Standard Signature Validation Method for Contracts (Final)</a>. <span class="venue">2018</span>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://github.com/Vectorized/solady/blob/main/src/accounts/ERC1271.sol">Solady — ERC1271 mixin with the nested EIP-712 (ERC-7739) approach</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-3"><span class="authors">Coriolan Pinhas</span>. <a href="https://blog.trailofbits.com/2026/03/11/six-mistakes-in-erc-4337-smart-accounts/">Trail of Bits — Six mistakes in ERC-4337 smart accounts</a>. <span class="venue">2026</span>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/cryptography/SignatureChecker.sol">OpenZeppelin Contracts v5.7.0 — SignatureChecker</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://github.com/ethereum/EIPs/commit/c8e80baa77fa8ecbd7bad9262f0d5df20d334e3c">EIPs commit c8e80ba — &quot;Finalize ERC-1271 (#4717)&quot;, 2022-01-28</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-6"><span class="authors">—</span>. <a href="https://github.com/ethereum/EIPs/commits/master/EIPS/eip-1271.md">Revision history of EIPS/eip-1271.md in the ethereum/EIPs repository</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-7"><span class="authors">—</span>. <a href="https://github.com/ethereum/EIPs/commit/92a81d542e54e6ec907dff81dc5ef8600b86030e">EIPs commit 92a81d5 — &quot;Automatically merged updates to draft EIP(s) 1271&quot; (#2776), 2020-07-09</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-8"><span class="authors">—</span>. <a href="https://github.com/ethereum/EIPs/pull/2776">ethereum/EIPs PR #2776 — Change ERC1271 to bytes32 hash</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-9"><span class="authors">—</span>. <a href="https://github.com/ethereum/EIPs/pull/2995">ethereum/EIPs PR #2995 — Add EIP-1654: Off-chain dapp-wallet authentication process</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-10"><span class="authors">—</span>. <a href="https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/handler/CompatibilityFallbackHandler.sol">Safe v1.3.0 — CompatibilityFallbackHandler (dual isValidSignature)</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-11"><span class="authors">—</span>. <a href="https://github.com/safe-global/safe-smart-account/blob/v1.3.0/contracts/interfaces/ISignatureValidator.sol">Safe v1.3.0 — ISignatureValidator (legacy magic value)</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-12"><span class="authors">—</span>. <a href="https://github.com/safe-global/safe-smart-account/blob/main/contracts/handler/CompatibilityFallbackHandler.sol">Safe (main) — CompatibilityFallbackHandler and SafeMessage rehashing</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-13"><span class="authors">—</span>. <a href="https://github.com/safe-global/safe-smart-account/blob/main/contracts/interfaces/ISignatureValidator.sol">Safe (main) — ISignatureValidator (magic value now 0x1626ba7e)</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-14"><span class="authors">—</span>. <a href="https://www.alchemy.com/blog/erc-1271-signature-replay-vulnerability">Alchemy — ERC-1271 Signature Replay Vulnerability (disclosure)</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-15"><span class="authors">—</span>. <a href="https://mirror.xyz/curiousapple.eth/pFqAdW2LiJ-6S4sg_u1z08k4vK6BCJ33LcyXpnNb8yU">curiousapple — ERC1271 Replay: 15+ Teams Affected</a>. <span class="accessed">Accessed 2026-09-18.</span> <span class="unverified">[access limited]</span></li>
+      <li id="ref-16"><span class="authors">vectorized, Sihoon Lee, Francisco Giordano, Hadrien Croubois, Ernesto García, Im Juno, howydev, Atarpara, 0xcuriousapple</span>. <a href="https://eips.ethereum.org/EIPS/eip-7739">ERC-7739: Readable Typed Signatures for Smart Accounts (Draft)</a>. <span class="venue">2024</span>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-17"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-712">EIP-712: Typed structured data hashing and signing (Final)</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-18"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-5267">ERC-5267: Retrieval of EIP-712 domain (Final)</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-19"><span class="authors">Ivo Georgiev, Agustin Aguilar</span>. <a href="https://eips.ethereum.org/EIPS/eip-6492">ERC-6492: Signature Validation for Predeploy Contracts (Final)</a>. <span class="venue">2023</span>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-20"><span class="authors">—</span>. <a href="https://github.com/ethereum/EIPs/commits/master/EIPS/eip-6492.md">Revision history of EIP-6492 (proposal to Final)</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-21"><span class="authors">—</span>. <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/issues/6773">OpenZeppelin issue #6773 — Revisit SignatureChecker ECDSA/ERC-1271 ordering once EIP-8151 + EIP-8298 ship</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-22"><span class="authors">—</span>. <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/pull/4951">OpenZeppelin PR #4951 — Make SignatureChecker EIP-7377 safe</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-23"><span class="authors">Vitalik Buterin, Sam Wilson, Ansgar Dietrichs, lightclient</span>. <a href="https://eips.ethereum.org/EIPS/eip-7702">EIP-7702: Set Code for EOAs (Final)</a>. <span class="venue">2024</span>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-24"><span class="authors">Liyi Guo, Nicolas Consigny</span>. <a href="https://eips.ethereum.org/EIPS/eip-8151">EIP-8151: Account Code Restricted ecRecover (Draft)</a>. <span class="venue">2026</span>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-25"><span class="authors">Liyi Guo, Ben Adams, Carlos Perez, Nicolas Consigny</span>. <a href="https://eips.ethereum.org/EIPS/eip-8298">EIP-8298: SETCODEFROM Code Reuse Instruction (Draft)</a>. <span class="venue">2026</span>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-26"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-8081">EIP-8081: Hardfork Meta - Hegotá (Draft)</a>. <span class="venue">2025</span>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-27"><span class="authors">—</span>. <a href="https://github.com/ethereum/ERCs/commits/master/ERCS/erc-7739.md">Revision history of ERC-7739 in the ethereum/ERCs repository</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-28"><span class="authors">—</span>. <a href="https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/cryptography/signers/draft-ERC7739.sol">OpenZeppelin Contracts — draft-ERC7739.sol</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-29"><span class="authors">Zexu Wang, Jiachi Chen, Zewei Lin, Wenqing Chen, Kaiwen Ning, Jianxing Yu, Yuming Feng, Yu Zhang, Weizhe Zhang, Zibin Zheng</span>. <a href="https://arxiv.org/abs/2511.09134">One Signature, Multiple Payments: Demystifying and Detecting Signature Replay Vulnerabilities in Smart Contracts</a>. <span class="venue">ICSE 2026, 2025</span>. <span class="accessed">Accessed 2026-09-18.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-09-18. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

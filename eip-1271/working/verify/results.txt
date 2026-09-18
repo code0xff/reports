@@ -1,0 +1,35 @@
+# Verification run — eip-1271
+date: 2026-09-18
+node: v26.7.0
+deps: js-sha3@0.13.0, viem@2.56.7
+
+$ node verify_magic.mjs
+PASS  bytes4(keccak256("isValidSignature(bytes32,bytes)")) 0x1626ba7e
+PASS  bytes4(keccak256("isValidSignature(bytes,bytes)"))   0x20c13b0b
+PASS  keccak256("SafeMessage(bytes message)")              0x60b3cbf8b4a223d68d641b3b6ddf9a298e7f33710cf3d3a9d1146b5a6150fbca
+PASS  keccak256("PersonalSign(bytes prefixed)")            0x983e65e5148e570cd828ead231ee759a8d7958721a768f93bc4483ba005c32de
+PASS  ERC-6492 magicBytes is 32 bytes of repeated 0x6492   0x6492649264926492649264926492649264926492649264926492649264926492
+PASS  Solady ERC-7739 sentinel hash == 0x7739 repeated     0x7739773977397739773977397739773977397739773977397739773977397739
+
+6 passed, 0 failed
+
+$ node verify_replay.mjs
+owner EOA (generated for this run): 0x96ff43d7C5315311865fC040193edea92877137a
+account A 0x000000000000000000000000000000000000aaaa
+account B 0x000000000000000000000000000000000000bbbb
+app hash  0xf8f7d9be5a316fff66e1f41e94f222796419d7e259e7a7998b3977ed5ae86850
+
+naive implementation (EIP-1271 reference shape)
+PASS  signature produced for account A is accepted by A              -> 0x1626ba7e
+PASS  the SAME signature is also accepted by account B               -> 0x1626ba7e
+
+Safe-style domain binding
+PASS  signature produced for account A is accepted by A              -> 0x1626ba7e
+PASS  the SAME signature is rejected by account B                    -> 0xffffffff
+
+the two accounts really do derive different signing hashes
+   A: 0x606ebedcbd21a794079184ef2ae749a44a46d9fbdfa23383fe989ba1084ac572
+   B: 0x248bcf15a37e8a6ea0f77829e2026869993c55e0e3db553296a41d2665dd9e6c
+PASS  SafeMessage hashes differ per account                          -> true
+
+5 passed, 0 failed

@@ -1,0 +1,10 @@
+title: EIP-1271 상세 분석 — 명세가 남긴 빈칸과 그것을 메우려 한 표준들
+subtitle: 함수 하나와 매직값 하나로 된 표준이 계정 바인딩·미배포 계정·검증자 분기를 규정하지 않고 남긴 결과를, 명세 원문과 개정 이력과 구현 소스와 2023년 사고로 추적한다.
+title_en: "EIP-1271 in Detail: The Blanks the Specification Left, and the Standards That Tried to Fill Them"
+subtitle_en: A standard of one function and one magic value, read through its revision history, its implementations, the 2023 cross-account replay incident, and the three proposals that followed.
+slug: eip-1271
+lang: ko
+langs: [ko, en]
+date: 2026-09-18
+tags: [eip-1271, erc-7739, erc-6492, eip-7702, eip-712, smart-accounts, account-abstraction, signature-validation, signature-replay, safe, openzeppelin, solady, ethereum]
+status: ready
