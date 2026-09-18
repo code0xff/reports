@@ -1,0 +1,60 @@
+# Verification run — x402-extensions
+date: 2026-09-18
+node: v26.7.0
+package: @x402/extensions@2.26.0
+mermaid: 11.17.2
+
+$ node verify_subpaths.mjs
+documented subpath imports
+  PASS  @x402/extensions/bazaar                          RESOLVES
+  PASS  @x402/extensions/builder-code                    RESOLVES
+  PASS  @x402/extensions/payment-identifier              RESOLVES
+  PASS  @x402/extensions/sign-in-with-x                  RESOLVES
+  PASS  @x402/extensions/offer-receipt                   RESOLVES
+  FAIL  @x402/extensions/eip2612-gas-sponsoring          FAILS  (ERR_PACKAGE_PATH_NOT_EXPORTED)
+  FAIL  @x402/extensions/erc20-approval-gas-sponsoring   FAILS  (ERR_PACKAGE_PATH_NOT_EXPORTED)
+
+are the failing symbols reachable from the package root?
+  PASS  declareEip2612GasSponsoringExtension           exported from '@x402/extensions'
+  PASS  declareErc20ApprovalGasSponsoringExtension     exported from '@x402/extensions'
+
+7 passed, 2 failed
+
+$ node verify_hooks.mjs
+PASS  bazaar
+        enrichDeclaration: docs=yes code=yes ok
+        enrichPaymentRequiredResponse: docs=no  code=no  ok
+        enrichSettlementResponse: docs=no  code=no  ok
+FAIL  builder-code
+        enrichDeclaration: docs=no  code=no  ok
+        enrichPaymentRequiredResponse: docs=yes code=no  MISMATCH
+        enrichSettlementResponse: docs=no  code=no  ok
+FAIL  payment-identifier
+        enrichDeclaration: docs=no  code=no  ok
+        enrichPaymentRequiredResponse: docs=yes code=no  MISMATCH
+        enrichSettlementResponse: docs=yes code=no  MISMATCH
+FAIL  sign-in-with-x
+        enrichDeclaration: docs=no  code=no  ok
+        enrichPaymentRequiredResponse: docs=no  code=yes MISMATCH
+        enrichSettlementResponse: docs=no  code=no  ok
+        also present (no docs column): hooks, transportHooks, dynamicInfoFields
+PASS  offer-receipt
+        enrichDeclaration: docs=no  code=no  ok
+        enrichPaymentRequiredResponse: docs=yes code=yes ok
+        enrichSettlementResponse: docs=yes code=yes ok
+        also present (no docs column): dynamicInfoFields
+
+11 cells agree, 4 disagree
+disagreeing cells: builder-code.enrichPaymentRequiredResponse, payment-identifier.enrichPaymentRequiredResponse, payment-identifier.enrichSettlementResponse, sign-in-with-x.enrichPaymentRequiredResponse
+
+$ node verify_mermaid.mjs   # blocks.json extracted from the rendered index.html pages
+PASS  ko block 1  sequenceDiagram
+PASS  ko block 2  flowchart TD
+PASS  ko block 3  flowchart LR
+PASS  ko block 4  flowchart TD
+PASS  en block 1  sequenceDiagram
+PASS  en block 2  flowchart TD
+PASS  en block 3  flowchart LR
+PASS  en block 4  flowchart TD
+
+8 parsed, 0 failed

@@ -1,0 +1,10 @@
+title: x402 확장 시스템 전수 분석 — 봉쇄 설계와 명세·문서·구현의 간극
+subtitle: 공식 명세 9건과 문서 7건을 세 언어 SDK 소스에 대조하고, 배포판을 직접 실행해 확인한 확장 메커니즘의 작동 방식과 경계.
+title_en: "The x402 Extension System, End to End: Containment by Design, and the Gaps Between Spec, Docs, and Code"
+subtitle_en: Nine official extension specifications and seven documentation pages checked against three SDK implementations, with the published package installed and run to verify what the docs claim.
+slug: x402-extensions
+lang: ko
+langs: [ko, en]
+date: 2026-09-18
+tags: [x402, extensions, agent-payments, offer-receipt, builder-code, erc-8021, sign-in-with-x, bazaar, payment-identifier, gas-sponsoring, facilitator, spec-analysis]
+status: ready

@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The x402 Extension System, End to End: Containment by Design, and the Gaps Between Spec, Docs, and Code — Deepsearch</title>
+<meta name="description" content="Nine official extension specifications and seven documentation pages checked against three SDK implementations, with the published package installed and run to verify what the docs claim.">
+<link rel="canonical" href="https://code0xff.github.io/reports/x402-extensions/en/">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="The x402 Extension System, End to End: Containment by Design, and the Gaps Between Spec, Docs, and Code">
+<meta property="og:description" content="Nine official extension specifications and seven documentation pages checked against three SDK implementations, with the published package installed and run to verify what the docs claim.">
+<meta property="og:url" content="https://code0xff.github.io/reports/x402-extensions/en/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="The x402 Extension System, End to End: Containment by Design, and the Gaps Between Spec, Docs, and Code">
+<meta name="twitter:description" content="Nine official extension specifications and seven documentation pages checked against three SDK implementations, with the published package installed and run to verify what the docs claim.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>The x402 Extension System, End to End: Containment by Design, and the Gaps Between Spec, Docs, and Code</h1>
+    <p class="subtitle">Nine official extension specifications and seven documentation pages checked against three SDK implementations, with the published package installed and run to verify what the docs claim.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-09-18</span>
+      <span><strong>Tags</strong> x402, extensions, agent-payments, offer-receipt, builder-code, erc-8021, sign-in-with-x, bazaar, payment-identifier, gas-sponsoring, facilitator, spec-analysis</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="x402-extensions.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>x402 v2 opened a single field, <code>extensions</code>, on all four of its payment messages<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. As of September 2026, nine official extension specifications occupy that field<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. This report reads the extension system out of the 2026-09-18 snapshot of the <code>x402-foundation/x402</code> repository and catalogues where each of the nine currently stands.</p>
+<p>Three findings. The extension system is built for containment more than for extensibility: third-party code runs inside the payment path, but what is paid, to whom, and on which network is pinned by runtime assertions it cannot reach<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>, and a client echoing the server's declaration back can add to it but never delete or overwrite, on pain of <code>extension_echo_mismatch</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. That containment has an edge. When a client injects an extension key the server never advertised, the match check is skipped entirely, and the only thing standing behind it is a table of field names hand-written into core, a table with exactly one entry: <code>builder-code</code><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. And the nine extensions are nowhere near equally mature. Six ship in all three SDKs, <code>offer-receipt</code> exists only in TypeScript, and <code>auth-hints</code> and <code>http-message-signatures</code> have neither a documentation page nor a line of code anywhere in the repository<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p>Because the request was to work from the current official documentation, we also checked that documentation against the code it describes. Installing the published <code>@x402/extensions@2.26.0</code> and inspecting the runtime objects, the hook matrix the docs publish disagrees with the source in 4 of the 15 cells examined when the column names are read strictly; two of those four admit a looser defence and the rest do not. Both gas-sponsoring pages tell readers to use an import path that throws <code>ERR_PACKAGE_PATH_NOT_EXPORTED</code>. Scripts and full output are in <code>working/verify/</code>.</p>
+  </section>
+
+  <main class="body">
+<h2>1. What the extension layer inherited</h2>
+<p>The word "extension" does not appear once in the v1 specification<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Extensions arrived with v2, and the specification's own version history files them alongside the other breaking changes of v2.0 on 2025-12-09: "CAIP-2 networks, restructured PaymentPayload/Required, ResourceInfo separation, extensions support"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The documentation gives the motive as fork avoidance. An extension adds discovery, authentication, receipts, or gas sponsoring "without modifying the core payment flow"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>What collects in that layer is whatever core declined to specify. Refunds are the clearest case. Across the v1 specification, the v2 specification, and all nine extension specifications, the word "refund" appears <strong>zero times</strong><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Yet the official third-party extensions page lists two packages built around it: x402r, a "non-custodial refund and arbitration protocol", and zauth, a "monitoring, verification, and refund SDK"<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. A capability the standard left out has been implemented twice outside it.</p>
+<p>Idempotency took a similar route. The most systematic external study of x402 characterises the protocol as "not one artefact but a stack of an HTTP semantic, per-chain schemes, and a long tail of SDK and deployment choices"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Idempotency caching sits in that tail, and in x402 it is handled by an optional extension, <code>payment-identifier</code><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p>This site has already covered the protocol as a whole (April 2026), the Bazaar discovery extension (May 2026), and the SIWX authentication extension (July 2026). Rather than restate those, this report takes the extension <strong>mechanism</strong> and the full nine-item catalogue. That the earlier protocol report described SIWX as a roadmap item with no published specification and no implementation, accurate then and wrong now, is itself a measure of how fast this surface moves.</p>
+<h2>2. Mechanism: advertise, echo, contain</h2>
+<h3>2.1 The wire format</h3>
+<p><code>extensions</code> is a key-value map. The key is an extension identifier; the value carries two fields. <code>info</code> holds extension-specific data supplied by the server, and <code>schema</code> is a JSON Schema describing the structure of that <code>info</code>. The core specification marks both as Required<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>The map appears on four message types. <code>PaymentRequired</code>, <code>PaymentPayload</code>, <code>SettleResponse</code>, and <code>VerifyResponse</code> each carry <code>extensions</code> as an optional field<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. It starts in the payment-required response, returns in the payment payload, and rides back out on the settlement result.</p>
+<p>The return trip has a rule, stated in the specification: servers "advertise supported extensions in <code>PaymentRequired</code>, and clients echo them in <code>PaymentPayload</code>. The client must include at least the info received; it may append additional info but cannot delete or overwrite existing info"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The echo is monotonic.</p>
+<pre class="mermaid">sequenceDiagram
+    autonumber
+    participant C as Client
+    participant S as Resource server
+    participant F as Facilitator
+    C-&gt;&gt;S: GET /resource
+    Note over S: enrichDeclaration&lt;br/&gt;enrichPaymentRequiredResponse
+    S--&gt;&gt;C: 402 PaymentRequired&lt;br/&gt;extensions[k] = info + schema
+    Note over C: carry the info through&lt;br/&gt;and append only its own
+    C-&gt;&gt;S: PAYMENT-SIGNATURE&lt;br/&gt;PaymentPayload.extensions
+    Note over S: validateExtensions&lt;br/&gt;mismatch means extension_echo_mismatch
+    S-&gt;&gt;F: POST /verify
+    F--&gt;&gt;S: VerifyResponse
+    S-&gt;&gt;F: POST /settle
+    F--&gt;&gt;S: SettleResponse + EXTENSION-RESPONSES header
+    Note over S: the sidechannel sits outside the body&lt;br/&gt;and never reaches the buyer
+    Note over S: enrichSettlementResponse
+    S--&gt;&gt;C: 200 OK + PAYMENT-RESPONSE</pre>
+<p><em>Figure 1 — the round trip one extension makes, from its declaration on the 402 response to the settlement reply. Hook names and sidechannel behaviour come from the official documentation and §7.2.1 of the v2 specification<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</em></p>
+<h3>2.2 Where an extension gets to run</h3>
+<p>A resource-server extension implements the <code>ResourceServerExtension</code> interface. The documentation presents four intervention points: <code>enrichDeclaration</code> at route registration, <code>enrichPaymentRequiredResponse</code> when the 402 is built, <code>enrichSettlementResponse</code> after a payment settles, and <code>hooks</code> across the verify/settle lifecycle<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. The actual type definition adds transport-scoped <code>transportHooks</code> on top of those<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p>The facilitator side is far smaller. The whole interface is <code>key: string</code><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. Gas sponsoring is its representative case, injecting batch-signing capability into settlement so the facilitator can carry the payer's gas<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<h3>2.3 Containment</h3>
+<p>If extensions execute inside the payment path, the obvious question is whether one can alter the payment terms.</p>
+<p>The answer is written into the core type annotations. What <code>enrichPaymentRequiredResponse</code> returns is merged into <code>extensions[key]</code>. Direct edits to the <code>accepts</code> array are allowlisted: a vacant <code>payTo</code>, <code>amount</code>, or <code>asset</code> may be filled, while locked values and <code>scheme</code>, <code>network</code>, <code>maxTimeoutSeconds</code>, and baseline <code>extra</code> entries are immutable. <code>extra.paymentFlow</code> and <code>extra.assetTransferMethod</code> are protocol-reserved and must not be added or changed during enrichment<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. The settlement side works the same way: the facilitator's <code>success</code>, <code>transaction</code>, and <code>network</code> are untouchable, and only <code>extensions</code> is merged<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p>These are not annotations alone. The server module imports <code>assertAcceptsAllowlistedAfterExtensionEnrich</code>, <code>assertAcceptsAdditiveExtraAfterSchemeEnrich</code>, <code>assertAdditivePayloadEnrichment</code>, and <code>assertAdditiveSettlementExtra</code> to compare state before and after enrichment<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Hook contexts handed to extensions are read-only for core protocol fields, and an extension that wants to stop the flow returns <code>abort</code> or <code>recovered</code> rather than mutating anything<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p>The design points away from delegation. Third parties get execution time inside the payment path, handed over in a shape that cannot move the money.</p>
+<h3>2.4 The sidechannel</h3>
+<p>Extension outcomes do not travel back from the facilitator in the JSON body. Specification §7.2.1 defines a transport-specific sidechannel, which on HTTP is the <code>EXTENSION-RESPONSES</code> header carrying a base64-encoded JSON object keyed by extension name. The specification states twice that this channel is <strong>not</strong> part of the JSON response body and is <strong>not</strong> forwarded to buyers<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>That buyer exclusion is worth pausing on: it presumes operational data flows between facilitator and resource server that the payer is not meant to see. The <code>VerifyResponse</code> schema repeats the same boundary, noting that facilitators may expose extension outcomes separately as <code>extensionResponses</code>, "never serialized to buyers"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>Which extensions a facilitator has actually built is public, though. <code>GET /supported</code> returns an <code>extensions</code> array of "extension identifiers the facilitator has implemented", and the field is Required<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<h2>3. The edge of echo validation</h2>
+<p>The echo rule from §2.1 is enforced, not merely stated. The resource server's <code>validateExtensions</code> rejects violations with the reason <code>extension_echo_mismatch</code><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. The same identifier appears in Go's <code>server.go</code> and Python's <code>server_base.py</code>, so all three SDKs carry the check <em>(only the TypeScript implementation was read at code level)</em>.</p>
+<p>One exception is structurally necessary. Values the server regenerates on every 402 response, such as nonces and timestamps, were never fixed terms and cannot be required to match. Extensions therefore declare those field names in <code>dynamicInfoFields</code>, and the validator strips them from both sides before comparing<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. SIWX declares <code>["nonce", "issuedAt", "expirationTime"]</code><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<p>So far so tidy. The edge is just past it.</p>
+<h3>3.1 Keys that were never advertised</h3>
+<p><code>validateExtensions</code> walks the client's extension keys, and gates the match comparison behind a condition:</p>
+<pre><code>for (const [key, echoedValue] of Object.entries(clientExtensions)) {
+  const advertisedInfo = getExtensionInfo(serverExtensions?.[key]);
+  const echoedInfo = getExtensionInfo(echoedValue);
+
+  if (serverExtensions &amp;&amp; Object.prototype.hasOwnProperty.call(serverExtensions, key)) {
+    // ... strip dynamicInfoFields, compare, fail with extension_echo_mismatch
+  }
+
+  const serverOwnedFields = SERVER_OWNED_INFO_FIELDS[key];
+  if (serverOwnedFields &amp;&amp; !serverOwnedInfoFieldsMatch(advertisedInfo, echoedInfo, serverOwnedFields)) {
+    return { valid: false, invalidReason: &quot;extension_echo_mismatch&quot;, extensionKey: key };
+  }
+}</code></pre>
+<p>The comparison runs only when the server advertised that key<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. A client that invents a key absent from the server's list skips the first branch entirely. What remains is the second check, and that one fires only when the key has an entry in a table called <code>SERVER_OWNED_INFO_FIELDS</code>.</p>
+<p>Here is the table:</p>
+<pre><code>export const SERVER_OWNED_INFO_FIELDS: Record&lt;string, ReadonlySet&lt;string&gt;&gt; = {
+  &quot;builder-code&quot;: new Set([&quot;a&quot;]),
+};</code></pre>
+<p>One entry<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. <code>ADDITIVE_ARRAY_INFO_FIELDS</code> and <code>ADDITIVE_ARRAY_MAX_LENGTHS</code> in the same file each hold <code>builder-code</code> and nothing else. The comments state both the reason and the cost: "core cannot import <code>@x402/extensions</code>, so the key/field list is duplicated here", and the length cap is "duplicated from <code>packages/extensions/src/builder-code/types.ts</code> and must be kept in sync by hand"<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+<p>Why <code>builder-code</code> specifically? The extension appends ERC-8021 Schema 2 attribution codes to settlement calldata, recording on-chain which application exposed the paid endpoint and which facilitator settled it<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. The <code>a</code> field is the app code, which is to say the revenue attribution target. The extension specification is explicit that when the server has not advertised <code>builder-code</code>, the client "MUST NOT set" <code>a</code><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. The hardcoded table is that MUST NOT rendered as code.</p>
+<pre class="mermaid">flowchart TD
+    A[&quot;one extensions key on the&lt;br/&gt;client PaymentPayload&quot;] --&gt; B{&quot;did the server&lt;br/&gt;advertise this key&quot;}
+    B -- &quot;yes&quot; --&gt; C[&quot;strip dynamicInfoFields&lt;br/&gt;from both sides&quot;]
+    C --&gt; D{&quot;does info match&quot;}
+    D -- &quot;no&quot; --&gt; X[&quot;reject&lt;br/&gt;extension_echo_mismatch&quot;]
+    D -- &quot;yes&quot; --&gt; E{&quot;is the key in&lt;br/&gt;SERVER_OWNED_INFO_FIELDS&quot;}
+    B -- &quot;no&quot; --&gt; E
+    E -- &quot;yes - builder-code only&quot; --&gt; F{&quot;does it match what&lt;br/&gt;the server declared&quot;}
+    F -- &quot;no&quot; --&gt; X
+    F -- &quot;yes&quot; --&gt; G[&quot;pass&quot;]
+    E -- &quot;no&quot; --&gt; G</pre>
+<p><em>Figure 2 — the branches of extension echo validation. The lower-right path is what §3.1 points at: an unadvertised key never reaches the match comparison, and passes unless the hardcoded table happens to name it<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</em></p>
+<p>The claim here has to be kept narrow. <code>validateExtensions</code> returns <code>valid</code> for a payload carrying arbitrary extension keys the server never advertised, provided those keys are absent from the hardcoded table.</p>
+<p>Checking the other direction found the resource server tighter than expected. Both the enrichment paths and the hook dispatch iterate over the extensions declared on the route, and hook dispatch carries a guard that returns immediately when <code>ctx.declaredExtensions[extensionKey] === undefined</code><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. A key the client invented triggers no extension code on the server at all. The documentation's "silently ignored"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> is confirmed in code for those two paths at least. What remains is that the payload still travels to the facilitator, which is a separate implementation and outside this report's scope. The validator's verdict is what is asserted here, and nothing about exploitability.</p>
+<p>What is worth noticing is the shape of the protection. Because core structurally cannot import the extensions package, per-extension protection rules live in a hand-maintained list rather than a general mechanism. As the catalogue grows and more extensions carry money-bearing fields, that list, which no compiler checks, has to be kept current by people. The comment saying it "must be kept in sync by hand" is the codebase conceding the point<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+<p>The most systematic external security analysis of x402 covers cross-resource substitution, duplicate-settlement races, allowance overdraft, and denial of settlement, but does not take the extensions field or echo validation into scope<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. The reading above therefore has no external corroboration.</p>
+<h2>4. The nine: distance from specification to code</h2>
+<p>On 2026-09-18 there are nine specifications under <code>specs/extensions/</code><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The official documentation under <code>docs/extensions/</code> covers seven<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Six are implemented in all three SDKs<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>.</p>
+<table><thead><tr><th>Extension</th><th>Role</th><th>Sides</th><th>Spec first → last</th><th>Docs</th><th>TS</th><th>Go</th><th>Py</th></tr></thead><tbody><tr><td><code>bazaar</code></td><td>discovery for paid endpoints and MCP tools<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup></td><td>server + facilitator</td><td>2026-01-15 → 08-31</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr><tr><td><code>builder-code</code></td><td>ERC-8021 on-chain attribution</td><td>server + client + facilitator</td><td>2026-05-04 → 08-31</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr><tr><td><code>sign-in-with-x</code></td><td>CAIP-122 wallet authentication<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup></td><td>server + client</td><td>2026-02-02 → 08-13</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr><tr><td><code>payment-identifier</code></td><td>idempotency key</td><td>server + client</td><td>2026-02-05 → 05-26</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr><tr><td><code>eip2612GasSponsoring</code></td><td>gasless EIP-2612 permit</td><td>facilitator</td><td>2026-01-08 → 03-19</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr><tr><td><code>erc20ApprovalGasSponsoring</code></td><td>gasless plain ERC-20 approval<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup></td><td>facilitator</td><td>2026-01-08 → 03-19</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr><tr><td><code>offer-receipt</code></td><td>signed offers and receipts</td><td>server + client</td><td>2026-03-12 → 07-23</td><td>yes</td><td>yes</td><td>no</td><td>no</td></tr><tr><td><code>auth-hints</code></td><td>per-entry authentication hints</td><td>server ↔ client</td><td>2026-04-24 (1 commit)</td><td>no</td><td>no</td><td>no</td><td>no</td></tr><tr><td><code>http-message-signatures</code></td><td>RFC 9421 agent identity</td><td>server ↔ client</td><td>2026-04-15 (1 commit)</td><td>no</td><td>no</td><td>no</td><td>no</td></tr></tbody></table>
+<p><em>Commit counts and dates come from each file's GitHub history<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>. Implementation status was taken from the three SDK extension directories and cross-checked by code search<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>.</em></p>
+<p>Judging implementation from directory names alone invites mistakes, so each result was re-checked by code search. All three spellings (<code>offer-receipt</code>, <code>offerreceipt</code>, <code>OfferReceipt</code>) return no hits under <code>go/</code> or <code>python/</code>. <code>auth-hints</code> and <code>http-message-signatures</code> appear nowhere in the repository except their own specification files. One check ran the other way and corrected us: Go's <code>erc20approvalgassponsor</code> package has no <code>facilitator.go</code>, which initially looked like a missing implementation, but the logic lives in <code>go/mechanisms/evm/exact/facilitator/erc20_approval.go</code>. The package layout differs, the capability is there, and the documentation's "TypeScript, Go, Python" is accurate.</p>
+<pre class="mermaid">flowchart LR
+    A[&quot;specifications&lt;br/&gt;9&quot;] --&gt; B[&quot;official docs&lt;br/&gt;7&quot;]
+    B --&gt; C[&quot;TypeScript&lt;br/&gt;7&quot;]
+    C --&gt; D[&quot;Go and Python&lt;br/&gt;6&quot;]
+    A -. &quot;auth-hints&lt;br/&gt;http-message-signatures&quot; .-&gt; Z[&quot;specification only&quot;]
+    C -. &quot;offer-receipt&quot; .-&gt; Y[&quot;TypeScript only&quot;]</pre>
+<p><em>Figure 3 — how many of the nine survive each stage from specification to three-language implementation, with the dropouts named<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>.</em></p>
+<h3>4.1 The two that stopped</h3>
+<p><code>auth-hints</code> and <code>http-message-signatures</code> each have exactly one commit and have not been touched since they were written<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>. Neither has a documentation page or any implementation.</p>
+<p>For <code>auth-hints</code>, the reason is legible in its own text. The use case it argues from is a <code>deferred</code> payment requirement, which "uses off-chain vouchers against an escrow deposit, so the server needs to verify the client's identity to match vouchers to the correct escrow account and track accumulated value"<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>. But the schemes in <code>specs/schemes/</code> are <code>auth-capture</code>, <code>batch-settlement</code>, <code>exact</code>, and <code>upto</code>; there is no <code>deferred</code><sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup>. The scheme it was written for has not landed, so neither has the hint it would need. That reading fits the evidence without being something the project has stated.</p>
+<p><code>http-message-signatures</code> is a different case. It establishes the paying agent's identity through RFC 9421 signatures and requires clients to publish keys at <code>/.well-known/http-message-signatures-directory</code><sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>. Its named deployment is Cloudflare (<code>cloudflare:402</code>), using <code>ed25519</code> signatures and the <code>web-bot-auth</code> tag<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>. The absence of an SDK implementation may simply reflect that this extension is absorbed on the network operator's side rather than in the x402 SDKs. That too is inference.</p>
+<h2>5. offer-receipt: when the server starts signing</h2>
+<p>One of the nine is structurally unlike the rest. Where the others attach data to the payment flow, <code>offer-receipt</code> adds a signing direction the protocol did not have.</p>
+<p>In core x402, the signer is the client: <code>signature</code> and <code>authorization</code> on the <code>PaymentPayload</code> are produced by the payer<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. <code>offer-receipt</code> introduces <strong>server-side signatures</strong>. The resource server cryptographically commits to the terms it presented in <code>accepts[]</code>, and after payment and delivery it signs a receipt confirming both<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>.</p>
+<p>The purposes given are dispute evidence, auditability, and user-review attestations of the "I paid and received service" kind<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>. An independent Internet-Draft names the same gap from outside the project: x402's <code>PAYMENT-RESPONSE</code> "carries a facilitator-issued reference rather than a self-contained, offline-verifiable cryptographic receipt"<sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup>. That is the hole a signed receipt is meant to fill.</p>
+<h3>5.1 Two formats and a pinned chainId</h3>
+<p>A signed artifact is either EIP-712 or JWS, selected by <code>format</code>. Under EIP-712, <code>payload</code> is required and <code>signature</code> is a 65-byte ECDSA hex string. Under JWS, <code>payload</code> must be omitted, since the compact serialization already contains it<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>.</p>
+<p>The EIP-712 domain pins <code>chainId</code> to <code>1</code> regardless of the payment network, and the specification defends the choice. EIP-712 is used here purely as an off-chain signing format rather than for on-chain submission, the payment network is already identified by the payload's <code>network</code> field, and a constant <code>chainId</code> makes signing uniform across networks including non-EVM ones such as Solana<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>.</p>
+<p>The canonical <code>types</code> and <code>primaryType</code> never go on the wire. Signer and verifier each take them from the specification, and because EIP-712 hashes the schema into the signature, any change to them is a breaking change by construction<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>.</p>
+<h3>5.2 The signature verifies; who vouches for the signer?</h3>
+<p>Section 4.5.1 is the sharpest passage in the extension. Verifiers must separate signature validity from signer authorization: a valid signature proves that some key signed the artifact, and nothing about whether that key was entitled to act for the service named in <code>resourceUrl</code>. In the specification's own words, without that check "an attacker can generate a valid key pair, sign an offer or receipt for any <code>resourceUrl</code>, and present it as legitimate — the signature will verify, but the key has no relationship to the service"<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>.</p>
+<p>The specification makes the authorization check a MUST. It then says it "does not mandate a specific authorization mechanism" and lists four options<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>.</p>
+<pre class="mermaid">flowchart TD
+    R[&quot;offer / receipt&lt;br/&gt;payload.resourceUrl&quot;] --&gt; Q{&quot;is this key entitled&lt;br/&gt;to act for the service&quot;}
+    Q --&gt; A1[&quot;sign with the payTo address&lt;br/&gt;simplest, raises key-compromise risk&quot;]
+    Q --&gt; A2[&quot;did:web&lt;br/&gt;/.well-known/did.json&quot;]
+    Q --&gt; A3[&quot;DNS TXT&lt;br/&gt;_controllers record&quot;]
+    Q --&gt; A4[&quot;external key registry&lt;br/&gt;on-chain attestations and similar&quot;]
+    A2 --&gt; M[&quot;mutable source - cannot prove&lt;br/&gt;authorization as of issuance&quot;]
+    A3 --&gt; M</pre>
+<p><em>Figure 4 — the four trust anchors offered by §4.5.1, and the temporal problem attached to two of them. The specification does not pick one<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>.</em></p>
+<p>It also flags the follow-on problem itself: mutable sources such as DID documents and DNS records reflect current state only, so an application verifying an artifact after a key rotation should preserve or reference separate evidence that the key was authorized at issuance<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>.</p>
+<p>The gap bites because of what the extension is for. Section 9 states that offer and receipt objects are deliberately self-contained so they can be "lifted verbatim into external proof or attestation formats without reconstruction"<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>. Portability is the goal, yet key binding is a per-deployment choice. When two verifiers demand different trust anchors for the same receipt, the artifact travels and the verification result does not.</p>
+<h3>5.3 Declared incomplete</h3>
+<p>This extension says something about itself that specifications rarely say: "Wire shape and field placement are not considered stable and may change to align with x402 canonical extension architecture once standardized." It separates that from behaviour, which it calls stable, since payload structures, signature formats, and verification rules are normative<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>.</p>
+<p>The version history tops out at 0.6, dated 2026-02-04<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>. The file, however, was modified on 2026-07-23. Commit <code>69652a6</code> added 12 lines and removed 2, and as the three documentation files changed alongside it indicate, the work was clarifying signer authorization. The version table was not among the files touched<sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup>. The attack scenario quoted in §5.2 above is therefore text the version table does not know about.</p>
+<p>Three signals agree: a self-declared instability, a 0.6 version number, and an implementation in one of three SDKs<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. Adopting this extension today means writing TypeScript, accepting that the wire shape will move, and choosing a key authorization scheme yourself.</p>
+<h2>6. Documentation against implementation, checked by running it</h2>
+<p>A report that leans on official documentation should establish whether that documentation matches the code. We installed the published <code>@x402/extensions@2.26.0</code> and ran two checks. Scripts and full output are in <code>working/verify/</code>.</p>
+<h3>6.1 Import paths</h3>
+<p>We collected the import paths the seven <code>docs/extensions/*.mdx</code> pages give their readers and called <code>import()</code> on each.</p>
+<pre><code>PASS  @x402/extensions/bazaar                          RESOLVES
+PASS  @x402/extensions/builder-code                    RESOLVES
+PASS  @x402/extensions/payment-identifier              RESOLVES
+PASS  @x402/extensions/sign-in-with-x                  RESOLVES
+PASS  @x402/extensions/offer-receipt                   RESOLVES
+FAIL  @x402/extensions/eip2612-gas-sponsoring          FAILS  (ERR_PACKAGE_PATH_NOT_EXPORTED)
+FAIL  @x402/extensions/erc20-approval-gas-sponsoring   FAILS  (ERR_PACKAGE_PATH_NOT_EXPORTED)</code></pre>
+<p>The import shown in the first code block of both gas-sponsoring pages fails outright<sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup><sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup>. The package's <code>exports</code> map defines five subpaths and neither extension is among them<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup>. The symbols have not gone anywhere: <code>declareEip2612GasSponsoringExtension</code> and <code>declareErc20ApprovalGasSponsoringExtension</code> both come out of the root barrel <code>@x402/extensions</code> normally. The fix is to drop the subpath, but a reader following the documentation meets a runtime error first.</p>
+<h3>6.2 The hook matrix</h3>
+<p>The overview page carries a table, "Which Hooks Do Extensions Use?", marking which intervention points each extension uses<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. We transcribed that table into code and checked, on the <code>ResourceServerExtension</code> objects the published package actually constructs, whether each property exists as a function. Statically exported extensions were inspected directly; SIWX and offer-receipt were instantiated through their factories.</p>
+<p>Across three resource-server columns and five extensions, <strong>4 of 15 cells disagree</strong>.</p>
+<table><thead><tr><th>Extension</th><th>Cell</th><th>Docs</th><th>Code</th></tr></thead><tbody><tr><td><code>builder-code</code></td><td><code>enrichPaymentRequiredResponse</code></td><td>present</td><td>absent</td></tr><tr><td><code>payment-identifier</code></td><td><code>enrichPaymentRequiredResponse</code></td><td>present</td><td>absent</td></tr><tr><td><code>payment-identifier</code></td><td><code>enrichSettlementResponse</code></td><td>present</td><td>absent</td></tr><tr><td><code>sign-in-with-x</code></td><td><code>enrichPaymentRequiredResponse</code></td><td>absent</td><td>present</td></tr></tbody></table>
+<p><code>builder-code</code> and <code>payment-identifier</code> lack hooks the table credits them with; both export an object whose only property is <code>key</code><sup class="footnote-ref"><a href="#ref-32" id="cite-32">[32]</a></sup><sup class="footnote-ref"><a href="#ref-33" id="cite-33">[33]</a></sup>.</p>
+<p>A reading that defends the table is available for those two rows. The columns are named after hook functions, but what the table meant to mark may be "does this extension contribute at this stage". The annotation in the <code>builder-code</code> cell, "(declares app code + schema)", points that way: that is what <code>declareBuilderCodeExtension()</code> does at route configuration, and its output does end up in the 402 response. Read loosely, the tick is filed under the wrong column rather than being false.</p>
+<p>One cell survives no such reading. <code>payment-identifier</code> is credited with <code>enrichSettlementResponse</code>, and the package exports a declaration function, the client-side <code>appendPaymentIdentifierToExtensions</code>, and extraction and validation utilities, none of which contributes to a settlement response under any interpretation<sup class="footnote-ref"><a href="#ref-32" id="cite-32">[32]</a></sup>. The source comment says as much: "This extension doesn't require any enrichment hooks since the declaration is static"<sup class="footnote-ref"><a href="#ref-32" id="cite-32">[32]</a></sup>.</p>
+<p>SIWX errs the other way. Its row is empty across all four columns, with a note that "Sign-In-With-X manages its own session lifecycle outside the standard hooks"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. The real object has <code>enrichPaymentRequiredResponse</code>, plus <code>hooks</code>, <code>transportHooks</code>, and <code>dynamicInfoFields</code><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. The last three have no column in the table at all.</p>
+<p>The published interface has the same problem. The documentation reproduces the <code>ResourceServerExtension</code> TypeScript definition in full<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>, omitting the <code>transportHooks</code> property and the <code>onVerifiedPaymentCanceled</code> hook that the real type file carries. Return types differ too: in the actual definition <code>onBeforeVerify</code> and <code>onBeforeSettle</code> can return <code>skip</code> alongside <code>abort</code>, and <code>onAfterVerify</code> can return <code>skipHandler</code><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p>Whether these gaps mean stale documentation or an implementation that has not caught up is not something the available material settles. The comparison result is what stands.</p>
+<h3>6.3 Where two primary documents disagree</h3>
+<p>One conflict is not between docs and code but between two specifications. The core v2 Extensions object table marks both <code>info</code> and <code>schema</code> as Required<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The <code>http-message-signatures</code> specification carries a section headed "Schema Omission" stating that "the <code>schema</code> field is optional and may be omitted from responses to reduce header size"<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>.</p>
+<p>The size argument is not frivolous. v2's HTTP transport moved payment data into headers, and a full JSON Schema per extension consumes a great deal of that budget. The specifications have already split along this line in practice: the <code>payment-identifier</code> payload example includes <code>schema</code><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>, while the <code>eip2612GasSponsoring</code> payload example carries <code>info</code> alone<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. An implementer asking which to follow gets two answers from two primary documents.</p>
+<h2>7. Ecosystem and curation</h2>
+<p>The documentation maintains a separate page listing six partner-built extensions: World AgentKit (verifying human-backed agents), OMATrust (key authorizations for signed offers and receipts), PEAC Protocol (verifiable receipts), x402r (non-custodial refunds and arbitration), zauth (monitoring, verification, and refunds), and x402aff (affiliate revenue splits via builder codes). All six support TypeScript; only x402aff also ships Python<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<p>Set that list beside §5 and one correspondence stands out. OMATrust's one-line description is "Key authorizations for Signed Offers and Receipts"<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, precisely the slot §4.5.1 marks MUST and then declines to fill<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>. A partner product occupying a blank the standard left deliberately is our reading of the pairing, not something either party states. PEAC Protocol, also built around receipts, stands in the same territory.</p>
+<p>Getting an extension into the SDK is an open path but not a permissionless one. The documentation's "Building a Custom Extension" ends its six steps with a pull request, noting that "extensions must be reviewed and approved by the x402 maintainers before they are included in the SDK"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. The registry is curated.</p>
+<p>Curation brings throughput with it. On 2026-09-18 there were 43 open pull requests with "extension" in the title, a good share of them asking for one more row in the third-party table. Tollbridge (#3383), Elara (#3469), Mist (#3321), HCRB/Code402 (#3394), MadeOnSol (#3388), AgentGate MCP (#3386), and x402-list (#3337) were all opened in September and all still waiting<sup class="footnote-ref"><a href="#ref-34" id="cite-34">[34]</a></sup>. The published table has six rows; the queue has seven.</p>
+<p>New specification proposals are queued too. <code>trust-provider</code> (#2300) has been open since 2026-05-14, followed by <code>authority</code> (#3220), <code>durable-evidence</code> (#3377), and <code>authorization-evidence</code> (#3376)<sup class="footnote-ref"><a href="#ref-34" id="cite-34">[34]</a></sup>. Settlement-Receipt Binding (#2666) opened on 2026-06-19 and has been open for over three months. It positions itself as the counterpart to <code>offer-receipt</code>: where offers and receipts prove "the server asserted X", this would supply the other half, "X is what settled", recomputably and without operator trust<sup class="footnote-ref"><a href="#ref-35" id="cite-35">[35]</a></sup>. It is an attempt at the same family of problem seen in §5.2.</p>
+<p>None of this sits on a small base. <code>@x402/extensions</code> was first published on 2025-12-11, has shipped 29 versions, reached 2.26.0 on 2026-09-15, and was downloaded 417,948 times in the month ending 2026-09-16<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup>. For x402 overall, external analysis reports 130 million cumulative transactions and adoption inside Google Cloud, Cloudflare, and Stripe<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. The extension layer is not a sandbox; it sits on top of deployed code.</p>
+<h2>8. Limitations</h2>
+<ul>
+<li><strong>This is a 2026-09-18 snapshot.</strong> The repository was pushed to the day before, and 43 extension-related pull requests are open. The count of nine and the implementation matrix age within days.</li>
+<li><strong>The §6.1 import-path defect is specific to 2.26.0.</strong> A later release adding those subpaths removes it. The verification scripts are in <code>working/verify/</code> so readers can re-run them against whatever version they have.</li>
+<li><strong>The §3 account of echo validation rests on the TypeScript implementation only.</strong> The <code>extension_echo_mismatch</code> identifier was confirmed present in Go and Python, but whether those implementations carry the same hardcoded tables and the same branch structure was not checked.</li>
+<li><strong>The unadvertised-key path was not reproduced against a live server.</strong> What is established is that the validator returns <code>valid</code> for such a payload. The resource server's enrichment and hook paths were confirmed in code to iterate only over route-declared keys<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>, but how a facilitator implementation receiving that payload treats an unadvertised key was not investigated.</li>
+<li><strong>No independent security analysis of the extension layer was found.</strong> The most systematic external study of x402<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup> covers the HTTP semantic, the schemes, and SDK deployment choices, and leaves the <code>extensions</code> field out of scope. The §3 reading has no external corroboration.</li>
+<li><strong>The containment assertions were not read.</strong> The immutable field list and the assert imports were confirmed; what each function actually checks was not traced. Section 2.3 describes what the code claims rather than what it guarantees.</li>
+<li><strong>Whether the <code>offer-receipt</code> implementation enforces signer authorization was not checked.</strong> Section 5.2 is a specification-level account; how the TypeScript implementation handles the §4.5.1 MUST needs separate work.</li>
+<li><strong>The six third-party extensions were not assessed for quality or usage.</strong> What was confirmed is that they are listed on the official page and what each project wrote about itself in one line. The OMATrust correspondence in §7 is our interpretation.</li>
+<li><strong>The three maturity tiers were drawn from file existence.</strong> Whether a one-commit specification is abandoned or simply finished is not something the file answers. For <code>auth-hints</code>, the absence of the <code>deferred</code> scheme<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup> supports the abandonment reading as circumstance rather than confirmation; for <code>http-message-signatures</code> the explanation offered is closer to speculation.</li>
+<li><strong>Where <code>payment-identifier</code> idempotency is actually enforced was not traced.</strong> The extension object has no hooks, which is confirmed, but whether the deduplication decision then falls to middleware or to the application was not determined.</li>
+</ul>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/blob/main/specs/x402-specification-v1.md">x402 Protocol Specification v1</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://raw.githubusercontent.com/x402-foundation/x402/main/specs/x402-specification-v2.md">x402 v2 Specification (raw) — §7.2.1 Extension Responses Sidechannel, §7.3.1 SupportedResponse, Version History</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/blob/main/docs/extensions/overview.mdx">x402 Documentation — Extensions Overview (official docs)</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/blob/main/specs/x402-specification-v2.md">x402 Protocol Specification v2 — §5.1.2 Extensions object, §7.2.1 Extension Responses Sidechannel, §7.3 GET /supported</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/tree/main/specs/extensions">x402 repository — specs/extensions directory listing</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-6"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/blob/main/docs/dev-tools/third-party-extensions.md">x402 Documentation — Third-Party Extensions</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-7"><span class="authors">Shengchen Ling, Yihang Huang, Yuefeng Du, Yuan Chen, Yajin Zhou, Lei Wu, Cong Wang</span>. <a href="https://arxiv.org/abs/2605.30998">Free-Riding the Agentic Web: A Systematic Security Analysis of x402 Payments</a>. <span class="venue">arXiv preprint 2605.30998, 2026</span>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-8"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/blob/main/specs/extensions/payment_identifier.md">x402 Extension Spec — payment-identifier (idempotency key)</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-9"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/blob/main/typescript/packages/core/src/types/extensions.ts">@x402/core types — ResourceServerExtension and FacilitatorExtension interfaces</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-10"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/blob/main/specs/extensions/eip2612_gas_sponsoring.md">x402 Extension Spec — eip2612GasSponsoring</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-11"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/blob/main/typescript/packages/core/src/server/x402ResourceServer.ts">@x402/core — x402ResourceServer.validateExtensions (extension echo validation)</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-12"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/blob/main/typescript/packages/extensions/src/sign-in-with-x/server.ts">@x402/extensions — sign-in-with-x resource server extension</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-13"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/blob/main/typescript/packages/core/src/utils/index.ts">@x402/core utils — SERVER_OWNED_INFO_FIELDS, ADDITIVE_ARRAY_INFO_FIELDS, ADDITIVE_ARRAY_MAX_LENGTHS</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-14"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/blob/main/specs/extensions/builder_code.md">x402 Extension Spec — builder-code (ERC-8021 Schema 2 attribution)</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-15"><span class="authors">—</span>. <a href="https://eip.tools/eip/8021">ERC-8021 — builder code attribution suffix for transaction calldata</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-16"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/tree/main/typescript/packages/extensions/src">@x402/extensions TypeScript source directory listing</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-17"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/tree/main/go/extensions">x402 Go SDK — extensions directory listing</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-18"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/tree/main/python/x402/extensions">x402 Python SDK — extensions package listing</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-19"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/blob/main/specs/extensions/bazaar.md">x402 Extension Spec — bazaar (discovery)</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-20"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/blob/main/specs/extensions/sign-in-with-x.md">x402 Extension Spec — sign-in-with-x (CAIP-122)</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-21"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/blob/main/specs/extensions/erc20_gas_sponsoring.md">x402 Extension Spec — erc20ApprovalGasSponsoring</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-22"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/commits/main/specs/extensions">x402 repository — commit history for specs/extensions</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-23"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/blob/main/specs/extensions/extension-auth-hints.md">x402 Extension Spec — auth-hints</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-24"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/tree/main/specs/schemes">x402 repository — specs/schemes directory listing</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-25"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/blob/main/specs/extensions/http-message-signatures.md">x402 Extension Spec — http-message-signatures (RFC 9421 agent identity)</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-26"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/blob/main/specs/extensions/extension-offer-and-receipt.md">x402 Extension Spec — Offer and Receipt (v0.6)</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-27"><span class="authors">F. Serafini</span>. <a href="https://www.ietf.org/archive/id/draft-vauban-x402-consolidated-00.html">draft-vauban-x402-consolidated-00 — x402 Cryptographic Receipts: Format, Post-Quantum Discipline, and Starknet Anchor</a>. <span class="venue">IETF Internet-Draft (Informational), 2026</span>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-28"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/commit/69652a6979">x402 commit 69652a6 — docs+spec: clarify signer authorization in offer-receipt extension (#2462) (#2811)</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-29"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/blob/main/docs/extensions/eip2612-gas-sponsoring.mdx">x402 Documentation — EIP-2612 Gas Sponsoring extension page</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-30"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/blob/main/docs/extensions/erc20-approval-gas-sponsoring.mdx">x402 Documentation — ERC-20 Approval Gas Sponsoring extension page</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-31"><span class="authors">—</span>. <a href="https://www.npmjs.com/package/@x402/extensions">npm — @x402/extensions package registry record</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-32"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/blob/main/typescript/packages/extensions/src/payment-identifier/resourceServer.ts">@x402/extensions — payment-identifier resource server extension</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-33"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/blob/main/typescript/packages/extensions/src/builder-code/server.ts">@x402/extensions — builder-code resource server extension</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-34"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pulls?q=is%3Apr+is%3Aopen+extension+in%3Atitle">x402 repository — open pull requests with &quot;extension&quot; in the title</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+      <li id="ref-35"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/2666">x402 PR #2666 — docs(specs): add settlement-receipt binding extension</a>. <span class="accessed">Accessed 2026-09-18.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-09-18. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
