@@ -1,0 +1,10 @@
+title: x402 Lifecycle Hooks와 Wallet Compatibility: 결제 미들웨어의 확장점과 지갑 호환성
+subtitle: 훅은 검증·정산 파이프라인을 여는 문이고, 지갑 표는 그 파이프라인이 통과시킬 수 있는 서명의 한계다
+title_en: x402 Lifecycle Hooks and Wallet Compatibility: the extension points and the signature limits
+subtitle_en: x402 Lifecycle Hooks and Wallet Compatibility: the extension points and the signature limits
+slug: x402-lifecycle-hooks-wallet-compat
+lang: ko
+langs: [ko, en]
+date: 2026-09-20
+tags: [x402, lifecycle-hooks, wallet-compatibility, erc-6492, erc-1271, erc-7702, permit2, eip-3009]
+status: ready

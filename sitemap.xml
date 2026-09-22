@@ -151,6 +151,14 @@
     <lastmod>2026-05-19</lastmod>
   </url>
   <url>
+    <loc>https://code0xff.github.io/reports/ai-copyright-optout-noai/</loc>
+    <lastmod>2026-09-16</lastmod>
+  </url>
+  <url>
+    <loc>https://code0xff.github.io/reports/ai-copyright-optout-noai/en/</loc>
+    <lastmod>2026-09-16</lastmod>
+  </url>
+  <url>
     <loc>https://code0xff.github.io/reports/ai-related-eips/</loc>
     <lastmod>2026-04-26</lastmod>
   </url>
@@ -757,6 +765,14 @@
   <url>
     <loc>https://code0xff.github.io/reports/x402-extensions/en/</loc>
     <lastmod>2026-09-18</lastmod>
+  </url>
+  <url>
+    <loc>https://code0xff.github.io/reports/x402-lifecycle-hooks-wallet-compat/</loc>
+    <lastmod>2026-09-20</lastmod>
+  </url>
+  <url>
+    <loc>https://code0xff.github.io/reports/x402-lifecycle-hooks-wallet-compat/en/</loc>
+    <lastmod>2026-09-20</lastmod>
   </url>
   <url>
     <loc>https://code0xff.github.io/reports/x402-payment-schemes/</loc>

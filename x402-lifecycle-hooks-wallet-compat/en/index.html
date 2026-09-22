@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>x402 Lifecycle Hooks and Wallet Compatibility: the extension points and the signature limits — Deepsearch</title>
+<meta name="description" content="x402 Lifecycle Hooks and Wallet Compatibility: the extension points and the signature limits">
+<link rel="canonical" href="https://code0xff.github.io/reports/x402-lifecycle-hooks-wallet-compat/en/">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="x402 Lifecycle Hooks and Wallet Compatibility: the extension points and the signature limits">
+<meta property="og:description" content="x402 Lifecycle Hooks and Wallet Compatibility: the extension points and the signature limits">
+<meta property="og:url" content="https://code0xff.github.io/reports/x402-lifecycle-hooks-wallet-compat/en/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="x402 Lifecycle Hooks and Wallet Compatibility: the extension points and the signature limits">
+<meta name="twitter:description" content="x402 Lifecycle Hooks and Wallet Compatibility: the extension points and the signature limits">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>x402 Lifecycle Hooks and Wallet Compatibility: the extension points and the signature limits</h1>
+    <p class="subtitle">x402 Lifecycle Hooks and Wallet Compatibility: the extension points and the signature limits</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-09-20</span>
+      <span><strong>Tags</strong> x402, lifecycle-hooks, wallet-compatibility, erc-6492, erc-1271, erc-7702, permit2, eip-3009</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="x402-lifecycle-hooks-wallet-compat.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>Two pages sit under Advanced Concepts in the x402 documentation. Lifecycle Hooks defines the extension points where code can be injected into a payment flow; Wallet Compatibility pins down, in a 5×5 table, which wallets work on which payment paths. They look like separate subjects and share one sentence: "x402 pre-verifies a payment signature before settling it on-chain. Pre-verification has to match what the on-chain contract does." Hooks are the doors into that verify-settle pipeline; the wallet table is the limit on what signatures the pipeline can carry. Hooks span six surfaces (resource server, HTTP server, client, HTTP client, facilitator, MCP), and because before-hooks may return <code>{abort}</code>/<code>{skip}</code> and failure-hooks <code>{recovered}</code>, server code can overturn a payment decision. In the wallet table, plain EOAs, deployed smart accounts and permissive 7702 delegates clear all five paths; counterfactual ERC-6492 wallets clear only the EIP-3009 paths; strict 7702 delegates clear none. The documentation puts both failures in footnotes: Permit2 calls the payer's <code>isValidSignature</code> at settlement and that path does not deploy the wallet first, and x402's <code>signTypedData</code> produces a raw 65-byte ECDSA signature that a strict delegate rejects. Counterfactual deployment is gated solely by the <code>eip6492AllowedFactories</code> allowlist, empty by default, because it is the only thing standing between settlement and an arbitrary factory call inside the settlement transaction.</p>
+  </section>
+
+  <main class="body">
+<h2>1. Introduction</h2>
+<p>The x402 V2 announcement listed lifecycle hooks as a new capability: they "enable builders to inject custom logic at key points in the payment flow (e.g. before/after sending a payment, before/after settlement verification)"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The same post formalised Extensions to make it "easier to experiment and extend x402 without the need to fork" and renamed the headers to <code>PAYMENT-SIGNATURE</code>, <code>PAYMENT-REQUIRED</code>, <code>PAYMENT-RESPONSE</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The documentation index places the two pages side by side under Advanced Concepts: Lifecycle Hooks ("customize x402 payment flows") and Wallet Compatibility<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>This site has already covered x402's schemes, payment flow, batch settlement, SIWX and EIP-2612 gas sponsoring. Between V1 and V2 the resource server became an <code>x402ResourceServer</code> built with a <code>.register()</code> pattern, and the headers were renamed<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>; hooks attach to that new object. What this report covers are the two layers on top: who may intervene in a payment flow, and which wallets can enter it at all.</p>
+<h2>2. Lifecycle Hooks</h2>
+<h3>2.1 Six surfaces</h3>
+<p>Hooks are not in one place but six. The page introduces them as a way to "intercept and modify payment lifecycle events on clients, servers and facilitators"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<pre class="mermaid">sequenceDiagram
+  participant C as x402Client
+  participant HC as x402HTTPClient
+  participant HS as x402HTTPResourceServer
+  participant S as x402ResourceServer
+  participant F as x402Facilitator
+  participant Ch as chain
+  HC-&gt;&gt;HS: GET /resource (no payment)
+  HS-&gt;&gt;HS: onProtectedRequest&lt;br/&gt;grantAccess can waive payment
+  HS--&gt;&gt;HC: 402 PAYMENT-REQUIRED
+  HC-&gt;&gt;HC: onPaymentRequired
+  C-&gt;&gt;C: onBeforePaymentCreation (may abort)
+  C-&gt;&gt;C: sign → onAfterPaymentCreation&lt;br/&gt;on failure onPaymentCreationFailure (may recover)
+  C-&gt;&gt;HS: PAYMENT-SIGNATURE
+  S-&gt;&gt;S: onBeforeVerify (abort / skip)
+  S-&gt;&gt;F: verify
+  F-&gt;&gt;F: onBeforeVerify → onAfterVerify&lt;br/&gt;on failure onVerifyFailure
+  F--&gt;&gt;S: verification result
+  S-&gt;&gt;S: onAfterVerify (skipHandler / abort)&lt;br/&gt;on failure onVerifyFailure (recovered)
+  S-&gt;&gt;S: run route handler
+  S-&gt;&gt;S: onBeforeSettle (abort / skip), phase=after-handler
+  S-&gt;&gt;F: settle
+  F-&gt;&gt;Ch: settle on-chain
+  F-&gt;&gt;F: onAfterSettle / onSettleFailure
+  S-&gt;&gt;S: onAfterSettle / onSettleFailure (recovered)
+  Note over S: if the handler throws, settlement is replaced by&lt;br/&gt;onVerifiedPaymentCanceled (phase=cancel)
+  S--&gt;&gt;HC: 200 + PAYMENT-RESPONSE
+  HC-&gt;&gt;C: onPaymentResponse (recovered retries)</pre>
+<p><em>Figure 1 — Where hooks fire during one paid request. The order is as the documentation describes it; each hook's return contract is in the sections below.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></em></p>
+<h3>2.2 Resource server: seven hooks, four kinds of return</h3>
+<p><code>x402ResourceServer</code> has seven: <code>onBeforeVerify</code> ("runs before payment verification"), <code>onAfterVerify</code> ("after successful verification"), <code>onVerifyFailure</code> ("on verification failure"), <code>onBeforeSettle</code> ("before settlement"), <code>onAfterSettle</code> ("after successful settlement"), <code>onSettleFailure</code> ("on settlement failure") and <code>onVerifiedPaymentCanceled</code> ("runs when a verified payment is not settled")<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>What matters is not the names but the returns. The documented contract has four forms.</p>
+<table><thead><tr><th>Return</th><th>Available on</th><th>Effect</th></tr></thead><tbody><tr><td><code>{ abort: true, reason }</code></td><td>onBeforeVerify, onAfterVerify, onBeforeSettle</td><td>Reject the payment</td></tr><tr><td><code>{ skip: true, result }</code></td><td>onBeforeVerify, onBeforeSettle</td><td>Bypass verification/settlement, use the given result</td></tr><tr><td><code>{ skipHandler: true }</code></td><td>onAfterVerify</td><td>Settle without invoking the handler</td></tr><tr><td><code>{ recovered: true, result }</code></td><td>onVerifyFailure, onSettleFailure</td><td>Override a failure with success</td></tr></tbody></table>
+<p><code>{ skip }</code> and <code>{ recovered }</code> route around verification itself. A server operator can declare "treat this payment as already verified" or "treat this settlement failure as if it had not happened." The documentation presents both as features and does not say when either is safe.</p>
+<p>Settle hooks receive a <code>phase</code> context with values <code>before-handler</code>, <code>after-handler</code> and <code>cancel</code><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The documentation's own example shows why the field exists:</p>
+<pre><code>server.onAfterSettle(async (context) =&gt; {
+  if (context.phase !== &quot;after-handler&quot;) return;
+  await sendReceipt({
+    transaction: context.result.transaction,
+    payer: context.result.payer,
+  });
+});</code></pre>
+<p>A receipt hook must fire only in the <code>after-handler</code> phase. The Go SDK states the reason more plainly: "Multi-settle flows (escrow) invoke settle lifecycle hooks once per settle. Authors of side-effecting beforeSettle / afterSettle hooks should branch on <code>SettleContext.Phase</code> when used with those flows"<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. A hook written without that branch sends several receipts in an escrow scenario.</p>
+<p><code>onVerifiedPaymentCanceled</code> fills the gap x402's two-stage structure creates. In the Go SDK's words it is the hook "fired when a verified payment is canceled before settlement (handler error or non-2xx response)"<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. A state genuinely exists in which the payment is verified, funds are authorised, and settlement never happens.</p>
+<h3>2.3 The other five surfaces</h3>
+<p>The <strong>HTTP resource server</strong> has one hook, <code>onProtectedRequest</code>, which runs on every request to a protected route. It can return <code>{ grantAccess: true }</code> to bypass payment, <code>{ abort: true, reason }</code> to return 403, or nothing and fall through to the payment flow<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. There is, in other words, a payment-waiver switch inside the payment system.</p>
+<p>The <strong>client</strong> has <code>onBeforePaymentCreation</code> (may abort), <code>onAfterPaymentCreation</code>, <code>onPaymentCreationFailure</code> (<code>{ recovered: true, payload }</code> for a fallback) and <code>onPaymentResponse</code> (<code>{ recovered: true }</code> to retry with a fresh payload)<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. Here the documentation makes one explicit steer: "Use <code>spendControls</code> on the client config — it runs before hooks and is the preferred way to enforce spend limits"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. It heads off the obvious misuse before it happens. The <strong>HTTP client</strong>'s <code>onPaymentRequired</code> runs on a 402 and can return <code>{ headers }</code> to retry with different ones<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>The <strong>facilitator</strong> mirrors the server's six hooks<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. The use cases the documentation lists say what kind of surface this is: "populating a bazaar discovery catalog, compliance checks or collecting metrics across all processed payments"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. A facilitator handles payments for many resource servers, so a hook registered here sees every payment of every service using it.</p>
+<p>The <strong>MCP</strong> wrappers have their own. Client side: <code>onPaymentRequired</code> (<code>{ abort: true }</code> or <code>{ payment }</code>), <code>onBeforePayment</code> ("after approval, before payload creation"), <code>onAfterPayment</code>. Server side: <code>onBeforeExecution</code> ("runs after payment verification, before the tool handler executes"; returning <code>false</code> aborts), <code>onAfterExecution</code> ("after the tool handler returns, before settlement") and <code>onAfterSettlement</code><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<h3>2.4 SDK surface and real use</h3>
+<p>All three SDKs support method chaining<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The TypeScript examples repository's <code>hooks.ts</code> shows the shape, and its README summarises the six in one line each, "run before verification (can abort)", "run when verification fails (can recover)"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>:</p>
+<pre><code>.onBeforeVerify(async ctx =&gt; console.log(&quot;Verifying payment...&quot;))
+.onAfterSettle(async ctx =&gt; console.log(&quot;Settled:&quot;, ctx.result.transaction))</code></pre>
+<p>Go uses type names such as <code>BeforeVerifyHook</code>, <code>AfterSettleHook</code> and <code>FacilitatorBeforeVerifyHook</code>, passing <code>VerifyContext</code>/<code>SettleContext</code><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. The Python CHANGELOG records that 2.16.0 (17 July 2026) added that "after-verify hooks can abort with <code>after_verify_aborted</code> cleanup"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. The hook surface was not finished in one release; it is being filled in per SDK.</p>
+<p>A concrete extension proposal exists. Issue #2299, 14 May 2026, proposes a trust-provider extension that scores behavioural trust in the <code>onBeforeSettle</code> hook: it "queries configured trust providers in parallel with per-provider timeouts", returns <code>{ abort: true, reason: 'trust_evaluation_failed' }</code> on FAIL to block settlement, and on UNCERTAIN either aborts or allows depending on a <code>failureMode</code> setting<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> <em>(unverified — single source)</em>. No maintainer response was visible; PR #2300 is referenced. What the proposal demonstrates is reach: an external reputation service can hold a veto over settlement without any protocol change.</p>
+<h2>3. Wallet Compatibility</h2>
+<h3>3.1 The problem</h3>
+<p>Smart-contract wallet support is an old request. Issue #639, 13 November 2025, complained that x402 "does not fully support smart contract wallets, meta-transactions, account abstraction flows, or bundler/Paymaster models", because existing flows rely on "wallet signing of a payment payload, typically by an externally-owned account (EOA)"<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. The Wallet Compatibility page is the current answer to that request.</p>
+<p>The page starts from one sentence: "x402 pre-verifies a payment signature before settling it on-chain. Pre-verification has to match what the on-chain contract does"<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. What it must match is the branch the token contract or Permit2 actually executes.</p>
+<pre><code>if (signer.code.length == 0) {
+  require(ecrecover(hash, sig) == signer);
+} else {
+  require(IERC1271(signer).isValidSignature(hash, sig) == 0x1626ba7e);
+}</code></pre>
+<p>The documentation calls this "code routing"<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Code at the signer's address sends verification to ERC-1271; no code sends it to ecrecover. ERC-1271 exists because "Externally Owned Accounts (EOA) can sign messages with their associated private keys, but currently contracts cannot", and defines <code>isValidSignature(bytes32, bytes)</code> returning the magic value <code>0x1626ba7e</code> on success<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. Permit2's implementation is exactly this shape: if <code>claimedSigner.code.length == 0</code> it uses ecrecover, otherwise it calls <code>IERC1271(claimedSigner).isValidSignature(hash, signature)</code> and reverts with <code>InvalidContractSignature()</code> on a wrong magic value<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. Every wallet-compatibility problem comes out of this branch, when pre-verification cannot predict which side will be taken, or when the side taken on-chain fails.</p>
+<h3>3.2 The 5×5 table</h3>
+<p>Five wallet types, five paths<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<table><thead><tr><th>Wallet</th><th><code>exact</code> EIP-3009</th><th><code>exact</code> Permit2</th><th><code>upto</code> Permit2</th><th><code>batch</code> deposit (ERC-3009)</th><th><code>batch</code> deposit (Permit2)</th></tr></thead><tbody><tr><td><strong>A</strong> Plain EOA</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr><tr><td><strong>B</strong> Deployed smart account</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr><tr><td><strong>C</strong> ERC-6492 counterfactual</td><td>✅ ¹</td><td>❌ ²</td><td>❌ ²</td><td>✅ ³</td><td>❌ ²</td></tr><tr><td><strong>D</strong> 7702 + permissive delegate</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr><tr><td><strong>E</strong> 7702 + strict delegate</td><td>❌ ⁴</td><td>❌ ⁴</td><td>❌ ⁴</td><td>❌ ⁴</td><td>❌ ⁴</td></tr></tbody></table>
+<p>The type definitions are verification paths. A is "raw ECDSA from the private key"; B (ERC-4337) is "EIP-1271 <code>isValidSignature</code> on the contract"; C (ERC-6492) is "EIP-1271 after the factory deploys it"; D is "EIP-1271 on the delegate, which accepts raw owner ECDSA"; E is "EIP-1271 on the delegate, which requires a wrapped or prefixed format"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<p>D versus E is the subtlest row pair in the table. Both are EOAs that delegated code under ERC-7702. EIP-7702 itself only defines writing a delegation indicator <code>(0xef0100 || address)</code> into the account's code; how signatures are verified is up to the delegate contract<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. So the same user at the same address clears every path or none, depending on which delegate they run. It is the same axis as EIP-7702's own warning that "a poorly implemented delegate can allow a malicious actor to take near complete control over a signer's EOA"<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</p>
+<h3>3.3 Why the two ❌ blocks exist</h3>
+<p><strong>Footnote 2 — counterfactual plus Permit2.</strong> "Permit2's <code>permitWitnessTransferFrom</code> calls <code>isValidSignature</code> on the payer at settlement, and the Permit2 path does not deploy the wallet first"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. An undeployed address has no code, so Permit2's branch goes to ecrecover, and what arrives there is an ERC-6492-wrapped signature from which no key can be recovered. ERC-6492 exists to solve the problem that "if the contract is not deployed yet, ERC-1271 verification is impossible, as you can't call the <code>isValidSignature</code> function on said contract"; it appends the 32-byte magic <code>0x6492…6492</code> and prefixes <code>(create2Factory, factoryCalldata, originalERC1271Signature)</code> so a validator can deploy and then verify<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. With nobody to run the deployment step, a 6492 signature is just an odd byte string.</p>
+<p><strong>Footnote 4 — strict 7702 delegates.</strong> "x402 signs with <code>signTypedData</code>, which produces a raw 65-byte ECDSA signature that a strict delegate rejects"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The format the client produces and the format the delegate expects do not match. All five paths fail for the same reason because the problem is in signature creation, not in any scheme.</p>
+<h3>3.4 Two devices for counterfactual wallets</h3>
+<p>Type C is ✅ on the EIP-3009 paths because x402 performs the deployment itself. In the Python SDK 2.14.0 (26 June 2026) description, "the wallet is deployed and its signature validated together during verify"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Unbounded, that would be dangerous, so the documentation gates it: "This requires the facilitator to set an allowlist of permitted factory addresses (<code>eip6492AllowedFactories</code>). Arbitrary factory calls are blocked by default to prevent attacker-controlled transaction injection"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<p>The Go SDK says the same thing at implementation level: "<code>EIP6492AllowedFactories</code> is the allowlist of factory contract addresses (hex strings, case-insensitive) that the facilitator will call when deploying an undeployed smart wallet via ERC-6492. A non-empty list enables ERC-4337 smart wallet deployment. An empty list (the default) denies all factory deployment calls", with error constants <code>ErrUndeployedSmartWallet</code>, <code>ErrSmartWalletDeploymentFailed</code> and <code>ErrFactoryNotAllowed</code><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. The Python CHANGELOG notes the parameter replaced the earlier boolean <code>deploy_erc4337_with_eip6492</code>, and that "settlement deploys an undeployed smart wallet if and only if its factory address is present in the allowlist"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p>Batch settlement has a separate workaround. Per footnote 3, when a counterfactual payer uses an ERC-3009 deposit, "set <code>payerAuthorizer</code> to an EOA you control so the voucher verifies via ECDSA, while the deposit authorization is still signed by (and deploys) the smart wallet"<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Voucher signer and deposit authoriser are split apart. What that split means for the trust relationship is not discussed.</p>
+<h3>3.5 The part that depends on the token</h3>
+<p>Columns B and C hold only if the token contract accepts contract signatures, and the ERC-3009 text points the other way: "Please note that this ERC does not apply to smart contract accounts"<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. The standard's <code>transferWithAuthorization</code> takes <code>v, r, s</code> and checks <code>EIP712.recover(...) == from</code><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. Implementations went further. Circle announced in USDC v2.2 (2023) that "USDC and EURC adopted EIP-1271 to allow authorized transfers to be used from a smart contract wallet in addition to a private key wallet", covering <code>permit</code>, <code>transferWithAuthorization</code>, <code>receiveWithAuthorization</code> and <code>cancelAuthorization</code><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>.</p>
+<p>So x402's wallet table depends on the deployed token implementation as much as on the scheme. Against a pre-2.2 implementation, or a stablecoin that never added EIP-1271, columns B and C do not hold as printed. The documentation does not state this dependency.</p>
+<h2>4. Where the two pages meet</h2>
+<pre class="mermaid">flowchart TB
+  subgraph W[&quot;What Wallet Compatibility settles&quot;]
+    W1[&quot;Which verification branch a signature takes&lt;br/&gt;code.length == 0 ?&quot;]
+    W2[&quot;Whether pre-verification matches on-chain&quot;]
+    W3[&quot;Who authorises counterfactual deployment&lt;br/&gt;eip6492AllowedFactories&quot;]
+  end
+  subgraph H[&quot;What Lifecycle Hooks settles&quot;]
+    H1[&quot;Whether verification can be skipped&lt;br/&gt;{ skip }&quot;]
+    H2[&quot;Whether failure can become success&lt;br/&gt;{ recovered }&quot;]
+    H3[&quot;Whether payment can be waived&lt;br/&gt;{ grantAccess }&quot;]
+    H4[&quot;Whether settlement can be refused&lt;br/&gt;{ abort }&quot;]
+  end
+  P[&quot;verify → handler → settle pipeline&quot;]
+  W1 --&gt; P
+  W2 --&gt; P
+  W3 --&gt; P
+  P --&gt; H1
+  P --&gt; H2
+  P --&gt; H3
+  P --&gt; H4</pre>
+<p><em>Figure 2 — Wallet compatibility decides what can enter the pipeline; hooks decide how it is judged inside. Both rest on the same invariant, that pre-verification must match the chain.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup></em></p>
+<p>That invariant is what Python SDK 2.14.0 set out to deliver: "pre-verification now mirrors on-chain signature checking, so a payment that passes verify is the same one that succeeds at settle"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. It matters because x402 separates verification from settlement in time. When a payment that passed verification fails at settlement, the route handler in between has already delivered the service.</p>
+<p>And yet <code>{ skip }</code> and <code>{ recovered }</code> let code route around that very invariant. An <code>onBeforeVerify</code> returning <code>{ skip: true, result }</code> means verification never runs; an <code>onSettleFailure</code> returning <code>{ recovered: true, result }</code> means a failed settlement is recorded as a success<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The documentation introduces both features in their own sections and warns about neither in terms of the other.</p>
+<h2>5. Analysis</h2>
+<p><strong>The hook registration point is a new trust boundary.</strong> Code that registers a hook can overturn a verification (<code>recovered</code>), skip one (<code>skip</code>), waive a payment (<code>grantAccess</code>) and refuse a settlement (<code>abort</code>)<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. On a facilitator, that authority covers not one service but every service using it. The trust-provider proposal<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> is that authority handed to an external API. The protocol neither forbids it nor requires anything of it.</p>
+<p><strong>The one thing the documentation does not answer is the one that matters in operation.</strong> Execution order when several hooks are registered on the same event; behaviour when a hook throws; how conflicting return values resolve. These were looked for explicitly and are not on the page, which shows only a chaining example. For an extension point that can change payment outcomes, leaving those three undocumented is a gap.</p>
+<p><strong>The ❌ cells are signature-format mismatches, not x402 defects.</strong> Counterfactual plus Permit2 arises because ERC-6492 needs a deployment step that the Permit2 path lacks; strict 7702 arises because the format <code>signTypedData</code> produces is not the format the delegate demands<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The first is the kind of problem x402 already solved on the EIP-3009 path by doing the deployment, so it could be solved on the Permit2 path too. The second reaches into client-side signature creation and is deeper.</p>
+<p><strong>The factory allowlist is the only gate, and its default is the safe one.</strong> An empty list is the default and denies every deployment call<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. A facilitator operator must add each trusted factory before counterfactual wallets work. The whole convenience-versus-security trade sits in one line of operator configuration, and widening it wrongly turns the settlement transaction into a path for deploying arbitrary contracts.</p>
+<p><strong>The table is a claim, not a test.</strong> No independent reproduction of the matrix was found. And as §3.5 shows, its conditions include the token implementation, for which the table has no column.</p>
+<p>For an implementer the practical order is: establish the wallet type first, particularly which side of the 7702 delegate line users are on; if counterfactual wallets are in scope, settle the facilitator's factory allowlist before anything else; use hooks for observation (logging, metrics, receipts) first, and reach for <code>skip</code>/<code>recovered</code> only after the team has written down what they mean; and enforce spend limits with <code>spendControls</code>, not hooks<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<h2>6. Limitations</h2>
+<ul>
+<li>Hook execution semantics (ordering, exceptions, conflicting returns) are absent from the documentation and were not found elsewhere. This report does not close that gap.</li>
+<li>The wallet-compatibility matrix is the documentation's own account of SDK behaviour; no independent verification exists.</li>
+<li>The trust-provider proposal (#2299) is single-source, with no maintainer response or merge status confirmed.</li>
+<li>No <code>@x402/core</code> CHANGELOG entry dating the TypeScript hook surface was located; dating relies on the Python CHANGELOG and the V2 announcement.</li>
+<li><code>onVerifiedPaymentCanceled</code> is confirmed in the TS docs and the Go package; Python was not confirmed.</li>
+<li>Which hosted facilitators actually configure <code>eip6492AllowedFactories</code> could not be established from public material.</li>
+<li>Circle's v2.2 upgrade document in the repository contains no EIP-1271 text, so the company blog was used.</li>
+</ul>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">x402 Foundation</span>. <a href="https://www.x402.org/writing/x402-v2-launch">Introducing x402 V2: Evolving the Standard for Internet-native Payments</a>. <span class="venue">x402.org, 2026</span>. <span class="accessed">Accessed 2026-09-20.</span></li>
+      <li id="ref-2"><span class="authors">x402 Foundation</span>. <a href="https://docs.x402.org/llms.txt">x402 documentation index (llms.txt)</a>. <span class="venue">docs.x402.org, 2026</span>. <span class="accessed">Accessed 2026-09-20.</span></li>
+      <li id="ref-3"><span class="authors">x402 Foundation</span>. <a href="https://docs.x402.org/guides/migration-v1-to-v2">Migration Guide: V1 to V2 — x402 docs</a>. <span class="venue">docs.x402.org, 2026</span>. <span class="accessed">Accessed 2026-09-20.</span></li>
+      <li id="ref-4"><span class="authors">x402 Foundation</span>. <a href="https://docs.x402.org/advanced-concepts/lifecycle-hooks">Lifecycle Hooks — x402 docs (Advanced Concepts)</a>. <span class="venue">docs.x402.org, 2026</span>. <span class="accessed">Accessed 2026-09-20.</span></li>
+      <li id="ref-5"><span class="authors">x402 Foundation</span>. <a href="https://docs.x402.org/advanced-concepts/wallet-compatibility">Wallet Compatibility — x402 docs (Advanced Concepts)</a>. <span class="venue">docs.x402.org, 2026</span>. <span class="accessed">Accessed 2026-09-20.</span></li>
+      <li id="ref-6"><span class="authors">x402 Foundation</span>. <a href="https://pkg.go.dev/github.com/x402-foundation/x402/go/v2">x402 Go SDK v2 package reference</a>. <span class="venue">pkg.go.dev, 2026</span>. <span class="accessed">Accessed 2026-09-20.</span></li>
+      <li id="ref-7"><span class="authors">x402 Foundation</span>. <a href="https://github.com/x402-foundation/x402/tree/main/examples/typescript/servers/advanced">x402 advanced TypeScript server examples</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-09-20.</span></li>
+      <li id="ref-8"><span class="authors">x402 Foundation</span>. <a href="https://github.com/x402-foundation/x402/blob/main/python/x402/CHANGELOG.md">x402 Python SDK CHANGELOG</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-09-20.</span></li>
+      <li id="ref-9"><span class="authors">vdineshk</span>. <a href="https://github.com/x402-foundation/x402/issues/2299">[Extension] Trust-Provider: behavioral trust scoring via onBeforeSettle hook</a>. <span class="venue">GitHub Issues, 2026</span>. <span class="accessed">Accessed 2026-09-20.</span></li>
+      <li id="ref-10"><span class="authors">AiMo Network</span>. <a href="https://github.com/coinbase/x402/issues/639">Feature Request: Enable EIP-4337 Smart Wallet / UserOperation Support in x402 Protocol</a>. <span class="venue">GitHub Issues, 2025</span>. <span class="accessed">Accessed 2026-09-20.</span></li>
+      <li id="ref-11"><span class="authors">x402 Foundation</span>. <a href="https://docs.x402.org/advanced-concepts/wallet-compatibility.md">Wallet Compatibility (markdown source) — x402 docs</a>. <span class="venue">docs.x402.org, 2026</span>. <span class="accessed">Accessed 2026-09-20.</span></li>
+      <li id="ref-12"><span class="authors">Francisco Giordano, et al.</span>. <a href="https://eips.ethereum.org/EIPS/eip-1271">ERC-1271: Standard Signature Validation Method for Contracts</a>. <span class="venue">ethereum.org EIPs, 2018</span>. <span class="accessed">Accessed 2026-09-20.</span></li>
+      <li id="ref-13"><span class="authors">Uniswap</span>. <a href="https://github.com/Uniswap/permit2/blob/main/src/libraries/SignatureVerification.sol">Permit2 SignatureVerification.sol</a>. <span class="venue">GitHub, 2022</span>. <span class="accessed">Accessed 2026-09-20.</span></li>
+      <li id="ref-14"><span class="authors">Vitalik Buterin, Sam Wilson, Ansgar Dietrichs, Matt Garnett</span>. <a href="https://eips.ethereum.org/EIPS/eip-7702">EIP-7702: Set Code for EOAs</a>. <span class="venue">ethereum.org EIPs, 2024</span>. <span class="accessed">Accessed 2026-09-20.</span></li>
+      <li id="ref-15"><span class="authors">Ivo Georgiev, Agustin Aguilar</span>. <a href="https://eips.ethereum.org/EIPS/eip-6492">ERC-6492: Signature Validation for Predeploy Contracts</a>. <span class="venue">ethereum.org EIPs, 2023</span>. <span class="accessed">Accessed 2026-09-20.</span></li>
+      <li id="ref-16"><span class="authors">x402 Foundation</span>. <a href="https://pkg.go.dev/github.com/x402-foundation/x402/go/v2/mechanisms/evm/exact/facilitator">x402 Go SDK — evm/exact facilitator package</a>. <span class="venue">pkg.go.dev, 2026</span>. <span class="accessed">Accessed 2026-09-20.</span></li>
+      <li id="ref-17"><span class="authors">Peter Jihoon Kim, Kevin Britz, et al.</span>. <a href="https://eips.ethereum.org/EIPS/eip-3009">ERC-3009: Transfer With Authorization</a>. <span class="venue">ethereum.org EIPs, 2020</span>. <span class="accessed">Accessed 2026-09-20.</span></li>
+      <li id="ref-18"><span class="authors">Circle</span>. <a href="https://www.circle.com/blog/announcing-usdc-v2-2">Announcing USDC v2.2: Reduced Gas Costs &amp; Improved Security</a>. <span class="venue">circle.com, 2023</span>. <span class="accessed">Accessed 2026-09-20.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-09-20. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

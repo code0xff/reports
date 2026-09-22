@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Copyright protection from AI training: from Sketchfab&#x27;s NoAI tag to opt-out standards — Deepsearch</title>
+<meta name="description" content="Copyright protection from AI training: from Sketchfab&#x27;s NoAI tag to opt-out standards">
+<link rel="canonical" href="https://code0xff.github.io/reports/ai-copyright-optout-noai/en/">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="Copyright protection from AI training: from Sketchfab&#x27;s NoAI tag to opt-out standards">
+<meta property="og:description" content="Copyright protection from AI training: from Sketchfab&#x27;s NoAI tag to opt-out standards">
+<meta property="og:url" content="https://code0xff.github.io/reports/ai-copyright-optout-noai/en/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Copyright protection from AI training: from Sketchfab&#x27;s NoAI tag to opt-out standards">
+<meta name="twitter:description" content="Copyright protection from AI training: from Sketchfab&#x27;s NoAI tag to opt-out standards">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>Copyright protection from AI training: from Sketchfab&#x27;s NoAI tag to opt-out standards</h1>
+    <p class="subtitle">Copyright protection from AI training: from Sketchfab&#x27;s NoAI tag to opt-out standards</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-09-16</span>
+      <span><strong>Tags</strong> copyright, ai-training, opt-out, sketchfab, noai, robots.txt, tdmrep, aipref, eu-ai-act</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="ai-copyright-optout-noai.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>In February 2023 Sketchfab introduced a NoAI tag, an HTML meta tag telling generative AI systems that a model "is not to be used for generative AI data collection". Nine months later it removed the tag from Creative Commons models, and said why: "the CC license may allow use of the work by generative AI programs regardless of the tag." Between the two posts, Objaverse had redistributed 800,000 of Sketchfab's CC models as a training dataset, one that still feeds generative-3D models such as TripoSR. This report takes Sketchfab's trajectory as the starting point and examines copyright protection from AI training on four layers. Signals (noai meta tags, robots.txt, TDMRep, IETF AIPREF, C2PA/CAWG assertions, CC Signals) carry no enforcement, and no major AI company honours noai. Contracts (platform terms, Sketchfab's Standard License) bind only those who download. Law splits by jurisdiction: the EU made compliance with machine-readable opt-outs a duty for GPAI providers under Article 53 of the AI Act, the Hamburg Higher Regional Court held in December 2025 that natural-language terms are not machine-readable, and two US district courts found LLM training to be fair use in June 2025. Technology (Glaze, Nightshade) was judged "a false sense of security" by two 2025 papers. Sketchfab's lesson is a single one: there is no way to publish under CC and still forbid AI training. To forbid it, change the licence itself, and even then, outside the EU, the prohibition reaches only the other party to the contract.</p>
+  </section>
+
+  <main class="body">
+<h2>1. Introduction</h2>
+<p>The two posts are from the same platform, nine months apart. On 20 February 2023 Sketchfab announced NoAI: "the 'NoAI' model tag will indicate to generative AI programs that a particular model is not to be used for generative AI data collection." An account setting could "Add 'NoAI' meta tags to all uploads", and Sketchfab itself "agrees not to use any of your uploads in datasets for, in the development of, or as inputs to generative AI programs" nor to license them to third parties for that purpose. The terms changed on 23 March<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The second post, 21 November 2023, reverses course: "Creators can no longer apply NoAI tags to new Creative Commons-licensed uploads." Free models may instead use the Standard License, and carry NoAI there. The reason: "the CC license may allow use of the work by generative AI programs regardless of the tag", whereas on Standard-licensed models the tag "becomes contractually enforceable [...] once they have been downloaded from Sketchfab"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>The first post created a signal. The second conceded that a signal is not enough. What happened in between, and which of the four layers, signal, contract, law, technology, actually does anything, is the question here.</p>
+<h2>2. What happened</h2>
+<pre class="mermaid">flowchart TB
+  A[&quot;2022-11-11 DeviantArt&lt;br/&gt;DreamUp backlash → all works opted out by default,&lt;br/&gt;noai / noimageai meta tags published&quot;]
+  B[&quot;2022-12-15 ArtStation&lt;br/&gt;NoAI tags announced, opt-in by default&quot;]
+  C[&quot;2023-02-20 Sketchfab&lt;br/&gt;NoAI / CreatedWithAI tags, ToS change 23 Mar&quot;]
+  D[&quot;2023-04 Objaverse dispute&lt;br/&gt;800k+ Sketchfab CC models redistributed,&lt;br/&gt;NoAI-tagged models reported included&quot;]
+  E[&quot;2023-11-21 Sketchfab&lt;br/&gt;NoAI removed from CC models,&lt;br/&gt;Standard License opened to free models&quot;]
+  F[&quot;2024-02 W3C TDMRep final report&quot;]
+  G[&quot;2024-09-27 LG Hamburg&lt;br/&gt;Kneschke v LAION: TDM exception applies&quot;]
+  H[&quot;2025-05/06 Creative Commons&lt;br/&gt;legal primer + CC Signals&quot;]
+  I[&quot;2025-07 IETF AIPREF attach-02&lt;br/&gt;GPAI Code of Practice&quot;]
+  J[&quot;2025-08-02 EU AI Act Art. 53 applies&quot;]
+  K[&quot;2025-11-04 Getty v Stability (UK)&quot;]
+  L[&quot;2025-12 OLG Hamburg appeal&lt;br/&gt;natural-language terms not machine-readable&lt;br/&gt;Commission opt-out protocol consultation opens&quot;]
+  M[&quot;2025-12-11 Sketchfab&lt;br/&gt;CreatedWithAI label mandatory&quot;]
+  A --&gt; B --&gt; C --&gt; D --&gt; E --&gt; F --&gt; G --&gt; H --&gt; I --&gt; J --&gt; K --&gt; L --&gt; M</pre>
+<p><em>Figure 1 — November 2022 to December 2025. Platform tagging (top) ran two years ahead of law and standards (bottom), and the datasets were built in between.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></em></p>
+<h3>2.1 Where noai came from: DeviantArt</h3>
+<p>The meta tag is DeviantArt's. On 11 November 2022, under pressure after launching its own generator DreamUp, it flipped the default: "All deviations on the platform are not authorized for inclusion in third-party datasets used to train artificial-intelligence models — unless you choose to opt in." It published <code>&lt;meta name="robots" content="noai"&gt;</code> and <code>noimageai</code>, and the same values as <code>X-Robots-Tag</code> headers, asked third parties to "ensure their training data set excludes all content for which either of these directives are present", and encouraged other platforms to adopt them<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> <em>(unverified — single source)</em>.</p>
+<p>ArtStation followed a month later with the opposite default. On 15 December 2022 it announced tags to "explicitly allow or disallow the use of their art for training" but said "we don't plan to add either of these tags by default, in which case the use of the art by AI will be governed solely by copyright law"<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. Sketchfab was opt-in too, and saw no comparable backlash "partly because most 3D workflows do not currently rely on generative AI programs"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<h3>2.2 Objaverse</h3>
+<p>Two months before Sketchfab's tag, Allen AI released Objaverse: "800K+ (and growing) 3D models with descriptive captions, tags, and animations", with "training generative 3D models" as the first listed application<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. In April 2023 The Decoder set out three problems. The models "were made downloadable for free on Sketchfab under Creative Commons licenses"; the dataset "includes 3D models whose creators have set the NoAI tag, which Sketchfab introduced in February"; and Sketchfab's answer was "They did this before us implementing the noai tag [...] We understand artists' concerns and are looking into it"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<p>The dataset did not go away. Objaverse-XL grew to ten million objects in July 2023<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>, and in March 2024 TripoSR, from Stability AI and Tripo, stated in its model card that it trained on "a carefully curated subset of the Objaverse dataset [...] available under the CC-BY license"<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. NoAI did not reach back into datasets built before it existed, and "CC-BY subset" is a selection criterion in which the tag plays no part.</p>
+<h3>2.3 Sketchfab's retreat</h3>
+<p>The November 2023 post answers that situation. Sketchfab took NoAI off CC models and let free models use the Standard License, which "permits worldwide use for all types of use (whether commercial and non-commercial), in all types of derivative works. No credit needs to be given", but now with a NoAI clause attached by contract<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The current terms read: "you shall not collect, aggregate, mine, scrape, or otherwise use NoAI Content (i) in datasets utilized by Generative AI Programs; (ii) in the development of Generative AI Programs"<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. The basis of protection moved from a tag to a licence agreement. That agreement binds whoever downloads from Sketchfab and accepts the terms. A scraper who never accepted them is not bound.</p>
+<p>From 11 December 2025 the other direction became mandatory too: "If you make User Content available and such User Content is created using Generative AI Programs, you must label such User Content as 'CreatedWithAI'"<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>, for every AI-generated model whether downloadable or not, with Sketchfab able to apply the label automatically on detection<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. It arrived with the Fab consolidation after Epic's acquisition.</p>
+<h2>3. The signal layer: who reads what</h2>
+<p>Sketchfab's NoAI was "an HTML meta tag that appears in the model's webpage on the site" readable by crawlers, and "initially carried no legal enforcement"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. By 2026 there are six signals of that kind.</p>
+<table><thead><tr><th>Signal</th><th>Form</th><th>Origin</th><th>Enforcement</th></tr></thead><tbody><tr><td>noai / noimageai</td><td><code>&lt;meta name="robots"&gt;</code>, <code>X-Robots-Tag</code></td><td>DeviantArt, 2022</td><td>None; major AI firms use separate robots.txt tokens<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup></td></tr><tr><td>robots.txt</td><td><code>/robots.txt</code></td><td>1994 convention → RFC 9309</td><td>"not a form of access authorization"<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup></td></tr><tr><td>TDMRep</td><td><code>tdm-reservation</code> header, meta, <code>/.well-known/tdmrep.json</code></td><td>W3C CG, 2024</td><td>Machine-readable form of the EU DSM Art. 4 opt-out<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup></td></tr><tr><td>AIPREF Content-Usage</td><td>HTTP header + robots.txt rule</td><td>IETF WG, 2025–</td><td>Enforcement outside the charter<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></td></tr><tr><td>CAWG training-mining</td><td>C2PA manifest assertion</td><td>CAWG, 2025</td><td>Declares allowed / notAllowed / constrained<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup></td></tr><tr><td>CC Signals</td><td>Preference next to the licence</td><td>Creative Commons, 2025</td><td>"legally binding in some cases and normative in others"<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup></td></tr></tbody></table>
+<p>There is one vendor measurement of noai's spread. Originality.AI counted "88,000+ domains" using noai or noimageai in its sample as of June 2026: 87.8% via meta tag, 26.7% via header, 14.5% both<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup> <em>(vendor-stated)</em>. Compliance is another matter. As the same post puts it, "where large AI firms offer opt-outs, they have generally done so via robots.txt crawler tokens, such as Google-Extended [...] GPTBot [...] rather than honoring the noai meta tag specifically", and "Google's own robots meta specification does not list noai"<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. A four-year-old signal emitted by eighty thousand domains, with no large operator committed to reading it.</p>
+<p>robots.txt became a standard without changing character. RFC 9309 states that "these rules are not a form of access authorization" and that the protocol "is not a substitute for valid content security measures"<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. IETF AIPREF layers a <code>Content-Usage</code> header and a robots.txt <code>content-usage</code> rule on top, so that a preference such as <code>train-ai=n</code> can be attached per path<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>; that its charter excludes enforcement is covered in another report on this site. The C2PA family puts the declaration inside the file. CAWG's <code>cawg.training-mining</code> assertion records "allowed, notAllowed, or constrained" for each of <code>ai_training</code>, <code>ai_generative_training</code>, <code>data_mining</code> and <code>ai_inference</code>, and "in the absence of additional information, constrained shall be treated as equivalent to notAllowed"<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>; it replaced the <code>c2pa.</code> prefixed assertions of C2PA 1.4. Creative Commons launched CC Signals in June 2025 as "a new preference signals framework designed to increase reciprocity and sustain a creative commons in the age of AI", and wrote its own caveat: "While CC signals may range in enforceability, legally binding in some cases and normative in others, their application will always carry ethical weight"<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup> <em>(unverified — single source)</em>.</p>
+<p>What the six share is dependence on the reader's goodwill. What separates them is which ones the law recognises as a "machine-readable" opt-out, and that answer is in §5.</p>
+<h2>4. The contract layer: CC and NoAI do not coexist</h2>
+<p>The conclusion Sketchfab reached in November 2023, Creative Commons confirmed in its May 2025 legal primer in nearly the same words: "AI training is often permitted by copyright. This means that the CC license conditions have limited application to machine reuse", and "using a more restrictive CC license in an effort to prevent AI training is not an effective approach"<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup> <em>(unverified — single source)</em>. A CC licence attaches conditions to acts that copyright reaches. When training falls under an exception (fair use, a TDM exception), the licence conditions never trigger, and a NoAI tag stacked on top goes with them.</p>
+<p>Sketchfab's answer was to go around the exception and into contract. The Standard License, unlike CC, is an agreement between Sketchfab and the downloader, and a NoAI clause in it is "contractually enforceable [...] once they have been downloaded"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Its reach is exactly the parties to the contract. A platform-wide scraper like Objaverse never clicked through the terms, and a downstream reuser of an already-distributed dataset (TripoSR) has no relationship with Sketchfab at all. This report found no instance of Sketchfab enforcing the clause against any dataset or model.</p>
+<h2>5. The legal layer: jurisdictions diverge</h2>
+<pre class="mermaid">flowchart LR
+  S[&quot;opt-out signals&lt;br/&gt;(noai, robots.txt, TDMRep, AIPREF, C2PA)&quot;]
+  subgraph EU[&quot;EU&quot;]
+    E1[&quot;DSM Directive Art. 4&lt;br/&gt;TDM exception lost if reserved machine-readably&quot;]
+    E2[&quot;AI Act Art. 53(1)(c), from 2025-08-02&lt;br/&gt;GPAI providers must honour reservations&quot;]
+    E3[&quot;Commission: list of recognised protocols&lt;br/&gt;(consultation Dec 2025 – Jan 2026, unpublished)&quot;]
+    E4[&quot;OLG Hamburg, Dec 2025&lt;br/&gt;natural-language terms ≠ machine-readable&quot;]
+  end
+  subgraph US[&quot;United States&quot;]
+    U1[&quot;Fair use&lt;br/&gt;Kadrey v Meta, Bartz v Anthropic (June 2025)&quot;]
+    U2[&quot;Andersen v Stability&lt;br/&gt;images, jury trial pending&quot;]
+  end
+  subgraph UK[&quot;United Kingdom&quot;]
+    K1[&quot;Getty v Stability, Nov 2025&lt;br/&gt;model weights are not an infringing copy&quot;]
+  end
+  S --&gt; E1 --&gt; E2 --&gt; E3
+  E1 --&gt; E4
+  S -. &quot;signal irrelevant&quot; .-&gt; U1
+  S -. &quot;signal irrelevant&quot; .-&gt; K1</pre>
+<p><em>Figure 2 — The weight one signal carries by jurisdiction. Only in the EU is a signal wired into a legal condition (Art. 4) and a duty (Art. 53); US and UK decisions judged the act of training without reference to signals.<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup><sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup></em></p>
+<h3>5.1 EU: the only jurisdiction that gives signals legal weight</h3>
+<p>Article 4 of the DSM Directive permits commercial TDM "on the condition that the use of content for TDM has not been expressly reserved by their rightsholders in an appropriate manner, such as machine-readable means"<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>. Article 53(1)(c) of the AI Act makes honouring that reservation a duty for GPAI providers, and by recital 106 it applies "regardless of the jurisdiction in which the copyright-relevant acts underpinning the training [...] take place", from 2 August 2025<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. The GPAI Code of Practice commits signatories to "employ the crawlers that read and follow instructions expressed in accord with the Robot Exclusion Protocol"<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup>.</p>
+<p>What counts as "machine-readable" is being settled by courts and the Commission, and two rulings point opposite ways. Of the Hamburg Regional Court (27 September 2024), the European Parliament's research service wrote that it "ruled that including the opt-out in 'natural language' – for instance in terms of use – qualifies as a machine-readable opt-out", noting experts expected an appeal<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. The Higher Regional Court (5 U 104/24, 10 December 2025) reversed that point: "Rights holders can block TDM uses, but only if the opt-out is expressed in a machine-readable format", and "general terms of use or human-readable disclaimers are insufficient"; its practical advice is "robots.txt, TDM Reservation Protocol, metadata tags"<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup>. Appeal to the Federal Court of Justice was allowed<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. A vendor summary draws one further implication: content scraped before a machine-readable signal was in place "remains lawfully available for AI training"<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> <em>(vendor-stated)</em>, which is exactly Sketchfab's "they did this before the tag" problem restated as law.</p>
+<p>The Commission is building the list of recognised protocols. A consultation ran from 1 December 2025 to 23 January 2026 with EUIPO support, to identify protocols that are "state-of-the-art, technically implementable, and widely adopted by rightsholders across different cultural and creative sectors"; the Commission "will publish the list of generally-agreed machine-readable opt-out solutions", reviewed "at least every two years"<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup> <em>(unverified — single source)</em>. As of September 2026 no list has been published. Which of robots.txt, TDMRep, AIPREF and C2PA make it onto it will fill in the enforcement column of the table in §3.</p>
+<p>One structural limit the Parliament's researchers named applies to Sketchfab exactly: "the opt-out mechanism is likely to fail whenever rights-holders do not have the administrative rights for the webpage displaying their works"<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. The party that can attach the tag is the platform, not the artist.</p>
+<h3>5.2 United States: fair use, not signals</h3>
+<p>In the US a signal is not a legal instrument. In June 2025 two district courts found LLM training to be fair use. Bartz v Anthropic (23 June) called training "exceedingly transformative" but separated acquisition: "pirating copies to build a research library without paying for it [...] was its own use—and not a transformative one." Kadrey v Meta (25 June) went to Meta because the plaintiffs failed to show market harm, with the judge adding that the ruling "does not stand for the proposition that Meta's use of copyrighted materials to train its language models is lawful. It stands only for the proposition that these plaintiffs made the wrong arguments"<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup> <em>(unverified — single source)</em>. Both concern text. Andersen v Stability AI, the image case with DeviantArt among the defendants, survives on direct infringement and Lanham Act claims with the DMCA §1202 claims dismissed with prejudice<sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup>, and its trial date has slipped from 8 September 2026 to 5 April 2027<sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup> <em>(unverified — single source, tier-5 tracker)</em>.</p>
+<h3>5.3 United Kingdom</h3>
+<p>In Getty v Stability AI (4 November 2025), after Getty withdrew its primary claims for lack of evidence that training happened in the UK, only secondary infringement remained, and the court held that "the model weights are not themselves an infringing copy and they do not store an infringing copy". It "does not decide whether UK-based web scraping and model training would infringe"<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup>. The ruling is silent on signals, but by declining to treat a trained model as a copy it bears on how far an opt-out could reach (the act of training versus the resulting artefact).</p>
+<h2>6. The technology layer: a false sense of security</h2>
+<p>Since neither signal, contract nor law physically stops a scraper, artists turned to adversarial perturbation: Glaze against style mimicry, Nightshade to poison training. Two 2025 papers took both apart. Hönig, Rando, Carlini and Tramèr (ICLR 2025) found the tools "only provide a false sense of security", that "image upscaling" and similar simple techniques "are sufficient to create robust mimicry methods that significantly degrade existing protections", and that "all existing protections can be easily bypassed, leaving artists vulnerable to style mimicry"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. LightShed (USENIX Security 2025) is "a generalizable depoisoning attack that effectively identifies poisoned images and removes adversarial perturbations", with "a TPR of 99.98% and TNR of 100% on detecting NightShade", one model recognising both Glaze and Nightshade<sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup>. The first paper's recommendation is non-technological solutions<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>, which sends the reader back to §3–5.</p>
+<h2>7. Analysis</h2>
+<p><strong>What Sketchfab did was a rare piece of candour.</strong> Most platforms added a tag and stopped. Sketchfab admitted within nine months that "CC + NoAI" could not be enforced and changed its licence<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. That Creative Commons reached the same conclusion eighteen months later<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup> means Sketchfab was right, and also that no tag will help the millions of assets already published under CC.</p>
+<p><strong>Time beats signals.</strong> Objaverse was built two months before the tag<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>; on the Hamburg court's logic, what was collected before a machine-readable signal stays lawful<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>; TripoSR trained on "a CC-BY subset"<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. Models by creators who tagged after February 2023 are still being trained on from copies taken when no tag existed. No layer reverses that.</p>
+<p><strong>Only the EU turns a signal into law, and it has not yet said which signal.</strong> Article 53 demands "machine-readable", the Higher Regional Court excluded natural language, and the Commission's list is unpublished. If Sketchfab's noai meta tag makes the list, GPAI providers on the EU market must read it. If not, eighty thousand domains' meta tags keep relying on goodwill. In the US there is no list, and fair use bypasses the signal altogether.</p>
+<p><strong>Contract has an exact reach.</strong> The Standard License's NoAI clause binds downloaders. It does not bind scrapers or dataset reusers. That there is no record of Sketchfab suing under it is probably less a sign of a weak clause than of counterparties who sit outside it.</p>
+<p><strong>3D is worse off than images.</strong> Image artists at least had Glaze (until they did not). This research found no perturbation tool for 3D meshes, and Objaverse-XL has grown to ten million objects across GitHub, Thingiverse and Sketchfab<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. Sketchfab's mandatory CreatedWithAI<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> is the opposite marker, for filtering AI output, and does nothing for originals.</p>
+<p>For a creator the practical order is this. Publishing under CC means giving up on restricting AI training. To restrict it, pick a contractual licence instead (on Sketchfab, Standard), and if you control a domain, turn on robots.txt, TDMRep and AIPREF all three. Only providers on the EU market are obliged to read them, and what has already been scraped does not come back.</p>
+<h2>8. Limitations</h2>
+<ul>
+<li>The second source for Sketchfab's November 2023 post (CG Channel's November article) returned 404 and its email mirror 403; only a search abstract was seen. Quotations rely on Sketchfab's own post.</li>
+<li>The DeviantArt journal, the CC legal primer, CC Signals, the Commission consultation and the Kadrey/Bartz summary are each a single primary source.</li>
+<li>The OLG Hamburg judgment was read through a law-firm summary (NRF) and a vendor summary (Encypher), not the judgment. Bird &amp; Bird's analysis returned HTTP 402; DLA Piper's page held a teaser. The "time of collection" reading is the vendor summary's inference.</li>
+<li>The Andersen trial-date slip appears only on a tier-5 tracker; CourtListener returned 403.</li>
+<li>No AI clause was found on Sketchfab's License Agreement page; the clause lives on the Terms of Use page.</li>
+<li>Whether any generative-3D model actually filtered NoAI-tagged models could not be confirmed.</li>
+<li>The noai adoption figure is Originality.AI's own sample.</li>
+<li>The Commission's list of recognised protocols is unpublished as of 2026-09-16; its publication changes the enforcement column of the §3 table.</li>
+</ul>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Sketchfab</span>. <a href="https://sketchfab.com/blogs/community/introducing-the-noai-createdwithai-tags/">Introducing the NoAI &amp; CreatedWithAI Tags</a>. <span class="venue">Sketchfab Community Blog, 2023</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-2"><span class="authors">Sketchfab</span>. <a href="https://sketchfab.com/blogs/community/restricting-generative-ai-use-of-free-models/">Restricting Generative AI Use of Free Models</a>. <span class="venue">Sketchfab Community Blog, 2023</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-3"><span class="authors">CG Channel</span>. <a href="https://www.cgchannel.com/2023/02/sketchfab-introduces-noai-and-createdwithai-tags/">Sketchfab introduces NoAI and CreatedWithAI tags</a>. <span class="venue">CG Channel, 2023</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-4"><span class="authors">DeviantArt</span>. <a href="https://www.deviantart.com/team/journal/update-all-deviations-are-opted-out-of-ai-datasets-934500371">UPDATE: All Deviations Are Opted Out of AI Datasets</a>. <span class="venue">DeviantArt team journal, 2022</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-5"><span class="authors">The Decoder</span>. <a href="https://the-decoder.com/sketchfab-objaverse-ai-copyright-dispute-enters-third-dimension/">Sketchfab &amp; Objaverse: AI copyright dispute enters third dimension</a>. <span class="venue">The Decoder, 2023</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-6"><span class="authors">Game Developer</span>. <a href="https://www.gamedeveloper.com/business/sketchfab-to-require-mandatory-ai-disclosure-epic-games-accounts-for-users">Sketchfab mandates AI disclosure, Epic Games accounts</a>. <span class="venue">Game Developer, 2025</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-7"><span class="authors">IETF AIPREF WG</span>. <a href="https://datatracker.ietf.org/doc/html/draft-ietf-aipref-attach-02">Associating AI Usage Preferences With Content (draft-ietf-aipref-attach-02)</a>. <span class="venue">IETF Internet-Draft, 2025</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-8"><span class="authors">Robert Hönig, Javier Rando, Nicholas Carlini, Florian Tramèr</span>. <a href="https://arxiv.org/abs/2406.12027">Adversarial Perturbations Cannot Reliably Protect Artists From Generative AI</a>. <span class="venue">arXiv (ICLR 2025), 2025</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-9"><span class="authors">Tristan Marcelin, Filippo Cassetti</span>. <a href="https://www.europarl.europa.eu/RegData/etudes/ATAG/2025/769585/EPRS_ATA(2025)769585_EN.pdf">AI and copyright: The training of general-purpose AI (EPRS At a Glance, PE 769.585)</a>. <span class="venue">European Parliamentary Research Service, 2025</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-10"><span class="authors">80.lv</span>. <a href="https://80.lv/articles/artstation-responds-to-the-no-to-ai-generated-images-protest">ArtStation Responds to the No to AI-Generated Images Protest</a>. <span class="venue">80.lv, 2022</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-11"><span class="authors">European Commission</span>. <a href="https://digital-strategy.ec.europa.eu/en/consultations/commission-launches-consultation-protocols-reserving-rights-text-and-data-mining-under-ai-act-and">Commission launches consultation on protocols for reserving rights from text and data mining under the AI Act and the GPAI Code of Practice</a>. <span class="venue">digital-strategy.ec.europa.eu, 2025</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-12"><span class="authors">Encypher</span>. <a href="https://encypher.com/blog/hamburg_machine_readable_opt_out_ruling_and_the_eu_ai_act_compliance_deadline">The Machine-Readable Opt-Out Standard Publishers Are Missing (OLG Hamburg 5 U 104/24)</a>. <span class="venue">Encypher blog (vendor), 2025</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-13"><span class="authors">Matt Deitke, Dustin Schwenk, Jordi Salvador, Luca Weihs, Oscar Michel, Eli VanderBilt, Ludwig Schmidt, Kiana Ehsani, Aniruddha Kembhavi, Ali Farhadi</span>. <a href="https://arxiv.org/abs/2212.08051">Objaverse: A Universe of Annotated 3D Objects</a>. <span class="venue">arXiv (CVPR 2023), 2022</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-14"><span class="authors">McDonnell Boehnen Hulbert &amp; Berghoff</span>. <a href="https://www.jdsupra.com/legalnews/andersen-v-stability-ai-defendants-9655138/">Andersen v. Stability AI: Defendants Motion to Dismiss Narrows the Case, But Only Slightly</a>. <span class="venue">JDSupra, 2024</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-15"><span class="authors">Matt Deitke, Ruoshi Liu, Matthew Wallingford, et al., Ali Farhadi</span>. <a href="https://arxiv.org/abs/2307.05663">Objaverse-XL: A Universe of 10M+ 3D Objects</a>. <span class="venue">arXiv (NeurIPS 2023 Datasets and Benchmarks), 2023</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-16"><span class="authors">Sketchfab / Epic Games</span>. <a href="https://sketchfab.com/terms">Sketchfab Terms of Use</a>. <span class="venue">sketchfab.com, 2026</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-17"><span class="authors">Originality.AI</span>. <a href="https://originality.ai/blog/noai-noimageai-adoption-dashboard">Noai and noimageai Tag Adoption: Study and Live Dashboard</a>. <span class="venue">Originality.AI blog (vendor), 2026</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-18"><span class="authors">IAPP</span>. <a href="https://iapp.org/news/a/the-eu-ai-act-and-copyrights-compliance">The EU AI Act and copyright compliance</a>. <span class="venue">IAPP, 2025</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-19"><span class="authors">W3C Text and Data Mining Reservation Protocol Community Group</span>. <a href="https://www.w3.org/community/reports/tdmrep/CG-FINAL-tdmrep-20240202/">TDM Reservation Protocol (TDMRep) — Final Community Group Report</a>. <span class="venue">W3C, 2024</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-20"><span class="authors">Hanna Foerster, Sasha Behrouzi, Phillip Rieger, Murtuza Jadliwala, Ahmad-Reza Sadeghi</span>. <a href="https://www.usenix.org/conference/usenixsecurity25/presentation/foerster">LightShed: Defeating Perturbation-based Image Copyright Protections</a>. <span class="venue">USENIX Security 2025, 2025</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-21"><span class="authors">Creative Commons</span>. <a href="https://creativecommons.org/2025/06/25/introducing-cc-signals-a-new-social-contract-for-the-age-of-ai/">Introducing CC Signals: A New Social Contract for the Age of AI</a>. <span class="venue">creativecommons.org, 2025</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-22"><span class="authors">Creative Commons</span>. <a href="https://creativecommons.org/2025/05/15/understanding-cc-licenses-and-ai-training-a-legal-primer/">Understanding CC Licenses and AI Training: A Legal Primer</a>. <span class="venue">creativecommons.org, 2025</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-23"><span class="authors">Jackson Walker</span>. <a href="https://www.jw.com/news/insights-kadrey-meta-bartz-anthropic-ai-copyright/">Federal Courts Find Fair Use in AI Training: Key Takeaways from Kadrey v. Meta and Bartz v. Anthropic</a>. <span class="venue">Jackson Walker insights, 2025</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-24"><span class="authors">Norton Rose Fulbright</span>. <a href="https://www.insidetechlaw.com/blog/2025/12/machine-readable-opt-outs-and-ai-training-hamburg-court-clarifies-copyright-exceptions">Machine-Readable opt-outs and AI training: Hamburg Court clarifies copyright exceptions</a>. <span class="venue">Inside Tech Law (Norton Rose Fulbright), 2025</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-25"><span class="authors">Latham &amp; Watkins</span>. <a href="https://www.lw.com/en/insights/getty-images-v-stability-ai-english-high-court-rejects-secondary-copyright-claim">Getty Images v. Stability AI: English High Court Rejects Secondary Copyright Claim</a>. <span class="venue">Latham &amp; Watkins client alert, 2025</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-26"><span class="authors">CAWG</span>. <a href="https://cawg.io/training-and-data-mining/1.1/">Training and Data Mining Assertion 1.1 — Creator Assertions Working Group</a>. <span class="venue">cawg.io, 2025</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-27"><span class="authors">Stability AI, Tripo AI</span>. <a href="https://huggingface.co/stabilityai/TripoSR">stabilityai/TripoSR model card</a>. <span class="venue">Hugging Face, 2024</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-28"><span class="authors">AI Lawsuit Tracker</span>. <a href="https://ailawsuittracker.com/cases/andersen-v-stability-ai-ltd-3-23-cv-00201/">Andersen v. Stability AI: Case Status</a>. <span class="venue">ailawsuittracker.com, 2026</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+      <li id="ref-29"><span class="authors">M. Koster, G. Illyes, H. Zeller, L. Sassman</span>. <a href="https://www.rfc-editor.org/rfc/rfc9309.html">RFC 9309: Robots Exclusion Protocol</a>. <span class="venue">IETF RFC, 2022</span>. <span class="accessed">Accessed 2026-09-16.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-09-16. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
