@@ -1,0 +1,7 @@
+# Gaps — ai-agent-brief-2026-09-23
+
+- No card network, PSP, or payment-protocol development from Visa, Mastercard, Ant International, PayPal, Stripe, or EMVCo landed in this window. The Know Your Agent interoperability effort and EMVCo's draft card-based agentic-payments framework, both covered in prior briefs, produced no new activity between 2026-09-20 and 2026-09-23.
+- Bluesky and Reddit could not be polled this run; both require credential environment variables that are absent here, which the harness treats as a real lane gap rather than an environment limit. If either platform carried independent discussion of the Muse block or the x402 fix, it is not reflected in this brief.
+- No independent security researcher or firm has published an advisory or CVE for the x402 route-matching bypass (c04) as of this writing; the only record is the fix commits themselves in the x402 Foundation's own repository. Whether the bug was exploited against a production resource server before the patch is unknown.
+- Meta has not issued a public statement responding to Amazon's block (c01) or confirming how many users were affected before the Muse zero-day (c03) was patched. Both gaps are noted as vendor-silence rather than vendor-denial.
+- Known's DNSid has one primary source (the company's own press release, s10) plus a single piece of trade coverage (s11) that does not independently assess adoption prospects; no third party outside Identity Digital/Known has evaluated whether DNSid has traction beyond the announcement.
