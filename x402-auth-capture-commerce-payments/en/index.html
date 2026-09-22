@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>x402 auth-capture and Base Commerce Payments: authorize-and-capture, on chain — Deepsearch</title>
+<meta name="description" content="x402 auth-capture and Base Commerce Payments: authorize-and-capture, on chain">
+<link rel="canonical" href="https://code0xff.github.io/reports/x402-auth-capture-commerce-payments/en/">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="x402 auth-capture and Base Commerce Payments: authorize-and-capture, on chain">
+<meta property="og:description" content="x402 auth-capture and Base Commerce Payments: authorize-and-capture, on chain">
+<meta property="og:url" content="https://code0xff.github.io/reports/x402-auth-capture-commerce-payments/en/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="x402 auth-capture and Base Commerce Payments: authorize-and-capture, on chain">
+<meta name="twitter:description" content="x402 auth-capture and Base Commerce Payments: authorize-and-capture, on chain">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>x402 auth-capture and Base Commerce Payments: authorize-and-capture, on chain</h1>
+    <p class="subtitle">x402 auth-capture and Base Commerce Payments: authorize-and-capture, on chain</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-09-22</span>
+      <span><strong>Tags</strong> x402, auth-capture, commerce-payments, escrow, base, erc-3009, permit2, agentic-commerce</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="x402-auth-capture-commerce-payments.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>x402's three documented schemes settle atomically and finally. You sign, the money moves, and it does not come back. That suits metered access; it does not suit commerce. <code>auth-capture</code> is the fourth scheme aimed at that gap, one that "adds refundable payments to x402, built on Base's audited Commerce Payments Protocol"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The layer underneath, the Commerce Payments Protocol (CPP), is an escrow contract Coinbase and Shopify put on Base in June 2025. It has six operations (authorize, capture, charge, void, reclaim, refund) and four kinds of token collector<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Its trust model rests on operators being able to move funds while they "cannot modify the original payment intent of the payer", "cannot lock funds in the escrow" and "cannot impact the activities of another operator"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. What the contract source confirms is the access control: authorize, capture and void are operator-only, and <code>reclaim</code> is callable "only by the payer and only after the authorization expiry"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The x402 side is a signing layer bolted onto that escrow: the client signs an ERC-3009 or Permit2 payload <strong>whose nonce is the payer-agnostic PaymentInfo hash</strong>, so one signature commits to the entire set of payment terms<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. As of September 2026, though, only half the scheme exists. The README says so: what ships is "the client only", and "Server &amp; Facilitator: Support is forthcoming in a later release"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>; the official scheme overview lists exact, upto and batch-settlement, with no auth-capture<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. What giving up atomicity buys is three expiry clocks and at least three roles, and the trust boundary grew accordingly.</p>
+  </section>
+
+  <main class="body">
+<h2>1. Introduction</h2>
+<p>The x402 documentation defines three schemes: <code>exact</code> ("for fixed-price requests where the buyer authorizes the advertised amount"), <code>upto</code> ("for single-request usage-based billing where the buyer authorizes a maximum"), and <code>batch-settlement</code> ("for high-volume or repeated micropayments where per-request authorizations are accumulated")<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. What they share is that settlement ends the matter.</p>
+<p>A paper posted to arXiv on 2 September 2026 names the limit precisely. Protocols like x402 "let an agent sign a stablecoin authorization and receive a resource in the same round trip", a model that is "atomic and final" and therefore "suits metered access and fails commerce: a purchase made on a person's behalf [...] is large, frequently cancelled, and should not become the seller's money until delivery"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p><code>auth-capture</code> is the answer to that inside the x402 repository, and the answer declines to build a new escrow, attaching instead to one that exists. Hence reading both repositories together: one contract holds the money, one signing convention wires that contract to an HTTP 402 handshake.</p>
+<h2>2. Commerce Payments Protocol: the lower layer</h2>
+<h3>2.1 What it is and why</h3>
+<p>CPP is "a permissionless protocol for onchain payments that mimics traditional 'authorize and capture' payment flows"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Shopify Engineering states the motivation most directly: "most onchain payments today work well for peer-to-peer transfers, they fall short of handling the complexity of commercial purchases"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>That complexity resolves into three needs. After a buyer approves a payment, "funds must be locked while still allowing either part to cancel if needed"; "captures can be made in multiple partial increments to support merchants that may fulfill goods in multiple deliveries"; and refunds must work<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. Authorize-and-capture in traditional finance delivers "merchant protection through payment guarantees", and as a side effect is "cheaper for merchants because they only pay fees on captured payments"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<h3>2.2 The escrow state machine</h3>
+<pre class="mermaid">stateDiagram-v2
+  [*] --&gt; Uncollected: PaymentInfo signed
+  Uncollected --&gt; InEscrow: authorize (operator)&lt;br/&gt;collector pulls tokens
+  Uncollected --&gt; Settled: charge (operator)&lt;br/&gt;authorize + capture at once
+  InEscrow --&gt; Settled: capture (operator)&lt;br/&gt;repeatable, partial
+  InEscrow --&gt; ReturnedToPayer: void (operator)
+  InEscrow --&gt; ReturnedToPayer: reclaim (payer)&lt;br/&gt;only after authorizationExpiry
+  Settled --&gt; ReturnedToPayer: refund (operator)&lt;br/&gt;before refundExpiry
+  ReturnedToPayer --&gt; [*]
+  Settled --&gt; [*]</pre>
+<p><em>Figure 1 — AuthCaptureEscrow's states and who may drive each transition. The parenthetical is the contract's access control; <code>reclaim</code> is the payer's only unilateral exit.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></em></p>
+<p>The contract tracks three fields of state, <code>hasCollectedPayment</code>, <code>capturableAmount</code> and <code>refundableAmount</code>, in a mapping keyed by <code>paymentInfoHash</code><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Shopify's note about repeated partial captures lines up with a <code>capturableAmount</code> that draws down.</p>
+<p>The access control is explicit in the source comments. <code>authorize</code>, <code>capture</code> and <code>void</code> "can only be called by the operator"; <code>reclaim</code> "can only be called by the payer and only after the authorization expiry"; <code>refund</code> is also called by the operator<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The buyer's route back to their own money is time-locked, and every other transition belongs to the operator.</p>
+<h3>2.3 What an operator cannot do</h3>
+<p>That asymmetry is the trust question, and the design writeup meets it head on. Under the principle that "users should not have to trust any operator or managing entity to be safe", operators "cannot modify the original payment intent of the payer", "cannot lock funds in the escrow", and "cannot impact the activities of another operator"<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<p>The PaymentInfo hash enforces the first: a signature bound to the hash makes any changed field a different payment. <code>reclaim</code> enforces the second: past <code>authorizationExpiry</code> the payer withdraws directly<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The third follows from <code>operator</code> being a PaymentInfo field, fixing the operator per payment<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Independently auditing the full contract is outside this report's scope; what was verified is the access-control comments.</p>
+<p>Fees fall on the receiver. Because "a fee-free payer experience is important for conversion", the receiver carries blockchain costs through the operator<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<h3>2.4 Collectors and deployments</h3>
+<p>There is more than one way to get tokens into escrow. Support for "multiple authorization methods (ERC-3009, Permit2, allowances, spend permissions)" is implemented as separate collector contracts<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. The v1.1.0 deployment is six of them: <code>AuthCaptureEscrow</code> (<code>0xf968…b19c</code>), the ERC3009, Permit2, PreApproval and SpendPermission collectors, and <code>OperatorRefundCollector</code><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<p>v1.1.0, on 17 September 2026, carried one breaking change: it "replaces the basis-points fee (<code>uint16 feeBps</code>) with an absolute fee amount (<code>uint256 feeAmount</code>)" on <code>capture()</code> and <code>charge()</code>, fixing rounding and billing issues, audited by Spearbit<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Note that <code>PaymentInfo</code> still carries <code>minFeeBps</code>/<code>maxFeeBps</code><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>: the ceiling is bound in basis points at signing time, and the actual charge is named as an absolute amount at capture time.</p>
+<p>Audits were performed by Spearbit and Coinbase Protocol Security<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. The count reads differently depending on how the repository is rendered, so this report does not assert one (§6).</p>
+<h3>2.5 Real-world volume</h3>
+<p>Reporting from late February 2026, citing growthepie, puts cumulative settled volume at roughly $1.7 million USDC across about 8,000 transactions, with roughly 3,200 customers and 5,700 merchants as of early February, and $750,000 processed in the preceding two months<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup> <em>(unverified — single source)</em>. The growth is clear and the absolute scale is small. These are CPP's numbers overall, not payments routed through x402.</p>
+<h2>3. x402 auth-capture: the upper layer</h2>
+<h3>3.1 One signature commits to every term</h3>
+<p>The design turns on the nonce. One sentence in the Go package documentation carries it: "the client signs a single collect payload (ERC-3009 by default, or Permit2) whose nonce is the payer-agnostic PaymentInfo hash"<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p>An ERC-3009 <code>nonce</code> is ordinarily an arbitrary replay guard. Put the hash of the whole payment's terms there and the signature stops meaning "this amount of this token may move" and starts meaning "only for the payment this operator runs, to this receiver, inside these expiries and this fee band". Change any PaymentInfo field and the hash changes and the signature is worthless.</p>
+<p>The actual struct is twelve fields<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>:</p>
+<pre><code>struct PaymentInfo {
+    address operator;        address payer;
+    address receiver;        address token;
+    uint120 maxAmount;
+    uint48  preApprovalExpiry;
+    uint48  authorizationExpiry;
+    uint48  refundExpiry;
+    uint16  minFeeBps;       uint16 maxFeeBps;
+    address feeReceiver;     uint256 salt;
+}</code></pre>
+<p>Three expiries say what kind of structure this is. <code>preApprovalExpiry</code> bounds collection itself, <code>authorizationExpiry</code> bounds the escrow hold (after which the payer may <code>reclaim</code>), and <code>refundExpiry</code> bounds refunds after capture<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Atomic payments had no clocks; this has three.</p>
+<h3>3.2 What the client does</h3>
+<p>From the x402 requirements' <code>extra</code>, the client reads eight required fields: <code>captureAuthorizer</code>, <code>feeRecipient</code>, <code>captureDeadline</code>, <code>refundDeadline</code>, <code>minFeeBps</code>, <code>maxFeeBps</code>, <code>name</code>, <code>version</code>. Optional ones are <code>assetTransferMethod</code> (default <code>eip3009</code>), <code>authCaptureEscrow</code> (default v1.1), <code>receiverAuthorizer</code> and <code>policy</code><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<p>The client validates those, reconstructs the PaymentInfo struct, computes the payer-agnostic hash and emits the signature<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. The Go SDK's function names are that procedure: <code>ComputePayerAgnosticPaymentInfoHash()</code>, <code>DeriveBoundSalt()</code>, <code>SignERC3009()</code>, <code>SignPermit2()</code>, and <code>ResolveAuthCaptureDeployment()</code> to pick between the v1.0 and v1.1 contracts<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p>When <code>receiverAuthorizer</code> or <code>policy</code> is non-zero, salt binding switches on: the client emits a random <code>saltNonce</code> and computes a keccak <code>salt</code> committing to those two addresses, which goes into PaymentInfo's <code>salt</code><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. Binding extra roles to a payment by reinterpreting an existing field rather than adding one reads as a decision not to change the struct.</p>
+<p>Two asset-transfer methods exist. The default is ERC-3009 <code>ReceiveWithAuthorization</code>, whose EIP-712 domain binds to the token contract; Uniswap Permit2 <code>PermitTransferFrom</code> covers tokens without <code>receiveWithAuthorization</code><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<h3>3.3 The whole flow, and the missing half</h3>
+<pre class="mermaid">sequenceDiagram
+  participant C as Client&lt;br/&gt;(shipped)
+  participant S as Resource server&lt;br/&gt;(not shipped)
+  participant F as Facilitator&lt;br/&gt;(not shipped)
+  participant E as AuthCaptureEscrow&lt;br/&gt;(Base)
+  C-&gt;&gt;S: GET /resource
+  S--&gt;&gt;C: 402 + extra(captureAuthorizer,&lt;br/&gt;captureDeadline, refundDeadline, fee band)
+  C-&gt;&gt;C: validate extra → rebuild PaymentInfo&lt;br/&gt;→ compute payer-agnostic hash
+  C-&gt;&gt;C: sign ERC-3009&lt;br/&gt;(nonce = that hash)
+  C-&gt;&gt;S: PAYMENT-SIGNATURE
+  S-&gt;&gt;F: verify
+  F-&gt;&gt;E: authorize (operator)&lt;br/&gt;collector moves tokens into escrow
+  Note over E: funds sit under captureAuthorizer,&lt;br/&gt;not yet the merchant&#x27;s
+  S--&gt;&gt;C: 200 + resource
+  F-&gt;&gt;E: capture (on fulfilment, repeatable and partial)
+  Note over F,E: void / refund / reclaim are&lt;br/&gt;separate later calls</pre>
+<p><em>Figure 2 — The full span of an auth-capture payment. Of the two left-hand participants only the client has shipped; server and facilitator support is "forthcoming in a later release".<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></em></p>
+<p>The README states its own scope, and it is half this diagram. What exists is "the client only: detecting auth-capture payment requirements and signing the payment payload", with "Server &amp; Facilitator: Support is forthcoming in a later release"<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. The Go package repeats it: "capture, void, and refund lifecycle payloads are server/facilitator responsibilities"<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p>Supported networks are Base mainnet (<code>eip155:8453</code>) and Base Sepolia (<code>eip155:84532</code>), and nothing else<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup> <em>(unverified — single source)</em> — which follows from the contracts being deployed only on Base.</p>
+<h3>3.4 It is not in the documentation</h3>
+<p>The official scheme overview carries exact, upto and batch-settlement. There is no auth-capture<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> <em>(unverified — single source)</em>. There are TypeScript and Go implementations, with a choice between v1.0 and v1.1 deployments, for a scheme the protocol documentation does not list.</p>
+<h2>4. What has happened around it</h2>
+<p><strong>A verification-gated release policy (closed).</strong> Issue #3065, 6 August 2026, proposed attaching mechanical verification to auth-capture on a simple rule: "verification passes: capture. Verification fails: void." The complaint is concrete: the scheme has "no protocol-level mechanisms for parties to agree upfront on delivery criteria, verify fulfillment, or dispute release decisions", so "an agent paying $195 for data cleaning has no machine-checkable agreement governing whether funds should be captured or voided"<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<p>The follow-up, PR #3066, proposed <code>specs/schemes/auth-capture/pact-release-policy.md</code> and was <strong>closed</strong>. Review raised three problems: auth-capture "only supports payer-side operations", so there is no instrument to slash a bond; "collapsing verification and settlement into a single engine creates conflicts of interest, potentially allowing a seller's designee to verify their own work"; and the spec needed to say "whether auth-capture supports repeated partial captures against a single authorization". The reviewer recommended closing it because later PACT drafts had moved the scope<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<p><strong>In the literature.</strong> The ASP paper calls CPP "standardised" on-chain authorize-and-capture escrow and builds an application profile above it<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. CPP is one repository's protocol rather than a foundation standard, so that phrasing is best read as the paper's.</p>
+<p><strong>At Stripe.</strong> Stripe's x402 documentation covers the <code>exact</code> scheme on Base, a deposit address, and recording a settled on-chain transaction as a PaymentIntent in <code>transaction_verification</code> mode<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. Auth-capture and escrow do not appear. Refunds there live on Stripe's objects, not in an on-chain escrow.</p>
+<h2>5. Analysis</h2>
+<p><strong>Give up atomicity and you take on clocks and roles.</strong> The <code>exact</code> scheme's trust boundary is one token contract. Auth-capture brings in three expiries (<code>preApprovalExpiry</code>, <code>authorizationExpiry</code>, <code>refundExpiry</code>)<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> and at least three roles (<code>operator</code>, <code>captureAuthorizer</code>, and optionally <code>receiverAuthorizer</code>)<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Each is a place to misconfigure and a place to argue. Authorize-and-capture is complicated for the same reason commerce needs it.</p>
+<p><strong>The payer's only unilateral power is on a timer.</strong> <code>reclaim</code> is payer-only but available only after <code>authorizationExpiry</code><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Before that, the payer's route back to their funds is the operator's <code>void</code>. The guarantee that an operator "cannot lock funds in the escrow"<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> is true, and the moment it takes effect is set by the <code>authorizationExpiry</code> value chosen at signing. Buyer protection here lives in that number rather than in the contract.</p>
+<p><strong>Committing to everything in one signature is clean and forecloses negotiation.</strong> Putting the PaymentInfo hash in the nonce<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup> makes intent tampering impossible for the operator. The cost is that changing any term requires a new signature. For a payment whose amount shifts mid-fulfilment, the protocol implies a re-signing round trip, and how that round trip is expressed over an HTTP 402 handshake is undefined.</p>
+<p><strong>The closed PR left the real gap behind.</strong> "Whether auth-capture supports repeated partial captures against a single authorization"<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> was a clarification demanded of the spec. Yet the lower layer answers it, keeping a <code>capturableAmount</code><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, and Shopify names split shipments as an explicit motivation<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The lower layer has the answer and the upper layer's spec does not state it. A documentation gap presenting as a design gap.</p>
+<p><strong>Half a scheme has not yet delivered what a scheme is for.</strong> A client alone does not complete a payment. Completing one today means a facilitator calling CPP directly, at which point routing through the x402 scheme buys less. A scheme's value is that independent implementations meet on one convention, and here the other side has not arrived. Its absence from the scheme documentation<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> reads as the same condition stated differently.</p>
+<p>For anyone evaluating this, a practical order: the lower layer is audited, deployed and in real use, so it can be judged on its own terms. The upper layer is worth matching on client signature format, but until server and facilitator support exists, design against calling CPP directly. And decide <code>authorizationExpiry</code> as policy from the start, because it sets how strong buyer protection actually is.</p>
+<h2>6. Limitations</h2>
+<ul>
+<li>The CPP audit count reads as five or six depending on how the repository renders, so no number is asserted. The Spearbit reports themselves were not found.</li>
+<li>The three things an operator "cannot do" are the design writeup's claims. This report did not audit the contract; it verified the access-control comments on <code>authorize</code>, <code>capture</code>, <code>void</code> and <code>reclaim</code>.</li>
+<li>CPP volume figures rest on one news report citing growthepie; the dashboard itself was not checked.</li>
+<li>What <code>receiverAuthorizer</code> and <code>policy</code> each authorise or enforce was not found beyond the salt-binding description, so no function is asserted for them.</li>
+<li>When server and facilitator support for auth-capture arrives is unknown; the README's "later release" is the only basis.</li>
+<li>The reviewer's reason for closing PR #3066, that PACT drafts moved the scope, was not cross-checked against the PACT documents.</li>
+<li>Supported networks, the documentation omission, and the ASP paper's characterisation are each single-source.</li>
+</ul>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">x402 Foundation</span>. <a href="https://docs.x402.org/schemes/overview">Payment Schemes Overview — x402 docs</a>. <span class="venue">docs.x402.org, 2026</span>. <span class="accessed">Accessed 2026-09-22.</span></li>
+      <li id="ref-2"><span class="authors">Behnam Mohammadkhani, Atul Khekade, Ritesh Kakkad</span>. <a href="https://arxiv.org/abs/2609.02208">Agentic Settlement Protocol: An Application Profile for Refundable, Delayed-Fulfilment Agent Commerce on Stablecoin Rails</a>. <span class="venue">arXiv, 2026</span>. <span class="accessed">Accessed 2026-09-22.</span></li>
+      <li id="ref-3"><span class="authors">Base, Coinbase</span>. <a href="https://github.com/base/commerce-payments">base/commerce-payments: Onchain authorization and capture for trust-minimized commerce</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-09-22.</span></li>
+      <li id="ref-4"><span class="authors">Shopify Engineering</span>. <a href="https://shopify.engineering/commerce-payments-protocol">Introducing the commerce payments protocol</a>. <span class="venue">shopify.engineering, 2025</span>. <span class="accessed">Accessed 2026-09-22.</span></li>
+      <li id="ref-5"><span class="authors">Base, Coinbase</span>. <a href="https://raw.githubusercontent.com/base/commerce-payments/main/src/AuthCaptureEscrow.sol">AuthCaptureEscrow.sol (commerce-payments)</a>. <span class="venue">GitHub raw, 2026</span>. <span class="accessed">Accessed 2026-09-22.</span></li>
+      <li id="ref-6"><span class="authors">Base</span>. <a href="https://blog.base.dev/commerce-payments-protocol">Engineering the Commerce Payments Protocol Powering Shopify</a>. <span class="venue">blog.base.dev, 2025</span>. <span class="accessed">Accessed 2026-09-22.</span></li>
+      <li id="ref-7"><span class="authors">Base</span>. <a href="https://github.com/base/commerce-payments/releases/tag/v1.1.0">Commerce Payments v1.1.0 release</a>. <span class="venue">GitHub Releases, 2026</span>. <span class="accessed">Accessed 2026-09-22.</span></li>
+      <li id="ref-8"><span class="authors">Crypto Briefing</span>. <a href="https://cryptobriefing.com/commerce-payments-protocol-coinbase-shopify-volume/">Commerce Payments Protocol sees surge in volume on Base network</a>. <span class="venue">Crypto Briefing, 2026</span>. <span class="accessed">Accessed 2026-09-22.</span></li>
+      <li id="ref-9"><span class="authors">x402 Foundation</span>. <a href="https://pkg.go.dev/github.com/x402-foundation/x402/go/v2/mechanisms/evm/auth-capture">x402 authcapture Go package reference</a>. <span class="venue">pkg.go.dev, 2026</span>. <span class="accessed">Accessed 2026-09-22.</span></li>
+      <li id="ref-10"><span class="authors">x402 Foundation</span>. <a href="https://github.com/x402-foundation/x402/tree/main/typescript/packages/mechanisms/evm/src/auth-capture">x402 auth-capture EVM mechanism (TypeScript) — README</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-09-22.</span></li>
+      <li id="ref-11"><span class="authors">laxsharma</span>. <a href="https://github.com/x402-foundation/x402/issues/3065">[Feature]: verification gated release policy for auth-capture (a pact-escrow profile)</a>. <span class="venue">GitHub Issues, 2026</span>. <span class="accessed">Accessed 2026-09-22.</span></li>
+      <li id="ref-12"><span class="authors">jihadMo</span>. <a href="https://github.com/x402-foundation/x402/pull/3066">docs(spec): add verification-gated release policy profile for auth-capture (PR #3066)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-09-22.</span></li>
+      <li id="ref-13"><span class="authors">Stripe</span>. <a href="https://docs.stripe.com/payments/machine/x402">x402 payments — Stripe Documentation</a>. <span class="venue">docs.stripe.com, 2026</span>. <span class="accessed">Accessed 2026-09-22.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-09-22. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

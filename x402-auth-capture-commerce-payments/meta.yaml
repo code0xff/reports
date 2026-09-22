@@ -1,0 +1,10 @@
+title: x402 auth-capture와 Base Commerce Payments: 승인-캡처 결제의 온체인 구현
+subtitle: 에스크로 컨트랙트와 그 위에 붙는 서명 규약, 그리고 아직 출하되지 않은 절반
+title_en: x402 auth-capture and Base Commerce Payments: authorize-and-capture, on chain
+subtitle_en: x402 auth-capture and Base Commerce Payments: authorize-and-capture, on chain
+slug: x402-auth-capture-commerce-payments
+lang: ko
+langs: [ko, en]
+date: 2026-09-22
+tags: [x402, auth-capture, commerce-payments, escrow, base, erc-3009, permit2, agentic-commerce]
+status: ready
