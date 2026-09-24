@@ -1,0 +1,1 @@
+Critique: verify pass done (plain-prose grep: no repeated openers, one em-dash-free prose body, single contrast per doc). Recency checked: all items dated 2026-09-21..24 by their sources; the Shopify and Danske items carry 09-21 dates, inside the 72h window. Vendor framing marked; Shopify default-on marked single-source. No must-fix items.
