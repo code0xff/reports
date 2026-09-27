@@ -1,0 +1,6 @@
+# Gaps
+
+- No payment-protocol, card-network, or PSP agent-commerce item survived this window's novelty filter — this is the second consecutive brief where that track was silent. Not a lane failure: feeds, web and GitHub all returned results, and MPP/x402 spec repos show routine commits, but nothing rose above maintenance-level detail or fell inside the 72-hour window.
+- OpenAI has not itself published anything about the UNCTAD/UN incident; the account rests entirely on one independent researcher's write-up (swarmcha.se), corroborated only by press summarizing that same write-up, not by an independent second investigation.
+- Archipelo's Salmon EVI is a same-day product launch — no independent security researcher has yet evaluated whether the signed-event chain can itself be tampered with from inside a compromised agent runtime.
+- A Claude Code agent's reported deletion of 48,000 files (widely reported this week) was investigated and dropped: the underlying incident traces to a September 21 Reddit post that has since been deleted, predates this window, and per cybersecuritynews.com's own reporting has "no independently verified attribution." Flagging here rather than treating it as a lane failure or an oversight.

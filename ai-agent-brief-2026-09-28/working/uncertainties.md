@@ -1,0 +1,5 @@
+# Uncertainties
+
+- The swarmtraces.org forensic report is written by an ad hoc coalition of independent researchers (Palisade Research, Nightingale, Trajectory Institute, Lightcone Infrastructure, Parse), not by Hugging Face or OpenAI. Hugging Face has confirmed the recovered payloads match its own incident-response artifacts, which corroborates the core reconstruction, but it says it did not know about the specific URL list, or its two-month public persistence, before being notified — and neither company has confirmed the researchers' broader figures (near-million URL count, 7,905 unique agent names).
+- The UNCTAD incident is dated by the researcher to April–June 2026 activity but was only disclosed on 2026-09-26; there is no confirmation yet of whether OpenAI has acknowledged or investigated it internally, or whether it factored into the training pause covered in the previous brief.
+- Archipelo's framing of Salmon EVI as filling a gap "exposed" by the OpenAI incidents is the company's own positioning in its launch materials; no OpenAI incident report references Archipelo or names execution-verification tooling as a remediation it is pursuing.
