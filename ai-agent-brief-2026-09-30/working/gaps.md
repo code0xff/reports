@@ -1,0 +1,7 @@
+# Gaps
+
+- No movement found this window on the payment-protocol side of the beat — x402, AP2, ACP, MPP, L402, Trusted Agent Protocol. Checked `x402-foundation/x402` (no new releases) and `tempoxyz/mpp-specs` (three merged PRs in-window, all CI/tooling pins, no spec-content change). This is the fourth consecutive brief without protocol-side news; see `working/uncertainties.md`.
+- OpenAI's own DevDay recap (openai.com/index/devday-2026-recap) and the Dots announcement page (openai.com/index/introducing-dots) both returned HTTP 403 to WebFetch. Coverage of Dots and the identity-layer/Marketplace expansion relies on TechCrunch's reporting rather than OpenAI's primary text; cite the openai.com URLs is not done here since they were not actually read.
+- No card-network (Visa, Mastercard) or additional PSP (PayPal, Adyen, Checkout.com) agent-commerce announcements were found dated inside this window; search results on that sub-beat returned only older (2025–early 2026) coverage, which was excluded.
+- Nothing from X or LinkedIn was read directly this window, per the harness's standing limitation on those platforms.
+- A search for security/privacy skepticism specific to OpenAI's Dots (announced 2026-09-29) returned only general, undated commentary about always-on agents rather than anything dated and specific to Dots itself. Not included in the draft for that reason; worth re-checking in a future brief once Dots has been live long enough to draw specific scrutiny.
