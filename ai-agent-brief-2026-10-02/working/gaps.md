@@ -1,0 +1,7 @@
+# Gaps
+
+- No independent (non-OpenAI) reporting on "dots" was found beyond aggregator/rumor-mill pieces predating the launch and a single Hacker News Show-HN post; TechCrunch's and The Verge's own writeups of the dots/Muse rivalry could not be fetched (both returned fetch errors), so the "What moved" item relies on OpenAI's own DevDay recap and blog post plus the HN thread, not on independent beat reporting on this edition.
+- No news surfaced this window on the card-network side of the beat (Visa Trusted Agent Protocol, Mastercard Agent Pay, the Visa/Mastercard/Ant KYA framework) — the only KYA-related news found dates to 2026-09-10, outside the 72-hour window, so it is not covered here.
+- ACP (agentic-commerce-protocol/agentic-commerce-protocol) had no merged pull requests in the window; AP2's GitHub repo likewise showed no in-window activity. Both are silent again this edition.
+- Photon's growth metrics (40,000+ developer sign-ups, 10x revenue growth, <3% churn) come from the company via TechCrunch with no independent verification.
+- This edition doesn't cite it, but academic literature (e.g. "Five Attacks on x402 Agentic Payment Protocol," arXiv) documents pre-existing x402 authorization and replay weaknesses, separate from this window's SDK change. Worth pulling into a future edition if x402's identity/authorization posture becomes its own story rather than a footnote to a settlement feature.
