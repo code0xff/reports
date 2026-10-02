@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ERC-8434 Agent Identity (AID) in Detail: Address-Anchored Agent Identity, and a Two-Day-Old Draft Put to the Test — Deepsearch</title>
+<meta name="description" content="A draft read through its text, its review thread and its reference code, with the test vectors recomputed and the resolver and registry executed to see which of its own MUSTs hold.">
+<link rel="canonical" href="https://code0xff.github.io/reports/erc-8434/en/">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="ERC-8434 Agent Identity (AID) in Detail: Address-Anchored Agent Identity, and a Two-Day-Old Draft Put to the Test">
+<meta property="og:description" content="A draft read through its text, its review thread and its reference code, with the test vectors recomputed and the resolver and registry executed to see which of its own MUSTs hold.">
+<meta property="og:url" content="https://code0xff.github.io/reports/erc-8434/en/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ERC-8434 Agent Identity (AID) in Detail: Address-Anchored Agent Identity, and a Two-Day-Old Draft Put to the Test">
+<meta name="twitter:description" content="A draft read through its text, its review thread and its reference code, with the test vectors recomputed and the resolver and registry executed to see which of its own MUSTs hold.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>ERC-8434 Agent Identity (AID) in Detail: Address-Anchored Agent Identity, and a Two-Day-Old Draft Put to the Test</h1>
+    <p class="subtitle">A draft read through its text, its review thread and its reference code, with the test vectors recomputed and the resolver and registry executed to see which of its own MUSTs hold.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-10-02</span>
+      <span><strong>Tags</strong> erc-8434, agent-identity, erc-8004, ai-agents, did, caip-10, attestation, reputation, eip-712, erc-1271, ethereum</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="erc-8434.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>ERC-8434, Agent Identity (AID), is an ERC draft submitted on 2026-09-30. It anchors an agent's identity to an address rather than to an ERC-8004 token, starts from the premise that "every address is a dormant AID", and defines a thin on-chain layer of binding, liveness and retirement together with a deterministic resolution model over a document of provenance-tagged facets<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. As of 2026-10-02 the proposal is an unmerged pull request that has taken eleven commits in two days<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>Reading the text was the starting point, not the method. The proposal ships its own artefacts, and we ran them. All sixteen test vectors were recomputed with independent code and all sixteen match. The reference resolver was run against its seven published fixtures, and the reference registry contract was probed with seven Foundry tests on a local chain.</p>
+<p>Three things came out of that. The most careful parts of the design, the commitment-time axis (<code>committedAt</code>), authority intervals and binding takeover, were not in the first draft; three outside reviewers raised them on Ethereum Magicians and they became normative within a day<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Neither the specification nor the reference contract checks that the bound "registry" is an ERC-8004 deployment at all: deploy a two-function contract, bind to it, and <code>state()</code> returns <code>ACTIVE</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. And the reference resolver leaves two of the specification's own MUSTs unimplemented, the downgrade of unpinned <code>OBSERVED</code> facets to <code>SELF</code> and the assertion-registry check, so the sample document's unpinned <code>OBSERVED</code> facets come back undowngraded<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<p>The three standards AID names as building blocks, ERC-8338, 8414 and 8419, are open pull requests by the same author, and the ERC-8004 foundation is itself a Draft<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. What follows is less an explainer for a settled standard than a cross-section of a design conversation that opened this week.</p>
+  </section>
+
+  <main class="body">
+<h2>1. What AID proposes</h2>
+<p>ERC-8004 gives an agent a token key <code>(registry, agentId)</code>, a registration file and a reputation channel. AID's motivation is the questions that come after: is the agent still alive, how does the registration relate to the address the agent actually transacts from, and how do heterogeneous trust signals (feedback, credit, audits, on-chain financial behaviour) assemble into one verifiable, time-bounded picture<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>Its answer starts by moving the anchor to the address. In the specification's words, "the address is already the join key": ERC-8004 registries and token-bound skill contracts alike emit the acting address in their events, so an address anchor makes behavioural history derivable without any extra registration<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The canonical identifier is CAIP-10, <code>eip155:{chainId}:{address}</code>. The DID form <code>did:aid:…</code> is deferred to a companion method specification, and the same address on another chain is a different AID<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>Responsibility is split into four layers.</p>
+<table><thead><tr><th>Layer</th><th>Standard</th><th>Writer</th><th>Content</th></tr></thead><tbody><tr><td>Anchor and state</td><td>ERC-8434 <code>IAIDRegistry</code></td><td>the anchor</td><td>binding, heartbeat, liveness window, document URI, self facets, retirement</td></tr><tr><td>Registration and raw feedback</td><td>ERC-8004</td><td>agent owner, clients</td><td>registration file, agent wallet, per-interaction feedback</td></tr><tr><td>Assertions</td><td>an assertion registry</td><td>issuers, provers</td><td>credit scores, trust levels, audits, ZK predicates</td></tr><tr><td>Skill and task records</td><td>token-bound skill and task contracts (informative)</td><td>derived from events</td><td>roles the anchor played</td></tr></tbody></table>
+<p><em>Source: specification §Overview<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</em></p>
+<p>The registry has no owner and no upgrade path. Its only parameters are a default and a maximum liveness window fixed at deployment; which issuers to trust is the reader's decision at resolution time<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<h2>2. States and binding</h2>
+<h3>2.1 Four states</h3>
+<p>Every AID is in exactly one state. <code>DORMANT</code> is the default with no binding; <code>ACTIVE</code> means a binding exists and every liveness condition holds; <code>STALE</code> means a binding exists but some condition fails, recoverably; <code>RETIRED</code> is the irreversible result of calling <code>retire</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>On chain, <code>state()</code> is evaluated in a fixed order: <code>RETIRED</code> if retired, <code>DORMANT</code> if unbound, and otherwise <code>ACTIVE</code> only when three things hold. <code>ownerOf(agentId)</code> on the bound registry must not revert; either <code>ownerOf == anchor</code> or <code>getAgentWallet == anchor</code> (the <strong>binding predicate</strong>); and <code>lastSeen + livenessWindow &gt;= block.timestamp</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. An off-chain resolver adds exactly one refinement: it must report <code>STALE</code> rather than <code>ACTIVE</code> when the ERC-8004 registration file says <code>"active": false</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<pre class="mermaid">stateDiagram-v2
+    [*] --&gt; DORMANT
+    DORMANT --&gt; ACTIVE: bind (predicate holds)
+    ACTIVE --&gt; STALE: window lapses / wallet moves / token moves or burns
+    STALE --&gt; ACTIVE: heartbeat or predicate restored
+    ACTIVE --&gt; DORMANT: unbind / takeover by another address
+    STALE --&gt; DORMANT: unbind / takeover by another address
+    DORMANT --&gt; RETIRED: retire
+    ACTIVE --&gt; RETIRED: retire (releases binding)
+    STALE --&gt; RETIRED: retire (releases binding)
+    RETIRED --&gt; [*]</pre>
+<p><em>Figure 1 — AID state transitions. The move to <code>STALE</code> can happen through ERC-8004 changes alone, with no AID transaction. An anchor displaced by takeover ends <code>DORMANT</code>, not retired<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</em></p>
+<p>Liveness costs almost nothing. Every anchor-authorised write refreshes <code>lastSeen</code>, and <code>heartbeat()</code> alone suffices; the specification itself says this proves control of a key, not that useful work is being done<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. In the local probe, the anchor dropped to <code>STALE</code> once the window passed with no transaction at all, and one heartbeat brought it back to <code>ACTIVE</code>.</p>
+<h3>2.2 One-to-one binding and takeover</h3>
+<p>An AID binds to exactly one <code>(identityRegistry, agentId)</code> and vice versa, with the registry enforcing both directions. Binding is done by the anchor directly or with an EIP-712 <code>Bind</code> signature, verified through ERC-1271 for contract anchors<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The specification recommends anchoring on the <code>agentWallet</code> the agent transacts from rather than on the owner, and advises owners of several agents to give each its own wallet or an ERC-6551 token-bound account<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>Takeover was added to contain a side effect of that one-to-one rule. If an EOA anchor loses its key before it can <code>unbind</code>, the old binding keeps holding the agent even after the owner moves the wallet in ERC-8004; a Magicians participant asked precisely this<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. The current text has the registry re-check the predicate for the incumbent anchor: if it still holds, revert with <code>AgentAlreadyBound</code>; if not, release the stale binding and bind the caller in the same transaction<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The reference <code>_bind</code> does exactly that<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. In the probe, moving the wallet from A to B left A <code>STALE</code>, and the moment B bound, A fell to <code>DORMANT</code>.</p>
+<h3>2.3 Authority intervals</h3>
+<p>The subtlest rule lives here. The binding predicate can stop holding without any AID transaction, when the owner transfers the token or moves the wallet, and can later hold again. The specification calls each maximal period during which it holds an <strong>authority interval</strong>, and each return opens a <strong>new</strong> one: "re-establishing the relation never authorizes the gap"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Feedback and validation that accumulated in ERC-8004 during the gap are not evidence about this AID.</p>
+<pre class="mermaid">sequenceDiagram
+    participant O as Owner
+    participant R as ERC-8004 registry
+    participant A as Anchor A
+    participant G as AID registry
+    A-&gt;&gt;G: bind
+    Note over G: interval 1 opens
+    O-&gt;&gt;R: setAgentWallet(B)
+    Note over G: predicate fails, state(A)=STALE&lt;br/&gt;no AID transaction
+    Note over R: feedback during the gap&lt;br/&gt;is not attributed to A
+    O-&gt;&gt;R: setAgentWallet(A)
+    Note over G: state(A)=ACTIVE, boundAt unchanged&lt;br/&gt;only a resolver sees interval 2</pre>
+<p><em>Figure 2 — the A → gap → A round trip. On chain, <code>state()</code> reports <code>ACTIVE</code> again and <code>boundAt</code> does not change; only a resolver reconstructing intervals from events knows there was a gap<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</em></p>
+<p>Intervals are not stored on chain, on the reasoning that ERC-8004 already emits what is needed<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The trade is visible in the probe: after the wallet went to B and back to A, <code>state(A)</code> returned <code>ACTIVE</code> with the original <code>boundAt</code>. A contract gating on <code>state()</code> gets an accurate answer to "is it bound now" and no answer at all to "was there a gap". When the specification says contracts can gate on <code>state()</code>, that should be read as a statement about the present only.</p>
+<p>The reconstruction also rests on an unstated premise. Section 12 argues intervals are recoverable from ERC-8004 alone because ownership changes are ERC-721 <code>Transfer</code> events, "every wallet change is a <code>MetadataSet</code> event under the reserved key <code>agentWallet</code>", and a transfer clears the wallet, "so the predicate can never stop holding without an event marking the boundary"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The ERC-8004 text does reserve <code>agentWallet</code> from <code>setMetadata</code>, but it specifies <code>MetadataSet</code> emission only for ordinary metadata and for <code>register</code>; for <code>setAgentWallet</code>, <code>unsetAgentWallet</code> and the automatic clear on transfer it requires no event<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. The ERC-8004 reference contracts do emit <code>MetadataSet</code> on all three paths<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. So the sentence in AID relies on the reference implementation's behaviour, not on ERC-8004's normative text, and a conforming 8004 registry that omits those events would leave wallet boundaries out of the log <em>(the behaviour of non-reference implementations was not surveyed)</em>.</p>
+<h2>3. Documents, facets and provenance</h2>
+<h3>3.1 The AID Document and its facets</h3>
+<p>The AID Document is off-chain JSON at <code>documentURI(anchor)</code>, and its on-chain digest must be <code>keccak256</code> of the document serialised with RFC 8785 JCS. A resolver discards a document whose digest mismatches or whose <code>aid</code> names a different anchor<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. The document is a list of <strong>facets</strong>, each wrapped in an envelope with a provenance class, a CAIP-10 issuer, a validity window, a digest or commitment, an access mode and a resolver pointer<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>There are seven core facet types: <code>aid:core/identity/v1</code> for the ERC-8004 registration file; <code>aid:core/kya/v1</code> for assertion-registry assertions; <code>aid:finance/observed/v1</code> for on-chain financial behaviour; the open <code>aid:behavior/*</code> namespace for AI-behaviour profiles; <code>aid:skills/erc8338/v1</code> and <code>aid:tasks/erc8414/v1</code> for skill and task history; and <code>aid:review/erc8004/v1</code> summarising the ERC-8004 reputation registry<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h3>3.2 Provenance classes</h3>
+<p>The design begins from the observation that "tamper-proof" is used in four different senses, and makes every facet declare which one applies<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<table><thead><tr><th>Class</th><th>Produced by</th><th>Guarantee</th><th>Reader obligation</th></tr></thead><tbody><tr><td><code>SELF</code></td><td>the anchor</td><td>integrity only; truth not asserted</td><td>must not present as verified</td></tr><tr><td><code>OBSERVED</code></td><td>anyone, under an algorithm pinned by scheme hash</td><td>reproducible</td><td>recompute or spot-check</td></tr><tr><td><code>ATTESTED</code></td><td>a third-party issuer</td><td>issuer accountability</td><td>filter by trusted issuers</td></tr><tr><td><code>PROVED</code></td><td>a prover</td><td>cryptographic, against a commitment</td><td>verify the proof or rely on the on-chain verifier</td></tr></tbody></table>
+<p>One rule holds the table up: "a facet whose <code>OBSERVED</code> algorithm is not pinned by a scheme hash MUST be treated as <code>SELF</code>"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Without the pin there is nothing to reproduce. Section 5 shows the reference resolver does not implement this.</p>
+<p>Credit gets the strictest treatment. Every facet must carry a non-zero <code>validUntil</code>, and a credit-kind assertion without finite expiry must be ignored, since "a credit score without an expiry is a claim about the past presented as the present"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Access modes are <code>PUBLIC</code>, <code>GATED</code> (plaintext to authorised parties) and <code>ZK</code> (commitment plus predicate proofs), with financial behaviour defaulting to <code>ZK</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h3>3.3 When did the claim exist?</h3>
+<p>Provenance leaves one question open: did a judgment exist <strong>before</strong> the behaviour it grades? An audit written after the fact looks exactly like one written in advance, and for a trust signal that is the difference between a prediction and a recollection. The point came from the first Magicians reviewer<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>The specification answers with an optional axis orthogonal to provenance. A facet may carry <code>committedAt: { anchor, proof }</code>, committing its digest to a clock the issuer does not control: block inclusion, an RFC 3161 token, or OpenTimestamps. A resolver reports <code>pre-outcome</code> only if the proof lands before <code>subjectWindow.until</code>, <code>integrity-only</code> otherwise, and <code>none</code> when nothing is claimed<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>It then goes a step further. A timestamp proves existence, not exclusivity; an issuer can commit to several contradictory judgments and reveal the one that turned out right. So the issuer, not the subject, declares a hash-chained log in advance, the declaration itself must be provably earlier than the window it serves, and a resolver checks that exactly one entry exists per <code>(issuer, subject, facetType, subjectWindow)</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Running the reference resolver on the <code>log-exclusivity</code> fixture shows the three cases separating as designed: a unique entry stays <code>pre-outcome</code>, while a duplicate and an undeclared log both drop to <code>integrity-only</code><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<p>One caveat offered in the thread has not reached the text. The participant who contributed an OpenTimestamps verifier noted that the proven time is a Bitcoin block-header timestamp, which Bitcoin only keeps to within about two hours, so an <code>until</code> closer than that to the block time is not safely decided, and offered to add a sentence<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. The specification does not currently say so<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h2>4. Two days of revision</h2>
+<p>None of the design's three most careful parts was in the original draft. The pull request's first commit, 395 lines, contains not one occurrence of <code>committedAt</code>, authority intervals or takeover<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. The Magicians thread opened with the author's post on 2026-09-30 and reached nine posts by the next day<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>The first reviewer pointed out that <code>ATTESTED</code> records who stands behind a claim but not when it was committed, and proposed <code>committedAt</code>. The author took it as an orthogonal axis rather than a fifth provenance class, and the same reviewer's follow-up, an issuer-owned hash chain witnessed by parties it does not control, became the reference commitment-log profile in §8<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>The second reviewer argued that a binding becoming true again cannot retroactively authorise what happened while it was false, that <code>boundAt</code> alone does not close the history question, and that re-establishment should open a new authority interval. The author replied: "Agreed, and it is now normative"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>The third asked how an EOA anchor that loses its key recovers if its stale binding blocks the new wallet. The author added takeover, and spelled out its boundary: if the lost-key anchor is the owner, the predicate keeps holding and nothing can displace it<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>Three outside reviewers' points became normative text within a day. That is review working well. It also means a sizeable part of this specification is a day or two old.</p>
+<h2>5. What running it showed</h2>
+<p>The assets were taken directly from PR head <code>68ebc1e05d</code> and checked three ways. Scripts and full logs are in <code>working/verify/</code>.</p>
+<h3>5.1 Test vectors</h3>
+<p>Every value in <code>aid-vectors.json</code> was recomputed without the proposal's own tooling: seven facet-type keys; the ERC-165 interface id <code>0x72750a54</code> as the XOR of 22 function selectors; the anchor's <code>account</code> subject hash, data and key; the canonical string and digest of the sample document under an independently written JCS; and the EIP-712 <code>Bind</code> typehash, domain separator and digest. <strong>All sixteen match</strong><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<p>One thing snagged. The placeholder AID registry address <code>0x00000000000000000000000000000000000A1D00</code> is mixed-case but fails its EIP-55 checksum, and viem rejects it in strict mode. No hash depends on case, but feeding the vectors verbatim into a strict tool fails<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<h3>5.2 The reference resolver</h3>
+<p>Run against all seven published fixtures, the resolver behaves as specified on state downgrade (<code>active: false</code> → <code>STALE</code>), document rejection on digest mismatch, exclusion of gap-period evidence, retirement reporting, and timing with exclusivity<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<p>Some MUSTs are absent. The source never reads <code>resolver.schemeId</code>, so unpinned <code>OBSERVED</code> facets are not downgraded to <code>SELF</code>; it never calls an assertion registry's <code>resolve</code> or <code>check</code> (§11 step 9); and it does no schema validation of the document, so unknown members are not rejected (§6)<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The resolver in the author's own repository is byte-identical to the PR copy, and its test suite uses unpinned <code>OBSERVED</code> facets without ever exercising the <code>SELF</code> downgrade<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. On the <code>active.json</code> fixture the consequence is concrete.</p>
+<table><thead><tr><th>Facet</th><th>Reported provenance</th><th>Issuer</th><th>Scheme pin</th></tr></thead><tbody><tr><td><code>aid:skills/erc8338/v1</code></td><td><code>OBSERVED</code></td><td>the anchor itself</td><td>none</td></tr><tr><td><code>aid:tasks/erc8414/v1</code></td><td><code>OBSERVED</code></td><td>the anchor itself</td><td>none</td></tr><tr><td><code>aid:review/erc8004/v1</code></td><td><code>ATTESTED</code></td><td>the anchor itself</td><td>none</td></tr></tbody></table>
+<p>Under §8 the first two rows should be <code>SELF</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The envelope schema permits <code>schemeId</code> on any resolver kind, so there is a place for the pin; the sample simply does not use it<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. The third row is a matter of reading: the underlying feedback is third-party, but the facet is issued by the anchor under a class defined as "a third-party issuer" <em>(our interpretation)</em>.</p>
+<h3>5.3 The reference registry</h3>
+<p><code>AIDRegistry.sol</code> was probed with seven Foundry tests on a local chain, with no network involved. Liveness windows, <code>STALE</code> on wallet drift, takeover and the post-retirement write block all behaved as specified. Three results deserve attention.</p>
+<p><strong><code>ACTIVE</code> against a fake registry.</strong> The binding preconditions are that the registry address has code, <code>ownerOf</code> does not revert, and the predicate holds<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The reference <code>_isAgentOfAnchor</code> checks those three things and nothing else<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. A two-function contract whose <code>ownerOf</code> always returns its deployer is therefore enough: bind to it and the deployer's <code>state()</code> is <code>ACTIVE</code>. The resolver does not compare the bound registry against anything either<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The motivation says anyone holding only an address can derive an agent's state "without trusting an indexer"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>; in practice the reader still has to check the bound registry address against a list it trusts, and the Security Considerations do not mention it.</p>
+<pre class="mermaid">flowchart LR
+    X[&quot;any address X&quot;] --&gt;|&quot;deploys&quot;| F[&quot;FakeRegistry&lt;br/&gt;ownerOf returns X&lt;br/&gt;getAgentWallet returns 0&quot;]
+    X --&gt;|&quot;bind(Fake, 424242)&quot;| G[&quot;AIDRegistry&quot;]
+    G --&gt;|&quot;code.length &gt; 0 ✓&lt;br/&gt;ownerOf succeeds ✓&lt;br/&gt;ownerOf == X ✓&quot;| S[&quot;state(X) = ACTIVE&quot;]
+    S -.-&gt;|&quot;no registry check&quot;| Rz[&quot;resolver also reports ACTIVE&quot;]</pre>
+<p><em>Figure 3 — binding to a contract that is not ERC-8004. Neither the specification nor the reference implementation establishes what the registry is<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</em></p>
+<p><strong>Owner pre-emption.</strong> Once the wallet moves from A to B, two addresses satisfy the predicate: the new wallet B and the owner O. In the probe O bound first, after which B, the anchor the specification recommends, reverted with <code>AgentAlreadyBound</code>, and will keep doing so while O holds the token<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The owner controls the agent regardless, so this reads less as a security flaw than as the recommendation ("anchor on <code>agentWallet</code>") colliding with the rule ("anyone satisfying the predicate").</p>
+<p><strong>Successors without consent.</strong> <code>retire(successor)</code> accepts any address and asks nothing of it<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The specification makes the successor link informational and forbids merging histories, which limits the damage<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>; a resolver that displays the link should still mark it as one party's unilateral statement.</p>
+<h2>6. The dependency stack and where the proposal stands</h2>
+<p>Following the standards AID names produces a stack.</p>
+<pre class="mermaid">flowchart TB
+    A[&quot;ERC-8434 AID&lt;br/&gt;PR #2044, 2026-09-30&quot;] --&gt; K[&quot;ERC-8419 KYA Framework&lt;br/&gt;PR #2012, 2026-09-19&quot;]
+    A --&gt; T[&quot;ERC-8414 Task Tenders&lt;br/&gt;PR #2005, 2026-09-09&quot;]
+    A --&gt; S[&quot;ERC-8338 Executable Skills&lt;br/&gt;PR #1879, 2026-07-14&quot;]
+    A --&gt; E[&quot;ERC-8004 Trustless Agents&lt;br/&gt;Draft, deployed on mainnet&quot;]
+    A --&gt; L[&quot;EIP-712 · ERC-1271 · ERC-165&lt;br/&gt;Final&quot;]
+    classDef open stroke-dasharray: 5 5
+    class K,T,S,A open</pre>
+<p><em>Figure 4 — AID's dependencies. Dashed boxes are unmerged pull requests, all four by the same author<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</em></p>
+<p>ERC-8338, 8414 and 8419 are pull requests the ERC-8434 author opened between July and September 2026, and none had been merged by 2026-10-02<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. The <code>requires</code> header lists only 155, 165, 712, 1271 and 8004<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. An unmerged proposal cannot be declared as a dependency, which is likely why assertion registries are specified as an interface rather than a requirement. The text still shows the strain: the Rationale says the KYA proposal will be cited "by number once it is published"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>, while the same specification already names a resolver kind <code>erc8419-assertion</code>, and the test vectors describe "the ERC-8419 registry/adapter" as a real Sepolia deployment<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<p>The foundation is itself a Draft<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. ERC-8004's reference registry is nonetheless deployed at the same address across several chains including Ethereum and Base mainnet<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>, and industry coverage has presented it as a three-registry identity layer for agents<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. AID stacks three unmerged proposals, through interfaces, on top of a Draft that is already in production.</p>
+<p>Procedurally the pull request is in order. An editorial associate assigned the number on 2026-09-30, every CI check on the head commit passes, and it is waiting on one more editor review<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. The reference repository was created the day before<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</p>
+<h2>7. Limitations</h2>
+<ul>
+<li><strong>This report is pinned to PR head <code>68ebc1e05d</code> (2026-10-01).</strong> Eleven commits arrived in two days, and some of §5's observations may disappear in the next one.</li>
+<li><strong>No independent analysis of ERC-8434 exists yet.</strong> It is two days old and web search returns nothing; the only outside views are three Magicians participants.</li>
+<li><strong>Everything was run locally.</strong> Vector recomputation, resolver fixtures and Foundry probes used no network. The AID registry address in the vectors is a placeholder, and no deployed AID registry was touched.</li>
+<li><strong>The real risk of the fake-registry observation depends on the consumer.</strong> A reader that checks the bound registry against a trusted list is unaffected. What was established is that neither the specification nor the reference code asks for that check.</li>
+<li><strong>ERC-8419, 8338 and 8414 were not read in full.</strong> Only the minimum interface AID requires was checked, inside the AID text.</li>
+<li><strong>Non-reference ERC-8004 implementations were not surveyed for event behaviour.</strong> Section 2.3 rests on the gap between ERC-8004's text and its reference contracts.</li>
+<li><strong>The companion <code>did:aid</code> method specification was not found.</strong></li>
+<li><strong>Calling the review facet's <code>ATTESTED</code> label into question is interpretation.</strong> The counter-reading, that the underlying feedback is third-party, is given alongside it.</li>
+</ul>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Gary Yang</span>. <a href="https://github.com/garyyang-finchip/ERCs/blob/68ebc1e05d8301c1c04a0ceaa6aff609ac012841/ERCS/erc-8434.md">ERC-8434: Agent Identity (AID) — draft text at PR head 68ebc1e05d</a>. <span class="venue">2026</span>. <span class="accessed">Accessed 2026-10-02.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://github.com/garyyang-finchip/ERCs/blob/68ebc1e05d8301c1c04a0ceaa6aff609ac012841/assets/erc-8434/contracts/AIDRegistry.sol">ERC-8434 reference implementation (AIDRegistry.sol)</a>. <span class="accessed">Accessed 2026-10-02.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://ethereum-magicians.org/t/erc-8434-agent-identity-aid/29805">Ethereum Magicians — ERC-8434: Agent Identity (AID) discussion thread</a>. <span class="accessed">Accessed 2026-10-02.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://github.com/ethereum/ERCs/blob/master/ERCS/erc-6551.md">ERC-6551: Non-fungible Token Bound Accounts</a>. <span class="accessed">Accessed 2026-10-02.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://github.com/garyyang-finchip/ERCs/blob/68ebc1e05d8301c1c04a0ceaa6aff609ac012841/assets/erc-8434/tools/aid-resolve/resolve.js">ERC-8434 reference resolver (resolve.js)</a>. <span class="accessed">Accessed 2026-10-02.</span></li>
+      <li id="ref-6"><span class="authors">Marco De Rossi, Davide Crapis, Jordan Ellis, Erik Reppel</span>. <a href="https://eips.ethereum.org/EIPS/eip-8004">ERC-8004: Trustless Agents (Draft)</a>. <span class="venue">2025</span>. <span class="accessed">Accessed 2026-10-02.</span></li>
+      <li id="ref-7"><span class="authors">—</span>. <a href="https://github.com/erc-8004/erc-8004-contracts/blob/main/contracts/IdentityRegistryUpgradeable.sol">erc-8004/erc-8004-contracts — IdentityRegistryUpgradeable.sol</a>. <span class="accessed">Accessed 2026-10-02.</span></li>
+      <li id="ref-8"><span class="authors">—</span>. <a href="https://www.rfc-editor.org/rfc/rfc8785">RFC 8785: JSON Canonicalization Scheme (JCS)</a>. <span class="venue">2020</span>. <span class="accessed">Accessed 2026-10-02.</span></li>
+      <li id="ref-9"><span class="authors">—</span>. <a href="https://github.com/garyyang-finchip/ERCs/blob/4558f7a9d8/ERCS/erc-9999.md">ERC-8434 first draft as submitted (commit 4558f7a, filed as erc-9999.md)</a>. <span class="accessed">Accessed 2026-10-02.</span></li>
+      <li id="ref-10"><span class="authors">—</span>. <a href="https://github.com/garyyang-finchip/ERCs/blob/68ebc1e05d8301c1c04a0ceaa6aff609ac012841/assets/erc-8434/vectors/aid-vectors.json">ERC-8434 test vectors (aid-vectors.json)</a>. <span class="accessed">Accessed 2026-10-02.</span></li>
+      <li id="ref-11"><span class="authors">—</span>. <a href="https://github.com/garyyang-finchip/aid-standard/blob/HEAD/test/run.js">aid-standard test runner (test/run.js)</a>. <span class="accessed">Accessed 2026-10-02.</span></li>
+      <li id="ref-12"><span class="authors">—</span>. <a href="https://github.com/ethereum/ERCs/pulls?q=is%3Apr+author%3Agaryyang-finchip">ethereum/ERCs — pull requests by the ERC-8434 author</a>. <span class="accessed">Accessed 2026-10-02.</span></li>
+      <li id="ref-13"><span class="authors">—</span>. <a href="https://github.com/erc-8004/erc-8004-contracts">erc-8004/erc-8004-contracts — README deployment list</a>. <span class="accessed">Accessed 2026-10-02.</span></li>
+      <li id="ref-14"><span class="authors">Shaurya Malwa</span>. <a href="https://www.coindesk.com/markets/2026/01/28/ethereum-s-erc-8004-aims-to-put-identity-and-trust-behind-ai-agents">CoinDesk — Ethereum&#x27;s ERC-8004 aims to put identity and trust behind AI agents</a>. <span class="venue">2026</span>. <span class="accessed">Accessed 2026-10-02.</span></li>
+      <li id="ref-15"><span class="authors">—</span>. <a href="https://github.com/ethereum/ERCs/pull/2044">ethereum/ERCs PR #2044 — Add ERC: Agent Identity (AID)</a>. <span class="accessed">Accessed 2026-10-02.</span></li>
+      <li id="ref-16"><span class="authors">—</span>. <a href="https://github.com/garyyang-finchip/aid-standard">garyyang-finchip/aid-standard — AID reference repository</a>. <span class="accessed">Accessed 2026-10-02.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-10-02. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

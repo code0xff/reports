@@ -1,0 +1,10 @@
+title: ERC-8434 Agent Identity(AID) 상세 분석 — 주소를 앵커로 한 에이전트 신원과 이틀 된 초안의 검증
+subtitle: 제출 이틀째인 ERC 초안을 명세·Magicians 토론·참조 구현으로 읽고, 테스트 벡터 재계산과 리졸버·컨트랙트 실행으로 명세의 MUST가 실제로 지켜지는지 확인한다.
+title_en: "ERC-8434 Agent Identity (AID) in Detail: Address-Anchored Agent Identity, and a Two-Day-Old Draft Put to the Test"
+subtitle_en: A draft read through its text, its review thread and its reference code, with the test vectors recomputed and the resolver and registry executed to see which of its own MUSTs hold.
+slug: erc-8434
+lang: ko
+langs: [ko, en]
+date: 2026-10-02
+tags: [erc-8434, agent-identity, erc-8004, ai-agents, did, caip-10, attestation, reputation, eip-712, erc-1271, ethereum]
+status: ready
