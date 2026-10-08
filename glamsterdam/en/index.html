@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ethereum&#x27;s Glamsterdam Hard Fork in Detail: ePBS, Block-Level Access Lists, and a Rewritten Gas Schedule — Deepsearch</title>
+<meta name="description" content="Two days after Sepolia, the eighteen scheduled EIPs read from their specifications, the fork block checked on chain, and the repricing recomputed to find where it collides with the larger contract-size limit.">
+<link rel="canonical" href="https://code0xff.github.io/reports/glamsterdam/en/">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="Ethereum&#x27;s Glamsterdam Hard Fork in Detail: ePBS, Block-Level Access Lists, and a Rewritten Gas Schedule">
+<meta property="og:description" content="Two days after Sepolia, the eighteen scheduled EIPs read from their specifications, the fork block checked on chain, and the repricing recomputed to find where it collides with the larger contract-size limit.">
+<meta property="og:url" content="https://code0xff.github.io/reports/glamsterdam/en/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Ethereum&#x27;s Glamsterdam Hard Fork in Detail: ePBS, Block-Level Access Lists, and a Rewritten Gas Schedule">
+<meta name="twitter:description" content="Two days after Sepolia, the eighteen scheduled EIPs read from their specifications, the fork block checked on chain, and the repricing recomputed to find where it collides with the larger contract-size limit.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>Ethereum&#x27;s Glamsterdam Hard Fork in Detail: ePBS, Block-Level Access Lists, and a Rewritten Gas Schedule</h1>
+    <p class="subtitle">Two days after Sepolia, the eighteen scheduled EIPs read from their specifications, the fork block checked on chain, and the repricing recomputed to find where it collides with the larger contract-size limit.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-10-08</span>
+      <span><strong>Tags</strong> ethereum, glamsterdam, hard-fork, epbs, eip-7732, eip-7928, eip-8037, gas, state-growth, gloas, amsterdam, sepolia</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="glamsterdam.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>Glamsterdam is Ethereum's next hard fork, named for the execution-layer upgrade Amsterdam and the consensus-layer upgrade Gloas. The meta EIP-7773 lists eighteen EIPs as Scheduled for Inclusion, plus five networking and two informational EIPs<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. As of 2026-10-08 the fork is live only on the Sepolia testnet; the Hoodi and mainnet rows of its activation table are empty<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>It rests on three pillars: enshrined proposer-builder separation (EIP-7732), which pulls builders into the protocol and decouples execution validation from consensus validation<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>; block-level access lists (EIP-7928), which declare the state a block touched so that clients can parallelise<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>; and a set of repricing EIPs that rewrite large parts of the gas schedule to contain state growth and worst-case block size<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p>We checked what could be checked instead of restating the specifications. Querying Sepolia directly confirms that the fork began at block 11,856,337, at exactly the scheduled second, and that headers from that block onward carry <code>blockAccessListHash</code> and <code>slotNumber</code><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. EIP-8037's cost per state byte (CPSB) of 1530 and the costs derived from it were recomputed: creating a new account now costs 183,600 state gas, 7.34 times today's figure<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. And the point where that repricing meets EIP-7954's larger contract-size limit was worked out. Because the block-level check compares a transaction's whole gas limit against the block's remaining state gas, at mainnet's current 60M gas limit a contract at the new 65,536-byte maximum cannot be deployed in a single transaction. Under EIP-8037's own assumptions (a 5M-gas constructor) the ceiling is about 35,813 bytes, and a maximum-size deployment needs roughly 105.5M gas<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<p>The schedule has already slipped twice. The mainnet target moved from the first half of 2026 to the fourth quarter, and Sepolia from August 3 to October 6<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. The gap between Sepolia client releases and the fork was seven days, half the usual review window, and consensus developer Potuz warned that a swarm of fake builders withholding payloads could stall the testnet<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+  </section>
+
+  <main class="body">
+<h2>1. Where Glamsterdam stands</h2>
+<p>The name joins the execution-layer side, Amsterdam, and the consensus-layer side, Gloas: the meta EIP's history refers to "EL Amsterdam EIPs", and the consensus specifications call the same fork Gloas<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. In the consensus-specs mainnet config the previous fork, Fulu, sits at epoch 411,392 (2025-12-03); Gloas's fork epoch below it is still <code>18446744073709551615</code>, the maximum uint64, and the fork after that, Heze, holds the same placeholder<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>EIP-7773 is in Review and has been edited 85 times. Eight execution-layer EIPs were scheduled on 2026-05-11, the remaining candidates were promoted together on August 5, EIP-7610 was removed on August 20, and the Sepolia activation time went in on September 17<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The activation table has a single filled row, Sepolia, under a note that the rest "will be filled as activation times are decided by client teams"<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The Ethereum Foundation's announcement is equally plain: "Hoodi and mainnet activation dates have not yet been decided. This announcement covers Sepolia; it does not schedule a mainnet upgrade"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<p>Getting here was not smooth. According to reporting, mainnet was first aimed at the first half of 2026 and moved to the fourth quarter in mid-August. Sepolia was first set for August 3, postponed as the devnet phase ran long, and reset to October 6 on the ACDC #186 call of September 3. Devnets 0 through 9 ran in between; Devnet-9 could not finalise normally; Devnet-10 was skipped in favour of Devnet-11 on September 14<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. The same article judged that October 6 was "more likely to slip again than to hold"<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<pre class="mermaid">timeline
+    title Glamsterdam schedule
+    2025-12-03 : Fulu on mainnet
+    H1 2026 : first mainnet target
+    2026-05-11 : eight EL EIPs scheduled
+    2026-08-03 : first Sepolia target (slipped)
+    mid-Aug 2026 : mainnet target moves to Q4
+    2026-09-03 : ACDC 186 sets Sepolia for Oct 6
+    2026-09-14 : Devnet-11
+    2026-10-06 : Sepolia live (block 11856337)
+    unscheduled : Hoodi, mainnet</pre>
+<p><em>Figure 0 — how the schedule moved. The H1 2026 and August 3 targets and the devnet dates come from reporting; the rest from the meta EIP's history, the consensus config and on-chain reads<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</em></p>
+<p>It held. Over Sepolia's RPC, block 11,856,336 closes at timestamp 1,791,294,804 with no new fields, and block 11,856,337 lands at exactly the scheduled 1,791,294,816 with EIP-7928's <code>blockAccessListHash</code> and EIP-7843's <code>slotNumber</code> in its header for the first time<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. Two days later Sepolia's gas limit is 200M<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. The value comes from EIP-8261's schedule. A change merged into Sepolia's consensus config on 2026-09-24 put "200M at fork epoch 353024" into <code>GAS_LIMIT_SCHEDULE</code>, and Prysm shipped a release carrying it four days before the fork; validators with an explicit gas limit keep theirs, and only those without one follow the schedule<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. That explains the EF notice's warning that Prysm 7.2.0 and Teku 26.9.1, releases that predate the schedule, still default to 60M after activation<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Under EIP-1559's 1/1024 rule, going from 60M to 200M takes at least 1,234 blocks, about 4.1 hours. Mainnet's gas limit on the same day is 60M<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<p>There are signs of schedule pressure. The deadline for Sepolia-ready client releases was September 29, seven days before the fork against a usual fourteen; developers reportedly accepted that because Sepolia's controlled validator set makes recovery easy<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. Hoodi is floated for around October 27 but has no official date<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<h2>2. ePBS: builders inside the protocol</h2>
+<h3>2.1 What changes</h3>
+<p>EIP-7732 defines a new protocol participant, the builder. It removes <code>ExecutionPayload</code> from the beacon block body and puts in its place a signed commitment, a <code>SignedExecutionPayloadBid</code>, to a payload the builder will reveal later. Validators gain a new duty, payload timeliness attestations. The effect is to separate execution validation from consensus validation both logically and in time<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+<pre class="mermaid">sequenceDiagram
+    participant B as Builder
+    participant P as Proposer
+    participant V as Attesters
+    participant T as PTC
+    B-&gt;&gt;P: bid (SignedExecutionPayloadBid)
+    P-&gt;&gt;V: beacon block (bid commitment only)
+    Note over V: attest by 25% of the slot&lt;br/&gt;(ATTESTATION_DUE_BPS_GLOAS 2500)
+    B-&gt;&gt;T: reveal execution payload
+    Note over B: by 50% of the slot (PAYLOAD_DUE_BPS 5000)
+    T-&gt;&gt;V: payload timeliness attestation
+    Note over T: by 75% of the slot&lt;br/&gt;(PAYLOAD_ATTESTATION_DUE_BPS 7500)</pre>
+<p><em>Figure 1 — a Gloas slot. The deadlines are the basis-point values in Sepolia's consensus config: 3, 6 and 9 seconds into a 12-second slot<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</em></p>
+<p>In Sepolia's config the timetable is concrete: ordinary attestations are due at 25% of the slot, the payload at 50%, and payload timeliness attestations at 75%<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Because the execution payload may now arrive after the beacon block, execution validation and propagation get more of the slot.</p>
+<p>Builders no longer enter through the validator deposit flow. EIP-8282 defines two EIP-7685 request types and predeploy contracts: a builder deposit contract for registration and top-ups, and a builder exit contract through which a builder's <code>execution_address</code> requests a full exit. Both copy the request-bus pattern of EIP-7002 and EIP-7251<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</p>
+<h3>2.2 When a winning bid is paid</h3>
+<p>The Gloas consensus specification settles a builder's bid by one of two routes<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The first is delivery: processing an execution payload settles the parent slot's pending payment, and the spec comments that it settles "before the requests so that a builder exit request is rejected while the payment is pending". The second is epoch processing: if same-slot attestation weight for that slot's block reaches the quorum, the payment goes through. The quorum is six-tenths of the active stake per slot<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>Bids have a floor too. A builder may bid only what remains after setting aside <code>MIN_DEPOSIT_AMOUNT</code> (1 ETH) and any pending withdrawals, and an exiting builder cannot withdraw for 64 epochs<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<h3>2.3 Builders that never deliver</h3>
+<p>The attack consensus developer Potuz described on the September 17 developer call targets exactly this structure. As reported, he said: "I can just spin up a thousand builders, rotate them, offer very high bids, and not produce payloads", and "Any teenager can do this." Some client safeguards reportedly trigger only after several payloads go missing, and developers discussed the need to ban individual builders so an attacker cannot simply return under new identities<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> <em>(single report; the call's own record was not consulted)</em>.</p>
+<p>Translating the warning to mainnet needs the rule from §2.2. Honest attesters vote for the beacon block whether or not a payload follows, so if the block gathers 60% same-slot weight the builder pays its bid even though it delivered nothing, and each identity also locks at least 1 ETH<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. On that reading the attack is not free on mainnet; it is free on Sepolia, where, as the report notes, test ether costs nothing<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup> <em>(our reading of the specification, not a game-theoretic analysis)</em>. What remains open is how much a willing attacker would actually have to spend to empty slots, and whether that is enough of a deterrent; we did not measure it.</p>
+<h2>3. Block-level access lists</h2>
+<p>EIP-7928 records every account and storage location a block's execution touched, together with their post-execution values, in order to allow parallel disk reads, parallel transaction validation, parallel state-root computation and executionless state updates<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. The <code>blockAccessListHash</code> that appeared in Sepolia's headers is the commitment to that list<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<p>The lists also shape other EIPs. EIP-8037 times its account-creation charge to "an access EIP-7928 always records" and notes that when a destination account may be read is constrained by EIP-7928<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. On the networking side the fork bundles eth/71 for exchanging access lists (EIP-8159), snap/2 for healing state from them (EIP-8189), and the eth/72 sparse blobpool (EIP-8070) to lighten blob propagation<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>.</p>
+<h2>4. Rewriting the gas schedule</h2>
+<h3>4.1 Counting state creation separately</h3>
+<p>EIP-8037 is the largest change in the fork. It splits gas into an execution dimension and a state dimension and prices new state in units of a cost per state byte, CPSB<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</p>
+<p>The motivation is state size. Per the EIP, a Geth node's state database was about 390 GiB in January 2026, and when the gas limit went from 30M to 60M, new state per day more than tripled, from about 105 MiB to about 326 MiB. Extrapolated to a 200M limit, that is 387 GiB a year, crossing the 650 GiB level at which nodes start to degrade within a year<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</p>
+<p>The derivation of 1530 is written out and can be redone. Half of a 150M reference gas limit (where the base fee converges) times 2,628,000 blocks a year gives 1.971×10¹⁴ state gas; divided by the 120 GiB target (128,849,018,880 bytes) that is 1529.7, which the EIP rounds to 1530<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. Our recomputation agrees.</p>
+<table><thead><tr><th>Operation</th><th>Today</th><th>Glamsterdam state gas</th><th>Factor</th></tr></thead><tbody><tr><td>new account (value <code>CALL</code>, <code>CREATE</code>)</td><td>25,000 / 32,000</td><td>120 × 1530 = 183,600</td><td>~7.3×</td></tr><tr><td>new storage slot (<code>SSTORE</code> 0→x)</td><td>20,000</td><td>64 × 1530 = 97,920</td><td>~4.9×</td></tr><tr><td>one byte of deployed code</td><td>200</td><td>1,530</td><td>~7.7×</td></tr></tbody></table>
+<p><em>Source: EIP-8037 parameter tables<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>; factors computed in <code>working/verify/verify_numbers.py</code>.</em></p>
+<p>At the block level only the dimension with the higher cumulative usage counts toward fullness and the base-fee update, so the gas limit and target come to bound the "bottleneck resource"<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</p>
+<h3>4.2 Where it meets the contract-size limit</h3>
+<p>Two EIPs collide here. EIP-7954 raises the deployable code limit from 24,576 to 65,536 bytes and the initcode limit from 49,152 to 131,072 bytes<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. Under EIP-8037, each byte of code is 1,530 state gas.</p>
+<p>EIP-8037 anticipates part of this. It applies the single-transaction cap of EIP-7825 (about 16.7M) to execution gas only and lets state gas draw on a separate reservoir. Assuming a 21,000 base, a 5M-gas constructor and the account-creation charge, it computes that a transaction under the new 2³²−1 cap could deploy about 2.8 MB of code, "dozens of maximum-size contracts". Both of its figures recompute correctly<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</p>
+<p>The same EIP also sets the block-side condition: to be included, a transaction's <code>tx.gas</code> must not exceed the block gas limit minus the state gas already used<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. The text concedes that "while the block gas limit stays below <code>TX_MAX_TOTAL_GAS_LIMIT</code>, the per-dimension block checks are the tighter bound"<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. Under the same assumptions:</p>
+<ul>
+<li>deploying one 65,536-byte contract requires <code>tx.gas</code> of about 105,474,680, so the block gas limit must be at least 105.5M;</li>
+<li>mainnet's gas limit on 2026-10-08 is 60M<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>, under which a single transaction can deploy about 35,813 bytes of code;</li>
+<li>even today's maximum, a 24,576-byte contract, would take about 42.8M gas, against roughly 4.9M of code-deposit cost today.</li>
+</ul>
+<p>Unless the mainnet gas limit rises with the fork, about half of the 64 KiB headroom that EIP-7954 opens is unusable. Whether that staging is intended, and whether a gas-limit increase is planned for activation, we could not establish. EIP-8261's gas limit schedule exists to coordinate exactly such increases by epoch, and Sepolia already used it to reach 200M, but in the consensus-specs mainnet config <code>GAS_LIMIT_SCHEDULE</code> is an empty list<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<h3>4.3 The rest of the repricing</h3>
+<ul>
+<li><strong>EIP-2780</strong> breaks the flat 21,000 intrinsic cost into per-resource primitives. A plain ETH transfer to an existing account stays at 21,000; transactions that create accounts or touch EIP-7702 pay what they incur<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. The proposal dates from 2020<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>.</li>
+<li><strong>EIP-8038</strong> raises state-access costs: cold account access from 2,600 to 3,000 (+15%), a storage write that changes a slot from 2,800 to 10,000 (+257%), and the clearing refund from 4,800 to 11,616. The 2,300 call stipend is unchanged. The EIP states its values "are not yet final"<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</li>
+<li><strong>EIP-7976</strong> raises the calldata floor from 10/40 to 64/64 gas per byte. Its "~37%" reduction in worst-case block size is for incompressible non-zero bytes (40→64). For a block of zero bytes the floor goes from 10 to 64 and the maximum payload per unit of gas shrinks by 84%; the EIP's own motivating example, 10 MiB needing ~105M gas before and ~671M after, is that zero-byte case<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>. Both numbers are right; they measure different things.</li>
+<li><strong>EIP-7981</strong> charges access lists for their data so they cannot be used to dodge the calldata floor<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>.</li>
+<li><strong>EIP-7778</strong> stops refunds, such as those from clearing <code>SSTORE</code>s, from reducing the gas counted against the block limit, while still applying them to what the user pays<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup>.</li>
+</ul>
+<p>The Ethereum Foundation flagged the consequence for deployed code directly: "Contracts that rely on fixed gas stipends, hardcoded gas limits, or assumptions about remaining gas may need changes"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<h2>5. Everything else</h2>
+<table><thead><tr><th>EIP</th><th>Change</th></tr></thead><tbody><tr><td>7997</td><td>makes the CREATE2 factory at <code>0x4e59b44847b379578588920cA78FbF26c0B4956C</code> a formal requirement for same-address deployment across chains<sup class="footnote-ref"><a href="#ref-25" id="cite-25">[25]</a></sup></td></tr><tr><td>8024</td><td>adds <code>SWAPN</code>, <code>DUPN</code> and <code>EXCHANGE</code> to reach beyond stack depth 16<sup class="footnote-ref"><a href="#ref-26" id="cite-26">[26]</a></sup></td></tr><tr><td>7843</td><td><code>SLOTNUM</code> (0x4b) returns the current slot number<sup class="footnote-ref"><a href="#ref-27" id="cite-27">[27]</a></sup></td></tr><tr><td>7708</td><td>every ETH transfer emits a log<sup class="footnote-ref"><a href="#ref-28" id="cite-28">[28]</a></sup></td></tr><tr><td>8246</td><td>removes the remaining cases where <code>SELFDESTRUCT</code> burns ETH<sup class="footnote-ref"><a href="#ref-29" id="cite-29">[29]</a></sup></td></tr><tr><td>8045</td><td>excludes slashed validators from proposer selection<sup class="footnote-ref"><a href="#ref-30" id="cite-30">[30]</a></sup></td></tr><tr><td>8061</td><td>roughly doubles consolidation churn and quadruples exit churn, accepting a weak subjectivity period of about seven days<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup></td></tr><tr><td>7688</td><td>moves consensus structures to forward-compatible containers; only merkleization changes<sup class="footnote-ref"><a href="#ref-32" id="cite-32">[32]</a></sup></td></tr><tr><td>8261</td><td>an epoch-based schedule for clients' default and recommended maximum gas limit, with no consensus-rule change<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup></td></tr></tbody></table>
+<p><em>EIP-7688 is the one scheduled EIP still in Review<sup class="footnote-ref"><a href="#ref-32" id="cite-32">[32]</a></sup>.</em></p>
+<p>EIP-8061 carries a judgment beyond its numbers. It roughly halves the weak subjectivity period, to about seven days, in exchange for faster validator consolidation, which speeds the path to faster finality, and for relief of the exit queue<sup class="footnote-ref"><a href="#ref-31" id="cite-31">[31]</a></sup>. Operators who leave a node off for a while will need a trusted checkpoint more often.</p>
+<p>EIP-8261 is unusual in changing no consensus rule at all. EIP-1559's ±1/1024 bound remains the only gas-limit validity rule; the schedule is a recommendation, and a client should warn when an operator exceeds it but still honour the setting<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>. That is the context for the EF notice that Prysm and Teku default to 60M after activation and that Prysm's <code>--suggested-gas-limit</code> has no effect after Gloas: post-Gloas, the gas-limit preference travels through the builder pipeline<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>.</p>
+<h2>6. Who has to change what</h2>
+<p><strong>Contract developers.</strong> New accounts, new slots and code deployment get 4.9 to 7.7 times more expensive, which changes the economics of factories and of anything that writes many fresh slots. Hardcoded gas in calls and logic that reasons about remaining gas fall under the EF's warning<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>. Teams deploying large contracts should check the block-limit constraint in §4.2.</p>
+<p><strong>Wallets and RPC.</strong> EIP-7976 states that an <code>eth_estimateGas</code> that ignores the new floor will underestimate and cause failed transactions<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>. Estimation also has to account for two gas dimensions and the reservoir<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</p>
+<p><strong>Validators.</strong> Execution, consensus and validator clients must all be updated, and validators pick up payload-timeliness committee duties<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. Gas-limit preference now flows through the builder pipeline<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>.</p>
+<p><strong>Builders.</strong> Builders become first-class protocol participants that deposit and exit through EIP-8282's contracts<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. Their bids must be backed by balance, and a builder that wins and withholds still pays if the block gathers enough attestations<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<h2>7. Limitations</h2>
+<ul>
+<li><strong>This is a snapshot of 2026-10-08, two days after Sepolia.</strong> All scheduled EIPs except EIP-7688 are in Last Call, and EIP-8038 itself says its values are not final; numbers may move before mainnet.</li>
+<li><strong>Schedule details rely on two press reports.</strong> The ACD call records (ACDC #186 and others) and the original record of Potuz's warning were not consulted. The October 27 Hoodi date is tentative reporting.</li>
+<li><strong>The §4.2 conclusion depends on mainnet's 60M gas limit and EIP-8037's 5M-constructor assumption.</strong> If the gas limit rises with the fork, it weakens. Mainnet gas-limit plans were not found.</li>
+<li><strong>The mainnet cost of the builder attack is our reading of the specification.</strong> Its real magnitude and deterrent effect were not measured.</li>
+<li><strong>Post-fork stability on Sepolia (missed slots, withheld payloads) was not measured.</strong> What was checked is the fork block, the new header fields and the current gas limit.</li>
+<li><strong>Client implementation differences and test coverage for each EIP were not surveyed.</strong></li>
+</ul>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://github.com/ethereum/EIPs/commits/master/EIPS/eip-7773.md">Revision history of EIP-7773</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://github.com/ethereum/consensus-specs/blob/master/specs/gloas/beacon-chain.md">consensus-specs — Gloas beacon chain (EIP-7732)</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://github.com/ethereum/consensus-specs/blob/master/configs/mainnet.yaml">consensus-specs — mainnet config</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-7773">EIP-7773: Hardfork Meta - Glamsterdam (Review)</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://blog.ethereum.org/2026/09/17/glamsterdam-testnet-announcement">Ethereum Foundation — Glamsterdam Testnet Announcement</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-6"><span class="authors">Sam Daodu</span>. <a href="https://247wallst.com/investing/cryptocurrency/2026/09/11/ethereums-glamsterdam-upgrade-slipped-again-sepolia-now-targets-october-6/">24/7 Wall St. — Ethereum&#x27;s Glamsterdam upgrade slipped again; Sepolia now targets October 6</a>. <span class="venue">2026</span>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-7"><span class="authors">—</span>. <a href="https://sepolia.etherscan.io/block/11856337">Sepolia block 11,856,337 — first Glamsterdam block</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-8"><span class="authors">—</span>. <a href="https://github.com/eth-clients/sepolia/blob/main/metadata/config.yaml">eth-clients/sepolia — consensus config</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-9"><span class="authors">—</span>. <a href="https://github.com/eth-clients/sepolia/pull/130">eth-clients/sepolia PR #130 — Schedule 200m gas limit at the Glamsterdam upgrade</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-10"><span class="authors">—</span>. <a href="https://github.com/OffchainLabs/prysm/pull/17609">Prysm PR #17609 — add sepolia gas schedule</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-11"><span class="authors">—</span>. <a href="https://etherscan.io/block/26144268">Ethereum mainnet block 26,144,268 (gas limit reading)</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-12"><span class="authors">—</span>. <a href="https://coincentral.com/ethereums-glamsterdam-upgrade-gets-october-test-date-with-builder-attack-warning">CoinCentral — Glamsterdam gets October test date with builder attack warning</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-13"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-7732">EIP-7732: Enshrined Proposer-Builder Separation (Last Call)</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-14"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-8282">EIP-8282: Builder Execution Requests (Last Call)</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-15"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-7928">EIP-7928: Block-Level Access Lists (Last Call)</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-16"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-8037">EIP-8037: State Creation Gas Cost Increase (Last Call)</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-17"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-8070">EIP-8070: eth/72 - Sparse Blobpool (Last Call)</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-18"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-7954">EIP-7954: Increase Maximum Contract Size (Last Call)</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-19"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-8261">EIP-8261: Gas Limit Schedule (Last Call)</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-20"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-2780">EIP-2780: Resource-based intrinsic transaction gas (Last Call)</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-21"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-8038">EIP-8038: State-access gas cost update (Last Call)</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-22"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-7976">EIP-7976: Increase Calldata Floor Cost (Last Call)</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-23"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-7981">EIP-7981: Increase Access List Cost (Last Call)</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-24"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-7778">EIP-7778: Block Gas Accounting without Refunds (Last Call)</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-25"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-7997">EIP-7997: Deterministic Factory Contract (Last Call)</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-26"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-8024">EIP-8024: Backward compatible SWAPN, DUPN, EXCHANGE (Last Call)</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-27"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-7843">EIP-7843: SLOTNUM opcode (Last Call)</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-28"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-7708">EIP-7708: ETH transfers emit a log (Last Call)</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-29"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-8246">EIP-8246: Remove SELFDESTRUCT Burn (Last Call)</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-30"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-8045">EIP-8045: Exclude slashed validators from proposing (Last Call)</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-31"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-8061">EIP-8061: Increase exit and consolidation churn (Last Call)</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+      <li id="ref-32"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-7688">EIP-7688: Forward compatible consensus data structures (Review)</a>. <span class="accessed">Accessed 2026-10-08.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-10-08. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+title: 이더리움 글램스테르담 하드포크 상세 분석 — ePBS, 블록 접근 목록, 그리고 가스표 재작성
+subtitle: Sepolia 활성화 이틀 뒤의 시점에서 18개 확정 EIP를 명세 원문으로 읽고, 포크 블록을 직접 조회하고, 재가격화 수치를 재계산해 계약 크기 상향과의 충돌 지점을 짚는다.
+title_en: "Ethereum's Glamsterdam Hard Fork in Detail: ePBS, Block-Level Access Lists, and a Rewritten Gas Schedule"
+subtitle_en: Two days after Sepolia, the eighteen scheduled EIPs read from their specifications, the fork block checked on chain, and the repricing recomputed to find where it collides with the larger contract-size limit.
+slug: glamsterdam
+lang: ko
+langs: [ko, en]
+date: 2026-10-08
+tags: [ethereum, glamsterdam, hard-fork, epbs, eip-7732, eip-7928, eip-8037, gas, state-growth, gloas, amsterdam, sepolia]
+status: ready

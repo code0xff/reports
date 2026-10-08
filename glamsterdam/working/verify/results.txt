@@ -1,0 +1,17 @@
+PASS  8037 blocks/year (12 s slots)                                  2628000
+PASS  8037 CPSB exact (EIP rounds to 1530)                           1529.7
+PASS  8037 new-account state gas (was 25,000)                        183600
+PASS  8037 new storage slot state gas (was 20,000)                   97920
+      ratios: new account x7.34, new slot x4.90, code byte x7.65
+PASS  8037 max code under EIP-7825 16,777,216 cap (EIP: ~7,564)      7564
+PASS  8037 max code under 2^32-1 cap (EIP: ~2,803,766)               2803766
+INFO  max single deploy at 60M block gas limit (same assumptions): 35,813 bytes
+      a 65,536-byte (EIP-7954 max) deploy needs tx.gas >= 105,474,680 -> block gas limit >= 105.5M
+      old 24,576-byte max deploy needs 42,805,880 gas
+PASS  7976 10 MiB at 10 gas/byte (EIP: ~105M)                        104.9
+PASS  7976 10 MiB at 64 gas/byte (EIP: ~671M)                        671.1
+PASS  7976 worst-case size cut, non-zero bytes 40->64 (EIP: ~37%)    37.5
+PASS  7976 worst-case size cut, zero bytes 10->64                    84.4
+INFO  Sepolia 60M -> 200M minimum: 1234 blocks = 4.1 h at 12 s slots
+
+10 passed, 0 failed
