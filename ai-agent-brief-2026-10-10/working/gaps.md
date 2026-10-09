@@ -1,0 +1,7 @@
+# Gaps
+
+- No corroboration of Asana/StackAI's 76x cost-reduction figure beyond OpenAI's own post. No press outlet, benchmark site, or independent replication of the 144-run study was found. Marked vendor-stated in the draft.
+- No agent-commerce payment-protocol development (x402, AP2, ACP, UCP, MPP, L402, Trusted Agent Protocol, Personal Agent Protocol) fell inside this 72-hour window. Checked x402.org's own blog (nothing since May 2026), GitHub releases for AP2, A2A, and mpp-specs (all outside the window), and web search for Visa/Mastercard/Stripe/PAP news — all silent. Recorded as an observation in Why It Matters rather than treated as a failure of the lanes.
+- Goodfire's claimed 93% malicious-session detection rate and the cost figures are the company's own benchmark on Kimi K3; no third party has reproduced them. A separate counter-evidence sweep found the broader activation-probe research literature reports poor generalization under distribution shift and vulnerability to adaptive evasion (including models fine-tuned to evade monitors zero-shot); this is now folded into the draft rather than left as a silent gap.
+- X and LinkedIn were not read directly (per standing policy); nothing on this beat appeared to originate from either platform this window based on what the feeds and web lanes surfaced.
+- The papers lane was not run — no arXiv/Semantic Scholar candidate surfaced in feed or web scouting that was both inside the window and on-beat; this is expected per Phase 1 of the daily brief ("papers lane is silent most days").
