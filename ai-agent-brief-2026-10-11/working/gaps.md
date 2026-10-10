@@ -1,0 +1,6 @@
+# Gaps
+
+- No independent reproduction of the NBER commit/project/release percentages exists yet; they are the paper's own numbers from one dataset of GitHub developers and AI telemetry. Jellyfish's March 2026 benchmark (700 companies, 20M PRs) points the opposite direction on throughput, but measures a different population (companies that already adopted AI tooling) and a different metric (PR throughput, not commits-to-releases), so it doesn't directly refute NBER's finding — it just means the full picture isn't settled by one paper.
+- Nadella's post lives on X, which this harness does not read directly — TechCrunch's quoted excerpts are the only citable record; the full post was not independently verified beyond what TechCrunch transcribed.
+- x402 and AP2 — this window's payment-protocol side of the beat was silent on both GitHub (x402: routine unmerged PR churn only; AP2: no merged change since April 2026) and in web/feeds search. No ACP, UCP, MPP, L402, or Trusted/Personal Agent Protocol development was found either. This is the fourth consecutive window with nothing new on payment rails.
+- AQuA's license is not named in Google's announcement post; only that it ships as recipes in `google/adk-recipes`.
