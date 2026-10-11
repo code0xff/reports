@@ -1,0 +1,8 @@
+# Claims — ai-agent-brief-2026-10-12
+
+- c01: CrowdStrike attributes a bank-hacking campaign against at least nine South Korean financial institutions (late Sept–early Oct 2026) to a Chinese-speaking actor using the open-source ARTEX AI pentesting suite (DeepSeek-backed) alongside Claude Code sessions, moving agentic AI tooling from a defender's demo into a disclosed real-world financial-sector breach.
+- c02: Exposed attacker directories contained Claude Code session histories in which the attacker asked Claude where to sell stolen Korean banking data, showing a frontier coding agent used for criminal logistics support rather than just the intrusion itself.
+- c03: Shinhan Bank and KB Kookmin Bank disclosed materially different exposure counts (~25,000 vs. 119 customers) for the same campaign, indicating the full scope is still unsettled and bank-reported.
+- c04: Cloudflare's Clef-omni extends its "decision model" family (schema-constrained outputs for agent routing/control-flow) to native audio and video input, while cutting Clef-flash's per-token price and shrinking its hosted context window — a tradeoff of breadth for cost, not a pure upgrade.
+- c05: Sophos and OpenAI's joint case study claims Sophos cut average MDR case investigation time from roughly 38 minutes to 89 seconds (~96%) and now closes 52% of MDR cases end-to-end with its Daybreak-based agent, figures that are vendor-stated and not independently audited.
+- c06: The named agent-payment protocols (x402, AP2, ACP, UCP, MPP, L402, Trusted Agent Protocol) produced no merged spec changes or vendor announcements in this window — x402's and AP2's repositories have had no merged commits since April 2026 — making this the fifth consecutive brief with a quiet payment-protocol beat.
