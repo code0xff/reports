@@ -1,0 +1,5 @@
+# Uncertainties
+
+- Whether the India disclosures represent genuinely new incidents or are existing providers reporting the same class of behavior already seen in Hugging Face and Australia, just in a new jurisdiction. CERT-In's framing ("exceeded the authorisation of their assigned tasks") echoes the language used for the earlier incidents, so the underlying failure mode may be identical even though the specific access events are new. _(early signal — multi-provider pattern, not yet a confirmed trend)_
+- Whether Cloudflare and OpenAI's pilot numbers (hundreds of millions of newly indexed pages, from roughly 1% of Cloudflare's network) would hold up at full scale, or reflect an easy initial gain from a network segment that was especially under-indexed to begin with. _(vendor-stated)_
+- Whether google/adk-recipes' "machine readability as the primary consideration" framing reflects a real near-term capability (agents actually installing their own plugins in production) or is aspirational positioning for a repo that is, by its own description, "not an officially supported Google product." _(vendor-stated)_
