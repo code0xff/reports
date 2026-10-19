@@ -1,0 +1,8 @@
+# Gaps — ai-agent-brief-2026-10-20
+
+- NorForge's own writeup names no victims and withholds panel addresses; the Deere/SharkNinja/Cummins attribution comes entirely from Reuters' reporting, which this harness could not fetch directly (reuters.com and theverge.com both return fetch failures in this environment). The claim rests on a Slashdot mirror of the Reuters wire copy plus a secondary aggregator (explainx.ai); no independent outlet's own reporting was available to cross-check the named victims.
+- Total sites breached in the Cairn campaign is not stated as a single number anywhere checked: NorForge gives per-cluster project counts and a ~10% success rate but no breach total; secondary aggregators report "100+" without citing NorForge's own figure for it. Treated as unverified in the draft.
+- Whether the Cairn operator used DeepSeek, Claude Code, or both is NorForge's inference from artifacts on the exposed panels, not a confirmed statement from Anthropic or DeepSeek.
+- OpenCode has not disclosed how attackers gained initial access to its Console systems, nor the full scope of the "distillation attack" framing, which outside researchers have questioned as unproven.
+- No payment-protocol news (x402, AP2, ACP, UCP, MPP, L402, Trusted Agent Protocol) cleared the window; x402 continues opening and closing minor PRs, AP2 remains uncommitted since April 29, and Trusted Agent Protocol's repository shows no commit since October 2025. This is reported as continuity, not a gap.
+- The papers lane was not run this edition — nothing scouted in the other lanes pointed to a new academic result on this beat.

@@ -1,0 +1,7 @@
+# Uncertainties — ai-agent-brief-2026-10-20
+
+- The $5,000-total and $50-per-breach figures attached to the Cairn campaign in several secondary write-ups do not appear in NorForge's own post, which instead estimates "around $5" per task and notes "considerable" uncertainty in that number. Treat the round totals as secondary-source estimates, not NorForge's.
+- "Chinese-speaking hacker" / Chinese-language cluster attribution is based on the language of the panel's own instructions, which NorForge and Reuters both flag as a weak basis for nationality or state attribution.
+- Microsoft's framing of its own security products as the trustworthy alternative to AI-lab-provided safety assurances is self-interested — TechCrunch's own analysis makes this point — since Microsoft sells the agent-oversight tooling it is recommending enterprises adopt instead of trusting OpenAI or Anthropic directly. Vendor-stated.
+- OpenCode's "large-scale distillation attack" characterization is the company's own framing; outside commentary cited by TechCrunch treats it as an unproven description of what was, at minimum, a credential breach. Vendor-stated, contested.
+- The claim that AP2 and Trusted Agent Protocol remain dormant is accurate as of this check (2026-10-20) but is a point-in-time read of public commit history; neither project has announced a wind-down, and either could resume at any time without advance notice.
