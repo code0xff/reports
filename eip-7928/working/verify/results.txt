@@ -1,0 +1,24 @@
+# Verification run — eip-7928 (2026-10-19)
+
+$ node fetch.mjs 40 && node check.mjs
+blocks checked: 40 (Sepolia 11947422..11947461), gas limit 200,000,000
+hash = header.blockAccessListHash, canonical RLP, ordering, uniqueness, reads∩writes=∅, index ≤ n+1, bal_items ≤ gas_limit/2000
+violations: 0
+avg per block: 383 addresses, 1299 storage keys, RLP 58.4 KiB, gzip 41.3 KiB
+max bal_items 4513 = 4.5% of the gas-limit cap
+addresses with index-0 (pre-execution) changes: 0x0000f90827f1c53a10cb7a02335b175320002935 (system), 0x000f3df6d732807ef1319fb7b8bb8522d0beac02 (system)
+builder_index values: 7, 3, 1, 18446744073709551615, 0, 9, 4
+empty-BAL constant keccak256(rlp([])) = 0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347
+
+$ python3 pseudocode_test.py
+BAL produced by the EIP's pseudocode: [['0xcc', [[5, [(2, 42)]]], [5], [], [], []]]
+slot in storage_changes: [5] | slot in storage_reads: [5]
+violates 'MUST NOT appear in both storage_changes and storage_reads': True
+reversed order (write in tx1, read in tx2) overlap: False
+
+$ python3 verify_numbers.py
+gas limit 60M: bal_items cap 30,000; cold-SLOAD-only max 28,571; buffer 1,429 = gl/42000 -> 1,429
+gas limit 200M: bal_items cap 100,000; cold-SLOAD-only max 95,238; buffer 4,762 = gl/42000 -> 4,762
+EIP-7928 retention (3533 epochs): 15.7 days, 113,056 blocks, ~9.9 GiB snappy / ~14.7 GiB raw
+post-EIP-8061 WSP (~7.0 d = 1575 epochs): 7.0 days, 50,400 blocks, ~4.4 GiB snappy / ~6.6 GiB raw
+BNB benchmark: throughput +18.6%, p95 block time +32.1%

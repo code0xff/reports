@@ -1,0 +1,10 @@
+title: EIP-7928 블록 수준 접근 목록(BAL) 상세 분석 — 명세, 실측, 그리고 명세 안의 어긋남
+subtitle: Last Call 중인 명세를 원문으로 읽고, Sepolia 실제 블록 40개의 BAL을 헤더와 대조해 규칙을 기계 검증하며, 명세 의사코드와 보존 기간 요구의 결함을 실행으로 확인한다.
+title_en: "EIP-7928 Block-Level Access Lists in Detail: The Specification, Live Measurements, and Where It Disagrees With Itself"
+subtitle_en: The Last Call text read in full, forty real Sepolia BALs checked against their headers and every normative rule, and the specification's pseudocode and retention requirement tested by execution.
+slug: eip-7928
+lang: ko
+langs: [ko, en]
+date: 2026-10-19
+tags: [ethereum, eip-7928, block-level-access-lists, bal, parallel-execution, glamsterdam, engine-api, state-growth, sepolia]
+status: ready

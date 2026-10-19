@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EIP-7928 Block-Level Access Lists in Detail: The Specification, Live Measurements, and Where It Disagrees With Itself — Deepsearch</title>
+<meta name="description" content="The Last Call text read in full, forty real Sepolia BALs checked against their headers and every normative rule, and the specification&#x27;s pseudocode and retention requirement tested by execution.">
+<link rel="canonical" href="https://code0xff.github.io/reports/eip-7928/en/">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="EIP-7928 Block-Level Access Lists in Detail: The Specification, Live Measurements, and Where It Disagrees With Itself">
+<meta property="og:description" content="The Last Call text read in full, forty real Sepolia BALs checked against their headers and every normative rule, and the specification&#x27;s pseudocode and retention requirement tested by execution.">
+<meta property="og:url" content="https://code0xff.github.io/reports/eip-7928/en/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="EIP-7928 Block-Level Access Lists in Detail: The Specification, Live Measurements, and Where It Disagrees With Itself">
+<meta name="twitter:description" content="The Last Call text read in full, forty real Sepolia BALs checked against their headers and every normative rule, and the specification&#x27;s pseudocode and retention requirement tested by execution.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>EIP-7928 Block-Level Access Lists in Detail: The Specification, Live Measurements, and Where It Disagrees With Itself</h1>
+    <p class="subtitle">The Last Call text read in full, forty real Sepolia BALs checked against their headers and every normative rule, and the specification&#x27;s pseudocode and retention requirement tested by execution.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-10-19</span>
+      <span><strong>Tags</strong> ethereum, eip-7928, block-level-access-lists, bal, parallel-execution, glamsterdam, engine-api, state-growth, sepolia</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="eip-7928.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>EIP-7928, Block-Level Access Lists (BALs), requires every block to record each account and storage slot its execution touched, together with the value after each transaction. The aim is to parallelise disk reads, transaction validation and state-root computation, and to update state without executing anything<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. As of 2026-10-19 it is in Last Call with a 1 November deadline, and it is scheduled for Ethereum's next hard fork, Glamsterdam<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>We read the specification page the request pointed to in full and checked whatever could be checked. Three things came out of that.</p>
+<p>The rules hold on a live network. Glamsterdam is already active on Sepolia, so forty consecutive BALs were pulled from a public beacon node's payload envelopes, matched against each execution header's <code>blockAccessListHash</code>, and machine-checked for every ordering, uniqueness, index-range and size rule. The hash matched in 40 of 40 blocks and there were zero rule violations<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>The specification disagrees with itself in two places. Executed verbatim, the pseudocode in its State Transition Function section puts a slot that one transaction reads and a later transaction writes into both <code>storage_reads</code> and <code>storage_changes</code>, which the same document forbids with a MUST NOT. The reference implementation, execution-specs, filters this at build time, so real blocks are unaffected<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The retention rule, "the weak subjectivity period (3533 epochs)", is unsettled too: the number is the pre-fork value of about 15.7 days, out of step with EIP-8061's roughly 7 days in the same fork, while an open PR argues the opposite, that 3533 epochs is far too short because the consensus layer must serve payloads for 14,299 epochs, and the lead author opened a follow-up along those lines today<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<p>The design argument is not over. On the discussion thread, participants worried that BALs double block size and proposed lighter alternatives; the authors declined them on the grounds that the worst-case block must still parallelise<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Independent evidence is mixed: in BNB Chain's benchmark, an EIP-7928 implementation raised average throughput by 18.6% but made p95 block processing 32.1% slower<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+  </section>
+
+  <main class="body">
+<h2>1. What changes, and why</h2>
+<p>Execution cannot be parallelised without knowing in advance which addresses and slots a transaction will touch. EIP-2930 introduced transaction-level access lists, but they are optional and unenforced<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. EIP-7928 moves the list to the block and enforces it. The specification names four benefits: parallel disk reads and execution, parallel post-state root calculation, state reconstruction without executing transactions, and execution time reduced to "parallel IO + parallel EVM"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>The decisive choice is to record not only locations but <strong>the values each transaction left behind</strong>. As the lead author put it on the thread, this means that "even if a block contains transactions that depend on one another in sequence, we can achieve the same level of parallelization as if all transactions were completely independent": a client could even run a block bottom to top, reading earlier transactions' effects from the list<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>The relationship to EIP-2930 is explicit too. Entries from a transaction's access list are not copied into the BAL automatically; only what was actually touched or changed is recorded<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h2>2. Structure and commitment</h2>
+<h3>2.1 Only a hash in the header</h3>
+<p>The header gains <code>block_access_list_hash</code>, the Keccak-256 of the RLP-encoded list. The list itself is not part of the block body: the execution layer stores it separately and exchanges it with the consensus layer as a field of <code>ExecutionPayload</code> over the Engine API<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. On the consensus side it sits in the SSZ <code>ExecutionPayload</code> as <code>block_access_list</code>, a <code>ProgressiveList[Byte]</code><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>The hash of an empty BAL is <code>keccak256(rlp([]))</code>, i.e. <code>0x1dcc4de8…49347</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. We recomputed it; it is byte-for-byte the empty-ommers hash that Ethereum headers have carried for years, because both are the hash of the empty RLP list <code>0xc0</code>.</p>
+<h3>2.2 RLP layout</h3>
+<p>The list is organised address → field → index → change<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<pre class="mermaid">flowchart TB
+    BAL[&quot;BlockAccessList&lt;br/&gt;= List[AccountChanges]&quot;] --&gt; AC[&quot;AccountChanges&quot;]
+    AC --&gt; A[&quot;address&quot;]
+    AC --&gt; SC[&quot;storage_changes&lt;br/&gt;List[SlotChanges]&quot;]
+    AC --&gt; SR[&quot;storage_reads&lt;br/&gt;List[StorageKey]&quot;]
+    AC --&gt; BC[&quot;balance_changes&lt;br/&gt;[index, post_balance]&quot;]
+    AC --&gt; NC[&quot;nonce_changes&lt;br/&gt;[index, new_nonce]&quot;]
+    AC --&gt; CC[&quot;code_changes&lt;br/&gt;[index, new_code]&quot;]
+    SC --&gt; SL[&quot;SlotChanges = [slot, List[StorageChange]]&quot;]
+    SL --&gt; CH[&quot;StorageChange = [index, new_value]&quot;]</pre>
+<p><em>Figure 1 — the RLP structure of a BAL. Only <code>storage_reads</code> carries bare slot keys with no index<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</em></p>
+<p><code>BlockAccessIndex</code> is a <code>uint32</code>: 0 for pre-execution system calls, 1 through n for transactions in block order, and n+1 for post-execution system calls and withdrawals<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h3>2.3 Ordering and uniqueness</h3>
+<p>Determinism is strict. Accounts sort lexicographically by address, slots and read keys ascend, and each change list ascends by index. An address appears exactly once; within an account a key appears at most once in <code>storage_changes</code>, at most once in <code>storage_reads</code>, and <strong>never in both</strong>; every <code>SlotChanges</code> must hold at least one change<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The last rule was added in June 2026<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<h3>2.4 Size bound</h3>
+<p>There is no fixed item count; the bound follows the gas limit. <code>bal_items</code>, the number of storage keys plus addresses, may not exceed <code>block_gas_limit // 2000</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The reasoning: the cheapest way to add an item is a cold <code>SLOAD</code> at 2,100 gas, and pricing items at 2,000 deliberately leaves roughly <code>block_gas_limit / 42000</code> spare items to absorb entries from system contracts and withdrawal recipients that consume no block gas<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The arithmetic is exact. At 60M gas the cap is 30,000 items, cold <code>SLOAD</code>s alone can produce 28,571, and the difference of 1,429 equals 60,000,000 / 42,000.</p>
+<h2>3. What gets recorded</h2>
+<h3>3.1 Scope</h3>
+<p>A BAL lists every address <strong>accessed</strong>, not only those whose state changed: targets of <code>BALANCE</code> and <code>EXTCODE*</code>, targets of <code>CALL</code>-family opcodes even when they revert, transaction senders and recipients including zero-value transfers, <code>SELFDESTRUCT</code> beneficiaries, system contracts before and after execution, withdrawal recipients even for zero amounts, and precompiles that are called. An address with nothing to report appears with empty lists<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The system caller <code>0xff…fe</code> is left out unless it experiences state access itself<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h3>3.2 Gas checks decide inclusion</h3>
+<p>The boundary is whether state was actually touched, and the specification defines that through the order of gas checks. Costs computable without state, such as memory expansion, the base cost and cold/warm access, are checked first. Only if that pre-state validation passes is the target accessed and therefore included; if it fails, the target was never touched and must not appear<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. A table gives the pre-state checks per opcode.</p>
+<p><code>SSTORE</code> has an extra condition: before reading the slot's current value, the frame must cover the access cost and also have more gas left than <code>GAS_CALL_STIPEND</code>. The specification explains that "because the access cost can exceed <code>GAS_CALL_STIPEND</code> after repricing, the stipend sentry alone is no longer sufficient"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. That rule arrived in July 2026<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. For an EIP-7702-delegated call target, resolving the delegation also touches the delegated address, so both are recorded if that second access cost can be paid<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h3>3.3 Semantics by change type</h3>
+<ul>
+<li><strong>Storage:</strong> writes that change a value, including zeroing, go in <code>storage_changes</code>; slots only <code>SLOAD</code>ed, and "no-op writes" that store the existing value, go in <code>storage_reads</code>. A write counts as a no-op by comparison with the cumulative state just before the current index, not with the start of the block<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</li>
+<li><strong>Balances:</strong> the post-transaction balance is recorded, unless it ends where it started even if it moved in between. A zero-value block reward does not, on its own, pull the recipient in<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</li>
+<li><strong>Code and nonces:</strong> deployed or modified runtime code and EIP-7702 delegation indicators; nonces of EOA senders, contracts that performed <code>CREATE</code>, new contracts and 7702 authorities<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</li>
+</ul>
+<p>For system contracts, even the slot counts are fixed: one ring-buffer slot for EIP-2935, two for EIP-4788, and slots 0–3 for EIP-7002 and EIP-7251, plus the queue data slots they read, as <code>storage_reads</code><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h2>4. Transport and retention</h2>
+<p>BALs move over the Engine API. <code>ExecutionPayloadV4</code> gains a <code>blockAccessList</code> field; <code>engine_newPayloadV5</code> returns <code>INVALID</code> when the computed list differs from the one supplied; <code>engine_getPayloadV6</code> fills it during block building. Historical lists come back through <code>engine_getPayloadBodiesByHashV2</code> and <code>ByRangeV2</code>, as <code>null</code> once pruned<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. For long-term storage the consensus layer may drop the bytes and keep only their SSZ <code>hash_tree_root</code>, preserving the Merkle commitment<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>For outside users the door is still narrow. On a public Sepolia node running Geth v1.17.7, four plausible method names including <code>eth_getBlockAccessList</code> and <code>debug_getBlockAccessList</code> all returned "method does not exist". In Geth's public API file (<code>internal/ethapi/api.go</code>) the BAL appears only as a hash field in block results, and on the debug side it is used by bad-block replay<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup> <em>(other files, including the Engine API and simulation code, were not checked)</em>. We obtained BALs instead through the consensus layer's beacon API, via the execution payload envelope route<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>Retention is currently the most contested sentence in the specification. The text requires the execution layer to keep BALs "for at least the duration of the weak subjectivity period (3533 epochs)", so that a node offline for less than that can catch up by re-execution<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>That number is wrong in two directions. The smaller problem: according to EIP-8061, 3533 epochs is the <strong>current</strong> weak subjectivity period, about 15.7 days, and EIP-8061, also in Glamsterdam, reduces it to about 7.0 days<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. After the fork the number and the thing it claims to describe disagree, though in that direction the error only asks for more storage than needed.</p>
+<p>The larger problem runs the other way. PR #12347, opened on 2026-09-16, argues that 3533 epochs is <strong>too short</strong>. After Glamsterdam the BAL is a field of the consensus layer's <code>ExecutionPayload</code>, and consensus clients must serve execution payloads for <code>HISTORY_PRUNE_EPOCHS</code>, 14,299 epochs. Clients that store payloads blinded rebuild them from the execution client; once the BAL is pruned first, <code>engine_getPayloadBodiesBy*V2</code> returns <code>null</code> for that field and "the payload can no longer be rebuilt". The PR proposes 14,299 epochs instead<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. The objection is on record: a Nethermind developer wrote that "BAL is just optimisation structure, node can validate block without BAL's, thus we don't really need big retention window for it", to which the proposer replied that "this is not about what the EL needs, the problem is that the CL needs to serve blocks and payloads"<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. On 19 October the lead author opened a follow-up PR aligning EIP-8159 with the change<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. The direction looks settled, but at the time of writing the PR is unmerged.</p>
+<p>The cost difference is large. Using the specification's October 2026 average of 92.1 KiB per block after snappy compression, 3533 epochs (113,056 blocks) is about 9.9 GiB; 14,299 epochs (457,568 blocks, about 63.6 days) is about 40.2 GiB, or about 59.6 GiB raw<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Matching EIP-8061's shorter period instead would take about 4.4 GiB.</p>
+<h2>5. Measured: forty Sepolia blocks, and the specification's pseudocode</h2>
+<h3>5.1 Real BALs follow the rules</h3>
+<p>BALs for Sepolia blocks 11,947,422 to 11,947,461, forty in a row, were taken from a public beacon node (Lighthouse v8.3.0-rc.0) and compared with the execution headers of the same numbers (Geth v1.17.7)<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<table><thead><tr><th>Check</th><th>Result</th></tr></thead><tbody><tr><td><code>keccak256(BAL)</code> equals header <code>blockAccessListHash</code></td><td>40/40</td></tr><tr><td>decoded and re-encoded RLP is byte-identical (canonical)</td><td>0 violations</td></tr><tr><td>addresses sorted and unique; slots and read keys ascending</td><td>0 violations</td></tr><tr><td>a slot present in both reads and changes</td><td>0 cases</td></tr><tr><td>every index ≤ transactions + 1, ascending and unique per list</td><td>0 violations</td></tr><tr><td><code>bal_items</code> ≤ <code>gas_limit // 2000</code></td><td>max 4,513 (4.5% of the 100,000 cap)</td></tr><tr><td>addresses with index-0 changes</td><td>only the EIP-2935 and EIP-4788 system contracts</td></tr></tbody></table>
+<p><em>Scripts: <code>working/verify/fetch.mjs</code>, <code>check.mjs</code>; log in <code>working/verify/results.txt</code><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</em></p>
+<p>The average list held 383 addresses and 1,299 storage keys, at 58.4 KiB of RLP and 41.3 KiB gzipped. The span included several external builders (indices 0, 1, 3, 4, 7 and 9) as well as proposer self-builds, so lists produced by different block producers all met the same rules<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<p>These figures do not compare directly with the specification's size analysis. That analysis computes BALs for 1,000 mainnet blocks (26,095,544 to 26,096,543; 60M gas limit, 30.3M average used, 305 transactions on average) and reports 136.6 KiB raw and 92.1 KiB snappy-compressed on average, with a compressed maximum of 234.6 KiB<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Mainnet has no BALs yet, so those are computed values; ours come from a testnet at a 200M limit and use gzip. Network and compressor both differ.</p>
+<h3>5.2 The specification's pseudocode breaks its own rule</h3>
+<p>The State Transition Function section gives <code>track_state_changes</code> and <code>build_bal</code> in pseudocode. The read-tracking part reads:</p>
+<pre><code>for slot in get_storage_reads(addr):
+    if slot not in accesses[addr][&#x27;storage_writes&#x27;]:
+        accesses[addr][&#x27;storage_reads&#x27;].add(slot)</code></pre>
+<p>The check sees only the writes recorded <strong>so far</strong><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. If transaction 1 reads slot 5 and transaction 2 later writes it, the slot enters the reads while processing transaction 1, when no write exists yet, and the writes while processing transaction 2, and nothing ever removes it from the reads. Running the pseudocode unmodified confirms it. The specification leaves helpers such as <code>get_storage_reads</code> undefined, so they were filled in with the most natural reading, the slots that transaction read:</p>
+<pre><code>slot in storage_changes: [5] | slot in storage_reads: [5]
+violates &#x27;MUST NOT appear in both storage_changes and storage_reads&#x27;: True
+reversed order (write in tx1, read in tx2) overlap: False</code></pre>
+<p>The ordering and uniqueness section of the same document says a key "MUST NOT appear in both <code>storage_changes</code> and <code>storage_reads</code> for the same account"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. An implementer who followed the pseudocode would produce invalid blocks.</p>
+<p>The reference implementation does not have this problem. execution-specs' <code>_build_from_builder</code> filters the whole read set against the write set when it assembles the final list, which catches the case regardless of order<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>, and its cross-index tests exercise such interactions between indices separately<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. Zero overlaps in forty Sepolia blocks suggest that real clients follow the reference implementation. The pseudocode is presented under an implementation note and names execution-specs as the approach actually used, so the defect lives in the document, not the protocol.</p>
+<h2>6. Debate and counter-evidence</h2>
+<h3>6.1 Alternatives sized against the worst case</h3>
+<p>Size dominated the 35-post Magicians thread<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. One participant argued that the 40 KiB average of the then-current design doubled block size and raised p95 by 1.55×, bandwidth that could otherwise go to a higher gas limit, and proposed shipping a "deterministic, canonical, parallelizable tx execution plan" instead of state diffs. Others suggested partial lists that omit independent transactions, per-transaction pointers to a single parent dependency, and XOR byte diffs in place of new values to help compression<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>The authors' answer was consistent. Execution plans and dependency hints cannot parallelise a worst-case block filled by ten large, interdependent transactions, and dropping state diffs also gives up executionless state updates and the list's use in sync. To the idea of capping dependency-chain length in protocol, they replied that an attacker could compute heavily and then touch a shared slot at the end, extending the chain past the cap and invalidating a builder's block<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. "Size vs parallelization" is still listed as the first reason in the specification's rationale<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h3>6.2 Independent results disagree</h3>
+<p>Early evidence was encouraging. In April 2025, an early form carrying only addresses and keys, with no state diffs, reportedly improved Geth's live sync by about 30% <em>(single report, predating the current design)</em><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>BNB Chain's December 2025 report is less tidy. On 165M-gas blocks on AWS i7i.8xlarge, its EIP-7928 implementation lifted average throughput from 583 to 691.48 MGas/s, up 18.6%, but p95 block processing time rose from 333.44 ms to 440.43 ms, up 32.1%. BNB Chain called this "instability in block processing time", said it needed refinement, and shipped its own header-free format BEP-592 first, which reached 653.71 MGas/s at 302.22 ms p95<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> <em>(an early implementation in the BSC client; it does not represent Ethereum clients)</em>. Better averages with a worse tail cut directly against a design whose stated purpose is guaranteeing the worst case.</p>
+<p>World Chain published a variant in August 2026 that adds 200 ms flashblock slices to the upstream EIP-7928 primitives. On test networks, sweeping throughput from 1.7 Mgas/s to 1 Ggas/s, validation latency reached a knee near 100 Mgas/s and then flattened. It differs from the L1 design by committing the hash in signed flashblock deltas rather than the header and by switching on through a runtime flag rather than a fork<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>.</p>
+<h3>6.3 Stalling with fake reads</h3>
+<p>One attack is named in the text itself. Because <code>storage_reads</code> carry no transaction index, whether a declared read really happened can only be confirmed after every transaction has run. A malicious proposer can declare large numbers of slots that are never read, forcing clients into useless prefetching and downloading, and the block cannot be rejected until execution completes<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The only defence written into the protocol is the <code>bal_items</code> cap; clients are encouraged to detect infeasible reads during execution and reject early, with the caveats that such a mechanism must never reject a valid block and that system-call reads are not paid for in block gas and so cannot be bounded by it<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<pre class="mermaid">sequenceDiagram
+    participant P as Malicious proposer
+    participant C as Validating client
+    P-&gt;&gt;C: block + BAL (thousands of never-read slots in storage_reads)
+    Note over C: starts parallel prefetch from the BAL
+    C-&gt;&gt;C: execute transactions 1..n
+    Note over C: most declared reads never happen
+    Note over C: mismatch only provable after execution
+    C--&gt;&gt;P: block rejected (IO and time already spent)</pre>
+<p><em>Figure 2 — the cost structure of false <code>storage_reads</code>. The <code>bal_items</code> cap bounds how many can be declared<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</em></p>
+<p>The size of that bound can be worked out. At 200M gas the cap is 100,000 items, and the Sepolia blocks we examined used 4.5% of it<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>, leaving an attacker room to declare more than twenty times a normal block's reads. Whether clients have implemented early detection, we did not investigate.</p>
+<h2>7. Limitations</h2>
+<ul>
+<li><strong>The specification is in Last Call and changed today.</strong> A 2026-10-19 commit revised the size figures and wording<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>; the text may change again before the 1 November deadline.</li>
+<li><strong>The measurements cover forty Sepolia blocks.</strong> That is testnet load at a 200M gas limit. Mainnet has no BALs yet, and the specification's mainnet numbers are computed.</li>
+<li><strong>Compressed sizes were measured with gzip.</strong> The specification uses snappy, so the figures are not directly comparable.</li>
+<li><strong>No independent, reproducible measurement of parallel-execution speedup was found.</strong> The 30% Geth figure predates state diffs; BNB Chain and World Chain report their own benchmarks.</li>
+<li><strong>The pseudocode defect has limited weight.</strong> The reference implementation and real blocks obey the rule; the defect matters to a reader who takes the pseudocode as an implementation guide.</li>
+<li><strong>Retention is unsettled.</strong> If PR #12347 merges, the requirement becomes 14,299 epochs; this report describes the pre-merge text<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</li>
+<li><strong>eth/71 (EIP-8159) and snap/2 (EIP-8189) were not read.</strong> BAL exchange and BAL-based state healing are separate EIPs<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>.</li>
+<li><strong>Client implementations of early detection for fake <code>storage_reads</code> were not surveyed.</strong></li>
+</ul>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Toni Wahrstätter, Dankrad Feist, Francesco D&#x27;Amato, Jochem Brouwer, Ignacio Hagopian, Felipe Selmo, Rahul, Stefan</span>. <a href="https://eips.ethereum.org/EIPS/eip-7928">EIP-7928: Block-Level Access Lists (Last Call, deadline 2026-11-01)</a>. <span class="venue">2025</span>. <span class="accessed">Accessed 2026-10-19.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-2930">EIP-2930: Optional access lists</a>. <span class="accessed">Accessed 2026-10-19.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://ethereum-magicians.org/t/eip-7928-block-level-access-lists/23337">Ethereum Magicians — EIP-7928 discussion thread</a>. <span class="accessed">Accessed 2026-10-19.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://github.com/ethereum/consensus-specs/blob/master/specs/gloas/beacon-chain.md">consensus-specs — Gloas ExecutionPayload.block_access_list</a>. <span class="accessed">Accessed 2026-10-19.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://github.com/ethereum/EIPs/commits/master/EIPS/eip-7928.md">Revision history of EIP-7928</a>. <span class="accessed">Accessed 2026-10-19.</span></li>
+      <li id="ref-6"><span class="authors">—</span>. <a href="https://github.com/ethereum/go-ethereum/blob/v1.17.7/eth/api_debug_replay.go">go-ethereum v1.17.7 — BAL handling in RPC (header field and bad-block replay only)</a>. <span class="accessed">Accessed 2026-10-19.</span></li>
+      <li id="ref-7"><span class="authors">—</span>. <a href="https://sepolia.etherscan.io/block/11947461">Sepolia blocks 11,947,422–11,947,461 — observed BALs</a>. <span class="accessed">Accessed 2026-10-19.</span></li>
+      <li id="ref-8"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-8061">EIP-8061: Increase exit and consolidation churn</a>. <span class="accessed">Accessed 2026-10-19.</span></li>
+      <li id="ref-9"><span class="authors">—</span>. <a href="https://github.com/ethereum/EIPs/pull/12347">ethereum/EIPs PR #12347 — Update EIP-7928: align BAL retention with the history expiry window</a>. <span class="accessed">Accessed 2026-10-19.</span></li>
+      <li id="ref-10"><span class="authors">—</span>. <a href="https://github.com/ethereum/EIPs/pull/12546">ethereum/EIPs PR #12546 — Update EIP-8159: follow the EIP-7928 BAL retention change</a>. <span class="accessed">Accessed 2026-10-19.</span></li>
+      <li id="ref-11"><span class="authors">—</span>. <a href="https://github.com/ethereum/EIPs/blob/master/assets/eip-7928/bal_size_analysis_60m_2026_10.md">EIP-7928 size analysis — 1000 mainnet blocks at 60M gas (October 2026)</a>. <span class="accessed">Accessed 2026-10-19.</span></li>
+      <li id="ref-12"><span class="authors">—</span>. <a href="https://github.com/ethereum/execution-specs/blob/HEAD/src/ethereum/forks/amsterdam/block_access_lists.py">ethereum/execution-specs — amsterdam/block_access_lists.py</a>. <span class="accessed">Accessed 2026-10-19.</span></li>
+      <li id="ref-13"><span class="authors">—</span>. <a href="https://github.com/ethereum/execution-specs/tree/HEAD/tests/amsterdam/eip7928_block_level_access_lists">ethereum/execution-specs — EIP-7928 test suite</a>. <span class="accessed">Accessed 2026-10-19.</span></li>
+      <li id="ref-14"><span class="authors">Leyton Taylor</span>. <a href="https://world.org/blog/engineering/world-chain-full-block-access-lists">World Chain — full block access lists</a>. <span class="venue">2026</span>. <span class="accessed">Accessed 2026-10-19.</span></li>
+      <li id="ref-15"><span class="authors">—</span>. <a href="https://www.bnbchain.org/en/blog/boosting-bnb-smart-chain-performance-with-block-access-list">BNB Chain — Boosting BSC performance with Block Access List</a>. <span class="venue">2025</span>. <span class="accessed">Accessed 2026-10-19.</span></li>
+      <li id="ref-16"><span class="authors">—</span>. <a href="https://eips.ethereum.org/EIPS/eip-7773">EIP-7773: Hardfork Meta — Glamsterdam</a>. <span class="accessed">Accessed 2026-10-19.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-10-19. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
