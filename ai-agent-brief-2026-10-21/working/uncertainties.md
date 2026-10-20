@@ -1,0 +1,6 @@
+# Uncertainties
+
+- The Visa/BILL/Billtrust "first live pilot" claim and the Circle/Proof Money20/20 demo are both vendor-stated, carried only by press-release-fed trade coverage; neither has independent confirmation that the systems work as described in production conditions, only that the companies say they ran.
+- Mastercard's nine-payment Cloudflare Connect demo is a controlled showcase (one agent, a fixed budget, two providers) — it demonstrates the pipeline works, not that it holds up at any real transaction volume or against adversarial counterparties.
+- The x402 paywall vulnerabilities are confirmed by working reproduction steps in the GitHub issues, but severity in practice depends on how many deployed paywalls actually gate payment-bearing content through the affected code paths versus using a facilitator-side check as the real gate — the issues themselves don't establish that split.
+- "Not a perfect protocol" is Dylan Field's own characterization of MCP; Figma's simultaneous expansion of MCP partnerships (20 new integrations) suggests the criticism is more a negotiating position (wanting more control/compensation for data exposure) than a technical rejection, but that reading is this brief's inference, not Figma's stated reasoning.
