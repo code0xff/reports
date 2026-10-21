@@ -1,0 +1,6 @@
+# Claims
+
+- c01: Walmart's Agent Gateway moves agent shopping from unsanctioned browser automation to a sanctioned MCP channel, with Agent Profiles as the mechanism that keeps an agent's purchases accountable to a human account — not a cosmetic feature, but the thing that lets Walmart permit agent purchases where Amazon currently blocks them.
+- c02: Cloudflare's WebMCP rollout with Commerce.com shifts agent shopping on ~100,000 storefronts from scraping rendered HTML to calling declared tools, which changes the attack/reliability surface (a declared `add_to_cart` tool vs. guessing which button to click) without changing who is allowed to buy.
+- c03: Google's Agents CLI Extension System formally ends ADK's monopoly on its own CLI, by making the tool's command surface pluggable rather than hard-wired to one framework's runtime — a dev-tooling admission that agent frameworks are converging on interoperable graph representations (LangGraph) rather than competing runtimes.
+- c04: Taken together, the three items show the agent-commerce question shifting from "can an agent buy things" to "who decides the terms an agent buys under" — each item adds a control layer (Agent Profiles, merchant opt-out, extension scoping) rather than new purchasing capability.
