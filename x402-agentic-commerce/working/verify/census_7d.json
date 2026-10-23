@@ -1,0 +1,82 @@
+{
+ "head": 52972388,
+ "start": 52669988,
+ "t_start": 1792129323,
+ "t_head": 1792734123,
+ "escrows": {
+  "v1.1": {
+   "events": {
+    "PaymentAuthorized": 20,
+    "PaymentVoided": 4,
+    "TokenStoreCreated": 1,
+    "PaymentCaptured": 16
+   },
+   "volume_atomic": {
+    "PaymentAuthorized": 20050,
+    "PaymentVoided": 4040,
+    "PaymentCaptured": 16010
+   },
+   "distinct_payments": 20,
+   "top_operators": [
+    [
+     "OPERATOR_E",
+     8
+    ],
+    [
+     "OPERATOR_F",
+     7
+    ],
+    [
+     "OPERATOR_G",
+     5
+    ]
+   ],
+   "distinct_operators": 3,
+   "distinct_receivers": 3,
+   "tokens": {
+    "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913": 20
+   }
+  },
+  "v1.0": {
+   "events": {
+    "PaymentAuthorized": 15791,
+    "PaymentCaptured": 15646,
+    "PaymentCharged": 120,
+    "PaymentRefunded": 39,
+    "PaymentVoided": 73,
+    "TokenStoreCreated": 1
+   },
+   "volume_atomic": {
+    "PaymentAuthorized": 1633946330000,
+    "PaymentCaptured": 1618446600000,
+    "PaymentCharged": 62081130000,
+    "PaymentRefunded": 639520000,
+    "PaymentVoided": 15448670000
+   },
+   "distinct_payments": 15911,
+   "top_operators": [
+    [
+     "OPERATOR_A",
+     14193
+    ],
+    [
+     "OPERATOR_B",
+     1395
+    ],
+    [
+     "OPERATOR_C",
+     321
+    ],
+    [
+     "OPERATOR_D",
+     2
+    ]
+   ],
+   "distinct_operators": 4,
+   "distinct_receivers": 376,
+   "tokens": {
+    "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913": 15911
+   }
+  }
+ }
+}

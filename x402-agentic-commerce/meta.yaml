@@ -1,0 +1,10 @@
+title: 에이전트 커머스의 x402 — auth-capture와 Commerce Payments Protocol
+subtitle: 되돌림을 컨트랙트에 넣은 스킴, 아직 릴리스되지 않은 SDK, 그리고 체인 위에서 4초 만에 끝나는 에스크로
+title_en: x402 in Agentic Commerce — auth-capture and the Commerce Payments Protocol
+subtitle_en: A scheme that puts reversal in a contract, SDKs merged but unreleased, and an escrow that on chain mostly closes in four seconds
+slug: x402-agentic-commerce
+lang: ko
+langs: [ko, en]
+date: 2026-10-23
+tags: [x402, auth-capture, commerce-payments, agentic-commerce, escrow, base, acp, ap2]
+status: ready

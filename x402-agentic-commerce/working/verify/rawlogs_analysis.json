@@ -1,0 +1,79 @@
+{
+ "events_by_version": {
+  "v1.0 PaymentAuthorized": 15791,
+  "v1.0 PaymentCharged": 120,
+  "v1.1 PaymentAuthorized": 20
+ },
+ "capture_latency_seconds": {
+  "v1.0": {
+   "n": 15636,
+   "p10": 4,
+   "median": 4.0,
+   "p90": 4,
+   "max": 372128
+  },
+  "v1.1": {
+   "n": 16,
+   "p10": 2,
+   "median": 2.0,
+   "p90": 4,
+   "max": 3604
+  }
+ },
+ "same_block_capture_share": {
+  "v1.0": 0.0,
+  "v1.1": 0.0
+ },
+ "authorizationExpiry_minus_preApprovalExpiry_s": {
+  "v1.0": {
+   "n": 15791,
+   "p10": 518400,
+   "median": 31449600,
+   "p90": 31449600,
+   "max": 31535640
+  },
+  "v1.1": {
+   "n": 20,
+   "p10": 251,
+   "median": 278.5,
+   "p90": 89400,
+   "max": 89400
+  }
+ },
+ "refundExpiry_minus_authorizationExpiry_s": {
+  "v1.0": {
+   "n": 15791,
+   "p10": 0,
+   "median": 0,
+   "p90": 1987200,
+   "max": 9763200
+  },
+  "v1.1": {
+   "n": 20,
+   "p10": 0,
+   "median": 85800.0,
+   "p90": 85800,
+   "max": 85800
+  }
+ },
+ "collectors": {
+  "v1.0 0x0e3df9510de65469c4518d7843919c0b8c7a7757": 15911,
+  "v1.1 0x8612dfdc421f80336cd14e8ef9cb1e765db5ab88": 20
+ },
+ "operators": {
+  "v1.0 OPERATOR_A": 14193,
+  "v1.0 OPERATOR_B": 1395,
+  "v1.0 OPERATOR_C": 321,
+  "v1.1 OPERATOR_E": 8,
+  "v1.1 OPERATOR_F": 7,
+  "v1.1 OPERATOR_G": 5,
+  "v1.0 OPERATOR_D": 2
+ },
+ "fee_bounds(min,max)": {
+  "v1.0 100-100": 13602,
+  "v1.0 0-0": 1721,
+  "v1.0 125-125": 588,
+  "v1.1 0-0": 15,
+  "v1.1 100-100": 5
+ }
+}

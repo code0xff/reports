@@ -1,0 +1,11 @@
+{
+ "0x1c81fb2e3bab27f6bb09bee9a0dddf61600b7cbaf2c12683e4864e0cbdb9d284": "PaymentAuthorized",
+ "0x137b0e73e4453f43c2e1ad2552980a0e0c7e988764619974ca26d37a7159940c": "PaymentCharged",
+ "0x943ae4341dd799d7aeedc501f616cd26b134639e0bc2ec059581ba3ebbf1e7d0": "PaymentCharged",
+ "0xac1e0db1957daedbc6944bcb4c8dc947ff8101d710671ac2ec26309f7f38d58e": "PaymentCaptured",
+ "0xe749f7bbd01b49bb05abf26ca492cb4dfdea6bedeada8a40fdccd478c73a74e2": "PaymentCaptured",
+ "0xcadce8c3acb008e3e1c64ca7f60d22a3c87069183182b7dbb9e4d8cfb3a15842": "PaymentVoided",
+ "0x78e1d723d17e13b7f40eeab9bf6dd9148a630bafde4203ab7bb5fca983516d17": "PaymentReclaimed",
+ "0x1bf415371b303ca6b8bbb4ce479b177cba5ad15dbe0c9a7750a588aa6bcd25b2": "PaymentRefunded",
+ "0xd8699a107a4fe8ea740423e52159bafb235249dce5c2df55fa265db06964d136": "TokenStoreCreated"
+}

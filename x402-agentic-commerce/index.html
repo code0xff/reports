@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>에이전트 커머스의 x402 — auth-capture와 Commerce Payments Protocol — Deepsearch</title>
+<meta name="description" content="되돌림을 컨트랙트에 넣은 스킴, 아직 릴리스되지 않은 SDK, 그리고 체인 위에서 4초 만에 끝나는 에스크로">
+<link rel="canonical" href="https://code0xff.github.io/reports/x402-agentic-commerce/">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="en" href="en/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="에이전트 커머스의 x402 — auth-capture와 Commerce Payments Protocol">
+<meta property="og:description" content="되돌림을 컨트랙트에 넣은 스킴, 아직 릴리스되지 않은 SDK, 그리고 체인 위에서 4초 만에 끝나는 에스크로">
+<meta property="og:url" content="https://code0xff.github.io/reports/x402-agentic-commerce/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="에이전트 커머스의 x402 — auth-capture와 Commerce Payments Protocol">
+<meta name="twitter:description" content="되돌림을 컨트랙트에 넣은 스킴, 아직 릴리스되지 않은 SDK, 그리고 체인 위에서 4초 만에 끝나는 에스크로">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="en/index.html" hreflang="en">English</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="GitHub에서 Deepsearch 보기" title="GitHub에서 Deepsearch 보기">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>에이전트 커머스의 x402 — auth-capture와 Commerce Payments Protocol</h1>
+    <p class="subtitle">되돌림을 컨트랙트에 넣은 스킴, 아직 릴리스되지 않은 SDK, 그리고 체인 위에서 4초 만에 끝나는 에스크로</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-10-23</span>
+      <span><strong>태그</strong> x402, auth-capture, commerce-payments, agentic-commerce, escrow, base, acp, ap2</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="x402-agentic-commerce.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>x402는 2025년 백서에서 "차지백 없음, 사기 위험 없음"을 장점으로 내세운 비가역 결제 프로토콜로 출발했다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 사람을 대신해 물건을 사는 에이전트 커머스에는 그 성질이 맞지 않는다. 그래서 x402는 Coinbase·Shopify의 Commerce Payments Protocol(CPP) 에스크로 위에 <code>auth-capture</code> 스킴을 얹어 되돌림을 들여왔다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 이 보고서는 두 저장소의 코드와 공식 문서, 그리고 Base 메인넷의 7일치 이벤트를 직접 확인했다. 아래층 CPP는 감사 6건을 받았다. v1.1.0 테스트 115개가 로컬에서 모두 통과했고, x402 Go SDK가 계산한 서명 nonce는 메인넷 에스크로의 <code>getHash</code> 결과와 바이트 단위로 같았다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. 위층 스펙은 한 달 사이 v1.1로 커졌다. 결제 흐름 두 가지와 운영자 유형 두 가지(셋째는 예약)를 갖추었고, 스펙 스스로 페이실리테이터를 운영자로 쓰는 기본 경로의 보호를 "증명이 아닌 신뢰"라고 적는다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 서버·페이실리테이터 SDK는 10월 초 병합됐지만 10월 23일 현재 어떤 릴리스에도 들어 있지 않고, 공개 페이실리테이터 세 곳도 이 스킴을 광고하지 않는다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 정작 실사용은 다른 곳에 있다. Coinbase Business 체크아웃은 에이전트 결제에 auth-capture를 쓰고 Coinbase가 수 초 안에 캡처한다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 온체인에서는 v1.0 에스크로에서 일주일에 약 170만 USDC가 움직였고, 그중 89%를 운영자 하나가 처리했으며 승인에서 캡처까지 중앙값은 4초였다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. 에스크로는 지금 배송 보증보다는 되돌릴 수 있는 즉시 결제로 쓰이고 있다. ACP와 AP2가 환불과 분쟁을 PSP나 감사 기록에 맡기는 것과 달리, x402는 이 되돌림을 컨트랙트에 넣었다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. 그 차이가 에이전트 커머스에서 x402가 가질 수 있는 몫이다.</p>
+  </section>
+
+  <main class="body">
+<h2>1. 서론</h2>
+<p>x402 백서는 2025년 5월 날짜로 x402가 "약 200ms에 정산되고" "차지백 기간이 없다"고 썼다. 장점 목록에는 "즉시 확정되는 거래: 차지백 없음, 사기 위험 없음, 중개자 없음"이 있고, 비교표의 차지백 위험 칸에는 "No - not reversible"이 적혀 있다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. API 호출 한 번에 몇 센트를 받는 판매자에게는 이것이 장점이다.</p>
+<p>물건을 사는 에이전트에게는 사정이 다르다. 2026년 9월의 한 arXiv 논문은 x402의 "원자적이고 최종적인" 모델이 "계량 접근에는 맞지만 커머스에는 실패한다"고 지적했다. 사람을 대신한 구매는 금액이 크고 자주 취소되며, 배송 전까지 판매자의 돈이 되어서는 안 된다는 것이다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. x402 저장소의 <code>auth-capture</code> 스펙은 같은 문제를 이렇게 정의한다. <code>exact</code>는 "고정 금액을 한 번 옮기고 돌려줄 방법이 없지만", <code>auth-capture</code>는 "승인 시점에 최종 금액을 모르거나 나중에 되돌려야 할 수도 있는 결제"를 위한 것이다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>이 사이트는 2026년 9월 22일 <a href="../x402-auth-capture-commerce-payments/">같은 두 저장소를 다룬 보고서</a>를 냈다. 그때 x402 쪽은 클라이언트만 있었고 공식 문서에는 스킴이 없었다. 이 보고서는 그 뒤 한 달의 변화를 따라가면서 세 가지를 직접 확인한다. 하나는 컨트랙트와 SDK가 실제로 맞물리는지이고, 다른 하나는 무엇이 출하됐는지다. 마지막은 체인 위에서 이 에스크로가 실제로 어떻게 쓰이는지다.</p>
+<h2>2. 아래층: Commerce Payments Protocol</h2>
+<h3>2.1 운영자를 믿지 않아도 되도록</h3>
+<p>CPP는 2025년 6월 12일 Coinbase와 Shopify가 함께 발표했다. 전통 결제의 "승인 후 캡처" 2단계, 즉 "먼저 구매자 자금을 잠그고(authorize) 나중에 판매자에게 지급하는(capture)" 흐름을 온체인으로 옮긴 것이다. 그 사이에서 자금을 움직이는 주체로 "운영자(operator)"라는 새 역할을 두었다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. Shopify는 동기를 분할 배송에서 찾는다. "여러 번에 걸쳐 배송하는 판매자를 위해 캡처를 여러 번에 나눠 할 수 있어야 한다"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<p>설계 문서가 운영자에 대해 약속하는 것과 약속하지 않는 것은 분명히 나뉜다. 운영자는 "프로토콜에서 자금을 훔칠 수 없다". 그러나 "결제를 진행시키지 않거나 조기에 void해서 검열할 수 있고", 최악의 경우 "<code>maxFeeBps</code>까지의 수수료를 자기가 고른 주소로 빼낼 수 있다"<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. 에스크로 자금은 한 컨트랙트에 쌓이지 않는다. 운영자 주소에서 결정론적으로 파생된 운영자별 <code>TokenStore</code>에 나뉘어 보관되므로, 에스크로에 버그가 있더라도 다른 운영자의 유동성까지 번지는 것을 막는다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. USDC 거부목록(denylist)에 오른 수취인이나 수수료 수취인 때문에 캡처가 영영 막힐 수 있다는 점도 설계 문서가 스스로 인정한다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<h3>2.2 감사와 재현</h3>
+<p>지난 보고서는 감사 건수를 5건과 6건 사이에서 정하지 못했다. 저장소 README의 감사 표와 <code>audits/</code> 디렉터리의 파일은 모두 6건이다. Coinbase Protocol Security가 2025년 3~4월에 세 번, Spearbit이 2025년 4월에 두 번 했고, 마지막은 v1.1.0의 반올림·과금 변경에 대한 Spearbit 감사(2026-07-22)다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<p>v1.1.0 커밋(<code>b748fdd</code>)에서 <code>forge test</code>를 돌리면 113개 중 112개가 통과한다. 실패한 하나는 Base 포크용 RPC 환경변수가 없어서 생긴 것이다. 공개 RPC를 지정해 다시 돌리자 Coinbase Smart Wallet의 ERC-3009, spend permission, EOA 경로를 다루는 포크 테스트 3개가 모두 통과했다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 테스트 통과가 결함이 없다는 뜻은 아니며, 이 확인의 범위는 저장소가 스스로 정한 검사까지다.</p>
+<h3>2.3 SDK와 컨트랙트는 같은 해시를 계산하는가</h3>
+<p>auth-capture의 핵심은 클라이언트의 ERC-3009 서명 nonce에 결제 조건 전체의 해시를 넣는 것이다. 스펙은 이 값을 <code>keccak256(abi.encode(chainId, 에스크로 주소, payer를 0으로 둔 PaymentInfo 해시))</code>로 정의한다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. 이것은 에스크로의 <code>getHash</code>에 payer 0을 넣은 값과 같은 식이다. 그래서 고정 예제 하나로 세 경로를 대조했다. x402 Go SDK의 <code>ComputePayerAgnosticPaymentInfoHash</code>, 메인넷 v1.1 에스크로에 대한 <code>getHash</code> 호출, 그리고 <code>cast</code>로 스펙 공식을 직접 계산한 salt 바인딩이다. 세 값은 모두 일치했다. 실제 payer를 넣은 <code>paymentInfoHash</code>도 SDK와 온체인이 같았다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 서명 하나가 운영자·수취인·만료·수수료 범위·salt까지 묶는다는 설계 주장이 적어도 이 구현 쌍에서는 실제로 성립한다.</p>
+<h2>3. 위층: auth-capture v1.1</h2>
+<h3>3.1 흐름 두 가지와 마감 두 개</h3>
+<p>v1.1 일반 스펙은 결제 흐름을 <code>extra.paymentFlow</code>로 고르게 한다. 기본값인 <code>escrow</code>는 리소스 실행 전에 <code>authorize</code>로 자금을 묶고, 실행 뒤 <code>capture</code>나 <code>void</code>를 하며, <code>refund</code>는 그 뒤에 한다. <code>authorization</code>은 리소스를 실행한 다음 <code>charge</code>로 한 번에 정산하므로 hold가 없고 <code>capture</code>·<code>void</code>·<code>reclaim</code>도 없다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 이후의 생명주기 연산은 새 엔드포인트 없이 <code>/settle</code> 페이로드의 <code>type</code>으로 구분한다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. EVM 바인딩은 여기에 <code>captureMode</code>(<code>sync</code> 또는 <code>deferred</code>)를 더하고 v1.0의 <code>autoCapture</code>를 없앴다. TypeScript SDK는 <code>autoCapture</code>가 들어오면 거부한다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p>구매자 보호의 실체는 두 마감 시각이다. <code>captureDeadline</code>은 캡처가 가능한 마지막 순간이자 구매자의 <code>reclaim</code>이 열리는 순간이다. <code>refundDeadline</code>은 환불의 마지막 순간이다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 서버가 결제를 방치해도 마감이 지나면 자금이 풀린다는 것이 스펙의 표현이다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 거꾸로 말하면 그 전까지는 구매자가 혼자 꺼낼 길이 없다.</p>
+<h3>3.2 운영자 유형은 신뢰의 위치를 고르는 일이다</h3>
+<p>v1.1의 가장 큰 추가는 <code>extra.operatorType</code>이다. 에스크로가 <code>msg.sender</code>로 받아들이는 유일한 주소(<code>captureAuthorizer</code>, 온체인 <code>PaymentInfo.operator</code>)를 누가 쥐느냐에 따라 세 가지가 갈린다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<pre class="mermaid">flowchart TD
+  Q{captureAuthorizer는 누구인가} --&gt;|페이실리테이터 자신| D[delegated]
+  Q --&gt;|운영자 컨트랙트| C[custom]
+  Q --&gt;|정책 컨트랙트를 읽는 운영자| P[policy&lt;br/&gt;예약됨, 미배포]
+  D --&gt;|receiverAuthorizer 없음| D0[authorize만 중계&lt;br/&gt;이후는 대역 밖]
+  D --&gt;|receiverAuthorizer 있음| D1[전체 생명주기 중계&lt;br/&gt;서명 검사는 페이실리테이터만]
+  C --&gt; C1[collect만 중계&lt;br/&gt;capture/void/refund는 운영자 SDK로]
+  P --&gt; P1[서명과 잔액 스냅샷을&lt;br/&gt;온체인에서 검사]</pre>
+<p><em>그림 1 — auth-capture v1.1 EVM 바인딩의 운영자 유형. 위에서 아래로 갈수록 페이실리테이터에 대한 신뢰가 줄고, 프로토콜 밖으로 나가는 일이 늘어난다. policy는 스펙 부록에만 있다.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></em></p>
+<p><code>delegated</code>에서 수신 측 승인자(<code>receiverAuthorizer</code>)를 두면 페이실리테이터가 capture·void·refund까지 중계한다. 스펙은 이때 서버가 잃는 것을 숨기지 않는다. "온체인에서는 아무것도 승인자 서명을 요구하지 않으므로 페이실리테이터 자신의 검증이 유일한 관문"이고, 클라이언트가 서명한 상한과 수수료 범위, 마감 후 <code>reclaim</code>의 테두리 안에서 그것은 "증명이 아닌 신뢰"다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. 수수료도 같다. delegated 서버가 실제로 노출되는 한도는 서명한 수수료와 무관하게 <code>maxFeeBps</code>이므로, 스펙은 고정 수수료(<code>minFeeBps == maxFeeBps</code>)를 권하고 범위를 공시하는 것은 "그 재량을 넘겨주는 것"이라고 적는다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p><code>custom</code>은 반대쪽 끝이다. 페이실리테이터는 collect 한 번만 중계하고, 그 뒤는 서버와 운영자 컨트랙트 사이의 일이다. 시간 잠금, 동결 기간, 중재 같은 규칙은 운영자가 마음대로 붙일 수 있지만, 페이실리테이터는 이를 중계하지도 검증하지도 않는다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. 대신 페이실리테이터는 검토하지 않은 코드로 중계하는 셈이다. 그래서 가스 상한을 직접 정해야 하고, 시뮬레이션이 되돌려지지 않았다는 것만으로는 부족하고, 정해진 이벤트·상태 전이·토큰 이동이 실제로 일어났는지까지 확인해야 한다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p><code>policy</code>는 둘 사이를 메우려는 셋째 유형이다. 운영자 컨트랙트가 승인자 서명과 잔액을 온체인에서 검사하고, 별도 정책 컨트랙트의 읽기 전용 훅으로 조건을 건다. 정책 주소가 salt에 들어가므로 구매자는 서명 시점에 어떤 규칙이 자기 돈을 다룰지 알 수 있다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. 다만 지금은 예약된 값이다. 부록의 Solidity는 "감사받거나 배포된 코드가 아니라 미래의 추가를 보여주는 예시"다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<h3>3.3 nonce 없는 1회성, 그리고 환불 자금</h3>
+<p>capture와 refund는 반복할 수 있으므로 서버의 동의 서명이 재사용되면 안 된다. v1.1은 nonce 저장소를 두지 않는다. 대신 서명에 그 시점의 기대 잔액 <code>(capturableAmount, refundableAmount)</code> 쌍을 넣고, 페이실리테이터가 온체인 <code>paymentState</code>와 비교한다. 환불 뒤에는 두 잔액의 합이 줄고 다시 늘지 않으므로 같은 쌍이 반복되지 않는다. 스펙의 표현으로는 "결제 자신의 상태가 재사용 방지 키"다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. 다만 delegated에서는 이 비교가 페이실리테이터에서만 일어나서, 확인과 블록 포함 사이에 상태가 바뀔 수 있다. 스펙도 이를 "최선 노력"이라 부른다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p>환불 자금은 구조적으로 어색한 자리다. 환불용 컬렉터는 <code>PaymentInfo.operator</code>에서 토큰을 끌어온다. delegated에서는 그 운영자가 페이실리테이터이므로 페이실리테이터가 돈의 출처가 된다. 그래서 스펙은 수취인과 별도 자금 계약이 없으면 delegated 환불을 거부하라고 요구한다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. 운영자와 승인자를 모두 페이실리테이터에 맡긴 결제는 <code>refundDeadline</code>까지 그 페이실리테이터에 "갇힌다"는 경고도 있다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<h2>4. 무엇이 출하됐는가</h2>
+<h3>4.1 코드는 있고 릴리스는 없다</h3>
+<p>Go 서버·페이실리테이터는 2026년 10월 5일(PR #3622), TypeScript v1.1 SDK는 10월 6일(PR #3203) main에 병합됐다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. 그러나 10월 23일 기준 npm의 <code>@x402/evm</code> 최신판은 9월 29일에 나온 2.28.0이고, 그 패키지에는 <code>auth-capture/client</code>만 들어 있다. 두 병합 커밋을 포함하는 릴리스 태그도 없다. Go 변경 기록도 아직 <code>unreleased</code> 폴더에 있다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 저장소에서 빌드한 Go auth-capture 패키지 네 개(루트, client, facilitator, server)의 테스트는 모두 통과했다. 코드는 동작하지만 정식 배포 경로에는 아직 실리지 않은 상태다.</p>
+<p>공식 문서는 한발 앞서 있다. 스킴 개요는 이제 auth-capture를 "자금을 에스크로에 보관했다가 풀어주는 환불 가능 결제"라는 네 번째 스킴으로 소개하고, SDK 기능 표는 auth-capture를 TypeScript·Go 지원, Python 미지원으로 표시한다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. 이 표는 역할별로 나뉘어 있지 않다. 그래서 npm 사용자가 표만 보고 서버를 붙이려 하면 배포판에 그 코드가 없는 상황을 만나게 된다.</p>
+<p>페이실리테이터 쪽도 비어 있다. 10월 23일 공개 <code>/supported</code>를 직접 조회해 보니 x402.org는 exact·upto·batch-settlement, PayAI는 exact·batch-settlement, x402.rs는 exact·upto만 광고했다. Coinbase CDP 페이실리테이터는 인증이 필요해 확인하지 못했다<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> <em>(unverified — single source)</em>.</p>
+<h3>4.2 Coinbase Business: 이미 돌아가는 auth-capture</h3>
+<p>오픈소스 경로가 비어 있는 동안 auth-capture를 실제로 쓰는 곳은 Coinbase 자신이다. Coinbase Business 체크아웃의 <code>x402_url</code>은 "EVM <code>auth-capture</code> 스킴을 광고"하고, <code>exact</code>만 아는 클라이언트는 결제할 수 없다. 결제는 Base에서 가스 없는 USDC 승인으로 이뤄지며, "Coinbase가 서버 쪽에서 캡처하고 정산한다"<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. 판매자 서비스는 결제 서명을 직접 검증하지 않는다. 판단 근거는 웹훅과 체크아웃 상태 <code>COMPLETED</code>이고, "캡처와 웹훅 전달에는 몇 초가 걸린다"<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. 환불 재원은 "판매자 자신의 Coinbase Business USDC 잔액"이다<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. The Paypers는 2026년 7월 28일 이 기능을 판매자 쪽 추가 설정이 필요 없는 에이전트 결제로 보도했다<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>.</p>
+<pre class="mermaid">sequenceDiagram
+  participant A as 에이전트
+  participant M as 판매자 서버
+  participant CB as Coinbase&lt;br/&gt;(x402_url, 운영자)
+  participant E as AuthCaptureEscrow&lt;br/&gt;(Base)
+  M-&gt;&gt;CB: 체크아웃 생성
+  CB--&gt;&gt;M: x402_url
+  A-&gt;&gt;CB: POST x402_url
+  CB--&gt;&gt;A: 402 PAYMENT-REQUIRED&lt;br/&gt;(scheme auth-capture)
+  A-&gt;&gt;A: ERC-3009 서명&lt;br/&gt;(nonce = 결제 조건 해시)
+  A-&gt;&gt;CB: PAYMENT-SIGNATURE
+  CB-&gt;&gt;E: authorize
+  CB--&gt;&gt;A: 200 (승인됨, 아직 정산 아님)
+  CB-&gt;&gt;E: capture (수 초 내)
+  CB--&gt;&gt;M: 웹훅, 상태 COMPLETED
+  Note over M,CB: 환불은 판매자의 Coinbase&lt;br/&gt;USDC 잔액에서, 비동기</pre>
+<p><em>그림 2 — Coinbase Business 체크아웃의 에이전트 결제. 판매자는 서명을 보지 않고 웹훅만 받는다. 어떤 에스크로 배포와 운영자 유형을 쓰는지는 문서에 나오지 않는다.<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup></em></p>
+<h3>4.3 체인 위에서는 어떻게 쓰이는가</h3>
+<p>Base 메인넷의 두 에스크로에서 2026년 10월 16일부터 23일까지 7일치(블록 52,669,988~52,972,388) 이벤트를 공개 RPC로 모두 받아 집계했다. 스크립트와 결과는 <code>working/verify/</code>에 있고, 운영자 주소는 A~G로 가렸다<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>.</p>
+<table><thead><tr><th>항목</th><th>v1.0 에스크로</th><th>v1.1 에스크로</th></tr></thead><tbody><tr><td>authorize / charge</td><td>15,791 / 120</td><td>20 / 0</td></tr><tr><td>승인·청구 금액</td><td>1,633,946 + 62,081 USDC</td><td>0.02 USDC</td></tr><tr><td>capture / void / refund</td><td>15,646 / 73 / 39</td><td>16 / 4 / 0</td></tr><tr><td>지급인 / 수취인 / 운영자</td><td>2,663 / 376 / 4</td><td>각 운영자당 1명 / 1 / 3</td></tr><tr><td>토큰 컬렉터</td><td>전부 ERC-3009</td><td>전부 ERC-3009</td></tr></tbody></table>
+<p><em>표 1 — 7일간 CPP 에스크로 이벤트(필자 측정)<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup></em></p>
+<p>몇 가지가 바로 보인다. 첫째, x402 스펙이 기본으로 삼는 v1.1 배포에는 사실상 시험 거래만 있다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. 운영 트래픽은 모두 v1.0에 있다. 이 트래픽이 x402를 거치는지는 알 수 없지만, 거친다면 이전이 간단하지 않다. 스펙상 x402 스킴 v1.0용으로 만든 클라이언트는 v1.1 에스크로로 수금하는 서버에 결제할 수 없기 때문이다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p>둘째, 집중도가 높다. 운영자 A 하나가 결제의 89.2%(14,193건), 지급인 2,491명, 수취인 53곳을 처리했다. 이 운영자가 캡처한 결제 14,192건 중 14,191건이 승인 후 10초 안에 캡처됐고, 전체 중앙값은 4초(블록 두 개)였다<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. 반면 이 운영자가 설정한 캡처 마감까지의 기간은 중앙값 364일이다. 자금이 실제로 묶이는 시간은 몇 초인데, 운영자가 멈췄을 때 구매자가 <code>reclaim</code>으로 직접 돈을 꺼내려면 1년 가까이 기다려야 한다.</p>
+<p>셋째, 되돌림은 드물다. void는 15,449 USDC(승인액의 0.95%), 환불은 39건 640 USDC였다<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. 수수료 상한은 86%가 100bps 고정(min=max)이었고 125bps 고정과 0이 뒤를 이었다. 스펙이 delegated 서버에 권하는 고정 수수료 방식이 실제로도 주류다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>.</p>
+<p>운영자 C는 다르게 움직인다. 321건이 모두 서로 다른 수취인이었고, 금액 중앙값은 약 100 USDC, 캡처 마감은 6일이었다. 캡처된 178건 중 10초 안에 캡처된 것은 130건이었다<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. 배송 뒤 캡처라는 원래의 승인-캡처 용법에 가까운 패턴이다. 다만 이 운영자들이 누구인지, 그리고 이 중 몇 건이 x402를 거쳤는지는 체인 데이터만으로 알 수 없다. 모든 결제가 같은 ERC-3009 컬렉터를 쓰기 때문이다. Coinbase Business의 "수 초 내 캡처" 서술과 운영자 A의 4초 패턴이 비슷해 보이는 것도 정황일 뿐이며, 이 보고서는 둘을 연결하지 않는다.</p>
+<h2>5. 에이전트 커머스 지형 안의 x402</h2>
+<p>에이전트 결제를 둘러싼 다른 두 표준은 되돌림을 프로토콜 밖에 둔다. Stripe·OpenAI·Meta의 Agentic Commerce Protocol(ACP)은 체크아웃, 장바구니, 위임 결제, 주문 웹훅을 정의한다<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>. 위임 결제 토큰은 "위임 결제의 최대 금액과 만료로 제한"되지만, "정산, 환불, 차지백, 컴플라이언스는 판매자와 그 PSP에 남는다"<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. Google의 AP2는 체크아웃 mandate와 결제 mandate로 사용자의 허락을 서명된 증거로 남기고, 그 기록이 "분쟁 해결에 도움이 되는 부인 불가능한 감사 추적"이 된다고 말한다. x402는 예시 시나리오에서 결제 수단으로 등장한다<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>. A2A용 x402 확장은 v0.1 스펙이며, 흐름은 판매자가 "검증하고 온체인에서 정산하는" 데서 끝난다<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>.</p>
+<p>이 비교에서 x402 auth-capture의 자리는 분명해진다. ACP와 AP2는 누가 무엇을 허락했는지를 증명하고, 돈을 되돌리는 일은 카드망이나 PSP에 맡긴다. auth-capture는 그 되돌림 자체를 컨트랙트로 옮긴다. 상한, 수수료 범위, 마감, 구매자의 일방적 <code>reclaim</code>이 서명 하나에 묶인다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 카드 결제에서 발급사가 쥐던 보호 장치를 스테이블코인 결제에서는 만료 시각과 운영자 선택이 맡는 셈이다. 그리고 4.3절의 관측은 그 보호의 실제 강도를 정하는 것이 운영자 설정(364일 마감, 4초 캡처)이라는 것을 보여 준다.</p>
+<p>수요는 아직 의문이다. CoinDesk는 2026년 3월 Artemis 분석을 인용해 x402 거래가 하루 약 13만 1천 건, 약 2만 8천 달러 규모이고 "약 절반이 인위적 활동"으로 보인다고 보도했다<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup> <em>(unverified — single source)</em>. 같은 시기 x402 전체의 하루 거래액과 비교하면, 이번 주 CPP v1.0 에스크로의 하루 평균 약 24만 USDC<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>는 작지 않다. 그러나 그 결제가 x402에서 온 것인지 확인할 수 없으므로 두 수치를 이어 해석하지는 않는다.</p>
+<p>검증 단계를 커머스에 붙이려는 시도도 있었다. auth-capture 위에 "검증 통과 시 capture, 실패 시 void" 규칙을 얹자는 PR #3066은 닫혔다. 리뷰는 "검증과 정산을 한 엔진에 합치면 판매자 측 지정인이 자기 일을 스스로 검증할 수 있게 된다"는 이해충돌을 지적했다<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup>. v1.1이 예약한 <code>policy</code> 유형은 이 문제에 대한 스펙 쪽의 답으로 읽힌다. 조건을 판단하는 정책 컨트랙트를 서명 시점에 고정하고, 그 정책을 운영자가 아닌 온체인 훅이 집행하는 방식이다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<h2>6. 논의</h2>
+<p><strong>기본 경로가 가장 신뢰를 많이 요구한다.</strong> 페이실리테이터를 운영자로 쓰는 <code>delegated</code>는 operatorType의 기본값이다. 생명주기 전체를 페이실리테이터가 중계하는 가장 편한 경로이기도 하다. 그리고 스펙 스스로 이 경로의 보호를 "증명이 아닌 신뢰"라고 쓴다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. 신뢰가 필요 없는 <code>policy</code>는 아직 예약 상태다. 에이전트가 자율적으로 서명하는 환경이라면, 서버 운영자는 수수료를 고정으로 공시하고 마감 값을 정책으로 정해 두는 것이 스펙이 남겨 둔 유일한 방어선이다.</p>
+<p><strong>마감 시각이 구매자 보호의 실제 크기다.</strong> 컨트랙트는 마감 후 <code>reclaim</code>을 보장하지만 마감을 얼마로 둘지는 운영자가 정한다. 관측된 최대 운영자는 364일을 썼다<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. 자금이 4초 만에 캡처되는 한 이 값은 거의 드러나지 않는다. 운영자가 멈추거나 수취인이 USDC 거부목록에 오르면<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, 구매자가 혼자 꺼낼 수 있는 시점은 1년 뒤가 된다. 에이전트에게 결제를 맡기는 사용자라면 서명 전에 이 값을 보여 주는 지갑 UX가 필요하다.</p>
+<p><strong>환불은 여전히 누군가의 잔액에서 나온다.</strong> 프로토콜 수준에서 환불 컬렉터는 운영자에게서 돈을 끌어온다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Coinbase Business는 판매자 잔액을 쓴다<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. 그렇다면 auth-capture가 카드망과 실제로 다른 점은 capture 이전 구간, 즉 void와 reclaim에 있다. 관측 주간에는 그 구간이 대부분 4초였다<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>.</p>
+<p><strong>채택의 병목은 스펙이 아니라 배포다.</strong> 스펙, 문서, 코드, 테스트는 모두 있다. 빠진 것은 npm·Go 릴리스, 공개 페이실리테이터의 광고, 그리고 v1.0에서 v1.1로의 이전이다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. 이 셋이 채워지기 전까지 오픈소스 x402로 커머스 결제를 받는 길은 main 브랜치를 직접 빌드하거나 CPP를 직접 호출하는 것뿐이다. 그 사이 Coinbase Business처럼 운영자를 겸하는 사업자가 실사용을 먼저 가져가고 있다.</p>
+<h2>7. 한계</h2>
+<ul>
+<li>온체인 측정은 7일 한 주이며, 운영자 주소가 어느 회사인지는 공개 1차 자료로 확인하지 못해 익명으로 다뤘다. x402 경유분은 구분할 수 없다.</li>
+<li>Coinbase Business가 어느 에스크로 배포와 어떤 operatorType을 쓰는지는 공개 문서에 없고, 계정 없이는 <code>x402_url</code>을 받을 수 없어 직접 확인하지 못했다.</li>
+<li>CDP 페이실리테이터의 <code>/supported</code>는 인증이 필요해 조회하지 못했다. 공개 페이실리테이터 확인은 세 곳에 대한 한 시점의 조회다.</li>
+<li>테스트 통과와 해시 일치는 저장소의 테스트와 고정 예제 하나에 대한 확인이며, 컨트랙트 전체 감사나 SDK 전체 검증이 아니다. TypeScript SDK는 대조하지 않았다.</li>
+<li>auth-capture v1.1은 변경 기록이 "proposed spec"이라 부르는 단계에 있어 필드와 오류 코드가 바뀔 수 있다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. policy 유형은 설계만 있다.</li>
+<li>x402 전체 수요와 인위적 거래 비율은 CoinDesk(Artemis) 단일 보도에 의존한다. AP2·A2A 확장은 공개 페이지와 README 수준까지만 확인했다.</li>
+<li>Coinbase Business의 출시 날짜는 보도마다 7월 23일, 7월 28일, 8월 11일로 다르다. 본문은 확인한 The Paypers 기사(7월 28일)만 인용했다.</li>
+</ul>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Erik Reppel, Ronnie Caspers, Kevin Leffew, Danny Organ, Dan Kim, Nemil Dalal</span>. <a href="https://x402.org/wp-content/uploads/sites/10/2026/06/x402-whitepaper.pdf">x402: An open standard for internet-native payments (whitepaper)</a>. <span class="venue">Coinbase Developer Platform, 2025</span>. <span class="accessed">접근일 2026-10-23.</span></li>
+      <li id="ref-2"><span class="authors">Behnam Mohammadkhani, Atul Khekade, Ritesh Kakkad</span>. <a href="https://arxiv.org/abs/2609.02208">Agentic Settlement Protocol: An Application Profile for Refundable, Delayed-Fulfilment Agent Commerce on Stablecoin Rails</a>. <span class="venue">arXiv, 2026</span>. <span class="accessed">접근일 2026-10-23.</span></li>
+      <li id="ref-3"><span class="authors">phdargen, A1igator</span>. <a href="https://github.com/x402-foundation/x402/blob/main/specs/schemes/auth-capture/scheme_auth_capture.md">Scheme: auth-capture (network-agnostic spec, v1.1)</a>. <span class="venue">x402 Foundation (GitHub), 2026</span>. <span class="accessed">접근일 2026-10-23.</span></li>
+      <li id="ref-4"><span class="authors">Base</span>. <a href="https://base.org/blog/commerce-payments-protocol">Engineering the Commerce Payments Protocol Powering Shopify</a>. <span class="venue">base.org, 2025</span>. <span class="accessed">접근일 2026-10-23.</span></li>
+      <li id="ref-5"><span class="authors">Shopify Engineering</span>. <a href="https://shopify.engineering/commerce-payments-protocol">Introducing the commerce payments protocol</a>. <span class="venue">shopify.engineering, 2025</span>. <span class="accessed">접근일 2026-10-23.</span></li>
+      <li id="ref-6"><span class="authors">Base</span>. <a href="https://github.com/base/commerce-payments/blob/main/docs/Security.md">Commerce Payments Protocol: Security Analysis</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">접근일 2026-10-23.</span></li>
+      <li id="ref-7"><span class="authors">Base</span>. <a href="https://github.com/base/commerce-payments">base/commerce-payments: Commerce Payments Protocol (README, v1.1.0)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-10-23.</span></li>
+      <li id="ref-8"><span class="authors">phdargen, A1igator</span>. <a href="https://github.com/x402-foundation/x402/blob/main/specs/schemes/auth-capture/scheme_auth_capture_evm.md">Scheme: auth-capture on EVM (binding spec, v1.1)</a>. <span class="venue">x402 Foundation (GitHub), 2026</span>. <span class="accessed">접근일 2026-10-23.</span></li>
+      <li id="ref-9"><span class="authors">phdargen</span>. <a href="https://github.com/x402-foundation/x402/pull/3203">feat(ts): auth capture sdk v1.1 (PR #3203)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-10-23.</span></li>
+      <li id="ref-10"><span class="authors">CarsonRoscoe</span>. <a href="https://github.com/x402-foundation/x402/pull/3622">feat: add EVM auth capture to go server &amp; facilitator SDKs (PR #3622)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-10-23.</span></li>
+      <li id="ref-11"><span class="authors">x402 Foundation</span>. <a href="https://www.npmjs.com/package/@x402/evm">@x402/evm on npm (latest 2.28.0)</a>. <span class="venue">npm, 2026</span>. <span class="accessed">접근일 2026-10-23.</span></li>
+      <li id="ref-12"><span class="authors">x402 Foundation</span>. <a href="https://docs.x402.org/schemes/overview">x402 docs: Schemes overview</a>. <span class="venue">docs.x402.org, 2026</span>. <span class="accessed">접근일 2026-10-23.</span></li>
+      <li id="ref-13"><span class="authors">x402 Foundation</span>. <a href="https://docs.x402.org/sdk-features">x402 docs: SDK features</a>. <span class="venue">docs.x402.org, 2026</span>. <span class="accessed">접근일 2026-10-23.</span></li>
+      <li id="ref-14"><span class="authors">x402 Foundation</span>. <a href="https://x402.org/facilitator/supported">x402.org facilitator /supported (and payai, x402.rs facilitators)</a>. <span class="venue">x402.org, 2026</span>. <span class="accessed">접근일 2026-10-23.</span></li>
+      <li id="ref-15"><span class="authors">Coinbase Developer Platform</span>. <a href="https://docs.cdp.coinbase.com/coinbase-business/checkout-apis/accept-x402-payments">Accept Agentic Payments with x402 (Coinbase Business Checkout APIs)</a>. <span class="venue">docs.cdp.coinbase.com, 2026</span>. <span class="accessed">접근일 2026-10-23.</span></li>
+      <li id="ref-16"><span class="authors">Coinbase Developer Platform</span>. <a href="https://docs.cdp.coinbase.com/coinbase-business/checkout-apis/x402-api-integration">x402 API integration (Coinbase Business Checkout APIs)</a>. <span class="venue">docs.cdp.coinbase.com, 2026</span>. <span class="accessed">접근일 2026-10-23.</span></li>
+      <li id="ref-17"><span class="authors">Sinziana Albu</span>. <a href="https://thepaypers.com/crypto-web3-and-cbdc/news/coinbase-enables-businesses-to-accept-payments-from-ai-agents">Coinbase enables businesses to accept payments from AI agents</a>. <span class="venue">The Paypers, 2026</span>. <span class="accessed">접근일 2026-10-23.</span></li>
+      <li id="ref-18"><span class="authors">Base (onchain data)</span>. <a href="https://basescan.org/address/0xBdEA0D1bcC5966192B070Fdf62aB4EF5b4420cff">AuthCaptureEscrow v1.0 and v1.1 on Base: 7-day event census (author measurement)</a>. <span class="venue">Base mainnet via public RPC, 2026</span>. <span class="accessed">접근일 2026-10-23.</span></li>
+      <li id="ref-19"><span class="authors">Stripe</span>. <a href="https://docs.stripe.com/agentic-commerce/protocols/acp">Agentic Commerce Protocol (Stripe docs)</a>. <span class="venue">docs.stripe.com, 2026</span>. <span class="accessed">접근일 2026-10-23.</span></li>
+      <li id="ref-20"><span class="authors">OpenAI</span>. <a href="https://developers.openai.com/commerce/specs/payment">Delegated Payment Spec (Agentic Commerce Protocol)</a>. <span class="venue">developers.openai.com, 2025</span>. <span class="accessed">접근일 2026-10-23.</span></li>
+      <li id="ref-21"><span class="authors">Google</span>. <a href="https://ap2-protocol.org/">Agent Payments Protocol (AP2)</a>. <span class="venue">ap2-protocol.org, 2025</span>. <span class="accessed">접근일 2026-10-23.</span></li>
+      <li id="ref-22"><span class="authors">google-agentic-commerce</span>. <a href="https://github.com/google-agentic-commerce/a2a-x402">A2A x402 Extension</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">접근일 2026-10-23.</span></li>
+      <li id="ref-23"><span class="authors">CoinDesk</span>. <a href="https://www.coindesk.com/markets/2026/03/11/coinbase-backed-ai-payments-protocol-wants-to-fix-micropayment-but-demand-is-just-not-there-yet">Coinbase-backed AI payments protocol wants to fix micropayment but demand is just not there yet</a>. <span class="venue">CoinDesk, 2026</span>. <span class="accessed">접근일 2026-10-23.</span></li>
+      <li id="ref-24"><span class="authors">jihadMo</span>. <a href="https://github.com/x402-foundation/x402/pull/3066">docs(spec): add verification-gated release policy profile for auth-capture (PR #3066)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-10-23.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-10-23 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

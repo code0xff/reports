@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>x402 in Agentic Commerce — auth-capture and the Commerce Payments Protocol — Deepsearch</title>
+<meta name="description" content="A scheme that puts reversal in a contract, SDKs merged but unreleased, and an escrow that on chain mostly closes in four seconds">
+<link rel="canonical" href="https://code0xff.github.io/reports/x402-agentic-commerce/en/">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="x402 in Agentic Commerce — auth-capture and the Commerce Payments Protocol">
+<meta property="og:description" content="A scheme that puts reversal in a contract, SDKs merged but unreleased, and an escrow that on chain mostly closes in four seconds">
+<meta property="og:url" content="https://code0xff.github.io/reports/x402-agentic-commerce/en/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="x402 in Agentic Commerce — auth-capture and the Commerce Payments Protocol">
+<meta name="twitter:description" content="A scheme that puts reversal in a contract, SDKs merged but unreleased, and an escrow that on chain mostly closes in four seconds">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>x402 in Agentic Commerce — auth-capture and the Commerce Payments Protocol</h1>
+    <p class="subtitle">A scheme that puts reversal in a contract, SDKs merged but unreleased, and an escrow that on chain mostly closes in four seconds</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-10-23</span>
+      <span><strong>Tags</strong> x402, auth-capture, commerce-payments, agentic-commerce, escrow, base, acp, ap2</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="x402-agentic-commerce.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>x402 was pitched in its 2025 whitepaper as irreversible by design: "No chargebacks, no fraud risks, no intermediaries"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. That suits a per-call API fee. It fails an agent buying goods on a person's behalf, and x402's response is the <code>auth-capture</code> scheme, which layers refundability onto the Commerce Payments Protocol (CPP) escrow that Coinbase and Shopify deployed on Base<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. This report reads both repositories and the official documentation, and it measures a week of the escrows' events on Base mainnet. The lower layer holds up. CPP carries six audits, all 115 tests in its v1.1.0 suite pass locally, and the signature nonce computed by the x402 Go SDK matches the live escrow's <code>getHash</code> byte for byte<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. In a month the upper layer grew to v1.1, with two payment flows and two operator types, plus a third that is reserved. The spec itself calls the protection on its default, facilitator-as-operator path "trust, not proof"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The server and facilitator SDKs merged in early October, yet as of 23 October no release contains them and no public facilitator advertises the scheme<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. Real use sits elsewhere. Coinbase Business checkouts already take agent payments over auth-capture, with Coinbase capturing within seconds<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. On chain, the v1.0 escrow moved about 1.7 million USDC in seven days, one operator handled 89% of it, and the median time from authorization to capture was four seconds<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. In practice the escrow mostly serves as a reversible instant payment, and holds that last until delivery are the exception. ACP and AP2 leave refunds and disputes to PSPs or to an audit trail<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>; auth-capture puts the reversal in a contract, and that is the part of agentic commerce x402 can claim.</p>
+  </section>
+
+  <main class="body">
+<h2>1. Introduction</h2>
+<p>The x402 whitepaper, dated May 2025, promised settlement "in ∼200ms" with "No rolling chargeback windows". Its comparison table marks x402's chargeback risk as "No - not reversible"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. For a seller charging cents per request, finality is the product.</p>
+<p>A shopping agent needs the opposite. A September 2026 arXiv paper puts it plainly: x402's model is "atomic and final", which "suits metered access and fails commerce", because a purchase made for a person "is large, frequently cancelled, and should not become the seller money until delivery"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The x402 repository's own spec frames <code>auth-capture</code> the same way. Where <code>exact</code> "moves a fixed amount once and offers no way to give it back", auth-capture covers payments whose final amount is unknown at authorization "or which may later need to be undone"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>This site covered <a href="../../x402-auth-capture-commerce-payments/en/">the same two repositories</a> on 22 September 2026, when x402 shipped only a client and the docs did not list the scheme. This report follows the month since. It asks three things. Do the contracts and the SDK actually agree? What has shipped? And how is the escrow used on chain?</p>
+<h2>2. The lower layer: Commerce Payments Protocol</h2>
+<h3>2.1 Designed so the operator need not be trusted</h3>
+<p>Coinbase and Shopify announced CPP on 12 June 2025. It brings the card-network two-step on chain, "first locking buyer funds (authorize), then disbursing them to the merchant (capture)". It also introduces "a new role called an operator" to move funds between the parties<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. Shopify's motivating case is split shipments: "Captures can be made in multiple partial increments to support merchants that may fulfill goods in multiple deliveries"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<p>The security write-up is candid about the operator's limits. An operator "cannot steal funds from the protocol". However, it can "censor payments by failing to move a payment through its lifecycle or by prematurely voiding payments". At worst it can "siphon the maximum configurable fee rate to an address of their choosing"<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Escrowed funds are split across per-operator <code>TokenStore</code> contracts at addresses derived from each operator. A bug in the singleton escrow therefore cannot drain other operators' liquidity. The document also concedes that a USDC-denylisted receiver or fee receiver can leave an authorized payment uncapturable<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<h3>2.2 Audits, and re-running the tests</h3>
+<p>The previous report could not settle whether CPP had five audits or six. The README's audit table and the files in <code>audits/</code> agree on six. Coinbase Protocol Security ran three in March and April 2025, and Spearbit ran two in April 2025. The sixth is a Spearbit review of the v1.1.0 rounding and billing change, dated 22 July 2026<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<p>At the v1.1.0 commit (<code>b748fdd</code>), <code>forge test</code> passes 112 of 113. The one failure is a missing Base fork RPC variable. Pointing that suite at a public RPC makes its three fork tests pass as well; they cover Coinbase Smart Wallet over ERC-3009, spend permissions, and a plain EOA<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. A green suite proves only what the suite checks, and no more is claimed here.</p>
+<h3>2.3 Do the SDK and the contract hash the same thing?</h3>
+<p>auth-capture rests on putting a hash of the whole payment into the client's ERC-3009 nonce. The spec defines that nonce as <code>keccak256(abi.encode(chainId, escrow, payer-zeroed PaymentInfo hash))</code><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. That is exactly what the escrow's <code>getHash</code> returns when given a zero payer, so a fixed fixture was run three ways. The first was the x402 Go SDK's <code>ComputePayerAgnosticPaymentInfoHash</code>. The second was an <code>eth_call</code> to <code>getHash</code> on the live v1.1 escrow, and the third was the salt binding recomputed with <code>cast</code> straight from the spec formula. All three agreed, and so did the real-payer <code>paymentInfoHash</code><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. The design claims that one signature commits to operator, receiver, deadlines, fee range and salt. For this pair of implementations, the claim holds.</p>
+<h2>3. The upper layer: auth-capture v1.1</h2>
+<h3>3.1 Two flows, two deadlines</h3>
+<p>v1.1 picks a lifecycle with <code>extra.paymentFlow</code>. The default, <code>escrow</code>, places a hold with <code>authorize</code> before the resource runs, then <code>capture</code> or <code>void</code> afterwards, and <code>refund</code> later still. <code>authorization</code> settles with a single <code>charge</code> after the resource runs, so there is no hold and no <code>capture</code>, <code>void</code> or <code>reclaim</code><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Later operations ride the existing <code>/settle</code> call, named by <code>payload.type</code>, with "no new facilitator endpoint"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. The EVM binding adds <code>captureMode</code> (<code>sync</code> or <code>deferred</code>) and removes v1.0's <code>autoCapture</code>, which the TypeScript SDK now rejects outright<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>.</p>
+<p>What protects the buyer is two timestamps. <code>captureDeadline</code> is the last moment to capture and the moment <code>reclaim</code> opens to the payer. <code>refundDeadline</code> closes refunds<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. The spec's promise is that "a resource server that abandons a payment cannot strand it forever"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Until the first deadline passes, though, the buyer has no way out alone.</p>
+<h3>3.2 Operator types choose where the trust sits</h3>
+<p>The headline addition is <code>extra.operatorType</code>. The escrow accepts exactly one <code>msg.sender</code> per payment, the <code>captureAuthorizer</code> committed as <code>PaymentInfo.operator</code>. Who holds that address decides the rest<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<pre class="mermaid">flowchart TD
+  Q{Who is captureAuthorizer} --&gt;|the facilitator itself| D[delegated]
+  Q --&gt;|an operator contract| C[custom]
+  Q --&gt;|an operator that consults a policy| P[policy&lt;br/&gt;reserved, not deployed]
+  D --&gt;|no receiverAuthorizer| D0[relays authorize only&lt;br/&gt;lifecycle out of band]
+  D --&gt;|with receiverAuthorizer| D1[relays full lifecycle&lt;br/&gt;only the facilitator checks signatures]
+  C --&gt; C1[relays collect only&lt;br/&gt;capture/void/refund via operator SDK]
+  P --&gt; P1[signatures and balance snapshots&lt;br/&gt;checked onchain]</pre>
+<p><em>Figure 1 — Operator types in the auth-capture v1.1 EVM binding. Moving down, less is entrusted to the facilitator and more happens outside the protocol. <code>policy</code> exists only in the spec's appendix.<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup></em></p>
+<p>Under <code>delegated</code> with a receiver authorizer, the facilitator relays capture, void and refund. The spec says plainly what the server gives up. "nothing onchain requires an authorizer signature", so "the facilitator's own verification is the only gate". Within the client-signed ceiling, the fee bounds and post-deadline <code>reclaim</code>, "it is trust, not proof"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Fees follow the same logic. A delegated server is exposed to <code>maxFeeBps</code> whatever it signs, so the spec recommends a fixed fee (<code>minFeeBps == maxFeeBps</code>). It warns that "publishing a range is granting the discretion, not reserving it"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p><code>custom</code> sits at the other end. The facilitator relays one collect call and nothing more. Time locks, freeze windows and arbitration are the operator contract's business, and the facilitator neither relays nor validates them<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. The facilitator is now calling into code it has not reviewed, so it must cap the gas itself. It must also assert in simulation that the expected escrow event, state transition and token movements actually occurred. A call that merely did not revert is not enough<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p><code>policy</code> is meant to close the gap. An operator contract verifies the authorizer's signature and the balance snapshot on chain, and it consults a separate policy contract through read-only hooks. Because the policy address is folded into the salt, a payer "knows which rules govern its money before it pays"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. For now the value is only reserved. The appendix's Solidity "illustrates a future addition rather than audited or deployed code"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<h3>3.3 Single use without a nonce, and who funds refunds</h3>
+<p>Capture and refund repeat, so a server's consent signature must not be replayable. v1.1 keeps no nonce store. Instead, each signature binds the expected <code>(capturableAmount, refundableAmount)</code> pair, and the facilitator compares it with <code>paymentState</code> on chain. Once a refund lowers the sum it never recovers, so the pair cannot recur: "the payment's own state is the replay key"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Under <code>delegated</code> this check happens only at the facilitator, and state can move between check and inclusion. The spec calls the guarantee "best-effort"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p>Refunds are structurally awkward. The refund collector pulls tokens from <code>PaymentInfo.operator</code>, and under <code>delegated</code> that address is the facilitator's. The facilitator would become the source of value, so the spec requires it to refuse delegated refunds unless it has an out-of-band funding agreement with the receiver. A server that delegates both operator and authorizer is "captive to this facilitator until its refundDeadline"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<h2>4. What has actually shipped</h2>
+<h3>4.1 Merged but unreleased</h3>
+<p>The Go server and facilitator merged on 5 October 2026 (PR #3622) and the TypeScript v1.1 SDK on 6 October (PR #3203)<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. On 23 October, npm's latest <code>@x402/evm</code> is still 2.28.0, published 29 September. Its tarball contains <code>auth-capture/client</code> and nothing else. No release tag contains either merge commit, and the Go changelog entries still sit under <code>unreleased</code><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Built from main, the four Go auth-capture packages (root, client, facilitator, server) pass their tests. The code runs; it simply has not been published.</p>
+<p>The docs are a step ahead. The scheme overview now lists auth-capture as the fourth scheme, "for refundable payments where funds are held in escrow and released". The SDK feature table ticks TypeScript and Go and leaves Python unticked<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. That table does not break support down by role. A reader who takes it at its word and installs from npm will find no server code in the package.</p>
+<p>The facilitator side is empty too. Fetched on 23 October, the public <code>/supported</code> lists show exact, upto and batch-settlement at x402.org. PayAI lists exact and batch-settlement, and x402.rs lists exact and upto. Coinbase's CDP facilitator requires authentication and was not checked<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup> <em>(unverified — single source)</em>.</p>
+<h3>4.2 Coinbase Business already runs it</h3>
+<p>While the open-source path is still unpublished, the production user of auth-capture is Coinbase itself. A Coinbase Business checkout's <code>x402_url</code> "advertise[s] the EVM <code>auth-capture</code> scheme", and an exact-only client cannot pay it. Payment is a gasless USDC authorization on Base, after which "Coinbase then captures and settles it server-side"<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. The merchant never checks a signature. It waits for a webhook and the <code>COMPLETED</code> state, and "capture and webhook delivery take a few seconds"<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. Refunds "are funded from your own Coinbase Business USDC balance rather than from the buyer's payment"<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. The Paypers reported the launch on 28 July 2026 as needing no extra merchant setup<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>.</p>
+<pre class="mermaid">sequenceDiagram
+  participant A as Agent
+  participant M as Merchant server
+  participant CB as Coinbase&lt;br/&gt;(x402_url, operator)
+  participant E as AuthCaptureEscrow&lt;br/&gt;(Base)
+  M-&gt;&gt;CB: create checkout
+  CB--&gt;&gt;M: x402_url
+  A-&gt;&gt;CB: POST x402_url
+  CB--&gt;&gt;A: 402 PAYMENT-REQUIRED&lt;br/&gt;(scheme auth-capture)
+  A-&gt;&gt;A: sign ERC-3009&lt;br/&gt;(nonce = payment-terms hash)
+  A-&gt;&gt;CB: PAYMENT-SIGNATURE
+  CB-&gt;&gt;E: authorize
+  CB--&gt;&gt;A: 200 (authorized, not yet settled)
+  CB-&gt;&gt;E: capture (within seconds)
+  CB--&gt;&gt;M: webhook, status COMPLETED
+  Note over M,CB: refunds come from the merchant&#x27;s&lt;br/&gt;Coinbase USDC balance, asynchronously</pre>
+<p><em>Figure 2 — An agent paying a Coinbase Business checkout. The merchant sees webhooks, never signatures. The docs do not say which escrow deployment or operator type is used.<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup><sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup></em></p>
+<h3>4.3 How the escrow is used on chain</h3>
+<p>Every event from both escrows was pulled over a public RPC for 16–23 October 2026, blocks 52,669,988 to 52,972,388. Scripts and outputs are in <code>working/verify/</code>, with operator addresses masked as A–G<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>.</p>
+<table><thead><tr><th></th><th>v1.0 escrow</th><th>v1.1 escrow</th></tr></thead><tbody><tr><td>authorize / charge</td><td>15,791 / 120</td><td>20 / 0</td></tr><tr><td>amount authorized / charged</td><td>1,633,946 + 62,081 USDC</td><td>0.02 USDC</td></tr><tr><td>capture / void / refund</td><td>15,646 / 73 / 39</td><td>16 / 4 / 0</td></tr><tr><td>payers / receivers / operators</td><td>2,663 / 376 / 4</td><td>one payer per operator / 1 / 3</td></tr><tr><td>token collector</td><td>ERC-3009 throughout</td><td>ERC-3009 throughout</td></tr></tbody></table>
+<p><em>Table 1 — Seven days of CPP escrow events (author's measurement)<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup></em></p>
+<p>The v1.1 deployment, which x402 treats as its default, carries only test-sized traffic<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. Production lives entirely on v1.0. Whether any of it arrives through x402 is unknowable from the chain. If it does, migrating is not simple, because a client built for scheme v1.0 cannot pay a server that collects into the v1.1 escrow<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p>Concentration is high. Operator A processed 89.2% of payments (14,193), from 2,491 payers to 53 receivers. Of its 14,192 captured payments, 14,191 were captured within ten seconds, and the overall median was four seconds, two blocks<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. Yet its median capture deadline sits 364 days out. Funds are actually held for seconds. If the operator stalled, though, a buyer would wait almost a year before <code>reclaim</code> became available.</p>
+<p>Reversals are rare. Voids returned 15,449 USDC, 0.95% of the amount authorized. Refunds numbered 39 and totalled 640 USDC<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. Fee bounds were fixed (min equal to max) at 100 bps for 86% of payments, followed by fixed 125 bps and zero. The fixed fee the spec recommends to delegated servers is already the norm<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>.</p>
+<p>Operator C behaves differently. Each of its 321 payments went to a different receiver. The median amount was about 100 USDC, the capture deadline was six days, and only 130 of 178 captures landed within ten seconds<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. That looks more like the original pattern of capturing after delivery. Chain data cannot say who these operators are, or which payments came through x402, because every payment used the same ERC-3009 collector. Coinbase Business's "few seconds" and operator A's four seconds look alike, but that is circumstance, and this report does not link them.</p>
+<h2>5. Where x402 sits among agentic-commerce standards</h2>
+<p>The two other standards for agent purchases keep reversal outside the protocol. Stripe, OpenAI and Meta's Agentic Commerce Protocol (ACP) defines checkout, carts, delegated payment and order webhooks<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>. Its delegated payment token is "restricted by the delegated payment's max amount and expiry". Even so, "settlement, refunds, chargebacks, and compliance remain with the merchant and their PSP"<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>. Google's AP2 records consent as signed checkout and payment mandates, producing "a non-repudiable, cryptographic audit trail for every transaction, aiding in dispute resolution". x402 appears in its sample scenarios as the payment method<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>. The A2A x402 extension is a v0.1 spec whose flow ends when the merchant "verifies the payment, settles it on-chain"<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>.</p>
+<p>Set side by side, auth-capture's niche is clear. ACP and AP2 prove who authorized what and hand the money's reversal to card networks and PSPs. auth-capture moves the reversal itself into a contract: ceiling, fee bounds, deadlines and the buyer's unilateral <code>reclaim</code>, all bound by one signature<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. With card payments, the issuer holds the buyer's protection. With stablecoin payments under auth-capture, deadlines and the choice of operator hold it. Section 4.3 shows that the strength of that protection is set by operator configuration, such as a 364-day deadline with four-second captures.</p>
+<p>Demand is the open question. In March 2026 CoinDesk, citing Artemis, put x402 at about 131,000 transactions and $28,000 a day. It added that "roughly half of observed x402 transactions reflect artificial activity"<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup> <em>(unverified — single source)</em>. This week's CPP v1.0 escrow averaged about 242,000 USDC a day<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. Since none of it can be attributed to x402, the two figures are not combined here.</p>
+<p>One attempt to bolt verification onto commerce has already failed. PR #3066 proposed a "capture on pass, void on fail" policy over auth-capture and was closed. Review flagged that "collapsing verification and settlement into a single engine creates conflicts of interest, potentially allowing a seller designee to verify their own work"<sup class="footnote-ref"><a href="#ref-24" id="cite-24">[24]</a></sup>. The reserved <code>policy</code> type reads as the spec's answer. The condition-checking contract is fixed at signing time, and on-chain hooks enforce it in place of the operator<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<h2>6. Discussion</h2>
+<p><strong>The default path asks for the most trust.</strong> <code>delegated</code> is the default operator type and the most convenient one, with the facilitator relaying the whole lifecycle. It is also the path the spec describes as "trust, not proof"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. The trust-free alternative, <code>policy</code>, is still reserved. For a server taking payments from autonomous agents, two defenses remain. One is publishing a fixed fee. The other is setting deadlines as policy rather than leaving them to defaults.</p>
+<p><strong>Deadlines are the real size of buyer protection.</strong> The contract guarantees <code>reclaim</code> after the deadline, but the operator chooses the deadline. The largest operator observed chose 364 days<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. With four-second captures, that number is almost never visible. If the operator stalls or a receiver lands on the USDC denylist<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, the buyer's own exit is a year away. Wallets that let agents spend should show this value before anything is signed.</p>
+<p><strong>Refunds still come out of somebody's balance.</strong> At protocol level, the refund collector pulls from the operator<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Coinbase Business draws on the merchant's balance<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup>. What auth-capture really adds over card rails is the window before capture, where void and reclaim live. In the week observed, that window was mostly four seconds long<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>.</p>
+<p><strong>Adoption is blocked by distribution, not design.</strong> The spec, docs, code and tests all exist. What is missing is an npm and Go release, a public facilitator advertising the scheme, and a move from v1.0 to v1.1<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. Until those land, taking commerce payments with open-source x402 means building main yourself or calling CPP directly. Meanwhile businesses that act as their own operator, as Coinbase Business does, are taking the real volume first.</p>
+<h2>7. Limitations</h2>
+<ul>
+<li>The on-chain measurement covers one week. Operators are anonymous because no public primary source ties their addresses to companies, and x402-originated payments cannot be separated out.</li>
+<li>Which escrow deployment and operator type Coinbase Business uses is not documented. An <code>x402_url</code> cannot be obtained without an account, so it was not checked directly.</li>
+<li>The CDP facilitator's <code>/supported</code> requires authentication and was not queried. The public-facilitator check is a single snapshot of three endpoints.</li>
+<li>The test runs and the hash match cover the repository's own suite and one fixture. They are not a full contract audit or SDK verification, and the TypeScript SDK was not cross-checked.</li>
+<li>auth-capture v1.1 is what its changelog calls a "proposed spec", so fields and error codes may move<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. The <code>policy</code> type exists only as design.</li>
+<li>x402-wide demand and the share of artificial activity rest on one CoinDesk report citing Artemis. AP2 and the A2A extension were read only at the level of their public pages and READMEs.</li>
+<li>Reports date the Coinbase Business launch variously to 23 July, 28 July and 11 August. The body cites only the article that was verified, The Paypers on 28 July.</li>
+</ul>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Erik Reppel, Ronnie Caspers, Kevin Leffew, Danny Organ, Dan Kim, Nemil Dalal</span>. <a href="https://x402.org/wp-content/uploads/sites/10/2026/06/x402-whitepaper.pdf">x402: An open standard for internet-native payments (whitepaper)</a>. <span class="venue">Coinbase Developer Platform, 2025</span>. <span class="accessed">Accessed 2026-10-23.</span></li>
+      <li id="ref-2"><span class="authors">Behnam Mohammadkhani, Atul Khekade, Ritesh Kakkad</span>. <a href="https://arxiv.org/abs/2609.02208">Agentic Settlement Protocol: An Application Profile for Refundable, Delayed-Fulfilment Agent Commerce on Stablecoin Rails</a>. <span class="venue">arXiv, 2026</span>. <span class="accessed">Accessed 2026-10-23.</span></li>
+      <li id="ref-3"><span class="authors">phdargen, A1igator</span>. <a href="https://github.com/x402-foundation/x402/blob/main/specs/schemes/auth-capture/scheme_auth_capture.md">Scheme: auth-capture (network-agnostic spec, v1.1)</a>. <span class="venue">x402 Foundation (GitHub), 2026</span>. <span class="accessed">Accessed 2026-10-23.</span></li>
+      <li id="ref-4"><span class="authors">Base</span>. <a href="https://base.org/blog/commerce-payments-protocol">Engineering the Commerce Payments Protocol Powering Shopify</a>. <span class="venue">base.org, 2025</span>. <span class="accessed">Accessed 2026-10-23.</span></li>
+      <li id="ref-5"><span class="authors">Shopify Engineering</span>. <a href="https://shopify.engineering/commerce-payments-protocol">Introducing the commerce payments protocol</a>. <span class="venue">shopify.engineering, 2025</span>. <span class="accessed">Accessed 2026-10-23.</span></li>
+      <li id="ref-6"><span class="authors">Base</span>. <a href="https://github.com/base/commerce-payments/blob/main/docs/Security.md">Commerce Payments Protocol: Security Analysis</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">Accessed 2026-10-23.</span></li>
+      <li id="ref-7"><span class="authors">Base</span>. <a href="https://github.com/base/commerce-payments">base/commerce-payments: Commerce Payments Protocol (README, v1.1.0)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-10-23.</span></li>
+      <li id="ref-8"><span class="authors">phdargen, A1igator</span>. <a href="https://github.com/x402-foundation/x402/blob/main/specs/schemes/auth-capture/scheme_auth_capture_evm.md">Scheme: auth-capture on EVM (binding spec, v1.1)</a>. <span class="venue">x402 Foundation (GitHub), 2026</span>. <span class="accessed">Accessed 2026-10-23.</span></li>
+      <li id="ref-9"><span class="authors">phdargen</span>. <a href="https://github.com/x402-foundation/x402/pull/3203">feat(ts): auth capture sdk v1.1 (PR #3203)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-10-23.</span></li>
+      <li id="ref-10"><span class="authors">CarsonRoscoe</span>. <a href="https://github.com/x402-foundation/x402/pull/3622">feat: add EVM auth capture to go server &amp; facilitator SDKs (PR #3622)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-10-23.</span></li>
+      <li id="ref-11"><span class="authors">x402 Foundation</span>. <a href="https://www.npmjs.com/package/@x402/evm">@x402/evm on npm (latest 2.28.0)</a>. <span class="venue">npm, 2026</span>. <span class="accessed">Accessed 2026-10-23.</span></li>
+      <li id="ref-12"><span class="authors">x402 Foundation</span>. <a href="https://docs.x402.org/schemes/overview">x402 docs: Schemes overview</a>. <span class="venue">docs.x402.org, 2026</span>. <span class="accessed">Accessed 2026-10-23.</span></li>
+      <li id="ref-13"><span class="authors">x402 Foundation</span>. <a href="https://docs.x402.org/sdk-features">x402 docs: SDK features</a>. <span class="venue">docs.x402.org, 2026</span>. <span class="accessed">Accessed 2026-10-23.</span></li>
+      <li id="ref-14"><span class="authors">x402 Foundation</span>. <a href="https://x402.org/facilitator/supported">x402.org facilitator /supported (and payai, x402.rs facilitators)</a>. <span class="venue">x402.org, 2026</span>. <span class="accessed">Accessed 2026-10-23.</span></li>
+      <li id="ref-15"><span class="authors">Coinbase Developer Platform</span>. <a href="https://docs.cdp.coinbase.com/coinbase-business/checkout-apis/accept-x402-payments">Accept Agentic Payments with x402 (Coinbase Business Checkout APIs)</a>. <span class="venue">docs.cdp.coinbase.com, 2026</span>. <span class="accessed">Accessed 2026-10-23.</span></li>
+      <li id="ref-16"><span class="authors">Coinbase Developer Platform</span>. <a href="https://docs.cdp.coinbase.com/coinbase-business/checkout-apis/x402-api-integration">x402 API integration (Coinbase Business Checkout APIs)</a>. <span class="venue">docs.cdp.coinbase.com, 2026</span>. <span class="accessed">Accessed 2026-10-23.</span></li>
+      <li id="ref-17"><span class="authors">Sinziana Albu</span>. <a href="https://thepaypers.com/crypto-web3-and-cbdc/news/coinbase-enables-businesses-to-accept-payments-from-ai-agents">Coinbase enables businesses to accept payments from AI agents</a>. <span class="venue">The Paypers, 2026</span>. <span class="accessed">Accessed 2026-10-23.</span></li>
+      <li id="ref-18"><span class="authors">Base (onchain data)</span>. <a href="https://basescan.org/address/0xBdEA0D1bcC5966192B070Fdf62aB4EF5b4420cff">AuthCaptureEscrow v1.0 and v1.1 on Base: 7-day event census (author measurement)</a>. <span class="venue">Base mainnet via public RPC, 2026</span>. <span class="accessed">Accessed 2026-10-23.</span></li>
+      <li id="ref-19"><span class="authors">Stripe</span>. <a href="https://docs.stripe.com/agentic-commerce/protocols/acp">Agentic Commerce Protocol (Stripe docs)</a>. <span class="venue">docs.stripe.com, 2026</span>. <span class="accessed">Accessed 2026-10-23.</span></li>
+      <li id="ref-20"><span class="authors">OpenAI</span>. <a href="https://developers.openai.com/commerce/specs/payment">Delegated Payment Spec (Agentic Commerce Protocol)</a>. <span class="venue">developers.openai.com, 2025</span>. <span class="accessed">Accessed 2026-10-23.</span></li>
+      <li id="ref-21"><span class="authors">Google</span>. <a href="https://ap2-protocol.org/">Agent Payments Protocol (AP2)</a>. <span class="venue">ap2-protocol.org, 2025</span>. <span class="accessed">Accessed 2026-10-23.</span></li>
+      <li id="ref-22"><span class="authors">google-agentic-commerce</span>. <a href="https://github.com/google-agentic-commerce/a2a-x402">A2A x402 Extension</a>. <span class="venue">GitHub, 2025</span>. <span class="accessed">Accessed 2026-10-23.</span></li>
+      <li id="ref-23"><span class="authors">CoinDesk</span>. <a href="https://www.coindesk.com/markets/2026/03/11/coinbase-backed-ai-payments-protocol-wants-to-fix-micropayment-but-demand-is-just-not-there-yet">Coinbase-backed AI payments protocol wants to fix micropayment but demand is just not there yet</a>. <span class="venue">CoinDesk, 2026</span>. <span class="accessed">Accessed 2026-10-23.</span></li>
+      <li id="ref-24"><span class="authors">jihadMo</span>. <a href="https://github.com/x402-foundation/x402/pull/3066">docs(spec): add verification-gated release policy profile for auth-capture (PR #3066)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-10-23.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-10-23. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

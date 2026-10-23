@@ -1,0 +1,8 @@
+distinct payers (all): 2663
+OPERATOR_A n=14193 payers=2491 receivers=53 median_capture_window_days=364.0 median_amount=15.75 mean_amount=108.86 captured<=10s=14191/14192
+OPERATOR_B n=1395 payers=5 receivers=1 median_capture_window_days=6.0 median_amount=0.01 mean_amount=0.05 captured<=10s=831/1265
+OPERATOR_C n=321 payers=166 receivers=321 median_capture_window_days=6.0 median_amount=99.78 mean_amount=470.17 captured<=10s=130/178
+OPERATOR_E n=8 payers=1 receivers=1 median_capture_window_days=0.0 median_amount=0.00 mean_amount=0.00 captured<=10s=8/8
+OPERATOR_F n=7 payers=1 receivers=1 median_capture_window_days=0.0 median_amount=0.00 mean_amount=0.00 captured<=10s=7/7
+OPERATOR_G n=5 payers=1 receivers=1 median_capture_window_days=1.0 median_amount=0.00 mean_amount=0.00 captured<=10s=0/1
+OPERATOR_D n=2 payers=1 receivers=1 median_capture_window_days=6.0 median_amount=0.76 mean_amount=0.76 captured<=10s=0/1

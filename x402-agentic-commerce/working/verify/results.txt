@@ -1,0 +1,31 @@
+== 2026-10-23 verification log ==
+[1] commerce-payments @ b748fdd (v1.1.0): forge test -> 112 passed, 1 failed (usdc.t.sol needs BASE_RPC_URL).
+    Rerun usdc.t.sol with BASE_RPC_URL=https://mainnet.base.org -> 3/3 passed (Coinbase Smart Wallet ERC3009, spend permissions, EOA ERC3009).
+[2] Hash cross-check (fixture in xcheck_test.go, Go SDK @ x402 79263af vs live v1.1 escrow getHash on Base vs cast):
+    salt (Go DeriveBoundSalt)        = 0xd0967e09b6c8fccf96277d95a03e98583e8605ab10858b1349aa50ea6d78132c
+    salt (cast, spec formula)        = 0xd0967e09b6c8fccf96277d95a03e98583e8605ab10858b1349aa50ea6d78132c  MATCH
+    signatureNonce (Go agnostic)     = 0xac39018f523a50a3832e2a8b67a89b73d3c5c70c7f6cd78af5673decba024f8b
+    escrow.getHash(payer=0) onchain  = 0xac39018f523a50a3832e2a8b67a89b73d3c5c70c7f6cd78af5673decba024f8b  MATCH
+    paymentInfoHash (Go, payer 0x55) = 0xbb99340435dbc0c89cc3f03a9f898acd080dd8b021c431f36c1d612fce47166c
+    escrow.getHash(payer=0x55)       = 0xbb99340435dbc0c89cc3f03a9f898acd080dd8b021c431f36c1d612fce47166c  MATCH
+    Note: spec's signatureNonce = keccak(chainId, escrow, payerAgnosticHash) is exactly escrow.getHash with payer zeroed.
+[3] npm @x402/evm@2.28.0 (published 2026-09-29, latest): tarball contains dist/*/auth-capture/client only; no server/facilitator.
+    TS server+facilitator merged in x402 #3203 on 2026-10-06; Go server+facilitator in #3622 (2026-10-05), changelog entries still under go/.changes/unreleased.
+[4] Release tags: `git tag --contains cb0ec5bc` (Go server/facilitator) -> none; `--contains 28376d64` (TS #3203) -> none. Unreleased as of 2026-10-23.
+[5] Public facilitator /supported (2026-10-23, unauthenticated GET):
+    x402.org/facilitator          11 kinds: batch-settlement, exact, upto   (no auth-capture)
+    facilitator.payai.network     38 kinds: batch-settlement, exact          (no auth-capture)
+    facilitator.x402.rs           31 kinds: exact, upto                      (no auth-capture)
+    api.cdp.coinbase.com          requires auth, not checked
+[6] Go auth-capture packages (root, client, facilitator, server): go test ./... all ok.
+[7] Base onchain census, blocks 52,669,988..52,972,388 (2026-10-16 ~ 2026-10-23, 7 days), escrow_census.py / escrow_rawlogs.py + analyze_*.py.
+    Operator addresses masked as OPERATOR_A..G in committed outputs (org policy: no wallet addresses in external output).
+    v1.0 escrow (0xBdEA…0cff): PaymentAuthorized 15,791, PaymentCharged 120, Captured 15,646, Voided 73, Refunded 39.
+        authorized 1,633,946.33 USDC, charged 62,081.13 USDC, captured 1,618,446.60, voided 15,448.67, refunded 639.52.
+        distinct payments 15,911, distinct payers (both escrows) 2,663, receivers 376, operators 4. Collector: ERC3009PaymentCollector v1.0 for all 15,911.
+        OPERATOR_A: 14,193 payments (89.2%), 2,491 payers, 53 receivers, median capture window 364 d, captured <=10 s 14,191/14,192, median 15.75 / mean 108.86 USDC.
+        OPERATOR_B: 1,395 payments, 5 payers, 1 receiver, median 0.01 USDC. OPERATOR_C: 321 payments, 166 payers, 321 receivers, median 99.78 USDC, window 6 d, <=10 s 130/178.
+        Fee bounds (min=max): 100 bps 13,602; 0 bps 1,721; 125 bps 588.
+        capture latency (authorize->first capture): median 4 s, p90 4 s, max 372,128 s; same-block share 0.
+    v1.1 escrow (0xf968…b19c): 20 authorizations, 16 captures, 4 voids, total 0.02005 USDC, 3 operators each with 1 payer.
+[8] mermaid@11 parse of rendered pages: 4/4 blocks pass (ko 2, en 2).
