@@ -1,0 +1,7 @@
+# Uncertainties — ai-agent-brief-2026-10-24
+
+- The x402 overcharge finding (c01) is a signed-and-submitted authorization captured against a mocked settlement layer, not a confirmed on-chain overpayment — the reporter and a reviewing commenter both explicitly maintain this distinction in the thread. The underlying client behavior (no price cross-check) is confirmed; real-world financial loss from it is not yet documented.
+- Whether the `onBeforePaymentCreation` policy-gate pattern (c02) demonstrated by one operator becomes the x402 client's documented default, an opt-in recipe, or neither is unresolved — it's one production operator's own implementation, not an accepted fix.
+- The CVE exposure in `@x402/core` (c03/c04) is reachability-analyzed only against the published `dist/` output by a single reporter, who flags that they may have missed an internal caller. Real-world exploitability therefore rests on whether any downstream project actually imports the two flagged helper functions to validate untrusted input — unknown as of this writing.
+- Jev's and OpenAI's relative rankings on early "decision model" benchmarks (c06) may shift quickly: the category is new enough that TechCrunch's own reporting notes no agreed definition of a "good" decision model exists yet, and rankings vary by workload.
+- The claimed latency improvement (1-3s to 100-180ms) for OpenAI's Decisions API, and the Speak customer's 1.4s-to-0.13s figure, are both vendor-reported figures relayed through a single news outlet; neither has independent benchmarking.
