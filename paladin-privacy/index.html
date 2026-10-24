@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Paladin — 비수정 EVM 위의 프로그래머블 프라이버시 — Deepsearch</title>
+<meta name="description" content="노터리·영지식·사설 EVM 세 신뢰 모델을 한 런타임에 묶은 LFDT 프로젝트의 구조와, 코드로 확인한 제약">
+<link rel="canonical" href="https://code0xff.github.io/reports/paladin-privacy/">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="en" href="en/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="Paladin — 비수정 EVM 위의 프로그래머블 프라이버시">
+<meta property="og:description" content="노터리·영지식·사설 EVM 세 신뢰 모델을 한 런타임에 묶은 LFDT 프로젝트의 구조와, 코드로 확인한 제약">
+<meta property="og:url" content="https://code0xff.github.io/reports/paladin-privacy/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Paladin — 비수정 EVM 위의 프로그래머블 프라이버시">
+<meta name="twitter:description" content="노터리·영지식·사설 EVM 세 신뢰 모델을 한 런타임에 묶은 LFDT 프로젝트의 구조와, 코드로 확인한 제약">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="en/index.html" hreflang="en">English</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="GitHub에서 Deepsearch 보기" title="GitHub에서 Deepsearch 보기">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>Paladin — 비수정 EVM 위의 프로그래머블 프라이버시</h1>
+    <p class="subtitle">노터리·영지식·사설 EVM 세 신뢰 모델을 한 런타임에 묶은 LFDT 프로젝트의 구조와, 코드로 확인한 제약</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-10-23</span>
+      <span><strong>태그</strong> paladin, privacy, evm, zkp, noto, zeto, pente, lfdt, kaleido, dvp</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="paladin-privacy.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>Paladin은 비수정 EVM 체인 위에 사이드카 런타임으로 붙어 기업용 프라이버시를 제공하는 Linux Foundation Decentralized Trust(LFDT) 프로젝트다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 2025년 2월 랩으로 시작해 같은 해 11월 정식 프로젝트가 됐고, v1.0은 2026년 6월 25일에 나왔다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 구조의 핵심은 공통 런타임 하나에 신뢰 모델이 다른 세 도메인을 꽂는 것이다. Noto는 단일 노터리가 모든 개인 상태를 보고 검증하는 토큰이고, Zeto는 영지식 증명으로 규칙을 강제하는 토큰이며, Pente는 그룹 안에서만 실행되는 사설 EVM이다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. 셋 모두 상태를 체인에 해시 커밋먼트로만 남기고, 잠금과 위임을 통해 서로 다른 도메인의 거래를 원자적으로 묶는다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. 저장소를 직접 읽어 확인한 제약도 있다. Pente는 그룹 구성원 100%의 승인을 요구하므로 한 명만 응답하지 않아도 거래가 멈춘다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. Paladin이 쓰는 Zeto는 v0.2.2이고, Zeto 최신판의 양자내성 회로는 Paladin 저장소에 한 줄도 없다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. 유지관리자 7명은 모두 Kaleido 소속이다. "중앙은행 채택" 주장에는 기관 이름이 없고, 공개된 제3자 보안 감사 보고서도 찾지 못했다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+  </section>
+
+  <main class="body">
+<h2>1. 서론</h2>
+<p>프로젝트 사이트는 Paladin을 "세계에서 가장 많이 쓰이는 스마트 컨트랙트 플랫폼에 진정한 금융 프라이버시를 가져온다"고 소개한다. Apache-2.0 라이선스이고, 저작권 표기는 "Paladin a Series of LF Projects, LLC"다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 문서는 더 건조하게 정의한다. Paladin은 "이더리움을 위한 프라이버시 보존 트랜잭션 관리자"다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>이런 시도가 처음은 아니다. 2016년 Constellation부터 Quorum, Tessera로 이어진 사설 트랜잭션 계보가 있었다. Paladin 문서는 그 모델의 근본 문제로 두 가지를 든다. 상태가 한 사설 컨트랙트 안에 갇혀 다른 컨트랙트와 거래하기 어렵고, 프라이버시 그룹이 겹치면 참여자마다 다른 상태를 갖게 되어 "단일한 진실의 원천이 없다"는 것이다. Tessera는 2024년에 지원이 중단됐다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 2025년 2월 LFDT 발표문은 EVM 프라이버시 혁신이 "여러 개별 연구 프로젝트로 쪼개져 있다"고 진단하고, Paladin을 그 조각들을 하나의 런타임으로 묶는 시도로 내세웠다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>이 보고서는 공식 문서와 두 저장소(paladin, zeto)의 코드를 직접 읽어, 구조와 신뢰 모델, 그리고 성숙도 주장을 대조한다.</p>
+<h2>2. 구조: 사이드카와 두 층의 원장</h2>
+<p>Paladin은 Besu 같은 EVM 노드 옆에서 도는 별도 프로세스다. 다른 Paladin 노드와 암호화된 채널로 개인 데이터를 선택적으로 주고받는다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. 각 프라이버시 컨트랙트는 두 부분으로 나뉜다. 한 부분은 비수정 EVM 위의 일반 스마트 컨트랙트이고, 다른 부분은 Paladin 런타임 안에서 돈다. 모든 도메인은 거래의 순서와 최종성을 베이스 EVM 원장에 맡긴다. 상태는 체인에 "안전하게 마스킹된 형식"으로 저장되고, 데이터는 알아야 할 당사자에게만 공개된다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<pre class="mermaid">flowchart LR
+  subgraph NodeA[참여자 A]
+    PA[Paladin 런타임&lt;br/&gt;키 관리, 상태 저장소,&lt;br/&gt;트랜잭션 조정]
+  end
+  subgraph NodeB[참여자 B]
+    PB[Paladin 런타임]
+  end
+  PA &lt;--&gt;|암호화된 개인 데이터 전송| PB
+  PA --&gt;|해시 커밋먼트만 담긴 tx| L[(비수정 EVM 원장&lt;br/&gt;순서와 최종성, 이중지불 방지)]
+  PB --&gt;|해시 커밋먼트만 담긴 tx| L
+  L --&gt;|이벤트| PA
+  L --&gt;|이벤트| PB</pre>
+<p><em>그림 1 — Paladin의 두 층. 개인 데이터는 런타임 사이에서만 오가고, 원장에는 커밋먼트와 서명만 남는다.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></em></p>
+<h2>3. 세 도메인, 세 가지 신뢰 모델</h2>
+<h3>3.1 Noto: 노터리를 믿는 토큰</h3>
+<p>Noto 토큰은 "노터리라 불리는 단일 당사자가 관리"하는 기밀 UTXO 토큰이다. 각 상태는 소유자, 금액, 무작위 salt를 담는다. 원장에는 상태 데이터의 해시만 올라가고, 실제 데이터는 사설 채널로만 오간다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 노터리는 세 가지를 검증한다. 요청자의 EIP-712 서명, 입출력 상태가 요청된 연산을 올바르게 표현하는지, 그리고 mint와 burn을 뺀 연산에서 입력 합과 출력 합이 같은지다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<p>이 구조에서 프라이버시는 외부 관찰자에 대한 것이다. 노터리는 모든 이전의 내용을 본다. 문서의 예시도 노터리가 "A의 잔액이 거래 뒤에도 기준 이상인지"까지 확인하는 장면을 든다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 독립 프로필도 Noto의 강제력이 "노터리·발행자의 EIP-712 증명서에 의존"한다고 정리한다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. 정책은 두 모드로 정한다. basic 모드에서는 mint 제한, burn 허용, lock 허용 같은 옵션만 고른다. hooks 모드에서는 Pente 사설 컨트랙트의 훅이 정책을 맡는데, 이때 "basic 노터리 제약은 하나도 활성화되지 않는다". 훅 구현이 잘못되면 통제가 그대로 비게 된다는 뜻이다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<h3>3.2 Zeto: 증명을 믿는 토큰</h3>
+<p>Zeto는 Circom으로 구현한 영지식 증명 기반 UTXO 토큰 모음이다. 내세우는 성질은 송수신자 익명성, 거래 내 암호화된 비밀, 이력 은닉, KYC, 그리고 미리 지정한 감사 기관에 대한 부인 방지다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 이 모델에서는 노터리 대신 체인 위의 검증자 컨트랙트가 증명을 확인한다. Paladin 런타임은 UTXO 인덱싱, 코인 선택, 증명 생성을 맡는다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p>신뢰가 사라지지는 않는다. 자리를 옮길 뿐이다. Zeto README는 테스트용 설정만으로는 "생성된 증명을 신뢰하기에 충분하지 않다"고 경고한다. 증명 키는 잘 문서화된 탈중앙 세레모니나 신뢰할 수 있는 단일 주체가 만들어야 한다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<h3>3.3 Pente: 그룹 전원을 믿는 사설 EVM</h3>
+<p>Pente는 프라이버시 그룹마다 독립된 world state를 둔다. 그룹 하나가 베이스 원장 위 컨트랙트 하나이고, 문서의 표현으로는 그 안에 든 "작은 블록체인"이다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 거래는 Paladin 런타임 안의 일회용 Besu EVM에서 먼저 실행된다. 그다음 그룹 구성원이 정확한 입력·출력 상태에 서명하고, 원장은 그 서명과 상태 커밋먼트를 검증한다. 베이스 EVM은 손대지 않는다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>문서는 이 검증을 "임계값 서명 검증"이라고 부른다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 그런데 실제 임계값은 하나뿐이다. <code>PenteDomain.java</code>는 승인 방식 <code>group_scoped_identities</code> 하나만 받는다. 주석은 "임계값은 지금 100%"라고 적고, 일부 구성원이 승인하지 않은 거래를 그 구성원이 나중에 따라잡는 문제를 이유로 든다<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. 온체인 컨트랙트도 서명 수가 임계값에 못 미치면 되돌린다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. 구성원 하나가 오프라인이면 그 그룹의 모든 거래가 멈춘다. M-of-N 승인은 LFDT 발표문에서 계획으로만 언급된다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<table><thead><tr><th>도메인</th><th>규칙을 강제하는 주체</th><th>개인 데이터를 보는 주체</th><th>주요 신뢰 지점</th></tr></thead><tbody><tr><td>Noto</td><td>노터리 서명</td><td>거래 당사자와 노터리</td><td>노터리(hooks 사용 시 훅 코드)</td></tr><tr><td>Zeto</td><td>온체인 ZK 검증자</td><td>거래 당사자</td><td>증명 키 생성(세레모니)</td></tr><tr><td>Pente</td><td>그룹 전원의 EIP-712 서명</td><td>그룹 구성원</td><td>구성원 전원의 가용성</td></tr></tbody></table>
+<p><em>표 1 — 세 도메인의 신뢰 구조. 문서와 코드에서 정리했다.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></em></p>
+<h2>4. 원자적 상호운용</h2>
+<p>Paladin이 Tessera 계열과 가장 크게 다른 점은 도메인 사이의 원자적 결제다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Noto 문서는 그 메커니즘을 이렇게 설명한다. 노터리가 거래의 서명, 즉 마스킹된 입출력의 해시를 잠금 안에 미리 검증해 기록한다. 소유자는 그 잠금을 결제 컨트랙트에 위임한다. 위임받은 컨트랙트는 "노터리의 관여 없이" 온체인에서 커밋하거나 롤백할 수 있다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 한 결제에 여러 노터리의 Noto 토큰, 투명한 ERC-20, Zeto, Pente 그룹 안에서 준비한 거래를 함께 넣을 수 있다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<pre class="mermaid">sequenceDiagram
+  participant I as 발행자 (Noto 채권)
+  participant B as 은행 A (Noto 현금)
+  participant S as 원자 스왑 컨트랙트
+  participant L as EVM 원장
+  I-&gt;&gt;L: 채권 잠금, 은행 A로의 해제 준비
+  B-&gt;&gt;L: 현금 잠금, 발행자로의 해제 준비
+  I-&gt;&gt;S: 해제 권한 위임
+  B-&gt;&gt;S: 해제 권한 위임
+  S-&gt;&gt;L: 두 해제를 한 tx로 실행 (노터리 불필요)
+  Note over S,L: 한쪽이라도 실패하면&lt;br/&gt;전체가 되돌려진다</pre>
+<p><em>그림 2 — 2026년 7월 LFDT 워크숍에서 시연된 채권·CBDC DvP 흐름을 단순화한 것.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></em></p>
+<p>Kaleido 쪽은 이 잠금 모델을 표준으로 만들려 하고 있다. 2026년 7월 Ethereum Magicians에는 프라이버시 모델이 서로 다른 시스템 간 결제용 잠금 생명주기 ERC-8316과 노터리 기반 기밀 토큰 ERC-8322가 올라왔다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. ERC-8322 작성자 계정은 Paladin 유지관리자의 GitHub ID와 비슷하지만, 게시물 자체는 Paladin을 언급하지 않는다. 글에는 답글도 없었다<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</p>
+<h2>5. 성숙도와 거버넌스</h2>
+<p><strong>릴리스.</strong> v1.0.0은 2026년 6월 25일 GitHub 릴리스로 나왔고, v1.0.1-rc.1이 9월 28일 프리릴리스로 올라와 있다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<p><strong>단일 회사 집중.</strong> <code>MAINTAINERS.md</code>의 현직 유지관리자 7명은 모두 소속이 Kaleido다. 최근 1년 커밋 작성자 메일도 kaleido.io가 1,747건이었고, GitHub noreply 402건, 그 밖의 주소는 26건이었다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. 발표문들의 저자도 Kaleido 공동창업자와 엔지니어다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 오픈 거버넌스 아래 있지만 실제 개발은 한 회사가 이끈다. 저장소 규모는 스타 92개, 포크 77개다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<p><strong>채택 주장.</strong> LFDT 발표문은 Paladin이 "중앙은행을 포함한 여러 프로젝트에 이미 배포됐다"고 쓴다. 그러나 기관 이름은 하나도 없다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Ledger Insights는 같은 주장을 "여러 중앙은행과 상업은행이 채택"이라고 옮겼고, 이 역시 이름은 없다. 같은 기사에 나온 한국은행의 LFDT 가입은 Paladin 사용과 연결되어 있지 않다<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. 이름이 나오는 유일한 사례는 Kaleido의 인도네시아 중앙은행 Project Garuda 고객 사례다. 그런데 거기서도 Paladin은 "built with" 목록에만 있고 맡은 역할은 나오지 않는다. 두 프로토콜 후보 중 무엇이 선택됐는지도 없다<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup> <em>(vendor-stated)</em>.</p>
+<p><strong>문서와 코드의 간극.</strong> LFDT 발표문은 UC Berkeley와 UNC Chapel Hill 연구자가 기여한 Zeto의 양자내성 암호 저장을 소개했다<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 이 기능은 Zeto 저장소에 <code>Zeto_AnonNullifierQurrency</code>(ML-KEM)로 존재한다<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 그러나 Paladin은 Zeto 계약 v0.2.2(2026년 1월)에 의존한다. Paladin의 Zeto 도메인 코드가 아는 변형은 Anon 계열 여섯 가지이고, 저장소 전체에서 "qurrency"를 검색하면 0건이다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. 2026년 7월 Kaleido 발표 자료가 플러그인으로 든 Railgun도 저장소에서 검색되지 않는다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. Hardhat 설정에는 "일부 검증자 컨트랙트가 기본 24,576바이트를 넘어" 테스트에서 크기 제한을 해제한다는 주석이 있다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. 메인넷처럼 EIP-170 한도를 지키는 체인에 그 검증자를 배포할 수 있는지는 확인하지 못했다.</p>
+<p><strong>보안.</strong> 두 저장소의 문서에서 제3자 보안 감사 보고서는 찾지 못했다. 보안 정책은 조직 단위 <code>.github</code> 저장소에 있다<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. EthSystems 프로필은 "일부 운영 모드에서 운영자의 클라이언트 데이터 접근"과 "중앙화·수탁형 키 관리의 절충"을 위험으로 꼽는다<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<h2>6. 논의</h2>
+<p><strong>Paladin은 하나의 프라이버시가 아니라 세 개의 신뢰 계약을 묶은 런타임이다.</strong> 사이트는 세 도메인을 나란히 두지만 보장은 크게 다르다. Noto는 노터리에게 모든 것을 보여 주고, Zeto는 세레모니를 믿어야 하며, Pente는 구성원 전원이 깨어 있어야 한다(표 1). 원자적 상호운용은 이 셋을 한 거래로 묶어 준다. 다만 한 결제의 신뢰 수준은 그 안에서 가장 약한 다리를 따른다. 그림 2의 DvP에서 채권과 현금이 모두 Noto라면, 거래 전체가 두 노터리에게 보인다.</p>
+<p><strong>목표 고객에게는 장점인 것이 공개 체인 관점에서는 제약이다.</strong> 노터리 검증, 그룹 전원 승인, KYC 훅은 규제 기관이 감독하는 은행 컨소시엄에 맞는 설계다. 사이트가 Ethereum, Base, Arbitrum 로고를 내걸고 "비수정 EVM 어디서나"를 말하긴 한다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 그러나 문서의 기본 그림은 Besu 노드 옆의 사이드카이고, 워크숍 시연도 QBFT 사설망 위에서 이뤄졌다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<p><strong>도입을 검토한다면 확인할 것은 셋이다.</strong> 첫째, 쓰려는 Zeto 변형이 Paladin 도메인에 실제로 연결돼 있는지. 둘째, Pente 그룹 구성원의 가용성을 어떻게 보장할지. 셋째, 감사 보고서와 실제 배포 기관에 대한 근거를 공급사에 직접 요구하는 것이다. 공개 자료만으로는 셋 모두 답이 나오지 않는다.</p>
+<h2>7. 한계</h2>
+<ul>
+<li>실행 검증을 하지 못했다. CI 방식으로 Solidity 테스트를 돌리려 했으나 의존성 설치가 실패했고(npm ETARGET), Go 도메인 테스트는 Gradle 생성물이 필요해 따로 돌릴 수 없었다. 본문의 코드 관련 주장은 소스를 읽어 확인한 것이다.</li>
+<li>감사 보고서의 부재는 두 저장소 마크다운 검색과 웹 검색 범위 안의 확인이다. 비공개 감사가 있을 수 있다.</li>
+<li>실제 배포 기관, 성능 수치, 독립 벤치마크는 공개 자료에서 찾지 못했다. 독립 분석은 EthSystems 프로필 하나뿐이다.</li>
+<li>24,576바이트를 넘는 검증자가 무엇인지, 실제 체인에 배포할 수 있는지는 측정하지 못했다.</li>
+<li>분석은 2026년 10월 23일 main(paladin <code>6937b943a</code>, zeto <code>dd49549</code>) 기준이며, v1.0.1과 이후 버전에서 달라질 수 있다.</li>
+</ul>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Paladin project</span>. <a href="https://www.paladinprivacy.org/">Paladin: Programmable Privacy for EVM (project site)</a>. <span class="venue">paladinprivacy.org, 2026</span>. <span class="accessed">접근일 2026-10-24.</span></li>
+      <li id="ref-2"><span class="authors">Paladin maintainers</span>. <a href="https://lfdt-paladin.github.io/paladin/head/architecture/overview/">Paladin architecture overview (docs)</a>. <span class="venue">lfdt-paladin.github.io, 2026</span>. <span class="accessed">접근일 2026-10-24.</span></li>
+      <li id="ref-3"><span class="authors">Paladin maintainers</span>. <a href="https://lfdt-paladin.github.io/paladin/head/architecture/pente/">Pente - Private EVM Smart Contracts (docs)</a>. <span class="venue">lfdt-paladin.github.io, 2026</span>. <span class="accessed">접근일 2026-10-24.</span></li>
+      <li id="ref-4"><span class="authors">Peter Broadhurst, Andrew Richardson</span>. <a href="https://www.lfdecentralizedtrust.org/blog/announcing-paladin-an-lf-decentralized-trust-lab-for-programmable-privacy-on-evm">Announcing Paladin, an LF Decentralized Trust Lab for Programmable Privacy on EVM</a>. <span class="venue">LF Decentralized Trust, 2025</span>. <span class="accessed">접근일 2026-10-24.</span></li>
+      <li id="ref-5"><span class="authors">Paladin maintainers</span>. <a href="https://lfdt-paladin.github.io/paladin/head/architecture/noto/">Noto - Notarized Tokens (docs)</a>. <span class="venue">lfdt-paladin.github.io, 2026</span>. <span class="accessed">접근일 2026-10-24.</span></li>
+      <li id="ref-6"><span class="authors">EthSystems</span>. <a href="https://ethsystems.org/vendors/paladin/">Paladin vendor profile (EthSystems)</a>. <span class="venue">ethsystems.org, 2026</span>. <span class="accessed">접근일 2026-10-24.</span></li>
+      <li id="ref-7"><span class="authors">Paladin maintainers</span>. <a href="https://github.com/LFDT-Paladin/zeto">Zeto: UTXO based privacy-preserving token toolkit (repository)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-10-24.</span></li>
+      <li id="ref-8"><span class="authors">Paladin maintainers</span>. <a href="https://lfdt-paladin.github.io/paladin/head/architecture/zeto/">Zeto - Zero Knowledge Proof based tokens (Paladin docs)</a>. <span class="venue">lfdt-paladin.github.io, 2026</span>. <span class="accessed">접근일 2026-10-24.</span></li>
+      <li id="ref-9"><span class="authors">Paladin maintainers</span>. <a href="https://github.com/LFDT-Paladin/paladin/blob/main/domains/pente/src/main/java/io/kaleido/paladin/pente/domain/PenteDomain.java">PenteDomain.java (endorsement threshold)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-10-24.</span></li>
+      <li id="ref-10"><span class="authors">Paladin maintainers</span>. <a href="https://github.com/LFDT-Paladin/paladin">LFDT-Paladin/paladin repository (releases, maintainers, dependencies)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">접근일 2026-10-24.</span></li>
+      <li id="ref-11"><span class="authors">Peter Broadhurst</span>. <a href="https://www.lfdecentralizedtrust.org/blog/paladin-a-unified-programmable-privacy-framework-for-evm-becomes-newest-lf-decentralized-trust-project">Paladin becomes newest LF Decentralized Trust project</a>. <span class="venue">LF Decentralized Trust, 2025</span>. <span class="accessed">접근일 2026-10-24.</span></li>
+      <li id="ref-12"><span class="authors">Peter Broadhurst, Matthew Whitehead</span>. <a href="https://www.lfdecentralizedtrust.org/hubfs/LFDT%20Privacy%20Workshop%202026%20-%20Paladin%20+%20Demo.pdf">The next generation of Paladin (LFDT Privacy Workshop deck)</a>. <span class="venue">LF Decentralized Trust, 2026</span>. <span class="accessed">접근일 2026-10-24.</span></li>
+      <li id="ref-13"><span class="authors">Ethereum Magicians</span>. <a href="https://ethereum-magicians.org/t/erc-8316-programmable-settlement-locks/28861">ERC-8316: Programmable Settlement Locks</a>. <span class="venue">Ethereum Magicians, 2026</span>. <span class="accessed">접근일 2026-10-24.</span></li>
+      <li id="ref-14"><span class="authors">awrichardson</span>. <a href="https://ethereum-magicians.org/t/erc-8322-notary-backed-confidential-token/28908">ERC-8322: Notary-Backed Confidential Token</a>. <span class="venue">Ethereum Magicians, 2026</span>. <span class="accessed">접근일 2026-10-24.</span></li>
+      <li id="ref-15"><span class="authors">Ledger Insights</span>. <a href="https://www.ledgerinsights.com/paladin-privacy-framework-graduates-as-bank-of-korea-joins-lf-decentralized-trust/">Paladin privacy framework graduates as Bank of Korea joins LF Decentralized Trust</a>. <span class="venue">Ledger Insights, 2025</span>. <span class="accessed">접근일 2026-10-24.</span></li>
+      <li id="ref-16"><span class="authors">Kaleido</span>. <a href="https://www.kaleido.io/customer-stories/bank-indonesia">Bank Indonesia Project Garuda wholesale CBDC (Kaleido customer story)</a>. <span class="venue">kaleido.io, 2026</span>. <span class="accessed">접근일 2026-10-24.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-10-23 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

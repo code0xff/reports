@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Paladin — Programmable Privacy on Unmodified EVM — Deepsearch</title>
+<meta name="description" content="How an LFDT project binds notary, zero-knowledge and private-EVM trust models into one runtime, and the limits found in its code">
+<link rel="canonical" href="https://code0xff.github.io/reports/paladin-privacy/en/">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="Paladin — Programmable Privacy on Unmodified EVM">
+<meta property="og:description" content="How an LFDT project binds notary, zero-knowledge and private-EVM trust models into one runtime, and the limits found in its code">
+<meta property="og:url" content="https://code0xff.github.io/reports/paladin-privacy/en/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Paladin — Programmable Privacy on Unmodified EVM">
+<meta name="twitter:description" content="How an LFDT project binds notary, zero-knowledge and private-EVM trust models into one runtime, and the limits found in its code">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>Paladin — Programmable Privacy on Unmodified EVM</h1>
+    <p class="subtitle">How an LFDT project binds notary, zero-knowledge and private-EVM trust models into one runtime, and the limits found in its code</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-10-23</span>
+      <span><strong>Tags</strong> paladin, privacy, evm, zkp, noto, zeto, pente, lfdt, kaleido, dvp</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="paladin-privacy.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>Paladin is a Linux Foundation Decentralized Trust (LFDT) project that adds enterprise privacy to unmodified EVM chains through a sidecar runtime<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. It started as a lab in February 2025, became a full project that November, and shipped v1.0 on 25 June 2026<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. One shared runtime hosts three domains with very different trust models. Noto is a token whose single notary sees and validates every private state. Zeto enforces its rules with zero-knowledge proofs. Pente is a private EVM that runs only inside a group<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. All three keep only hashed commitments on chain, and locks plus delegation let them settle against each other atomically<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Reading the repositories turned up constraints the marketing omits. Pente requires 100% of a group to endorse, so one silent member halts the group<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. Paladin pins Zeto contracts at v0.2.2, and the post-quantum circuits in Zeto's latest release appear nowhere in the Paladin repo<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. All seven maintainers work for Kaleido. The claim that central banks have adopted Paladin names no institution, and no third-party security audit report was found<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+  </section>
+
+  <main class="body">
+<h2>1. Introduction</h2>
+<p>The project site promises "true financial privacy to the world's most popular smart contract platform". It is Apache-2.0 licensed under "Paladin a Series of LF Projects, LLC"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The docs put it more plainly: "a privacy preserving transaction manager for Ethereum"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>Private transactions on EVM have a long history, from Constellation in 2016 through Quorum and Tessera. Paladin's docs name two flaws in that lineage. State gets locked inside a single private contract, and overlapping privacy groups let "the states diverge so there is no single source of truth". Tessera itself was deprecated in 2024<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. LFDT's launch post diagnosed EVM privacy work as "fractured into many individual research projects" and pitched Paladin as the runtime that pulls the pieces together<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>This report reads the docs and both repositories, paladin and zeto, and checks the architecture, the trust models and the maturity claims against the code.</p>
+<h2>2. Architecture: a sidecar and two ledgers</h2>
+<p>Paladin is a separate process that sits beside an EVM node such as Besu. It exchanges private data with other Paladin nodes over secure channels and discloses it selectively<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Every privacy-preserving contract has two halves. One is an ordinary contract on an unmodified EVM, and the other runs inside Paladin. The base EVM ledger is the source of truth for ordering and finality, and on-chain state is stored "in a securely masked format"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<pre class="mermaid">flowchart LR
+  subgraph NodeA[Participant A]
+    PA[Paladin runtime&lt;br/&gt;keys, state store,&lt;br/&gt;tx orchestration]
+  end
+  subgraph NodeB[Participant B]
+    PB[Paladin runtime]
+  end
+  PA &lt;--&gt;|encrypted private data| PB
+  PA --&gt;|tx carrying only commitments| L[(Unmodified EVM ledger&lt;br/&gt;ordering, finality, double-spend checks)]
+  PB --&gt;|tx carrying only commitments| L
+  L --&gt;|events| PA
+  L --&gt;|events| PB</pre>
+<p><em>Figure 1 — Paladin's two layers. Private data moves only between runtimes, and the ledger holds commitments and signatures.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></em></p>
+<h2>3. Three domains, three trust models</h2>
+<h3>3.1 Noto: trust the notary</h3>
+<p>Noto tokens are confidential UTXO tokens "managed by a single party, referred to as the notary". Each state holds an owner, an amount and a random salt. Only its hash reaches the ledger, and the data itself travels over private channels<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The notary checks the sender's EIP-712 signature and whether the proposed states validly express the request. For anything but mint and burn, it also checks that inputs and outputs sum to the same value<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<p>The privacy here is privacy from outsiders. The notary sees every transfer, and the docs' own walkthrough has the notary checking that "the total balance of Party A will be above a threshold"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. An independent profile likewise notes that Noto enforcement "depends on notary/issuer EIP-712 certificates"<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Policy comes in two modes. Basic mode offers a few switches for mint, burn and lock. Hooks mode hands policy to a private Pente contract, and then "none of the basic notary constraints ... will be active". A buggy hook leaves no fallback control<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<h3>3.2 Zeto: trust the proof system</h3>
+<p>Zeto is a family of Circom-based zero-knowledge UTXO tokens. It offers sender and receiver anonymity, encrypted secrets, history masking, KYC and non-repudiation toward a designated auditor<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. An on-chain verifier replaces the notary, and the Paladin runtime does the indexing, coin selection and proof generation<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p>Trust does not disappear; it moves. Zeto's README warns that its test setup "is not sufficient to establish trust in the generated proofs". Proving keys must come from a documented decentralized ceremony or a single trusted party<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<h3>3.3 Pente: trust every member</h3>
+<p>Pente gives each privacy group its own world state, one base-ledger contract per group, which the docs call "just like a mini-blockchain"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Transactions are pre-executed in ephemeral Besu EVMs inside the runtime. Members then endorse the exact input and output states, and the ledger verifies those signatures against the commitments, with no change to the base EVM<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>The docs call this "threshold signature verification"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. The code allows exactly one threshold. <code>PenteDomain.java</code> accepts a single endorsement type, <code>group_scoped_identities</code>. A comment states that "the threshold is 100% right now", because a member who skipped endorsing would later have to catch up on transitions it missed<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. The on-chain contract reverts below the threshold<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. One offline member therefore stops the whole group. M-of-N endorsement appears in LFDT's post only as a future wish<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<table><thead><tr><th>Domain</th><th>Who enforces the rules</th><th>Who sees private data</th><th>Main trust point</th></tr></thead><tbody><tr><td>Noto</td><td>notary signature</td><td>parties and the notary</td><td>the notary, or hook code</td></tr><tr><td>Zeto</td><td>on-chain ZK verifier</td><td>parties</td><td>proving-key ceremony</td></tr><tr><td>Pente</td><td>EIP-712 signatures of all members</td><td>group members</td><td>liveness of every member</td></tr></tbody></table>
+<p><em>Table 1 — Trust in the three domains, compiled from the docs and code.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup></em></p>
+<h2>4. Atomic interoperability</h2>
+<p>What most separates Paladin from the Tessera lineage is atomic settlement across domains<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Under Noto, the notary pre-verifies a transaction and records its signature, the hash of masked inputs and outputs, inside a lock. The owner delegates that lock to a settlement contract, which can commit or roll back "directly on-chain without involvement of the notary"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. One settlement can combine Noto tokens with different notaries, plain ERC-20 legs, Zeto legs and transactions prepared inside Pente groups<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<pre class="mermaid">sequenceDiagram
+  participant I as Issuer (Noto bond)
+  participant B as Bank A (Noto cash)
+  participant S as Atomic swap contract
+  participant L as EVM ledger
+  I-&gt;&gt;L: lock bond, prepare unlock to Bank A
+  B-&gt;&gt;L: lock cash, prepare unlock to Issuer
+  I-&gt;&gt;S: delegate unlock authority
+  B-&gt;&gt;S: delegate unlock authority
+  S-&gt;&gt;L: execute both unlocks in one tx (no notary)
+  Note over S,L: if either leg fails&lt;br/&gt;the whole tx reverts</pre>
+<p><em>Figure 2 — A simplified version of the bond/CBDC DvP demo shown at LFDT's July 2026 workshop.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></em></p>
+<p>Kaleido engineers are trying to standardize this lock model. In July 2026 two drafts went up on Ethereum Magicians. ERC-8316 defines a lock lifecycle for settlement across systems with different privacy models, and ERC-8322 defines a notary-backed confidential token<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. The ERC-8322 author handle resembles a Paladin maintainer's GitHub ID, though the post never mentions Paladin, and it had drawn no replies<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</p>
+<h2>5. Maturity and governance</h2>
+<p><strong>Releases.</strong> v1.0.0 shipped as a GitHub release on 25 June 2026, and v1.0.1-rc.1 followed as a prerelease on 28 September<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<p><strong>One company.</strong> Every one of the seven active maintainers in <code>MAINTAINERS.md</code> lists Kaleido as their affiliation. Over the last year, 1,747 commits came from kaleido.io addresses, 402 from GitHub noreply and 26 from anything else<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. The launch posts were written by Kaleido's co-founder and engineers<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Governance is open, but one firm does the development. The repo has 92 stars and 77 forks<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<p><strong>Adoption claims.</strong> LFDT says Paladin "has already been deployed in a number of projects including central banks" and names none<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Ledger Insights repeated it as "multiple central and commercial banks adopting it", again without names. The Bank of Korea's LFDT membership in the same article is not tied to Paladin<sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. The only named case is Kaleido's own story on Bank Indonesia's Project Garuda. Even there Paladin appears only in a "built with" list. The page states neither its role nor which of the two evaluated protocols was chosen<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup> <em>(vendor-stated)</em>.</p>
+<p><strong>Docs versus code.</strong> LFDT's post celebrates post-quantum encrypted storage in Zeto, contributed by researchers at UC Berkeley and UNC Chapel Hill<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. It exists in the Zeto repo as <code>Zeto_AnonNullifierQurrency</code>, built on ML-KEM<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Paladin, however, depends on Zeto contracts v0.2.2 from January 2026. Its Zeto domain knows six Anon-family variants, and a repo-wide search for "qurrency" returns nothing<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. Railgun, listed as a plugin in Kaleido's July 2026 deck, is also absent from the repo<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. The Hardhat config lifts the contract-size limit because "a small number of verifiers are bigger than the default 24576 bytes"<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. Whether those verifiers can deploy on a chain that enforces EIP-170, such as Ethereum mainnet, was not tested.</p>
+<p><strong>Security.</strong> No third-party audit report turned up in either repo's documentation. The security policy lives in the organization's <code>.github</code> repository<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. EthSystems lists "operator access to client data in certain operating modes" and "centralization and custodial key management trade-offs" as risks<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<h2>6. Discussion</h2>
+<p><strong>Paladin is a runtime binding three different trust contracts.</strong> The site presents the domains as peers, but their guarantees diverge. Noto shows everything to its notary, Zeto rests on a ceremony, and Pente needs every member awake (Table 1). Atomic settlement ties them into one transaction, and its privacy is only as strong as its weakest leg. In the Figure 2 DvP with Noto on both sides, both notaries see the whole trade.</p>
+<p><strong>What suits the target customer constrains everyone else.</strong> Notary checks, unanimous endorsement and KYC hooks fit a supervised bank consortium. The site shows Ethereum, Base and Arbitrum logos and claims compatibility with "any unmodified EVM"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Yet the docs' default picture is a sidecar beside a Besu node, and the workshop demo ran on a private QBFT network<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<p><strong>Three questions for anyone evaluating it.</strong> Is the Zeto variant you need actually wired into Paladin's domain? How will you keep every Pente group member online? And will the vendor show audits and name deployments? Public material answers none of them.</p>
+<h2>7. Limitations</h2>
+<ul>
+<li>Nothing was executed. A CI-style Solidity build failed at dependency install (npm ETARGET), and the Go domain tests need Gradle-generated artefacts. Code claims rest on reading the source.</li>
+<li>The absence of an audit is bounded by a markdown search of both repos and a web search; a private audit may exist.</li>
+<li>No named deployments, performance figures or independent benchmarks were found, and the only independent analysis is one EthSystems profile.</li>
+<li>Which verifiers exceed 24,576 bytes, and whether they deploy on real chains, was not measured.</li>
+<li>Everything reflects main as of 23 October 2026 (paladin <code>6937b943a</code>, zeto <code>dd49549</code>) and may change in v1.0.1 and later.</li>
+</ul>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Paladin project</span>. <a href="https://www.paladinprivacy.org/">Paladin: Programmable Privacy for EVM (project site)</a>. <span class="venue">paladinprivacy.org, 2026</span>. <span class="accessed">Accessed 2026-10-24.</span></li>
+      <li id="ref-2"><span class="authors">Paladin maintainers</span>. <a href="https://lfdt-paladin.github.io/paladin/head/architecture/overview/">Paladin architecture overview (docs)</a>. <span class="venue">lfdt-paladin.github.io, 2026</span>. <span class="accessed">Accessed 2026-10-24.</span></li>
+      <li id="ref-3"><span class="authors">Paladin maintainers</span>. <a href="https://lfdt-paladin.github.io/paladin/head/architecture/pente/">Pente - Private EVM Smart Contracts (docs)</a>. <span class="venue">lfdt-paladin.github.io, 2026</span>. <span class="accessed">Accessed 2026-10-24.</span></li>
+      <li id="ref-4"><span class="authors">Peter Broadhurst, Andrew Richardson</span>. <a href="https://www.lfdecentralizedtrust.org/blog/announcing-paladin-an-lf-decentralized-trust-lab-for-programmable-privacy-on-evm">Announcing Paladin, an LF Decentralized Trust Lab for Programmable Privacy on EVM</a>. <span class="venue">LF Decentralized Trust, 2025</span>. <span class="accessed">Accessed 2026-10-24.</span></li>
+      <li id="ref-5"><span class="authors">Paladin maintainers</span>. <a href="https://lfdt-paladin.github.io/paladin/head/architecture/noto/">Noto - Notarized Tokens (docs)</a>. <span class="venue">lfdt-paladin.github.io, 2026</span>. <span class="accessed">Accessed 2026-10-24.</span></li>
+      <li id="ref-6"><span class="authors">EthSystems</span>. <a href="https://ethsystems.org/vendors/paladin/">Paladin vendor profile (EthSystems)</a>. <span class="venue">ethsystems.org, 2026</span>. <span class="accessed">Accessed 2026-10-24.</span></li>
+      <li id="ref-7"><span class="authors">Paladin maintainers</span>. <a href="https://github.com/LFDT-Paladin/zeto">Zeto: UTXO based privacy-preserving token toolkit (repository)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-10-24.</span></li>
+      <li id="ref-8"><span class="authors">Paladin maintainers</span>. <a href="https://lfdt-paladin.github.io/paladin/head/architecture/zeto/">Zeto - Zero Knowledge Proof based tokens (Paladin docs)</a>. <span class="venue">lfdt-paladin.github.io, 2026</span>. <span class="accessed">Accessed 2026-10-24.</span></li>
+      <li id="ref-9"><span class="authors">Paladin maintainers</span>. <a href="https://github.com/LFDT-Paladin/paladin/blob/main/domains/pente/src/main/java/io/kaleido/paladin/pente/domain/PenteDomain.java">PenteDomain.java (endorsement threshold)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-10-24.</span></li>
+      <li id="ref-10"><span class="authors">Paladin maintainers</span>. <a href="https://github.com/LFDT-Paladin/paladin">LFDT-Paladin/paladin repository (releases, maintainers, dependencies)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-10-24.</span></li>
+      <li id="ref-11"><span class="authors">Peter Broadhurst</span>. <a href="https://www.lfdecentralizedtrust.org/blog/paladin-a-unified-programmable-privacy-framework-for-evm-becomes-newest-lf-decentralized-trust-project">Paladin becomes newest LF Decentralized Trust project</a>. <span class="venue">LF Decentralized Trust, 2025</span>. <span class="accessed">Accessed 2026-10-24.</span></li>
+      <li id="ref-12"><span class="authors">Peter Broadhurst, Matthew Whitehead</span>. <a href="https://www.lfdecentralizedtrust.org/hubfs/LFDT%20Privacy%20Workshop%202026%20-%20Paladin%20+%20Demo.pdf">The next generation of Paladin (LFDT Privacy Workshop deck)</a>. <span class="venue">LF Decentralized Trust, 2026</span>. <span class="accessed">Accessed 2026-10-24.</span></li>
+      <li id="ref-13"><span class="authors">Ethereum Magicians</span>. <a href="https://ethereum-magicians.org/t/erc-8316-programmable-settlement-locks/28861">ERC-8316: Programmable Settlement Locks</a>. <span class="venue">Ethereum Magicians, 2026</span>. <span class="accessed">Accessed 2026-10-24.</span></li>
+      <li id="ref-14"><span class="authors">awrichardson</span>. <a href="https://ethereum-magicians.org/t/erc-8322-notary-backed-confidential-token/28908">ERC-8322: Notary-Backed Confidential Token</a>. <span class="venue">Ethereum Magicians, 2026</span>. <span class="accessed">Accessed 2026-10-24.</span></li>
+      <li id="ref-15"><span class="authors">Ledger Insights</span>. <a href="https://www.ledgerinsights.com/paladin-privacy-framework-graduates-as-bank-of-korea-joins-lf-decentralized-trust/">Paladin privacy framework graduates as Bank of Korea joins LF Decentralized Trust</a>. <span class="venue">Ledger Insights, 2025</span>. <span class="accessed">Accessed 2026-10-24.</span></li>
+      <li id="ref-16"><span class="authors">Kaleido</span>. <a href="https://www.kaleido.io/customer-stories/bank-indonesia">Bank Indonesia Project Garuda wholesale CBDC (Kaleido customer story)</a>. <span class="venue">kaleido.io, 2026</span>. <span class="accessed">Accessed 2026-10-24.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-10-23. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+title: Paladin — 비수정 EVM 위의 프로그래머블 프라이버시
+subtitle: 노터리·영지식·사설 EVM 세 신뢰 모델을 한 런타임에 묶은 LFDT 프로젝트의 구조와, 코드로 확인한 제약
+title_en: Paladin — Programmable Privacy on Unmodified EVM
+subtitle_en: How an LFDT project binds notary, zero-knowledge and private-EVM trust models into one runtime, and the limits found in its code
+slug: paladin-privacy
+lang: ko
+langs: [ko, en]
+date: 2026-10-23
+tags: [paladin, privacy, evm, zkp, noto, zeto, pente, lfdt, kaleido, dvp]
+status: ready

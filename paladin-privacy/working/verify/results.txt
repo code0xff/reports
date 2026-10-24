@@ -1,0 +1,16 @@
+== 2026-10-23 checks (paladin @ 6937b943a, zeto @ dd49549) ==
+[1] Releases: v1.0.0 published 2026-06-25 (GitHub release), v1.0.1-rc.1 prerelease 2026-09-28.
+[2] MAINTAINERS.md: 7 active maintainers, all "Company Affiliation: Kaleido"; 1 emeritus (Kaleido).
+    git log since 2025-10-23 author domains: kaleido.io 1747, users.noreply.github.com 402, other 26.
+[3] Pente threshold: domains/pente/.../PenteDomain.java comment "Note the threshold is 100% right now";
+    only endorsementType "group_scoped_identities" accepted. PentePrivacyGroup.sol reverts PenteEndorsementThreshold below threshold.
+[4] Zeto versions: Paladin solidity depends on @lfdecentralizedtrust/zeto-contracts v0.2.2 (tag 2026-01-09);
+    domains/zeto/go.mod uses hyperledger-labs/zeto/go-sdk pseudo-version 20241004. Zeto latest tag v0.5.1 (2026-05-29).
+    Zeto variants named in Paladin domains/zeto: Anon, AnonEnc, AnonNullifier, AnonNullifierKyc, NfAnon, NfAnonNullifier.
+    `git grep -il qurrency` across whole Paladin repo: 0 files (Zeto repo has Zeto_AnonNullifierQurrency, ML-KEM).
+[5] Railgun: `git grep -il railgun` across Paladin repo: 0 files (Kaleido July 2026 deck lists "Plugins: Railgun, Noto, Zeto + Private EVM Pente").
+[6] solidity/hardhat.config.ts: allowUnlimitedContractSize true, comment "a small number of verifiers are bigger than the default 24576 bytes".
+[7] Attempted CI-style solidity build/test: js-merkletree built OK; npm install failed (ETARGET hardhat@3.21.0). Tests NOT run.
+[8] Go domain unit tests (domains/noto) need gradle-generated ABIs/protos; not runnable standalone. NOT run.
+[9] No third-party security audit report found: grep "security audit|audited by|audit report" in *.md of both repos -> 0. Security policy is org-level (LFDT-Paladin/.github SECURITY.md); zeto/SECURITY.md links a repo path that 404s.
+[10] mermaid@11 parse of rendered pages: 4/4 pass. Source links: 16/16 HTTP 200.
