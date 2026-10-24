@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI agents, AI developer tools, and AI agent payments — daily brief, 2026-10-25 — Deepsearch</title>
+<meta name="description" content="Research report generated via the Deepsearch harness.">
+<link rel="canonical" href="https://code0xff.github.io/reports/ai-agent-brief-2026-10-25/">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="ko" href="ko/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="AI agents, AI developer tools, and AI agent payments — daily brief, 2026-10-25">
+<meta property="og:description" content="Research report generated via the Deepsearch harness.">
+<meta property="og:url" content="https://code0xff.github.io/reports/ai-agent-brief-2026-10-25/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI agents, AI developer tools, and AI agent payments — daily brief, 2026-10-25">
+<meta name="twitter:description" content="Research report generated via the Deepsearch harness.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>AI agents, AI developer tools, and AI agent payments — daily brief, 2026-10-25</h1>
+    <p class="subtitle">Research report generated via the Deepsearch harness.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-10-25</span>
+      <span><strong>Tags</strong> —</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="ai-agent-brief-2026-10-25.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>The x402 overcharge bug this brief covered on 2026-10-22 did not stay a two-comment GitHub thread. In the two days since, a third party measured how often the price-drift pattern actually fires on Base mainnet, three separately built fixes converged on the same design, and a security reviewer found a concurrency hole in the leading candidate before it had even merged<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. None of it has landed in <code>@x402/core</code> yet. In parallel, a second and unrelated amount-safety gap surfaced in the same SDK: a client scoped to a testnet can still sign a mainnet payment if the server answers with the older payment version<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Two more facilitator-side checks, against wash settlement and against inflated settlement overrides, moved through review and partly merged<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Nothing elsewhere on the beat, including AP2, Visa's Trusted Agent Protocol, L402, MPP, and the card networks, produced anything citable this window.</p>
+  </section>
+
+  <main class="body">
+<h2>Introduction</h2>
+<p>This edition covers <strong>2026-10-22 through 2026-10-25</strong>. Background on the payment-rail landscape lives in the site's <a href="../agent-commerce-protocol/">agent commerce protocol comparison</a>; background on agent identity lives in <a href="../agent-identity-reputation-registry/">agent identity and the reputation registry</a>. The <a href="../ai-agent-brief-2026-10-24/">previous edition</a> closed on a question it posed as a signal to watch: would the x402 Foundation or its maintainers respond to the overcharge issue with a merged fix, a documented warning, or neither? Three days later the answer is still "neither," but the thread did not sit still — it grew a measurement, three competing fix designs, and a review process that is still finding holes in the leading one.</p>
+<h2>What moved</h2>
+<h3>The overcharge thread gets a number, three fixes, and a crack in the fix</h3>
+<p>AgenticFinanceGraph, a third party that watches stablecoin settlement on Base, read every transfer into x402's Bazaar-listed sellers from 12 to 23 October and posted the result into the same issue thread. Among the 80 sellers with at least 20 settlements each (32,605 settlements, $18,950.78 total), 1,126 (3.5%) came in at ten times or more the seller's own median, 65 at a hundred times or more, and 25 of those also cleared a dollar<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The post is careful about what it does and does not show: a settlement priced far above a seller's median is not proof of the exact overcharge mechanism from the bug report, since a seller might legitimately reprice, and the measurement counts any stablecoin transfer into a listed address rather than confirmed x402 traffic specifically. What it establishes is scale: the pattern this bug report flagged as theoretically possible happens, at minimum, in the low thousands across a two-week sample on one chain.</p>
+<p>Three implementers used the number as a reason to actually ship a fix rather than keep arguing about severity. The x402-foundation core team opened PR #3920, adding an <code>expectedAmount</code> field to client-side spend controls: the caller states the price they expect, either explicitly or by letting the first successful quote anchor it, and anything that drifts gets rejected before a signature is ever created. That includes a mid-session price <em>drop</em>, since a drop beyond tolerance is the same bait pattern run backwards<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. A third-party package maintainer, Tanilo, reviewed that PR against their own shipped <code>@x402/x402-guard</code> 0.1.1 and disclosed, unprompted, that their package had the same class of gap: it checked the recipient only when the caller's terms happened to name one, and never checked the asset or network at all. A second reviewer, going by the handle NSPG13, then found a problem in PR #3920 itself: the anchor that is supposed to lock in the first accepted price is only written after the payment payload is created, so two calls fired at once on a fresh client can both pass the empty-anchor check and reach the signer before either one commits<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<pre class="mermaid">sequenceDiagram
+    participant CallerA as Caller call A
+    participant CallerB as Caller call B
+    participant Client as x402 client (fresh, no anchor)
+    participant Ledger as Quote-key anchor (written post-payload)
+
+    par Both calls race
+        CallerA-&gt;&gt;Client: createPaymentPayload(quote)
+        Client-&gt;&gt;Ledger: read anchor — empty, proceed
+        CallerB-&gt;&gt;Client: createPaymentPayload(quote)
+        Client-&gt;&gt;Ledger: read anchor — still empty, proceed
+    end
+    Client--&gt;&gt;Ledger: write anchor (A&#x27;s price)
+    Client--&gt;&gt;Ledger: write anchor (B&#x27;s price) overwrites A
+    Note over Client,Ledger: Both A and B reached the signer before&lt;br/&gt;either anchor existed to reject the other</pre>
+<p><em>What the arrows assert: per the reviewer's finding on PR #3920, the "first-accepted" anchor is written only after a payment payload is successfully created, so two concurrent calls on a client with no prior anchor can each pass the empty-anchor check and sign before either commitment is recorded<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</em></p>
+<p>The gap is not closed. PR #3920 remained open and under active revision as of this writing, with no merge and no date for one.</p>
+<h3>A second, unrelated amount-safety bug: the wrong network signs the right price</h3>
+<p>A separate issue filed 2026-10-24 found that x402's Python helpers for registering an EVM or Solana client filter the newer V2 payment scheme by the caller's chosen networks, but loop over every legacy network when registering the older V1 scheme regardless of that filter<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. The practical effect: a developer who configures a client for a testnet only, expecting it to refuse anything else, still gets a signed mainnet payment if the resource server happens to answer with a V1-style 402 instead of a V2 one. The TypeScript SDK already filters V1 registrations the same way the V2 ones are filtered; the Python and Go helpers do not. No maintainer or third party has commented on the report yet, so whether it is accepted as a real defect is still open. It is, at minimum, the same family of problem as the overcharge thread, showing up on a different axis: a client trusting something about a 402 response that nothing forces it to check.</p>
+<h3>Facilitators close two more settlement loopholes</h3>
+<p>Two more checks moved on the facilitator side this window, neither contested. PR #3910, open and under review, would make <code>x402Facilitator.verify()</code> and <code>settle()</code> reject any payment where the payer and the recipient resolve to the same address, closing a wash-settlement path that let an address pay itself to inflate apparent sales volume or abuse settlement-gated catalog listing<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. And two merged ports, #3881 for Go and #3877 for Python, fixed a bug already patched in the TypeScript SDK where a facilitator's settlement-override logic would resolve a percentage or dollar override to an amount above what <code>PaymentRequirements</code> actually authorized: a 500% override of 1,000,000 atomic units previously resolved to 5,000,000 rather than being rejected<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Both fixes are narrower and less contested than the overcharge debate, which is likely why they merged within a day while PR #3920 is still being argued over line by line.</p>
+<h2>Why it matters</h2>
+<p>Every fix this window came from someone building code and someone else trying to break it, not from a spec ruling. The x402 Foundation itself has said nothing in either the overcharge thread or the new testnet issue. The design that is winning, anchor a price expectation before signing and reject any drift, is the Foundation's own core-team PR, but it got there by surviving two outside reviewers rather than by being declared correct. That process is also why it is slow: a self-disclosed gap in a third-party package and a concurrency bug in the leading fix both surfaced in the same 48 hours, which is a sign the review is doing its job and a reason nothing has merged yet.</p>
+<p>The pattern repeating across this window's three items is not one shared bug but one shared cause: x402 ships three independent SDKs, and a safety property that one of them enforces (network filtering in TypeScript; settlement-override caps in TypeScript before the Go and Python ports caught up) is not guaranteed in the others until someone notices the gap and ports the fix. Nothing about the protocol's spec or its maintainers' process currently catches that drift before a bug report does.</p>
+<h2>Signals to watch</h2>
+<ul>
+<li>PR #3920: merges with the concurrency fix NSPG13 flagged, gets redesigned around it, or stalls the way #3866 itself has for three days now.</li>
+<li>Issue #3930 sits unconfirmed right now. A maintainer or a second reporter weighing in would settle whether it is real, the way the mainnet measurement settled the overcharge report.</li>
+<li>PR #3910 touches core verification logic, not an opt-in client control, so it is a harder merge than the others; whether it clears review at all is open.</li>
+<li>No one outside the thread that produced AgenticFinanceGraph's measurement has tried to replicate or dispute it yet.</li>
+</ul>
+<h2>Limitations</h2>
+<p>All six sources this window are GitHub primary material, issue and PR threads on x402-foundation/x402, because that is where this window's actual news happened; no trade press has covered any of it as of this writing. The mainnet settlement figures rest on one third party's self-published methodology, which the party itself frames as a ceiling rather than confirmed exploitation, and no one has independently reproduced it. Issue #3930 is a single reporter's reading of SDK source with no maintainer or third-party confirmation yet. None of the three open PRs (#3920, #3910, #3925, the last a documentation-only companion not covered above) has a visible maintainer review assignment or merge timeline. AP2, ACP, UCP, L402, MPP, Visa's Trusted Agent Protocol, and the card networks produced no citable news in this window: the Universal Commerce Protocol repository took three minor commits (a return-policy extension and two fixes) that did not clear the bar for a "what moved" item, and web search for Visa, Mastercard, and Stripe agent-payment news returned only undated aggregator summaries of older announcements, which were excluded. Feeds, web, and GitHub were all reachable this window; papers was not run, since nothing scouted elsewhere pointed to a new academic result; Hacker News returned general AI-agent show-and-tell with nothing specific to this beat; Bluesky and Reddit remain unconfigured in this environment.</p>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/issues/3866#issuecomment-6382202281">Mainnet settlement-side measurement of price-drift frequency (x402 issue #3866 comment)</a>. <span class="venue">GitHub — x402-foundation/x402, 2026</span>. <span class="accessed">Accessed 2026-10-25.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/3920">feat(core): expected-amount control in client spend controls — enforce caller price expectation pre-signature</a>. <span class="venue">GitHub — x402-foundation/x402, 2026</span>. <span class="accessed">Accessed 2026-10-25.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/issues/3930">[Bug]: Python register_exact_evm_client / register_exact_svm_client ignore networks for V1, so a testnet-only client still signs V1 mainnet payments</a>. <span class="venue">GitHub — x402-foundation/x402, 2026</span>. <span class="accessed">Accessed 2026-10-25.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/3910">feat(core,specs): enforce self-payment prohibition (payer !== payTo) and pre-signing group sponsor invariants</a>. <span class="venue">GitHub — x402-foundation/x402, 2026</span>. <span class="accessed">Accessed 2026-10-25.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/3877">fix(python): reject settlement overrides above the authorized amount</a>. <span class="venue">GitHub — x402-foundation/x402, 2026</span>. <span class="accessed">Accessed 2026-10-25.</span></li>
+      <li id="ref-6"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/3881">fix(go): enforce settlement override ceiling against PaymentRequirements.amount</a>. <span class="venue">GitHub — x402-foundation/x402, 2026</span>. <span class="accessed">Accessed 2026-10-25.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-10-25. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

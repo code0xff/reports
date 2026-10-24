@@ -1,0 +1,7 @@
+# Gaps — ai-agent-brief-2026-10-25
+
+- No maintainer from the x402 Foundation (as distinct from the implementers and reviewers active in the threads) has merged any of the three open PRs (#3920, #3910, #3925) or commented on the new testnet/mainnet bug (#3930) as of this writing. Whether these land, and in what form, is open.
+- AgenticFinanceGraph's settlement-measurement methodology (restated from its own published definition page) counts any stablecoin transfer into a Bazaar-listed `payTo` address, not confirmed-x402 payments specifically, and does not claim the price-drift events it counted were exploitative rather than legitimate repricing. No independent party has replicated the measurement.
+- Issue #3930 (testnet-scoped client signing mainnet V1 payments) has no comment or triage from anyone but the reporter; whether it is accepted as a real gap or disputed is unknown.
+- Outside x402, AP2, Visa's Trusted Agent Protocol, L402, and MPP had no commits, releases, or citable coverage inside the 72-hour window. The Universal Commerce Protocol repository took three minor commits (a return-policy extension, a checkout-lifecycle doc fix, a cart-only-checkout fix) in the window, but none rose to the significance of a "what moved" item on their own and are not covered in the draft.
+- No card-network or PSP (Visa, Mastercard, Stripe) product news specific to this window turned up in any lane; web search returned only aggregator/SEO summaries of older (2025–early 2026) announcements, which were excluded as unreliable and undated to this window.
