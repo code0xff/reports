@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI agents, agent tooling, and agent payments — daily brief, 2026-10-26 — Deepsearch</title>
+<meta name="description" content="A third party proposes agent-to-agent messaging for x402, a testnet bug gets a fix, and UCP ships a return-policy extension.">
+<link rel="canonical" href="https://code0xff.github.io/reports/ai-agent-brief-2026-10-26/">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="ko" href="ko/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="AI agents, agent tooling, and agent payments — daily brief, 2026-10-26">
+<meta property="og:description" content="A third party proposes agent-to-agent messaging for x402, a testnet bug gets a fix, and UCP ships a return-policy extension.">
+<meta property="og:url" content="https://code0xff.github.io/reports/ai-agent-brief-2026-10-26/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI agents, agent tooling, and agent payments — daily brief, 2026-10-26">
+<meta name="twitter:description" content="A third party proposes agent-to-agent messaging for x402, a testnet bug gets a fix, and UCP ships a return-policy extension.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>AI agents, agent tooling, and agent payments — daily brief, 2026-10-26</h1>
+    <p class="subtitle">A third party proposes agent-to-agent messaging for x402, a testnet bug gets a fix, and UCP ships a return-policy extension.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-10-26</span>
+      <span><strong>Tags</strong> ai-agents, agent-payments, x402, ucp, standing-brief</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="ai-agent-brief-2026-10-26.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>The x402 testnet bug this brief flagged two days ago as unconfirmed now has a fix: PR #3935 stops the Python SDK's legacy payment scheme from signing mainnet payments on a client scoped to testnet, with tests that fail on <code>main</code> and pass against the patch<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. It is not merged, and nobody has checked whether the Go SDK has the same gap. A third-party contributor used the same 48 hours to propose something new rather than fix something broken: an <code>agent-messaging</code> extension that gives two agents a shared mailbox for payment requests and receipts, built same-day with a reference implementation and cross-posted into the Solana ecosystem's own fork of the spec<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. No x402 Foundation maintainer has said anything about it yet. Away from x402 entirely, the Universal Commerce Protocol shipped a return-policy extension that gives agentic shopping flows a structured way to state refund windows, fees, and eligibility instead of leaving an agent to infer them from prose<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+  </section>
+
+  <main class="body">
+<h2>Introduction</h2>
+<p>This edition covers <strong>2026-10-23 through 2026-10-26</strong>. Background on the payment-rail landscape lives in the site's <a href="../agent-commerce-protocol/">agent commerce protocol comparison</a>; background on agent identity lives in <a href="../agent-identity-reputation-registry/">agent identity and the reputation registry</a>. The <a href="../ai-agent-brief-2026-10-25/">previous edition</a> left two open questions: would PR #3920 survive the concurrency hole a reviewer found in it, and would issue #3930's testnet-signing bug get confirmed. The second question is answered this window; the first is not — PR #3920 remains open, mergeable, and unmerged, with no new activity since<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h2>What moved</h2>
+<h3>A third party proposes a messaging layer between agents, outside the Foundation</h3>
+<p>x402 standardizes how a client pays a resource server. It says nothing about how two <em>agents</em> reach each other to negotiate that payment in the first place — today that happens over chat, email, or a proprietary API, with no shared way to discover an agent's messaging endpoint or agree on delivery semantics. A contributor going by Solizardking opened issue #3943 on 2026-10-25 proposing to close that gap: a discovery descriptor, a store-and-forward mailbox (<code>register</code>, <code>send</code>, <code>inbox</code>, <code>ack</code>, <code>link</code>), and a message envelope with <code>payment.request</code> and <code>payment.receipt</code> kinds that reference x402's existing <code>PaymentRequirements</code> and settlement claims<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The boundary is explicit in the design: messaging credentials are short-lived signed tokens scoped only to messaging, and can never authorize a payment themselves. A spec-only PR, #3944, followed the same day, adding 468 lines to <code>specs/extensions/agent-messaging.md</code> with no changes to any package code<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>What makes this more than a one-off pitch is how fast it moved chain-agnostic. The first version leaned on Solana; within hours the author revised it to use CAIP-2/10/19 identifiers, added a secp256k1 alternative to the original Ed25519 tokens, and specified (though did not yet implement) an EVM calldata transport alongside the working Solana SPL Memo one<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. The same spec is also under review as part of a separate PR on the Solana Foundation's own fork of x402<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>, giving it a second venue even before the Foundation that owns the canonical repo has said a word.</p>
+<pre class="mermaid">sequenceDiagram
+    participant A as Agent A
+    participant M as x402m mailbox
+    participant B as Agent B
+    participant X as x402 settlement (unrelated channel)
+
+    A-&gt;&gt;M: send payment.request (refs PaymentRequirements)
+    M-&gt;&gt;B: inbox delivery
+    B-&gt;&gt;M: ack
+    B-&gt;&gt;X: pay via normal x402 scheme
+    X--&gt;&gt;B: settlement confirmation
+    B-&gt;&gt;M: send payment.receipt (claim, refs settlement)
+    M-&gt;&gt;A: inbox delivery
+    A-&gt;&gt;X: verify receipt claim independently</pre>
+<p><em>What the arrows assert: the mailbox carries only a proposal and a claim about payment, never a spending credential — settlement happens over x402 proper, and the receiving agent re-verifies the claim rather than trusting the message<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</em></p>
+<p>That silence is the catch. As of this writing, no x402 Foundation maintainer has commented on either #3943 or #3944; the only substantive discussion is the author's own update, asking reviewers whether an agent-to-agent extension belongs in the core spec directory at all or should sit under third-party extensions until a second independent implementation exists<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The reference implementation backing the proposal is a repository the author created the same day it was cited, with zero stars<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. A GitHub Actions bot has already warned that the PR closes automatically after a week of inactivity if its commits aren't signed. This is a plausible idea with a working demo behind it, not yet a reviewed one.</p>
+<h3>The testnet-signing bug gets a fix, still unmerged</h3>
+<p>Two days ago this brief flagged issue #3930 as unconfirmed: x402's Python helpers for registering an EVM or Solana payment client filter the newer V2 scheme by the caller's chosen networks, but loop over every legacy V1 network regardless of that filter, so a client configured for testnet only could still sign a real mainnet payment if the server answered with a V1-style request. PR #3935, opened the next day, fixes exactly that — it restricts V1 registration to networks whose CAIP-2 equivalent matches the caller's <code>networks</code> argument, mirroring filtering logic the TypeScript SDK already has<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. The PR's own test suite demonstrates the bug directly: two new tests fail against the unpatched code and pass against the fix. Signed-off by a contributor account, the PR carries an explicit note that its commit was produced with AI assistance.</p>
+<p>The gap the fix leaves is the same one the overcharge thread exposed last week: x402 ships three independent SDKs, and a safety property proven in one (here, TypeScript's network filtering) isn't guaranteed in the others until someone notices and ports it. Nobody in this window checked whether Go has the same hole.</p>
+<h3>UCP ships a return-policy extension</h3>
+<p>Away from x402's settlement-layer debugging, the Universal Commerce Protocol — the catalog-and-checkout standard behind agentic shopping integrations from Shopify, Target, and Walmart — merged a return-policy extension on 2026-10-23, giving an agent a structured way to read refund windows, fees, and eligibility instead of scraping them from a merchant's prose policy page<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. The design, worked out across two linked pull requests, replaces an earlier boolean <code>final_sale</code> flag with an explicit <code>eligibility</code> type (<code>window</code>, <code>unlimited</code>, or <code>not_accepted</code>) and separates presentable terms from resolved facts: before a return's clock has started, a policy states a duration and an anchor event like "delivered"; once that event has actually happened, the merchant states the concrete deadline directly, so no platform has to compute a date across time zones or split deliveries<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. Fees get the same treatment UCP already uses for order totals — a typed list where an unscoped <code>{"amount": 0}</code> entry means genuinely free, and a channel-scoped entry like <code>{"methods": ["in_store"], "amount": 0}</code> overrides it for one checkout path but not others.</p>
+<p>None of this is contested or still in review; it merged. It is also, for now, a schema and a spec, not a confirmed integration — no merchant or agent client was found deploying it in this window.</p>
+<h2>Why it matters</h2>
+<p>Line the three items up and the x402 beat and the UCP beat are moving on opposite cadences. The messaging proposal and the testnet fix both came from outside the x402 Foundation's own maintainer group, and both remain open: one waiting on a maintainer opinion that hasn't arrived, the other waiting on a merge. That continues exactly the pattern the previous two editions of this brief described — x402's safety and feature surface is being extended by outside contributors faster than the Foundation is reviewing it. UCP's return-policy extension, by contrast, went through a named core contributor and a multi-PR design process that started in July and landed on schedule. The difference isn't that one protocol is healthier than the other; it's that x402 is absorbing a wave of outside contribution it hasn't built review capacity to match, while UCP's narrower contributor base is still working through its backlog at a pace that keeps up with it.</p>
+<h2>Signals to watch</h2>
+<ul>
+<li>A maintainer comment, review, or closure on issue #3943 / PR #3944 before the unsigned-commit deadline forces it shut regardless.</li>
+<li>Whether PR #3935 merges, and separately, whether anyone checks the Go SDK for the same V1-network-filter gap.</li>
+<li>PR #3920's concurrency fix, still unmerged five days after the overcharge measurement that prompted it<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</li>
+<li>Any production agent or merchant integration citing UCP's return-policy extension, which would turn this window's schema merge into a deployed one.</li>
+</ul>
+<h2>Limitations</h2>
+<p>All nine sources this window are GitHub primary material — issues, pull requests, and one reference-implementation repository — because that is where this window's actual developments happened. Trade press, Hacker News, and general web search returned nothing dated inside 2026-10-23–2026-10-26 for any part of the standing topic: AP2, ACP, Visa's Trusted Agent Protocol, L402, MPP, and the card networks' own agent-commerce products produced no commits, releases, or citable coverage this window, confirmed by checking each project's release feed and recent commit history directly rather than by search alone. The agent-messaging proposal rests entirely on its own author's claims about implementation status and cross-ecosystem review; the Solana fork's PR (#71) that supposedly reviews the same spec has an unfilled template body, so the depth of that review could not be assessed. Feeds, web, and GitHub were all reachable this window; Hacker News returned nothing specific to the beat; Bluesky and Reddit remain unconfigured in this environment; papers was not run, since nothing scouted elsewhere pointed to a new academic result.</p>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/3920">feat(core): expected-amount control in client spend controls — enforce caller price expectation pre-signature</a>. <span class="venue">GitHub (x402-foundation/x402), 2026</span>. <span class="accessed">Accessed 2026-10-26.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/issues/3943">[Feature]: Proposal: agent-messaging extension — agent-to-agent messaging for payment requests and receipts</a>. <span class="venue">GitHub (x402-foundation/x402), 2026</span>. <span class="accessed">Accessed 2026-10-26.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/3944">docs(specs): add agent-messaging extension spec</a>. <span class="venue">GitHub (x402-foundation/x402), 2026</span>. <span class="accessed">Accessed 2026-10-26.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://github.com/solana-foundation/x402/pull/71">feat(svm): atomic-batch scheme + facilitator-discovery and agent-messaging extension specs</a>. <span class="venue">GitHub (solana-foundation/x402), 2026</span>. <span class="accessed">Accessed 2026-10-26.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://github.com/Solizardking/x402-messaging">Solizardking/x402-messaging — experimental x402m agent messaging reference implementation</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-10-26.</span></li>
+      <li id="ref-6"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/3935">fix(python): respect networks filter for V1 in exact EVM/SVM client registration</a>. <span class="venue">GitHub (x402-foundation/x402), 2026</span>. <span class="accessed">Accessed 2026-10-26.</span></li>
+      <li id="ref-7"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/issues/3930">[Bug]: Python register_exact_evm_client / register_exact_svm_client ignore networks for V1, so a testnet-only client still signs V1 mainnet payments</a>. <span class="venue">GitHub (x402-foundation/x402), 2026</span>. <span class="accessed">Accessed 2026-10-26.</span></li>
+      <li id="ref-8"><span class="authors">—</span>. <a href="https://github.com/Universal-Commerce-Protocol/ucp/pull/634">feat: add return policy extension (dev.ucp.shopping.policy.return)</a>. <span class="venue">GitHub (universal-commerce-protocol/ucp), 2026</span>. <span class="accessed">Accessed 2026-10-26.</span></li>
+      <li id="ref-9"><span class="authors">—</span>. <a href="https://github.com/Universal-Commerce-Protocol/ucp/pull/966">feat(return): explicit eligibility, business-stated deadlines, typed fees</a>. <span class="venue">GitHub (universal-commerce-protocol/ucp), 2026</span>. <span class="accessed">Accessed 2026-10-26.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-10-26. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
