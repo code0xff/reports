@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI agents, developer tools, and agent payments — daily brief, 2026-10-27 — Deepsearch</title>
+<meta name="description" content="A spend-control fix for x402&#x27;s overcharge bug gets cross-checked and found wanting in two new ways, a cross-chain signing bug&#x27;s fix finally merges, and a zod CVE with no patch gets a tested workaround.">
+<link rel="canonical" href="https://code0xff.github.io/reports/ai-agent-brief-2026-10-27/">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="ko" href="ko/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="AI agents, developer tools, and agent payments — daily brief, 2026-10-27">
+<meta property="og:description" content="A spend-control fix for x402&#x27;s overcharge bug gets cross-checked and found wanting in two new ways, a cross-chain signing bug&#x27;s fix finally merges, and a zod CVE with no patch gets a tested workaround.">
+<meta property="og:url" content="https://code0xff.github.io/reports/ai-agent-brief-2026-10-27/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI agents, developer tools, and agent payments — daily brief, 2026-10-27">
+<meta name="twitter:description" content="A spend-control fix for x402&#x27;s overcharge bug gets cross-checked and found wanting in two new ways, a cross-chain signing bug&#x27;s fix finally merges, and a zod CVE with no patch gets a tested workaround.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>AI agents, developer tools, and agent payments — daily brief, 2026-10-27</h1>
+    <p class="subtitle">A spend-control fix for x402&#x27;s overcharge bug gets cross-checked and found wanting in two new ways, a cross-chain signing bug&#x27;s fix finally merges, and a zod CVE with no patch gets a tested workaround.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-10-27</span>
+      <span><strong>Tags</strong> —</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="ai-agent-brief-2026-10-27.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>Two days after x402 PR #3920 added a client-side control meant to stop the ×10 overcharge bug this brief has tracked since 2026-10-21, an independent test lab cross-checked the patch and found it closes the bug it was built for while leaving two others open: a race between two concurrent payment calls that can both reach the signer before either is recorded, and a decimal amount that slips past the check meant to catch it<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Separately, the testnet-signing bug this brief flagged as unmerged two editions ago now has a merged fix — though only for Python, and nobody has checked Go<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. A third thread, also new this window: a zod vulnerability with no 3.x fix available has sat unaddressed in <code>@x402/core</code> since at least 2026-10-23, until a contributor tested the zod-4 migration directly against the SDK's own test suite and live payments and reported it clean<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+  </section>
+
+  <main class="body">
+<h2>Introduction</h2>
+<p>This edition covers <strong>2026-10-24 through 2026-10-27</strong>. Background on the payment-rail landscape lives in the site's <a href="../agent-commerce-protocol/">agent commerce protocol comparison</a>; background on the overcharge bug's first week lives in the <a href="../ai-agent-brief-2026-10-25/">2026-10-25</a> and <a href="../ai-agent-brief-2026-10-26/">2026-10-26</a> editions. The previous edition left two questions open: would PR #3935 merge, and would anyone check the Go SDK for the same gap it fixed. The first is answered this window; the second is not.</p>
+<h2>What moved</h2>
+<h3>A patch for the overcharge bug gets cross-checked, and survives one test while failing two others</h3>
+<p>PR #3920 was written to close issue #3866 — a bug where <code>@x402/fetch</code> would sign a payment for whatever amount a server's 402 response declared, with a spend cap as the only guard. The fix adds an <code>expectedAmount</code> check: the caller states a price up front, and the SDK rejects any quote that drifts from it before the signer is ever called.</p>
+<p>A test lab (Argus Agent Test Lab) ran a full acceptance matrix against the PR's head and reported the fix does what it claims for the case it was built for: a same-amount recipient substitution now gets rejected with a typed error, both when the caller sets the price explicitly and when the SDK auto-anchors it to the first accepted offer<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Two other cases in the same matrix did not pass. Two concurrent calls for the same resource can both clear the check and both reach the signer before either call's binding is written — the guard assumes one call at a time, and nothing enforces that. Separately, an amount expressed as a decimal, or in an asset whose decimal count the SDK doesn't recognize, passes the check silently instead of being rejected: a price pinned at 0.01 let a 0.5 offer through, fifty times over, with no error raised<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. A second, independently credited reproduction inside the same GitHub thread found the identical two boundaries on the identical commit.</p>
+<pre class="mermaid">sequenceDiagram
+    participant Caller
+    participant SDK as x402 SDK (PR #3920)
+    participant Signer
+    participant Ledger as per-key binding ledger
+
+    par First concurrent call
+        Caller-&gt;&gt;SDK: create payment for resource R
+        SDK-&gt;&gt;Ledger: check binding for R (empty)
+        SDK-&gt;&gt;Signer: sign (binding not yet written)
+    and Second concurrent call
+        Caller-&gt;&gt;SDK: create payment for resource R
+        SDK-&gt;&gt;Ledger: check binding for R (still empty)
+        SDK-&gt;&gt;Signer: sign (binding not yet written)
+    end
+    Signer--&gt;&gt;Caller: two valid signatures for one resource</pre>
+<p><em>What the arrows assert: both calls read the ledger before either call's result is written back to it, so the per-key anchoring the fix relies on never gets a chance to reject the second call<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</em></p>
+<p>A commit from a contributor account, reported in the same thread as addressing both gaps with a serialized check-and-record step and a typed rejection for unrecognized amount formats, has not been re-run by either lab. No verdict exists on it yet.</p>
+<h3>The testnet-signing fix merges — for one SDK</h3>
+<p>Issue #3930, flagged unconfirmed two editions ago and unmerged in the last one, closed on 2026-10-26 when PR #3935 merged. The bug: x402's Python helpers for registering a payment client filtered the newer V2 scheme by the caller's chosen networks but looped over every legacy V1 network regardless, so a client configured for testnet only could still sign a real mainnet payment if a server answered with a V1-style request. The fix restricts V1 registration to networks whose CAIP-2 identifier matches the caller's own list, mirroring logic the TypeScript SDK already had<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>That mirroring is also the gap this brief flagged before and nobody has closed: x402 ships three SDKs, and a safety property proven in one isn't guaranteed in the others until someone checks. Go's status is still unknown.</p>
+<h3>A zod vulnerability with no patch gets a tested workaround</h3>
+<p><code>@x402/core</code> depends on zod ^3.24.2. GHSA-mrhx-c7xc-m3w5, a high-severity memory-exhaustion advisory, affects all zod 3.x and is fixed only in 4.6.6 — there is no patched 3.x release coming. Every project that depends on <code>@x402/core</code> and runs <code>npm audit</code> in CI inherits the finding with no way to clear it short of forcing an override against the SDK's own declared range<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. A contributor checked which code paths actually touch the vulnerable unbounded-array validator in the published SDK and found most server- and client-side payment parsing doesn't call it; the exposure sits in an exported helper function that validates an incoming 402 response, which anyone importing it to check untrusted server data would hit<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<p>NovaCorpAI went further and tested the actual fix: forcing zod 4.6.7 across <code>@x402/core</code>, <code>@x402/stellar</code>, <code>@x402/evm</code>, <code>@x402/fetch</code>, and <code>@x402/hono</code>, then running the full test suite and live payments on Stellar testnet and an EVM testnet through the Circle facilitator. Both passed, because the SDK's zod usage (<code>object</code>, <code>string</code>, <code>union</code>, <code>discriminatedUnion</code>, <code>record</code>) is unchanged between zod 3 and 4<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Nobody has turned that into a PR yet.</p>
+<h2>Why it matters</h2>
+<p>Three unrelated bug classes moved this window: a spend-control bypass, a cross-chain signing gap, a dependency CVE. In every one, the party doing the verification was outside the x402 Foundation — a test lab, a contributor reading the published SDK's bundled code, another contributor running zod 4 against live payments. The Foundation's own review shows up only once, as a merge of someone else's PR. #3935 is a real fix, and NovaCorpAI's zod test is a real test; neither is a complaint about the work itself. It is a capacity question. Three independent threads of unpaid scrutiny are running ahead of a maintainer group that has, this window, closed exactly one of them.</p>
+<h2>Signals to watch</h2>
+<ul>
+<li>Whether the disputed commit addressing A10a/A10b and A11 gets re-run by either test lab, and with what verdict.</li>
+<li>Whether anyone checks the Go SDK for the same V1-network-filter gap PR #3935 fixed in Python.</li>
+<li>Whether NovaCorpAI's zod-4 migration becomes an actual PR against <code>@x402/core</code>, and whether a maintainer merges it.</li>
+</ul>
+<h2>Limitations</h2>
+<p>All seven sources this window are GitHub primary material: issues, pull requests, and one third-party test-lab repository, because that is where this window's developments happened. Trade press and general web search returned coverage of agentic shopping and enterprise agent identity tooling — a Verge piece on merchants restricting AI shopping agents, a Google Cloud post on IAM controls for agent-invoked MCP tools — but neither reached three independent, dated events on its own, so neither made this edition. AP2 and the Universal Commerce Protocol both show active interoperability work this window, including UCP pull requests on how AP2's completion-time authorization maps onto UCP's own terms, but it did not clear the three-item bar by itself and is noted in <code>gaps.md</code> instead. The A10/A11 findings rest on one test lab's fixtures plus one unsigned reproduction inside the same comment thread. Neither is x402-foundation-authored, and this brief could not independently re-run either rig.</p>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">igor-vii</span>. <a href="https://github.com/x402-foundation/x402/issues/3866#issuecomment-6416670043">x402 #3866 — Argus Agent Test Lab cross-check of PR #3920: A5 closed, A10a/A10b and A11 open</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-2"><span class="authors">igor-vii</span>. <a href="https://github.com/igor-vii/Argus-Agent-Test-Lab">Argus Agent Test Lab</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-3"><span class="authors">PhilBot402</span>. <a href="https://github.com/x402-foundation/x402/pull/3935">fix(python): respect networks filter for V1 in exact EVM/SVM client registration</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-4"><span class="authors">mgillr</span>. <a href="https://github.com/x402-foundation/x402/issues/3930">[Bug]: Python register_exact_evm_client / register_exact_svm_client ignore networks for V1, so a testnet-only client still signs V1 mainnet payments</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-5"><span class="authors">Eras256</span>. <a href="https://github.com/x402-foundation/x402/issues/3914">@x402/core pins zod ^3.24.2, so GHSA-mrhx-c7xc-m3w5 (high) has no fix path downstream</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-6"><span class="authors">a32116150-ctrl</span>. <a href="https://github.com/x402-foundation/x402/issues/3953">GHSA-mrhx-c7xc-m3w5 (zod, all 3.x) puts every @x402 install at multiple high in npm audit — bump needed in @x402/core + @x402/evm</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-7"><span class="authors">igor-vii (x402-foundation)</span>. <a href="https://github.com/x402-foundation/x402/pull/3920">feat(core): expected-amount control in client spend controls</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-10-27. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

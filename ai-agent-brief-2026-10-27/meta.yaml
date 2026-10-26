@@ -1,0 +1,10 @@
+title: AI agents, developer tools, and agent payments — daily brief, 2026-10-27
+subtitle: A spend-control fix for x402's overcharge bug gets cross-checked and found wanting in two new ways, a cross-chain signing bug's fix finally merges, and a zod CVE with no patch gets a tested workaround.
+title_ko: AI 에이전트, 개발자 도구, 에이전트 결제 — 일일 브리핑, 2026-10-27
+subtitle_ko: x402 과다청구 버그의 지출 검증 패치가 교차 검증에서 새로운 구멍 두 개를 더 드러냈고, 체인 간 서명 버그 수정이 마침내 병합됐으며, 패치 없는 zod 취약점에는 검증된 우회 경로가 나왔다.
+slug: ai-agent-brief-2026-10-27
+lang: en
+langs: [en, ko]
+date: 2026-10-27
+tags: []
+status: ready
