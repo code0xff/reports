@@ -1,0 +1,15 @@
+== 2026-10-27 checks ==
+[1] Country lists in Stripe docs (counted by script):
+    Treasury stablecoin balances, private-preview countries: 101 (US separately in public preview) -> matches "101 countries" (blog s12).
+    Stablecoin payments, private-preview business countries outside US: 32 -> matches Sessions recap "32 additional markets"; roadmap's 33 does not.
+[2] IETF datatracker API: draft-httpauth-payment rev 01 (2026-09-09) active, group "Individual Submissions", stream none;
+    draft-ryan-httpauth-payment rev 01 expired; httpauth WG concluded. Not WG-adopted.
+[3] MPP directory census (directory_census.py over https://mpp.dev/api/services, fetched 2026-10-27): see directory_census.txt
+    138 services, 1,573 endpoints. Services by method: tempo 135, stripe 10, evm 1. stripe-only 2, stripe+tempo 8.
+    Intents: tempo/charge 132, tempo/session 8, stripe/charge 10. Median tempo charge price 0.02 USD (n=1,044).
+    Methods advertised on mpp.dev home (Card, Lightning, Solana, XRPL, Stellar, Monad, NEAR...) appear in 0 directory listings.
+[4] Live probe (probe_402.py, one unauthenticated GET per service, nothing paid): 39 services had a fixed-path priced GET endpoint.
+    19 returned 402 with a Payment challenge; 14 returned 400, 4 404, 1 401, 1 410.
+    Offered methods in the 19 challenges: tempo 13, evm+tempo 4, evm 1, stripe+tempo 1. 4 challenges differ from the listed methods.
+[5] GitHub: mppx@0.15.0 2026-10-21; stripe/link-cli 881 stars (created 2026-04-23).
+[6] Rendered pages: mermaid@11 parse 4/4. Source links 23/24 HTTP 200; theblock.co 403 to scripted fetch (bot block), readable via WebFetch on 2026-10-27. Cross-links to 4 prior reports verified to existing paths.

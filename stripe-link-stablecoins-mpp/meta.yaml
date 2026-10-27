@@ -1,0 +1,10 @@
+title: Stripe의 Link, 결제 스택, 스테이블코인, 그리고 MPP — 2026년 10월 현황
+subtitle: 에이전트 지갑이 된 Link, OUSD를 기본값으로 삼은 스테이블코인 스택, 디렉터리를 세어 본 MPP
+title_en: Stripe's Link, Payments Stack, Stablecoins and MPP — State of Play, October 2026
+subtitle_en: Link becomes an agent wallet, OUSD becomes the stablecoin default, and a count of the MPP directory
+slug: stripe-link-stablecoins-mpp
+lang: ko
+langs: [ko, en]
+date: 2026-10-27
+tags: [stripe, link, stablecoins, bridge, privy, tempo, ousd, mpp, machine-payments, agentic-commerce]
+status: ready

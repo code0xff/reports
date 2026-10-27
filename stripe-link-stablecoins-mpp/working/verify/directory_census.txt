@@ -1,0 +1,9 @@
+services: 138 endpoints: 1573
+services by method: {'tempo': 135, 'stripe': 10, 'evm': 1}
+method combos: {'tempo': 127, 'stripe+tempo': 8, 'stripe': 2, 'evm': 1}
+service intents (method,intent): {'tempo/charge': 132, 'stripe/charge': 10, 'tempo/session': 8, 'evm/charge': 1}
+integration: {'third-party': 100, 'first-party': 38}
+status: {'active': 136, 'maintenance': 1, 'beta': 1}
+endpoints by method: {'tempo': 1379, None: 184, 'evm': 7, 'stripe': 3}
+endpoints by intent: {'charge': 1322, None: 184, 'session': 67}
+tempo charge price USD: n=1044 median=0.0200 p10=0.0040 p90=0.1600 max=20.00

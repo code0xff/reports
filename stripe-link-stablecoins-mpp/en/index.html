@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stripe&#x27;s Link, Payments Stack, Stablecoins and MPP — State of Play, October 2026 — Deepsearch</title>
+<meta name="description" content="Link becomes an agent wallet, OUSD becomes the stablecoin default, and a count of the MPP directory">
+<link rel="canonical" href="https://code0xff.github.io/reports/stripe-link-stablecoins-mpp/en/">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="Stripe&#x27;s Link, Payments Stack, Stablecoins and MPP — State of Play, October 2026">
+<meta property="og:description" content="Link becomes an agent wallet, OUSD becomes the stablecoin default, and a count of the MPP directory">
+<meta property="og:url" content="https://code0xff.github.io/reports/stripe-link-stablecoins-mpp/en/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Stripe&#x27;s Link, Payments Stack, Stablecoins and MPP — State of Play, October 2026">
+<meta name="twitter:description" content="Link becomes an agent wallet, OUSD becomes the stablecoin default, and a count of the MPP directory">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>Stripe&#x27;s Link, Payments Stack, Stablecoins and MPP — State of Play, October 2026</h1>
+    <p class="subtitle">Link becomes an agent wallet, OUSD becomes the stablecoin default, and a count of the MPP directory</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-10-27</span>
+      <span><strong>Tags</strong> stripe, link, stablecoins, bridge, privy, tempo, ousd, mpp, machine-payments, agentic-commerce</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="stripe-link-stablecoins-mpp.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>Businesses on Stripe processed $1.9 trillion in 2025, up 34%, and Stripe's Link wallet passed 200 million users<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. In 2026 Stripe is stretching that network in two directions. Link is becoming a wallet that agents can spend from. Bridge, Privy and Tempo are pushing stablecoins into payments, accounts, cards and payouts<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. On 30 September, OUSD on Tempo became Stripe's default stablecoin configuration. OUSD is issued for a consortium led by a Bridge co-founder<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Most of what was announced is still in preview. Stablecoin balances are a public preview in the US and a private preview in 101 other countries, and stablecoin payments support neither disputes nor manual capture<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. MPP, the machine payments protocol Stripe co-wrote with Tempo, lets a Stripe merchant take cards through Shared Payment Tokens (minimum $0.50) and USDC.e on Tempo (minimum $0.01). Both land as ordinary payments<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. Its IETF draft is still an individual submission, not adopted by any working group<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. A census of the public MPP directory found 135 of 138 services accepting Tempo and only 10 accepting Stripe's card path. Of 19 services that answered an unpaid request with a 402, one offered the Stripe method<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. For now MPP runs on Tempo's stablecoin rail far more than on Stripe's card network.</p>
+  </section>
+
+  <main class="body">
+<h2>1. Introduction</h2>
+<p>Stripe's 2025 annual letter, dated 24 February 2026, reports $1.9 trillion of volume on Stripe in 2025. Link had "more than 200 million" users. During the year Stripe bought Privy, which powers over 110 million programmable wallets, and Metronome, a usage-billing platform<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> <em>(unverified — single source)</em>.</p>
+<p>The letter spends most of its energy on stablecoins and agentic commerce. "It may be a crypto winter, but it's a stablecoin summer," it says. Stablecoin payments volume roughly doubled to $400 billion, an estimated 60% of it B2B, and Bridge's volume more than quadrupled<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. On agents, the letter lays out five levels of agentic commerce and lists a year of launches: ACP, Shared Payment Tokens, the Agentic Commerce Suite and machine payments<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>Between May and June 2026 this site covered Stripe's agent-payments strategy (<a href="../../stripe-ai-agent-payments/en/">stripe-ai-agent-payments</a>), Tempo and MPP (<a href="../../tempo-mpp-ai-agent-payments/en/">tempo-mpp-ai-agent-payments</a>, <a href="../../mpp-machine-payments-protocol/en/">mpp-machine-payments-protocol</a>) and ACP (<a href="../../openai-stripe-acp/">openai-stripe-acp</a>). This report tracks what has changed since then. It reads Stripe's documentation as of 27 October 2026 to see what is actually open, and it weights stablecoins and MPP most heavily.</p>
+<h2>2. The stack at a glance</h2>
+<p>Stripe announced 288 products and features at Sessions 2026 on 29 April<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The relevant strands:</p>
+<table><thead><tr><th>Area</th><th>2026 change</th><th>Status</th></tr></thead><tbody><tr><td>Payments and Checkout</td><td>Checkout studio, embedded checkout form, Authorization Boost (+3.8% average acceptance)</td><td>partly preview</td></tr><tr><td>Link</td><td>agent wallet; US merchants accept Pix and stablecoins via Link</td><td>launched; stablecoins via Link on roadmap</td></tr><tr><td>Connect</td><td>16,000+ platforms, 11 million businesses, one-click onboarding for Link users</td><td>partly preview</td></tr><tr><td>Billing</td><td>Metronome; streaming payments built from Metronome and Tempo</td><td>mixed</td></tr><tr><td>Treasury and Issuing</td><td>agent-ready financial accounts, single-use cards for agents, stablecoin balances and cards</td><td>mostly preview</td></tr><tr><td>Stablecoins</td><td>32 more markets, new Bridge chains including Tempo, Privy wallets</td><td>preview</td></tr><tr><td>MPP</td><td>cards and BNPL via SPTs, stablecoins via Tempo</td><td>launched</td></tr></tbody></table>
+<p><em>Table 1 — Sessions 2026 items relevant here, with figures as Stripe reported them.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></em></p>
+<p>One caveat governs the dated items below. The same page publishes a 334-entry roadmap and says it "is not a commitment to deliver any material, code, or functionality"<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<h2>3. Link: from checkout wallet to agent wallet</h2>
+<p>Link stores a customer's payment methods and shipping details and fills them in at checkout. It holds cards, US bank accounts and BNPL, and Instant Bank Payments are "available exclusively through Link"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Customers are recognized by email, phone number or browser cookie and confirm with a one-time code. For the merchant, a Link payment settles "on the same timeline as card payments, regardless of the funding method"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. A bank-funded payment looks like a card payment to the merchant, which makes bank payments easy to accept. Link is unavailable in India<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>The only official user count is the letter's "more than 200 million"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. A 250 million figure circulates, but no Stripe primary source for it turned up.</p>
+<p>The agent wallet is the big 2026 change. TechCrunch described the April launch. A user grants an agent access through OAuth, and the agent files a spend request with context. The user reviews it on phone or web, and only then is a payment credential released to the agent. It is built on Stripe's Issuing for agents<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. Today link.com/agents goes further. It invites users to "approve a budget and let your agent handle the rest", and its sample screen shows a $100 per-purchase cap. It also stresses that the agent buys "without ever seeing your payment details"<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The spending limits promised as "soon" at launch appear to have arrived, though the only evidence is the product page's copy and mock-up.</p>
+<p>Link also feeds MPP. Stripe's MPP guide issues test SPTs from <code>link-cli</code>, and <code>link-cli mpp pay</code> pays an MPP endpoint directly<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. That repository was created on 23 April and had 881 stars by 27 October<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Link is now both a human checkout wallet and the place an agent fetches a card credential for an MPP payment.</p>
+<h2>4. Stablecoins</h2>
+<h3>4.1 Four parts</h3>
+<p>Stripe's stablecoin business rests on four pieces, bought or co-built. Bridge orchestrates issuance, conversion and accounts, and Privy supplies wallet infrastructure<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Tempo is the payments L1 incubated with Paradigm, sold on dedicated payment lanes, sub-second finality and opt-in privacy<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The letter is frank about why Tempo exists: "one of the major blockchains delayed payouts for one Bridge user by over 12 hours"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Tempo's mainnet opened on 18 March 2026. It had raised $500 million at a $5 billion valuation in an October 2025 Series A, a round in which neither Stripe nor Paradigm took part<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+<p>The fourth piece is OUSD. On 30 June a consortium called Open Standard announced Open USD, with Stripe, Visa, BlackRock and over 140 others as members. Most reserve interest flows back to participants, and the interim CEO is Bridge co-founder Zach Abrams<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. On 30 September Stripe said "OUSD on Tempo is now Stripe's default stablecoin configuration". It is the default across Treasury, Issuing, Global Payouts, Crypto Onramp and Payments, on Base, Ethereum, Solana and Tempo<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. Fortune, citing USDT at 62% of the market and USDC at 25%, called it "a serious challenge" to both issuers<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. On 1 October, Privy CEO Henri Stern took charge of stablecoins and crypto across Stripe<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<pre class="mermaid">flowchart LR
+  subgraph In[Receive]
+    P[Stablecoin payments&lt;br/&gt;Checkout, Billing]
+    M[MPP machine payments&lt;br/&gt;Tempo USDC.e]
+    L[Via Link&lt;br/&gt;roadmap]
+  end
+  subgraph Hold[Hold]
+    SB[Stripe balance&lt;br/&gt;settled in local fiat]
+    T[Treasury stablecoin balance&lt;br/&gt;OUSD or USDC]
+  end
+  subgraph Out[Spend or send]
+    C[Stablecoin cards]
+    W[Payouts to wallets or banks]
+  end
+  P --&gt; SB
+  M --&gt; SB
+  L -.-&gt; SB
+  SB --&gt;|receive as fiat, then convert| T
+  T --&gt; C
+  T --&gt; W</pre>
+<p><em>Figure 1 — How stablecoins move inside Stripe. Stablecoins received as payments settle to the merchant in fiat, and holding them as stablecoins means converting again in Treasury. Dashed lines are roadmap items.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup></em></p>
+<h3>4.2 Accepting them</h3>
+<p>A paying customer is sent to crypto.stripe.com to choose a wallet and network, and the merchant settles "in your local currency"<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. Accepted tokens are USDC (Tempo, Ethereum, Solana, Polygon, Base), USDP and USDG. OUSD is missing, despite the 30 September post naming Payments among its defaults<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. Merchants outside the US need a private preview: the docs list 32 countries, including the EU, Hong Kong, Mexico and Switzerland. That matches Sessions' "32 additional markets" and contradicts the roadmap's 33<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>The limits are spelled out. Dispute support is "No" and manual capture is "Not supported". Refunds always go back as stablecoins to the original wallet, and each payment is capped at $10,000<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. The disputes paragraph justifies the absence of chargebacks because "the customer must authenticate the payment with their bank". That is an odd fit for a wallet-signed payment and reads like text carried over from card docs.</p>
+<h3>4.3 Holding them</h3>
+<p>A Treasury financial account can hold one stablecoin balance, in OUSD or USDC. It is a public preview in the US and a private preview elsewhere<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. Counting the docs' list gives 101 countries, exactly the "101 countries" Stripe announced in May 2025<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup><sup class="footnote-ref"><a href="#ref-15" id="cite-15">[15]</a></sup>. Eighteen months on, everywhere outside the US is still invitation-only. Money cannot go straight from an outside bank into a stablecoin balance; it has to land as fiat and be converted<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</p>
+<p>On 21 October Stripe announced Treasury for agents. Agents connect over MCP to check balances, send and convert money and set up recipients. Any live money movement needs a human's approval by default<sup class="footnote-ref"><a href="#ref-16" id="cite-16">[16]</a></sup><sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>. Spending limits for agents were due "in the coming weeks"<sup class="footnote-ref"><a href="#ref-17" id="cite-17">[17]</a></sup>.</p>
+<h3>4.4 Spending them</h3>
+<p>Cards that spend from a stablecoin balance are growing fast. CoinDesk quoted Stern as expecting Stripe's stablecoin card programs to reach "more than 100 countries by year-end", with Kraken, Ramp and Morse among customers<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Two weeks later PYMNTS covered the 15 October multi-currency card launch with Plasma. It said the cards work in more than 30 countries now and will reach 100 "in 2027"<sup class="footnote-ref"><a href="#ref-18" id="cite-18">[18]</a></sup>. The two reports give the same target different dates, and this report does not pick one.</p>
+<p>The wider market needs scale, too. Allium counts $482 billion of stablecoin payments in January–September 2026, up 45%. Over the same period supply was flat at about $305 billion, up 0.4% on the year. Only 2.5% of $97.9 trillion in raw transfers counted as end-user activity, and second-quarter stablecoin card spend was about 0.03% of Visa's volume<sup class="footnote-ref"><a href="#ref-19" id="cite-19">[19]</a></sup>. Read against that, the letter's "$400 billion" looks like an industry figure rather than Stripe's own, though the letter never says so<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h2>5. MPP</h2>
+<h3>5.1 Where the standard stands</h3>
+<p>Earlier reports on this site cover MPP's mechanics, so this section only checks its status. The core document, the "Payment" HTTP authentication scheme, was renamed in September from <code>draft-ryan-httpauth-payment</code> to <code>draft-httpauth-payment</code>. Dropping the personal name changed nothing formal. Datatracker still files it under "Individual Submissions" with no stream, the old-name draft has expired, and the httpauth working group it sounds like has concluded<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>.</p>
+<p>mpp.dev lists Tempo, Stripe, cards, Lightning, Solana, XRP Ledger, Stellar, Monad and NEAR Intents as payment methods, with SDKs in TypeScript, Python, Rust, Go and Ruby<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>. The reference implementation, <code>mppx</code>, shipped 0.14.0, 0.14.1 and 0.15.0 on a single day, 21 October<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. It is pre-1.0 and moving fast.</p>
+<h3>5.2 Stripe's integration</h3>
+<p>Stripe's docs say machine payments "works best with" MPP, and that x402 is supported for stablecoins only<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>. Three combinations are accepted. MPP takes USDC.e on Tempo and USDC on Solana, and x402 takes USDC on Base<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>.</p>
+<pre class="mermaid">sequenceDiagram
+  participant A as Agent
+  participant S as Merchant server (mppx)
+  participant St as Stripe
+  participant T as Tempo
+  A-&gt;&gt;S: request paid resource
+  S--&gt;&gt;A: 402 + Payment challenge&lt;br/&gt;(stripe SPT, tempo)
+  alt card path
+    A-&gt;&gt;A: get SPT from Link&lt;br/&gt;(user approves)
+    A-&gt;&gt;S: credential carrying the SPT
+    S-&gt;&gt;St: create PaymentIntent (min 0.50 USD)
+  else stablecoin path
+    A-&gt;&gt;T: send USDC.e to merchant deposit address&lt;br/&gt;(Stripe can sponsor gas)
+    A-&gt;&gt;S: credential with proof of transfer
+    S-&gt;&gt;St: record PaymentIntent (min 0.01 USD)
+    St-&gt;&gt;St: auto offramp to fiat balance
+  end
+  S--&gt;&gt;A: resource + receipt</pre>
+<p><em>Figure 2 — The MPP flow Stripe's docs describe. Either way the result is an ordinary payment in the merchant's Stripe balance.<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup></em></p>
+<p>For merchants the draw is bookkeeping. Both paths are recorded as PaymentIntents, so refunds, reporting and payouts work as for any other payment<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Economically the paths differ sharply. An SPT card payment has a $0.50 floor, and a stablecoin payment has a $0.01 floor. Sessions can bill in sub-cent increments but still settle in units of at least $0.01<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>. Stripe's gas sponsorship, <code>hostedFeePayer</code>, is unavailable to Connect integrations<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Stablecoin acceptance covers every US state except New York<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup>.</p>
+<h3>5.3 Counting the directory</h3>
+<p>The MPP directory has a machine-readable API at <code>mpp.dev/api/services</code>, which was pulled and tallied on 27 October<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>.</p>
+<table><thead><tr><th>Measure</th><th>Value</th></tr></thead><tbody><tr><td>services / endpoints</td><td>138 / 1,573</td></tr><tr><td>services accepting Tempo</td><td>135</td></tr><tr><td>services accepting the Stripe method</td><td>10 (2 Stripe-only)</td></tr><tr><td>other (EVM)</td><td>1</td></tr><tr><td>services using the session intent</td><td>8, all Tempo</td></tr><tr><td>median Tempo per-request price</td><td>$0.02 (n=1,044)</td></tr></tbody></table>
+<p><em>Table 2 — MPP directory census (author's measurement, 27 October 2026)<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup></em></p>
+<p>None of the cards, Lightning or Solana options on mpp.dev's front page appears in a single directory listing<sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup><sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>. Listings can be stale, so live behavior was checked too. One unpaid GET went to each of 39 services that had a fixed-path, priced GET endpoint. Nineteen answered with a 402 carrying a Payment challenge, and the rest returned 400, 404, 401 or 410. The 19 challenges offered Tempo alone 13 times, EVM plus Tempo 4 times, EVM alone once, and Stripe plus Tempo once. In four cases the methods offered differed from the listing<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>.</p>
+<p>None of this is transaction volume, which nobody publishes. The supply side is still clear. MPP is pitched as co-written by Stripe and able to take cards and BNPL, yet the services actually opening up take Tempo stablecoins almost exclusively. The median price explains why: at $0.02 a request, the card path's $0.50 floor rules cards out<sup class="footnote-ref"><a href="#ref-22" id="cite-22">[22]</a></sup><sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>.</p>
+<h2>6. Discussion</h2>
+<p><strong>Stripe's choice is to make stablecoins invisible to merchants.</strong> Stablecoin payments settle in fiat, Link bank payments settle like cards, and MPP's Tempo payments are offramped automatically<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. A merchant adds a payment method without touching its ledger. Anyone who wants to hold stablecoins has to open a Treasury account, and outside the US that is still a preview by application<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</p>
+<p><strong>Protection varies by path.</strong> Cards and Link come with disputes. Stablecoin payments have no disputes and no manual capture, so refunds are at the merchant's discretion<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. MPP's stablecoin path sits on the same payment method. That hardly matters for a two-cent API call. If Link brings stablecoins to human checkout, as the roadmap says<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>, shoppers lose the chargeback they take for granted with cards, and merchant refund policy has to fill the gap.</p>
+<p><strong>With OUSD, Stripe is choosing the money as well as the rails.</strong> Making OUSD on Tempo the default puts issuance, chain, wallets, and acceptance and cards inside one family. Issuance sits with Open Standard, run by former Bridge leadership. The chain is Tempo, the wallets are Privy's, and acceptance and cards are Stripe's<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Sharing reserve income with participants is the lure against USDC and USDT<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Yet the public token list for accepting payments does not include OUSD<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>. Whether that is a month-old documentation lag or a staged rollout could not be determined.</p>
+<p><strong>In practice MPP is Tempo stablecoin billing.</strong> The official story is a rail-agnostic standard spanning cards, wallets and Lightning<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-21" id="cite-21">[21]</a></sup>. The directory and live 402s show something narrower: APIs charging a few cents a call in USDC.e on Tempo<sup class="footnote-ref"><a href="#ref-23" id="cite-23">[23]</a></sup>. That suits Stripe well enough, because the offramp into a merchant balance runs through Stripe<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. While the formal standard sits as an IETF individual submission<sup class="footnote-ref"><a href="#ref-20" id="cite-20">[20]</a></sup>, the de facto standard is being written by 135 Tempo services in a directory.</p>
+<h2>7. Limitations</h2>
+<ul>
+<li>MPP transaction volume is not published and was not measured. The directory census and the 402 probe are a one-day snapshot that sent only unpaid GET requests.</li>
+<li>Scale figures ($1.9 trillion, 200 million users, $400 billion) rest on Stripe's annual letter alone, which does not say whether the $400 billion is industry-wide.</li>
+<li>Two reports disagree on when stablecoin cards reach 100 countries (year-end versus 2027), and this report does not resolve it.</li>
+<li>Link's budget approvals and limits were confirmed only from the product page's copy and sample screen.</li>
+<li>Sessions roadmap items are plans Stripe says it is not committed to, and most stablecoin and agent features are previews whose terms may change.</li>
+<li>Why OUSD is absent from the accepted-token list was not established.</li>
+</ul>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Patrick Collison, John Collison</span>. <a href="https://assets.stripeassets.com/fzn2n1nzq965/3LlGw839Q6kUwxZlLZDtH6/75ddcbada4aa7743dd8ec7d0f9ca497e/Stripe-annual-letter-2025-desktop.pdf">Stripe 2025 Annual Letter</a>. <span class="venue">Stripe, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-2"><span class="authors">Stripe</span>. <a href="https://stripe.com/blog/everything-we-announced-at-sessions-2026">Everything we announced at Sessions 2026</a>. <span class="venue">stripe.com, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-3"><span class="authors">Stripe</span>. <a href="https://docs.stripe.com/payments/link">Link (Stripe docs)</a>. <span class="venue">docs.stripe.com, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-4"><span class="authors">TechCrunch</span>. <a href="https://techcrunch.com/2026/04/30/stripe-link-digital-wallet-ai-agents-shopping/">Stripe updates Link, a digital wallet that autonomous AI agents can use, too</a>. <span class="venue">TechCrunch, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-5"><span class="authors">Stripe</span>. <a href="https://link.com/agents">Link for agents</a>. <span class="venue">link.com, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-6"><span class="authors">Stripe</span>. <a href="https://docs.stripe.com/payments/machine/mpp">MPP (Stripe docs)</a>. <span class="venue">docs.stripe.com, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-7"><span class="authors">wevm, Stripe</span>. <a href="https://github.com/wevm/mppx">wevm/mppx releases and stripe/link-cli repository activity</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-8"><span class="authors">CoinDesk</span>. <a href="https://www.coindesk.com/business/2026/10/01/stripe-to-expand-stablecoin-cards-to-over-100-countries-by-the-end-of-the-year">Stripe to expand stablecoin cards to 100 countries as Privy&#x27;s Henri Stern takes charge of crypto</a>. <span class="venue">CoinDesk, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-9"><span class="authors">Tempo</span>. <a href="https://tempo.xyz/blog/mainnet/">Tempo Mainnet Is Live</a>. <span class="venue">tempo.xyz, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-10"><span class="authors">The Block</span>. <a href="https://www.theblock.co/post/394131/tempo-mainnet-goes-live-with-machine-payments-protocol-for-agents">Tempo mainnet goes live with Machine Payments Protocol for agents</a>. <span class="venue">The Block, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-11"><span class="authors">Fortune</span>. <a href="https://fortune.com/2026/06/30/stripe-visa-stablecoin-rival-ousd-tether-circle/">Stripe, Visa and BlackRock back OUSD stablecoin</a>. <span class="venue">Fortune, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-12"><span class="authors">Stripe</span>. <a href="https://stripe.com/blog/ousd-now-live-on-stripe">OUSD is now the default stablecoin on Stripe</a>. <span class="venue">stripe.com, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-13"><span class="authors">Stripe</span>. <a href="https://docs.stripe.com/payments/stablecoin-payments">Stablecoin payments (Stripe docs)</a>. <span class="venue">docs.stripe.com, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-14"><span class="authors">Stripe</span>. <a href="https://docs.stripe.com/treasury/stablecoins">Stablecoins in Treasury (Stripe docs)</a>. <span class="venue">docs.stripe.com, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-15"><span class="authors">Stripe</span>. <a href="https://stripe.com/blog/introducing-stablecoins-for-treasury">Introducing stablecoins for Stripe Treasury in 101 countries</a>. <span class="venue">stripe.com, 2025</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-16"><span class="authors">Stripe</span>. <a href="https://docs.stripe.com/treasury/agents">Treasury for agents (Stripe docs)</a>. <span class="venue">docs.stripe.com, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-17"><span class="authors">Stripe</span>. <a href="https://stripe.com/newsroom/news/treasury-for-agents">Treasury for agents (Stripe newsroom)</a>. <span class="venue">stripe.com, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-18"><span class="authors">PYMNTS</span>. <a href="https://www.pymnts.com/news/payment-methods/2026/stripe-teams-with-plasma-to-unveil-multi-currency-stablecoin-cards/">Stripe Teams With Plasma To Unveil Multi-Currency Stablecoin Cards</a>. <span class="venue">PYMNTS, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-19"><span class="authors">CoinDesk</span>. <a href="https://www.coindesk.com/business/2026/10/18/stablecoin-supply-stalls-but-payments-jump-45-as-visa-mastercard-and-stripe-connect-crypto-to-cash">Stablecoin supply stalls but payments jump 45%</a>. <span class="venue">CoinDesk, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-20"><span class="authors">IETF Datatracker</span>. <a href="https://datatracker.ietf.org/doc/draft-httpauth-payment/">The &quot;Payment&quot; HTTP Authentication Scheme (draft-httpauth-payment-01)</a>. <span class="venue">IETF, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-21"><span class="authors">Tempo, Stripe</span>. <a href="https://mpp.dev/">MPP: Machine Payments Protocol</a>. <span class="venue">mpp.dev, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-22"><span class="authors">Stripe</span>. <a href="https://docs.stripe.com/payments/machine">Machine payments (Stripe docs)</a>. <span class="venue">docs.stripe.com, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+      <li id="ref-23"><span class="authors">Tempo, Stripe</span>. <a href="https://mpp.dev/api/services">MPP services directory (machine-readable) — census and live 402 probe (author measurement)</a>. <span class="venue">mpp.dev, 2026</span>. <span class="accessed">Accessed 2026-10-27.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-10-27. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

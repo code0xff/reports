@@ -1,0 +1,397 @@
+[
+ {
+  "id": "aisa",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 401,
+  "payment_challenges": 0,
+  "challenge_methods": []
+ },
+ {
+  "id": "laso-finance",
+  "listed_methods": [
+   "evm"
+  ],
+  "status": 402,
+  "payment_challenges": 1,
+  "challenge_methods": [
+   "evm"
+  ]
+ },
+ {
+  "id": "apex-db",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 402,
+  "payment_challenges": 2,
+  "challenge_methods": [
+   "evm",
+   "tempo"
+  ]
+ },
+ {
+  "id": "rxatlas",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 402,
+  "payment_challenges": 2,
+  "challenge_methods": [
+   "evm",
+   "tempo"
+  ]
+ },
+ {
+  "id": "trialbase-db",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 402,
+  "payment_challenges": 2,
+  "challenge_methods": [
+   "evm",
+   "tempo"
+  ]
+ },
+ {
+  "id": "recallradar",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 402,
+  "payment_challenges": 2,
+  "challenge_methods": [
+   "evm",
+   "tempo"
+  ]
+ },
+ {
+  "id": "allium",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 402,
+  "payment_challenges": 1,
+  "challenge_methods": [
+   "tempo"
+  ]
+ },
+ {
+  "id": "dripstack",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 404,
+  "payment_challenges": 0,
+  "challenge_methods": []
+ },
+ {
+  "id": "dune",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 404,
+  "payment_challenges": 0,
+  "challenge_methods": []
+ },
+ {
+  "id": "govlaws",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 410,
+  "payment_challenges": 0,
+  "challenge_methods": []
+ },
+ {
+  "id": "alchemy",
+  "listed_methods": [
+   "stripe",
+   "tempo"
+  ],
+  "status": 402,
+  "payment_challenges": 2,
+  "challenge_methods": [
+   "stripe",
+   "tempo"
+  ]
+ },
+ {
+  "id": "tempo-api",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 400,
+  "payment_challenges": 0,
+  "challenge_methods": []
+ },
+ {
+  "id": "pinata",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 402,
+  "payment_challenges": 2,
+  "challenge_methods": [
+   "tempo"
+  ]
+ },
+ {
+  "id": "stableenrich",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 402,
+  "payment_challenges": 1,
+  "challenge_methods": [
+   "tempo"
+  ]
+ },
+ {
+  "id": "stabletravel",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 402,
+  "payment_challenges": 1,
+  "challenge_methods": [
+   "tempo"
+  ]
+ },
+ {
+  "id": "prospect-butcher",
+  "listed_methods": [
+   "stripe"
+  ],
+  "status": 404,
+  "payment_challenges": 0,
+  "challenge_methods": []
+ },
+ {
+  "id": "orth-fantastic-jobs",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 400,
+  "payment_challenges": 0,
+  "challenge_methods": []
+ },
+ {
+  "id": "orth-openmart",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 400,
+  "payment_challenges": 0,
+  "challenge_methods": []
+ },
+ {
+  "id": "orth-captaindata",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 400,
+  "payment_challenges": 0,
+  "challenge_methods": []
+ },
+ {
+  "id": "orth-contactout",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 400,
+  "payment_challenges": 0,
+  "challenge_methods": []
+ },
+ {
+  "id": "orth-peopledatalabs",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 402,
+  "payment_challenges": 2,
+  "challenge_methods": [
+   "tempo"
+  ]
+ },
+ {
+  "id": "orth-apollo",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 400,
+  "payment_challenges": 0,
+  "challenge_methods": []
+ },
+ {
+  "id": "orth-context-dev",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 400,
+  "payment_challenges": 0,
+  "challenge_methods": []
+ },
+ {
+  "id": "orth-precip",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 400,
+  "payment_challenges": 0,
+  "challenge_methods": []
+ },
+ {
+  "id": "orth-company-enrich",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 402,
+  "payment_challenges": 2,
+  "challenge_methods": [
+   "tempo"
+  ]
+ },
+ {
+  "id": "orth-fundable",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 400,
+  "payment_challenges": 0,
+  "challenge_methods": []
+ },
+ {
+  "id": "orth-brand-dev",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 400,
+  "payment_challenges": 0,
+  "challenge_methods": []
+ },
+ {
+  "id": "orth-coresignal",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 402,
+  "payment_challenges": 2,
+  "challenge_methods": [
+   "tempo"
+  ]
+ },
+ {
+  "id": "orth-scrapecreators",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 400,
+  "payment_challenges": 0,
+  "challenge_methods": []
+ },
+ {
+  "id": "orth-tako",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 402,
+  "payment_challenges": 2,
+  "challenge_methods": [
+   "tempo"
+  ]
+ },
+ {
+  "id": "orth-andi",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 400,
+  "payment_challenges": 0,
+  "challenge_methods": []
+ },
+ {
+  "id": "orth-tomba",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 400,
+  "payment_challenges": 0,
+  "challenge_methods": []
+ },
+ {
+  "id": "orth-predictleads",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 402,
+  "payment_challenges": 2,
+  "challenge_methods": [
+   "tempo"
+  ]
+ },
+ {
+  "id": "orth-aviato",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 400,
+  "payment_challenges": 0,
+  "challenge_methods": []
+ },
+ {
+  "id": "orth-agentphone",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 404,
+  "payment_challenges": 0,
+  "challenge_methods": []
+ },
+ {
+  "id": "goflightlabs",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 402,
+  "payment_challenges": 2,
+  "challenge_methods": [
+   "tempo"
+  ]
+ },
+ {
+  "id": "kicksdb",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 402,
+  "payment_challenges": 2,
+  "challenge_methods": [
+   "tempo"
+  ]
+ },
+ {
+  "id": "openai",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 402,
+  "payment_challenges": 1,
+  "challenge_methods": [
+   "tempo"
+  ]
+ },
+ {
+  "id": "storage",
+  "listed_methods": [
+   "tempo"
+  ],
+  "status": 402,
+  "payment_challenges": 2,
+  "challenge_methods": [
+   "tempo"
+  ]
+ }
+]
