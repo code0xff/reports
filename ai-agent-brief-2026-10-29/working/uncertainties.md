@@ -1,0 +1,6 @@
+# Uncertainties
+
+- Whether `@coinbase/cdp-sdk` will take the zod-4 migration, and on what timeline, is unknown — no issue or PR proposing it was found as of this run. _(vendor-stated: cdp-sdk's current dependency range is read directly from the npm registry, not from a Coinbase statement about intent.)_
+- The x402 drift-bot findings in issue #4025 rest entirely on the project's own automated check; this brief has not independently reproduced either of the two reported behaviors.
+- Comer's letter is a request for documents, not a finding — it states a concern about the AIC proposal's liability-shield potential, which is the committee's framing, not an established fact about how the proposal would operate in practice. Delaware's governor's office has only acknowledged receipt, not responded substantively.
+- The mppx and pay-kit bugs are both still open; neither project has indicated whether the fix (already drafted for pay-kit in PR #359, unmerged) will land before an MPP client actually hits the failure path against a production x402 seller. No real-world payment failure tied to this bug has been reported yet — the risk is demonstrated by reproduction, not by an observed incident. _(early signal)_
