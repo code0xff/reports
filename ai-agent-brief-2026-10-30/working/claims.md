@@ -1,0 +1,7 @@
+# Claims
+
+- c01: mppx PR #1133, merged 2026-10-29 and shipped in mppx@0.17.0, fixes the exact bug (issue #1113, reported 2026-10-27, covered in the 2026-10-29 brief) where a 402 response whose `WWW-Authenticate` header names no `Payment` scheme made the client throw instead of falling through to another protocol like x402.
+- c02: Solana Foundation's pay-kit PR #359, which fixes the identical fallback defect in the other MPP reference client, has been open since 2026-10-06 (three weeks before this edition) and is still unmerged as of this run — so the fallback chain MPP documents now works in one reference implementation and not the other.
+- c03: x402-foundation/x402 PR #4051, merged 2026-10-29, ports a Python-SDK defensive fix (from PR #3917, tracked in issue #4050) to the TypeScript core SDK: payment-header decoders now reject non-object JSON instead of returning it typed as payment data.
+- c04: solana-foundation/pay-kit PR #404, merged 2026-10-28, brings the Python and TypeScript SDKs to 813/813 offline conformance vectors, including version-1 transaction support — but the Go, PHP, and Ruby verifiers can't decode version-1 transactions yet, opening 24 new `known_failing` cross-SDK cells.
+- c05 (why it matters): across three separate repos this window, a "fixed" status in one SDK or one reference client did not propagate to its siblings — the capability-drift pattern this brief has tracked since mid-October recurs at the level of individual PRs, not just whole protocols.
