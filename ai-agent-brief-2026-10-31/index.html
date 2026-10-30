@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI agents, AI developer tools, and AI agent payments — daily brief, 2026-10-31 — Deepsearch</title>
+<meta name="description" content="DoorDash puts a number on agentic orders, and three payment-protocol repos each ship a fix with a gap of its own.">
+<link rel="canonical" href="https://code0xff.github.io/reports/ai-agent-brief-2026-10-31/">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="ko" href="ko/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="AI agents, AI developer tools, and AI agent payments — daily brief, 2026-10-31">
+<meta property="og:description" content="DoorDash puts a number on agentic orders, and three payment-protocol repos each ship a fix with a gap of its own.">
+<meta property="og:url" content="https://code0xff.github.io/reports/ai-agent-brief-2026-10-31/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI agents, AI developer tools, and AI agent payments — daily brief, 2026-10-31">
+<meta name="twitter:description" content="DoorDash puts a number on agentic orders, and three payment-protocol repos each ship a fix with a gap of its own.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>AI agents, AI developer tools, and AI agent payments — daily brief, 2026-10-31</h1>
+    <p class="subtitle">DoorDash puts a number on agentic orders, and three payment-protocol repos each ship a fix with a gap of its own.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-10-31</span>
+      <span><strong>Tags</strong> —</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="ai-agent-brief-2026-10-31.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>DoorDash's CEO put a number on agentic commerce for the first time this window, and it is small: "several hundred" orders against roughly 3 million deliveries a day<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The rest of the window came from the usual GitHub repos, but with a sharper edge than most editions: x402 finished a fee-saving transaction format and pay-kit had to pin itself to an unmerged branch to get it<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>, mppx shipped a timing fix that was itself broken until a second patch landed two and a half hours later<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, and a breaking identity change merged with two security-review findings still open<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+  </section>
+
+  <main class="body">
+<h2>Introduction</h2>
+<p>This edition covers <strong>2026-10-28 through 2026-10-31</strong>. Background on the payment-rail landscape lives in the site's <a href="../agent-commerce-protocol/">agent commerce protocol comparison</a>; the capability-drift thread continues from the <a href="../ai-agent-brief-2026-10-30/">2026-10-30 edition</a>, which found mppx and pay-kit independently landing on the same fallback bug three weeks apart.</p>
+<h2>What moved</h2>
+<h3>DoorDash puts a number on agentic orders, and it's three digits</h3>
+<p>Asked about AI agents ordering on DoorDash's behalf during the company's Q3 2026 earnings call, CEO Tony Xu told analysts: "What I mean by that is if you look at where AI agents are today, we are seeing maybe several hundred orders in total from some of these third-party agents"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. He named Muse, Instinct, and Fo among the agents already placing orders, and framed DoorDash's posture as wanting to "develop a healthy relationship with third-party agent makers." TechCrunch contrasts that with Amazon, which blocks personal AI agents outright, while Walmart has gone the other way and rolled out a welcome mat<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. Xu's number is a CEO's rounded estimate from a call, not an audited metric, and no second outlet's write-up of the same call turned up in this run, so it stays a single-source figure <em>(unverified — single source)</em>. It is nonetheless the first concrete count this beat has gotten from any merchant, after a month of protocol specs and payment-rail announcements with no deployed-usage data behind them.</p>
+<h3>x402 finishes its transaction-v1 series; pay-kit has to chase an unmerged branch to use it</h3>
+<p>x402 PR #3971, merged 2026-10-29, is "Part 3 of 3 of SVM transaction v1 (SIMD-0385) support" — the final piece after two earlier merged PRs added the spec negotiation and the exact/upto settlement paths<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The payoff is concrete: a facilitator redeeming 1,000 payment channels needs 625 transactions and 8.1 million lamports in base fees under the old v0 format; under v1 it needs 150 transactions and 5.75 million lamports, a 29% fee cut and 4.2x fewer transactions to land, because a v1 transaction can carry 4096 bytes against v0's 1232<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Cross-testing with Solana Foundation's pay-kit (the SDK covered in the 2026-10-30 edition for its conformance work) turned up real bugs along the way: a Kit 8.5 signature-verification regression that broke every exact payment, and a hardcoded treasury-owner assumption that failed against pay-kit's own test validator<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>But pay-kit's own PR to pick up this work, #406, merged a day <em>before</em> #3971 did, because pay-kit vendors x402 as a git submodule pinned to a feature-branch commit, not to a release. Its description says plainly that x402's branch "was rebased onto x402 main," so the commit pay-kit had pinned no longer existed on that branch, and the PR's entire purpose is moving the pin to the new commit and rebuilding the vendored package<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Pay-kit's current v1-transaction behavior therefore traces to a commit on an upstream branch that could still change before x402 ever merges it — a dependency relationship that works only because the two teams are actively coordinating, and would be invisible risk for anyone else vendoring x402 the same way.</p>
+<h3>mppx fixes a sponsored-transaction timing bug, then fixes the fix</h3>
+<p>mppx's Tempo sponsored transactions sign with a <code>validBefore</code> fixed 25 seconds out, but the fee payer needs at least 15 seconds of that left when it countersigns. PR #1131, merged 2026-10-29, added that 15-second floor on both client and server, replacing an earlier attempt (#1099) that review had already sent back once<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The fix itself was wrong: its pre-sign recheck compared the <em>challenge's</em> expiry against the clock, not the <em>signed</em> <code>validBefore</code> value — so with the default five-minute challenge window, any client preparation step slower than about 10 seconds still produced a transaction the server had to reject, the exact failure #1131 was supposed to prevent. PR #1137, merged two and a half hours later the same day, corrects the recheck to measure the right value<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Both PRs leave one known gap out of scope: retry challenges on credential-bearing requests still skip the floor entirely.</p>
+<h3>mppx ships a breaking identity redesign with its own review findings unresolved</h3>
+<p>PR #1138, merged 2026-10-29 and marked <code>feat(identity)!</code> for a breaking change, rewrites how mppx verifies caller identity on payment routes. Previously, a route with more than one payment-stage identity offer (the normal case for <code>tempo()</code>'s two default currencies) threw at creation time if an identity verifier was attached; the fix gives every 402 challenge a single shared identity nonce instead of one per offer, so a proof binds to the challenge itself regardless of which offer the client pays<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. The PR's own description acknowledges two automated review findings still open when it merged: a credential could be checked against a nonce the client was never shown, and a verifier that fails to reject an undefined nonce could accept a proof that never carried one at all. Neither has been confirmed as exploitable in a shipped verifier. The project put both findings in the PR text itself, which is the only reason this brief has them: they weren't dug up from a separate issue tracker.</p>
+<h2>Why it matters</h2>
+<p>Four unrelated repos, four different kinds of gap, one pattern: in each case the thing that shipped was correct about the system it changed and silent about the system around it. x402's fee savings are real and its cross-testing caught real bugs, but pay-kit gets them by pinning to code that hasn't landed anywhere official yet. mppx's timing fix was itself timing-dependent in a way nobody caught until the next commit, and its identity rewrite fixed a real integration blocker while shipping with its own reviewers' objections still open. None of this is protocol-level failure: x402, mppx, and pay-kit are all doing active, visibly-tested engineering. The gap this window exposes sits one layer down, between a PR that fixes the bug it names and a system that has been checked for the bugs it didn't think to name. DoorDash's three-digit order count is the same gap from the deployment side — the specs keep shipping faster than anyone is placing orders through them.</p>
+<h2>Signals to watch</h2>
+<ul>
+<li>Whether x402 PR #3971 lands in a tagged release, and whether pay-kit's pin tracks a merged <code>main</code> commit instead of a feature branch once it does.</li>
+<li>mppx's two open review findings on PR #1138: a follow-up fix like #1131 got, or nothing.</li>
+<li>DoorDash's next earnings call, for an order count that has moved off "several hundred," or a comparable figure from any other merchant.</li>
+<li>The retry-challenge gap both tempo PRs left out of scope. Still open.</li>
+</ul>
+<h2>Limitations</h2>
+<p>Card-network and PSP agent-commerce products (Mastercard Agent Pay, Visa Intelligent Commerce and Trusted Agent Protocol, Stripe's Agentic Commerce Protocol, PayPal Agent Ready) produced no dated primary announcement inside this window, for the fourth edition running. AP2 and Google's agentic-commerce repos had no merged PRs or releases in this window. DoorDash's order figure could not be independently corroborated beyond the one outlet that reported it. No item in this window traced to an X or LinkedIn post. Five of six sources are GitHub pull requests — primary for what each project changed, not for whether any of it behaves correctly once deployed, which is exactly the gap this edition's "why it matters" turns on.</p>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Ivan Mehta</span>. <a href="https://techcrunch.com/2026/10/30/doordash-said-its-only-received-several-hundred-orders-from-ai-agents/">DoorDash said it’s only received ‘several hundred’ orders from AI agents</a>. <span class="venue">TechCrunch, 2026</span>. <span class="accessed">Accessed 2026-10-31.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/3971">x402 · feat(svm): support for transaction v1 in batch-settlement + exact &amp; upto refinements (PR #3971)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-10-31.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://github.com/solana-foundation/pay-kit/pull/406">pay-kit · chore(ts): re-pin x402 to the rebased feat/svm-client-transaction-v1 (PR #406)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-10-31.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1131">mppx · fix(tempo): enforce the 15s sponsored validity floor (PR #1131)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-10-31.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1137">mppx · fix(tempo): measure validBefore in the sponsored pre-sign check (PR #1137)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-10-31.</span></li>
+      <li id="ref-6"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1138">mppx · feat(identity)!: share one identity nonce per 402 and split verifier and prover hooks (PR #1138)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-10-31.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-10-31. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
