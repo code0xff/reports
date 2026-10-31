@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI agents, AI developer tools, and AI agent payments — daily brief, 2026-11-01 — Deepsearch</title>
+<meta name="description" content="Five repos, five layers of verification machinery that quietly stopped enforcing what they were built to enforce.">
+<link rel="canonical" href="https://code0xff.github.io/reports/ai-agent-brief-2026-11-01/">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="ko" href="ko/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="AI agents, AI developer tools, and AI agent payments — daily brief, 2026-11-01">
+<meta property="og:description" content="Five repos, five layers of verification machinery that quietly stopped enforcing what they were built to enforce.">
+<meta property="og:url" content="https://code0xff.github.io/reports/ai-agent-brief-2026-11-01/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI agents, AI developer tools, and AI agent payments — daily brief, 2026-11-01">
+<meta name="twitter:description" content="Five repos, five layers of verification machinery that quietly stopped enforcing what they were built to enforce.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>AI agents, AI developer tools, and AI agent payments — daily brief, 2026-11-01</h1>
+    <p class="subtitle">Five repos, five layers of verification machinery that quietly stopped enforcing what they were built to enforce.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-11-01</span>
+      <span><strong>Tags</strong> —</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="ai-agent-brief-2026-11-01.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>Nothing shipped this window broke a protocol. What broke, five separate times, was the machinery that is supposed to notice when something else already did. x402's facilitator let a throwing hook turn a payment that had already settled on-chain into an error message<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. A routine Rust dependency bump in pay-kit quietly flipped a Solana commitment default and broke its own TypeScript server against its own Rust client<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. Two mppx bug fixes sat unmerged for three to four weeks before someone else picked them back up<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. Universal Commerce Protocol wrote an identity exception that names its own leftover risk in the same sentence that grants it<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. And a build of Anthropic's Claude Code extension, published under Anthropic's own verified account, ran an SSH backdoor on Cursor's marketplace for about eleven hours before anyone caught it<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+  </section>
+
+  <main class="body">
+<h2>Introduction</h2>
+<p>This edition covers <strong>2026-10-29 through 2026-11-01</strong>. Background on the payment-rail landscape lives in the site's <a href="../agent-commerce-protocol/">agent commerce protocol comparison</a>; the cross-repo bug-chasing thread continues from the <a href="../ai-agent-brief-2026-10-31/">2026-10-31 edition</a>, which closed on x402's transaction-v1 series and two mppx timing fixes landing hours apart.</p>
+<h2>What moved</h2>
+<h3>x402 stops a throwing hook from turning a completed payment into a visible error</h3>
+<p>x402's facilitator runs four "advisory" lifecycle hooks around verification and settlement (<code>afterVerify</code>, <code>afterSettle</code>, <code>onVerifyFailure</code>, <code>onSettleFailure</code>), plus two "gate" hooks that run before. The gate hooks are supposed to be able to block a payment; the advisory hooks are not. Before PR #3151, merged 2026-10-30, they could: a throwing <code>afterSettle</code> hook fell into the same catch block that handles a real settlement failure, so the caller saw an error even though the money had already moved on-chain<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. A throwing <code>onVerifyFailure</code> or <code>onSettleFailure</code> hook had a second effect — it stopped any later hook in the same loop from running, closing off a legitimate recovery path. The fix wraps all four loops so a throwing hook gets logged through a new <code>warnFacilitatorHookFailure</code> helper and skipped, while the two gate hooks keep failing closed exactly as before<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The resource-server side of x402 had already isolated its own advisory hooks; this PR closes the same gap on the facilitator side, more than a year after the issue it closes was opened.</p>
+<h3>A Rust dependency bump in pay-kit breaks its own TypeScript server against its own Rust client</h3>
+<p>PR #407 re-pinned pay-kit's <code>solana-keychain</code> dependency to a newer commit, pulling in a chain of version bumps (<code>litesvm</code>, <code>surfpool-sdk</code>, <code>solana-message</code>, <code>wincode</code>) that the PR describes as having "no source changes"<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. It broke pay-kit's TypeScript conformance tests anyway. The new <code>surfpool</code> 1.7 started honoring a <code>preflightCommitment</code> parameter that the TS charge and subscription servers had never set, so the broadcast call fell back to the node's <code>finalized</code> default. A Rust client signing with a fresh <code>confirmed</code> blockhash would get rejected at preflight, because that blockhash isn't finalized yet<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. The bug itself was not new. The TS servers had been running without an explicit <code>preflightCommitment</code> all along, and nothing surfaced it until a dependency three layers down started enforcing a default the servers had silently relied on not being enforced. PR #408 sets the commitment explicitly, matching what the servers already simulate at and what the Rust server already does on its own RPC client.</p>
+<h3>mppx finally merges two bug fixes that sat open for weeks</h3>
+<p>PRs #1139 and #1140, both merged 2026-10-29, are rebases of two stalled community PRs, #1101 and #1100, credited to the original author, AkshatGada, and picked up by someone else after roughly three to four weeks without action. #1139 fixes a session-close bug: mppx's cooperative HTTP session close reused the same <code>Request</code> object the resource fetch was using, so cancelling the resource could cancel an unrelated close call, and a locked or already-consumed body could block the close from being constructed at all<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. #1140 fixes a retry bug: when a 402 challenge response carried a populated <code>response.url</code>, mppx's paid retry would silently downgrade a POST into a GET, dropping the body<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Both fixes needed adaptation to land, #1139 to account for a redirect-handling change merged in the interim, #1140 to account for a per-route identity change and a pinned test dependency, which is likely why two correct fixes from a known contributor took weeks to merge instead of days.</p>
+<h3>Universal Commerce Protocol grants an identity exception and names its own risk in the same PR</h3>
+<p>UCP's identity-linking spec previously required either DNS delegation or a new identity-provider relationship before a business could resolve a payment-authorization grant to an existing customer account by email. PR #998, merged 2026-10-31, adds a narrower path: a business MAY link by email alone if it has independently confirmed the token issuer is the mailbox authority for that email's domain, the issuer has marked the email verified, the business has verified the account address itself, and no conflicting account link already exists<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Once linked, the account resolves by issuer-and-subject going forward, so a later email change can't re-target it. The PR's own security-considerations section adds this exception to UCP's existing cross-identity-provider risk list and names what it accepts: an email address that gets recycled or reassigned to a different person could, under the right conditions, inherit the old link.</p>
+<h3>Anthropic's own verified account ships a backdoored build on Cursor's marketplace</h3>
+<p>Version 2.1.313 of the Claude Code extension went out through Anthropic's verified publisher account on Cursor's extension marketplace and stayed live for roughly eleven hours on 2026-10-29 before Anthropic replaced it with 2.1.314<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Cursor says the code tried to add an attacker-controlled SSH key to the installed machine's <code>authorized_keys</code> and open a reverse tunnel out; Cursor also says the SSH steps would likely fail without admin privileges, though the key addition and persistence attempt could still happen regardless. Cursor has told affected users it saw at most 5,000 of them exposed, a Cursor count that nobody has audited independently. Anthropic's statement draws a careful line: "A malicious actor used access to Cursor's marketplace to publish a tampered extension targeting Cursor's users, we were not involved with building, publishing or hosting this"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Neither company has said how the access that let someone publish under Anthropic's own verified identity was obtained.</p>
+<h2>Why it matters</h2>
+<p>Line these five up and nothing here was badly built: x402, pay-kit, mppx, and UCP are all under active, visibly tested development, and Anthropic's own extension code was fine. What failed is where each failure sat, in the layer whose entire job is to notice when the system underneath it did something wrong, or to decide whether an action should be allowed to count. A hook that is supposed to be advisory took over the outcome it was only meant to observe. A commitment default that both servers had been quietly ignoring became enforced by a chain of unrelated version bumps, not by anyone deciding to test it. Two correct fixes waited weeks for someone to notice they'd stalled. An identity exception was granted by the same document that lists the risk it leaves open.</p>
+<p>A publisher signature, the single mechanism a plugin marketplace uses to answer "did the vendor actually ship this," held for a tampered build for eleven hours, because whatever let someone act as Anthropic's verified account has not yet been explained by either party. None of these are protocol flaws in the conventional sense. They are the gap between a system that enforces its rules and a system that enforces its rules until something it did not anticipate stops checking.</p>
+<h2>Signals to watch</h2>
+<ul>
+<li>Whether Anthropic or Cursor discloses the account-compromise mechanism, and whether Kevin Beaumont's claim that the replacement extension build doesn't itself clean up prior backdoor artifacts holds up.</li>
+<li>UCP's email-linking exception, for a disclosed exploit of the address-recycling risk it already named.</li>
+<li>Whether pay-kit adds an explicit conformance test for commitment-level mismatches, so the next dependency bump surfaces the bug before merge rather than after.</li>
+<li>Whether x402's resource-server-side and facilitator-side hook isolation ever gets a shared implementation, instead of two separate fixes to the same category of bug a year apart.</li>
+</ul>
+<h2>Limitations</h2>
+<p>Card-network and PSP agent-commerce products (Mastercard Agent Pay, Visa Intelligent Commerce and Trusted Agent Protocol, Stripe's Agentic Commerce Protocol, PayPal Agent Ready) produced no dated primary announcement inside this window, for the fifth edition running; a web search for anything from this window turned up only older items from April and July. AP2's repository had no merged pull requests in this window either. No item traced to an X or LinkedIn post. The Cursor/Anthropic incident's exact duration varies by outlet (roughly 11 to 12 hours depending on the source and timezone conversion used); this brief follows BankInfoSecurity's figures as the most directly attributed account. Six of eight sources are GitHub pull requests — primary for what each project changed, not for whether the fix holds once deployed.</p>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/3151">fix(core): isolate facilitator lifecycle hook errors</a>. <span class="venue">GitHub (x402-foundation/x402), 2026</span>. <span class="accessed">Accessed 2026-11-01.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/4070">Document facilitator hook error isolation behavior</a>. <span class="venue">GitHub (x402-foundation/x402), 2026</span>. <span class="accessed">Accessed 2026-11-01.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://github.com/solana-foundation/pay-kit/pull/407">chore(rust): bump solana-keychain to main (ed68ba3)</a>. <span class="venue">GitHub (solana-foundation/pay-kit), 2026</span>. <span class="accessed">Accessed 2026-11-01.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://github.com/solana-foundation/pay-kit/pull/408">fix(ts): preflight server broadcasts at confirmed commitment</a>. <span class="venue">GitHub (solana-foundation/pay-kit), 2026</span>. <span class="accessed">Accessed 2026-11-01.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1139">fix(tempo): isolate session close from resource request state</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-11-01.</span></li>
+      <li id="ref-6"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1140">fix(client): preserve Request state in payment retries</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-11-01.</span></li>
+      <li id="ref-7"><span class="authors">—</span>. <a href="https://github.com/Universal-Commerce-Protocol/ucp/pull/998">feat(identity-linking): permit email matching when the issuer is the mailbox authority</a>. <span class="venue">GitHub (Universal-Commerce-Protocol/ucp), 2026</span>. <span class="accessed">Accessed 2026-11-01.</span></li>
+      <li id="ref-8"><span class="authors">—</span>. <a href="https://www.bankinfosecurity.com/cursor-confirms-anthropic-claude-code-extension-compromised-a-33263">Cursor Confirms Anthropic Claude Code Extension Compromised</a>. <span class="venue">BankInfoSecurity, 2026</span>. <span class="accessed">Accessed 2026-11-01.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-11-01. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
