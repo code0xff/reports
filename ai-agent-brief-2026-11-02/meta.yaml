@@ -1,0 +1,10 @@
+title: AI agents, AI developer tools, and AI agent payments — daily brief, 2026-11-02
+subtitle: Two days after x402 fixed one hook-isolation bug, two more gaps surfaced in the same code — and its Go client finally caught up on an allowance check the other SDKs had right all along.
+title_ko: AI 에이전트, 개발자 도구, 에이전트 결제 — 데일리 브리핑, 2026-11-02
+subtitle_ko: x402가 훅 격리 버그 하나를 고친 지 이틀 만에, 같은 코드에서 결함 두 건이 더 드러났다. Go 클라이언트는 다른 SDK가 이미 맞게 처리하던 승인 검사를 뒤늦게 따라잡았다.
+slug: ai-agent-brief-2026-11-02
+lang: en
+langs: [en, ko]
+date: 2026-11-02
+tags: []
+status: ready
