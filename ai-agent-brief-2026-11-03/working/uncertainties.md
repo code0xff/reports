@@ -1,0 +1,6 @@
+# Uncertainties
+
+- The "why it matters" reading — that three distinct bug classes surfacing in one window signals rising review scrutiny rather than a single systemic weakness — is an editorial interpretation of a small sample (three fixes, two repos, 48 hours). A different two-day window on the same beat could just as easily show no fixes at all; this edition and the 2026-11-02 edition together are not enough to call this a trend.
+- PR #4033's fix (Python SVM signer) is merged and tested per its own description (2,890 unit/MCP tests, 32 confirmation-and-retry regression tests), but the PR body notes credential/live-RPC integration tests were not run and flags itself "Assisted by Codex... remains a draft for human review" in an earlier revision; treat the fix as merged-and-tested-in-CI, not as independently verified against live Solana RPC behavior.
+- mppx PR #1157's recovery mechanism (opt-in `replay` with a Redis-backed store) is new and unreleased against a tagged version as of this edition; whether it ships in the next `mppx` release and whether production MPP gateways adopt the opt-in flag is unconfirmed.
+- Issue #4032 (Python SVM signer) was filed 2026-10-28, outside this edition's 72-hour window, but its fix merged inside the window (2026-11-02); it is reported here as the fix landing, not as a new bug report.

@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI agents, AI developer tools, and AI agent payments — daily brief, 2026-11-03 — Deepsearch</title>
+<meta name="description" content="Two bugs flagged yesterday get fixed today, and a third protocol closes a payment-loss gap that had sat open for three weeks.">
+<link rel="canonical" href="https://code0xff.github.io/reports/ai-agent-brief-2026-11-03/">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="ko" href="ko/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="AI agents, AI developer tools, and AI agent payments — daily brief, 2026-11-03">
+<meta property="og:description" content="Two bugs flagged yesterday get fixed today, and a third protocol closes a payment-loss gap that had sat open for three weeks.">
+<meta property="og:url" content="https://code0xff.github.io/reports/ai-agent-brief-2026-11-03/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI agents, AI developer tools, and AI agent payments — daily brief, 2026-11-03">
+<meta name="twitter:description" content="Two bugs flagged yesterday get fixed today, and a third protocol closes a payment-loss gap that had sat open for three weeks.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>AI agents, AI developer tools, and AI agent payments — daily brief, 2026-11-03</h1>
+    <p class="subtitle">Two bugs flagged yesterday get fixed today, and a third protocol closes a payment-loss gap that had sat open for three weeks.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-11-03</span>
+      <span><strong>Tags</strong> —</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="ai-agent-brief-2026-11-03.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>The two bugs the 2026-11-02 edition flagged as unfixed both got merged fixes the same day they were written up: x402's Python SIWX replay check now actually runs, and the Go facilitator's V2 abort path keeps a hook's diagnostic message<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The same 48 hours also closed a third, unrelated defect of real consequence: x402's Python SDK stopped reporting a failed Solana settlement as successful<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. And a different protocol's SDK, wevm's <code>mppx</code>, shipped a fix for a problem that has been open since mid-October — a client disconnecting mid-job while the payment has already settled, with no way for the payer to collect what they paid for<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+  </section>
+
+  <main class="body">
+<h2>Introduction</h2>
+<p>This edition covers <strong>2026-10-31 through 2026-11-03</strong>. Background on the payment-rail landscape lives in the site's <a href="../agent-commerce-protocol/">agent commerce protocol comparison</a>. The two x402 bugs this edition closes out, the Python SIWX nonce check and the Go facilitator's dropped abort message, were first reported in the <a href="../ai-agent-brief-2026-11-01/">2026-11-01 edition</a> and covered as still-open in the <a href="../ai-agent-brief-2026-11-02/">2026-11-02 edition</a>.</p>
+<h2>What moved</h2>
+<h3>x402 fixes the two parity bugs this beat flagged yesterday, then cleans up after itself</h3>
+<p>PR #4080, merged 2026-11-02, is a one-line fix: the Python SIWX extension's <code>create_siwx_request_hook</code> was checking for a storage method named <code>has_record_nonce</code>, which doesn't exist anywhere in the codebase. The documented name, and the one the TypeScript SDK actually checks, is <code>record_nonce</code>. The mismatch meant a correctly-implemented storage backend failed at hook creation, and a backend that happened to implement only <code>record_nonce</code> passed the broken guard but never had it called, so replayed signatures were never caught<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. PR #4082, merged the same day, fixes the companion bug: the Go facilitator's V2 abort path built its error with an empty message string instead of passing through whatever diagnostic text the hook author set, while the V1 branch and the server-side V2 handling both kept it<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. Both are two-line fixes with regression tests that fail on the pre-fix code.</p>
+<p>The same window produced two more Go fixes in the same part of the codebase: PR #4088 gives the batch-settlement client an <code>RPCURL</code> option so gas-sponsoring works with a signer that isn't itself RPC-backed, matching what the exact/upto clients and the TypeScript batch-settlement client already had<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>; PR #4096 deletes a <code>ProcessPaymentRequest</code> stub that always returned "not implemented" and that nothing in the repo called<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Then PR #4102 went back over all four merges and removed five lines of test comments that just restated the helper names already visible in the code, the mark of someone reviewing the whole batch at once rather than four people fixing four unrelated things<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<h3>x402's Python SDK stops calling a failed on-chain transaction "settled"</h3>
+<p>Issue #4032, filed 2026-10-28, reported that the Python SDK's SVM (Solana) signer treated a confirmed or finalized transaction that had actually failed on-chain as a successful settlement. PR #4033, merged 2026-11-02, makes it return <code>transaction_failed</code> instead, while preserving the transaction signature and clearing the pending and duplicate-cache entries that had assumed success<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. The fix shipped with 2,890 unit and MCP tests plus 32 new confirmation-and-retry regressions, though the PR notes that credential and live-RPC integration tests weren't run as part of that check — this is a CI-verified fix, not one confirmed against live Solana RPC behavior yet.</p>
+<h3>mppx's proxy stops losing a payment when the client hangs up early</h3>
+<p>Issue #1044 described a gap that's been open since 2026-10-14: <code>mppx/proxy</code> settles a charge, then forwards the request upstream bound to the client's own connection. If the upstream job runs longer than the client, or an edge proxy in front of it, is willing to wait, the client disconnects, the upstream request dies with it, and the payment has already gone through. The reporter hit this with a two-to-four-minute Seedance video-generation call that returned an HTTP 524 after about two minutes with no result. Retrying with the same payment credential comes back <code>402</code>, rejected as a replay; retrying with a new one runs the job again and charges again<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. PR #1157, merged 2026-11-02, adds an opt-in <code>replay</code> option backed by a Redis-style store: the paid upstream request is detached from the client's connection and bounded by a time-to-live instead, a same-credential retry gets the stored result (or a <code>202</code> if it's still running, or one capped retry attempt if it failed), and none of that re-verifies or re-settles the payment<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<pre class="mermaid">stateDiagram-v2
+    [*] --&gt; Paid: charge settles
+    Paid --&gt; InFlight: upstream request forwarded, detached from client
+    InFlight --&gt; Delivered: upstream responds before TTL
+    InFlight --&gt; Failed: upstream throws or 5xx
+    InFlight --&gt; Delivered: client disconnects, job keeps running
+    Delivered --&gt; [*]: same-credential retry returns stored result
+    Failed --&gt; InFlight: same-credential retry, no new charge (up to maxAttempts)
+    Failed --&gt; [*]: maxAttempts exhausted, returns 502</pre>
+<p><em>Figure 1 — mppx/proxy's opt-in <code>replay</code> recovery: a client disconnect no longer orphans a settled payment, because the upstream request and its eventual result outlive the connection that started it<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</em></p>
+<h2>Why it matters</h2>
+<p>Three fixes, two protocols, one short window, and three different kinds of bug: a hardcoded method name that didn't match its own documentation, a settlement-status check that trusted a transaction's confirmation over its actual on-chain result, and a payment/delivery design that never accounted for the client leaving before the paid-for work finished. None of these are the kind of defect a code reviewer catches by reading a diff. The SIWX bug required comparing a Python hook against its TypeScript twin, the SVM bug required knowing that "confirmed" and "succeeded" are different claims about a Solana transaction, and the mppx gap required someone to actually run a job long enough to hit an edge timeout. The sweep PR #4102 exists only to tidy up after four merges in two days, and that habit is the better reading of the window: less "x402 has a bug problem" than "x402 and its adjacent protocols are getting the kind of attention that finds bugs like these" — a different thing, and one that cuts the other way on whether to trust the protocols going into their next growth phase.</p>
+<h2>Signals to watch</h2>
+<ul>
+<li>Adoption of mppx's <code>replay</code> option by production MPP gateways, versus staying opt-in and unused the way some past recovery proposals have.</li>
+<li>Live-RPC and credential integration tests for PR #4033, which so far has only unit-test coverage.</li>
+<li>Does the review habit behind PR #4102 reach Bazaar and the batch-settlement treasury logic next? Both were named in the 2026-11-02 edition as untested for this class of bug.</li>
+</ul>
+<h2>Limitations</h2>
+<p>Card-network and PSP agent-commerce products (Mastercard Agent Pay, Visa Intelligent Commerce and Trusted Agent Protocol, Stripe's Agentic Commerce Protocol, PayPal) produced no dated primary announcement inside this window, for the seventh edition running. AP2 had no merged pull request at all; its open bug backlog, including a mandate-reuse issue open since early September, is tracked in <code>working/gaps.md</code> rather than reported as news. UCP's only activity was six open proposals and no merged change. All eleven sources in this edition are GitHub pull requests or issues across two repositories (x402-foundation/x402 and wevm/mppx); there is no independent trade-press confirmation of any of the three items, because none of them is the kind of change that gets covered outside the repositories where it happened.</p>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/4080">fix(python): correct SIWX nonce-storage record_nonce capability check</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/issues/4079">[Bug]: Python SIWX hook looks up has_record_nonce (nonexistent method), so the nonce anti-replay check silently breaks</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/4082">fix(go): preserve abort-hook message in V2 facilitator errors</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/issues/4081">[Bug]: Go facilitator drops the abort-hook Message from V2 verify/settle errors</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/4088">fix(go): use configured RPC for batch-settlement gas sponsoring</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+      <li id="ref-6"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/4096">fix(go): remove unimplemented ProcessPaymentRequest stub</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+      <li id="ref-7"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/4102">style(go): drop restated comments from recent SDK fixes</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+      <li id="ref-8"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/4033">fix(python): reject failed SVM confirmations</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+      <li id="ref-9"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/issues/4032">Python SVM signer reports failed confirmed transactions as settled</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+      <li id="ref-10"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/issues/1044">Proxy: paid requests cant be recovered when the client disconnects before a long upstream request finishes</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+      <li id="ref-11"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1157">feat(proxy): opt-in replay of paid deliveries after a client disconnect</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-11-03. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
