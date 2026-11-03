@@ -1,0 +1,10 @@
+title: EIP-7708 — 모든 ETH 전송이 로그를 남기다
+subtitle: 명세, 2년의 변천, 같은 포크의 가스 개편과의 관계, 그리고 Sepolia에서의 검증
+title_en: EIP-7708 — Every ETH Transfer Emits a Log
+subtitle_en: The spec, two years of revisions, its place in the fork's gas repricing, and a check on Sepolia
+slug: eip-7708
+lang: ko
+langs: [ko, en]
+date: 2026-11-03
+tags: [ethereum, eip-7708, glamsterdam, logs, indexing, eip-8246, eip-2780, sepolia]
+status: ready

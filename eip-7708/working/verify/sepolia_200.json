@@ -1,0 +1,23 @@
+{
+ "rpc": "https://ethereum-sepolia-rpc.publicnode.com",
+ "range": [
+  12054249,
+  12054448
+ ],
+ "counts": {
+  "blocks": 200,
+  "txs": 27647,
+  "logs_total": 66195,
+  "sys_logs": 3681,
+  "nonvalue_or_self_txs": 21968,
+  "internal_sys_logs": 1724,
+  "failed": 3722,
+  "value_txs": 1957,
+  "value_creations": 0,
+  "value_txs_with_first_log": 1957,
+  "txs_with_internal_transfers": 1439,
+  "self_value_txs": 16
+ },
+ "violations": [],
+ "n_violations": 0
+}

@@ -1,0 +1,14 @@
+== 2026-11-03 checks (Sepolia, Glamsterdam active since block 11,856,337) ==
+[1] check_sepolia.py over 200 blocks (12,054,249..12,054,448) via publicnode RPC -> sepolia_200.json
+    27,647 txs (3,722 failed), 66,195 logs, 3,681 SYSTEM_ADDRESS logs. Violations: 0.
+    1,957 successful value txs (from != to): all 1,957 have as FIRST log a SYSTEM_ADDRESS Transfer(from,to,value).
+    16 self value-transfers: no tx-level log. Failed txs: no logs.
+    1,724 internal transfer logs (beyond the tx-level one) in 1,439 txs. No value contract-creation txs in sample.
+[2] fork_boundary.py: 100 blocks before 11,856,337 -> 0 SYSTEM_ADDRESS logs; 100 blocks from 11,856,337 -> 7,225, first at 11,856,337.
+[3] gas_check.py over 60 blocks, plain no-calldata successful txs (gasUsed, n_logs):
+    zero-value to other account: 15,000 / 0 logs (645 of 652); self-transfer: 12,000 / 0 logs (56/56);
+    value to existing account: 21,000 / 1 log (195); value creating new account: 204,600 / 1 log (83).
+    Difference 21,000 - 15,000 = 6,000 = EIP-2780 TX_VALUE_COST ("recipient balance write and EIP-7708 transfer log").
+    204,600 - 21,000 = 183,600 = EIP-2780 state gas for a new account.
+[4] execution-specs @ fd92984: emit_transfer_log skips amount 0; interpreter emits when caller != current_target; SELFDESTRUCT emits when beneficiary != originator. 42 test functions in tests/amsterdam/eip7708_eth_transfer_logs.
+[5] mermaid@11 parse of rendered pages: 2/2 (one figure per language). Source links 14/14 HTTP 200.

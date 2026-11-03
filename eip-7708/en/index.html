@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EIP-7708 — Every ETH Transfer Emits a Log — Deepsearch</title>
+<meta name="description" content="The spec, two years of revisions, its place in the fork&#x27;s gas repricing, and a check on Sepolia">
+<link rel="canonical" href="https://code0xff.github.io/reports/eip-7708/en/">
+<link rel="alternate" hreflang="ko" href="../index.html">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="EIP-7708 — Every ETH Transfer Emits a Log">
+<meta property="og:description" content="The spec, two years of revisions, its place in the fork&#x27;s gas repricing, and a check on Sepolia">
+<meta property="og:url" content="https://code0xff.github.io/reports/eip-7708/en/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="EIP-7708 — Every ETH Transfer Emits a Log">
+<meta name="twitter:description" content="The spec, two years of revisions, its place in the fork&#x27;s gas repricing, and a check on Sepolia">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>EIP-7708 — Every ETH Transfer Emits a Log</h1>
+    <p class="subtitle">The spec, two years of revisions, its place in the fork&#x27;s gas repricing, and a check on Sepolia</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-11-03</span>
+      <span><strong>Tags</strong> ethereum, eip-7708, glamsterdam, logs, indexing, eip-8246, eip-2780, sepolia</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="eip-7708.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>EIP-7708 makes the protocol emit a log, shaped exactly like an ERC-20 <code>Transfer</code>, whenever ETH moves<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. ERC-20 tokens have always been traceable through logs, but ETH sent by a contract was recorded nowhere, so exchanges and indexers had to trace transactions one by one<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Vitalik Buterin proposed it in May 2024. It went Stagnant after a year, revived in January 2026, gained burn logs in February and lost them in May in exchange for EIP-8246. It reached Review in July and Last Call in October<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. It is scheduled for Glamsterdam<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. This report tested the spec on Sepolia, where Glamsterdam is already live. Over the latest 200 blocks and 27,647 transactions there were no violations. All 1,957 value-carrying transactions emitted the transaction-level transfer log as their first log, and the logs started exactly at the fork block<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Costs matched too. The 6,000-gas gap between a 21,000-gas transfer and a 15,000-gas zero-value one is exactly what EIP-2780 charges for "recipient balance write and EIP-7708 transfer log"<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Gaps remain. A PR opened the day after Last Call closed notes that the text never covers contract-creation transactions or what happens to logs in reverted frames. It also asks whether a creation transaction's log is free<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Fees and withdrawals are excluded by design, so these logs alone cannot rebuild balances<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+  </section>
+
+  <main class="body">
+<h2>1. Introduction</h2>
+<p>Logs are how Ethereum tracks assets. Every ERC-20 transfer emits a <code>Transfer</code> event, so a single <code>eth_getLogs</code> collects deposits and withdrawals. ETH is the exception. ETH sent from an EOA shows up in the block's transaction list, but ETH sent by a smart contract wallet "is not automatically logged anywhere"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The EIP points to the consequence: early exchanges often failed to credit deposits from contract wallets, or credited them much later<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<p>Practitioners say the same. In the discussion thread an indexer operator called tracking ETH transfers for smart accounts "the #1 pain", solved with <code>debug_</code> tracing across several chains at real infrastructure cost<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. Because ETH moved inside a contract call leaves nothing for <code>eth_getLogs</code> to find, wallets, exchanges and indexers rebuild ETH flows by tracing every transaction<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</p>
+<p>EIP-7708's answer is blunt. Wherever ETH moves, the protocol emits one ERC-20-shaped log<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. This report sets out the spec and how it evolved, checks how it fits with the fork's gas repricing, and measures it on Sepolia.</p>
+<h2>2. Specification</h2>
+<p>A log equivalent to LOG3 is emitted in four cases: a nonzero-value transaction to a different account, and nonzero-value <code>CALL</code>, <code>SELFDESTRUCT</code>, and <code>CREATE</code>/<code>CREATE2</code>. The transaction-level log comes "before any other logs created by EVM execution", and the others appear when the transfer executes<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<table><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody><tr><td>emitting address</td><td><code>0xfff…fffe</code> (EIP-4788's <code>SYSTEM_ADDRESS</code>)</td></tr><tr><td><code>topics[0]</code></td><td><code>keccak256('Transfer(address,address,uint256)')</code></td></tr><tr><td><code>topics[1]</code>, <code>topics[2]</code></td><td>sender, recipient</td></tr><tr><td><code>data</code></td><td>amount in wei</td></tr></tbody></table>
+<p><em>Table 1 — The transfer log, identical in shape to the ERC-20 <code>Transfer</code> event.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></em></p>
+<p>The reference implementation in execution-specs reduces this to two guards. The log helper does nothing for a zero amount. Message calls log only when caller and target differ, and <code>SELFDESTRUCT</code> logs only when the beneficiary is not the contract itself<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. A log belongs to the frame where the transfer happened, so it disappears if that frame or an enclosing one reverts. The test list implies this, but the normative text never says it<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>.</p>
+<pre class="mermaid">flowchart TD
+  A[ETH moves] --&gt; B{amount is zero}
+  B --&gt;|yes| N[no log]
+  B --&gt;|no| C{sender equals recipient}
+  C --&gt;|yes| N
+  C --&gt;|no| D[SYSTEM_ADDRESS appends a Transfer log&lt;br/&gt;owned by the frame of the transfer]
+  D --&gt; E{that frame or an enclosing one fails}
+  E --&gt;|yes| N2[log discarded with it]
+  E --&gt;|no| K[log kept in the receipt]</pre>
+<p><em>Figure 1 — When the reference implementation emits a transfer log. The last branch, discard on failure, is in the code and tests but not yet in the EIP text.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup></em></p>
+<p>The emitting address was argued over for a long time. One camp wanted a nil address so the log could not be forged. Another wanted <code>0xEeee…EEeE</code>, already used by <code>eth_simulateV1</code>, as a de facto standard<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The spec settled on <code>SYSTEM_ADDRESS</code>, which EIP-4788 already uses for protocol actions. Reusing it keeps protocol-originated operations consistent and distinguishes these logs from logs emitted by user contracts<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h2>3. Two years of revisions</h2>
+<p>The commit history shows a bumpy road<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>.</p>
+<table><thead><tr><th>Date</th><th>Change</th></tr></thead><tbody><tr><td>2024-06</td><td>proposed by Vitalik Buterin</td></tr><tr><td>2025-04</td><td>moved to Stagnant</td></tr><tr><td>2026-01</td><td>revived as Draft; <code>SELFDESTRUCT</code> handling clarified</td></tr><tr><td>2026-02</td><td><code>Burn(address,uint256)</code> logs added</td></tr><tr><td>2026-04</td><td><code>CREATE</code>/<code>CREATE2</code> added</td></tr><tr><td>2026-05-04</td><td>interop decisions: open questions replaced by rationale</td></tr><tr><td>2026-05-16</td><td>burn logs removed in favour of EIP-8246</td></tr><tr><td>2026-07</td><td>Review</td></tr><tr><td>2026-10</td><td>Last Call (deadline 2026-11-01)</td></tr></tbody></table>
+<p><em>Table 2 — EIP-7708 revision history.<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></em></p>
+<p>Burn logs were the biggest detour. Even after EIP-6780, a contract created and self-destructed to itself within one transaction could still burn ETH. The February revision added a separate <code>Burn</code> log for that case, which meant sorting accounts marked for deletion by address at transaction finalization<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. A client developer objected that this "requires dedicated sorting" and is risky<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>A working session in Svalbard on 1 May changed course. Burn logs would go if a new <code>SELFDESTRUCT</code> EIP made the same fork, and stay if it did not. The deciding argument was frequency: about 50 such burns before Cancun and 2 after<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. That condition is EIP-8246, which abolishes the burn altogether. A replay of mainnet to roughly block 25M found two post-Cancun burns on this path and none at finalization. With it goes "the last EVM mechanism by which ETH can leave total supply"<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. EIP-8246 is scheduled for Glamsterdam, with Last Call ending on 4 November<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. The cost lands on L2s such as OP Stack chains, whose <code>L2ToL1MessagePasser</code> relies on this burn and will need a migration plan<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>.</p>
+<p>The same session kept fees and withdrawals out. Priority fees and the base-fee burn can be computed from receipts and headers, and per-transaction fee logs would bloat blocks. Withdrawals have no transaction to attach to<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Those decisions became the EIP's rationale section verbatim<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</p>
+<h2>4. Cost</h2>
+<p>Gas was the loudest early objection. One commenter put a log at roughly 1,700 gas and called that "obscene" next to a 21,000-gas transfer<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The May session estimated about 1,756 gas per log and provisionally agreed to fold it into the cost of <code>CALL</code>. At that point the direction of EIP-2780, which governs the transaction side, was still unsettled<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<p>In the settled picture, the transaction-level log sits inside EIP-2780's <code>TX_VALUE_COST</code> of 6,000 gas. That charge covers both "recipient balance write and EIP-7708 transfer log"<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. A self-transfer emits no log and pays no such charge<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. On the <code>CALL</code> side, EIP-8038 raises the account-write cost of a value transfer from 6,700 to 9,000, but its text never mentions EIP-7708<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Whether the log is priced into that number, as the working session intended, cannot be confirmed from the documents.</p>
+<p>The EIP's own security argument leans on these figures. An ETH transfer costs at least 6,700 gas and LOG3 costs 1,500, so the worst-case number of logs per block does not rise<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. With EIP-8038 that floor becomes 9,000, which only strengthens the conclusion<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>.</p>
+<h2>5. What Sepolia shows</h2>
+<p>Sepolia switched to Glamsterdam at block 11,856,337. In the 100 blocks before it, <code>SYSTEM_ADDRESS</code> emitted no logs; in the 100 blocks from it, 7,225, the first in the fork block itself<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<p>For the latest 200 blocks (12,054,249 to 12,054,448), every transaction and receipt was pulled and checked against the spec<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<table><thead><tr><th>Check</th><th>Result</th></tr></thead><tbody><tr><td>transactions / logs / transfer logs</td><td>27,647 / 66,195 / 3,681</td></tr><tr><td>successful value transactions whose first log is the correct transfer log</td><td>1,957 / 1,957</td></tr><tr><td>value-carrying self-transfers with no transaction-level log</td><td>16 / 16</td></tr><tr><td>failed transactions carrying logs</td><td>0 / 3,722</td></tr><tr><td>malformed logs (topics, data length, zero amount, self transfer)</td><td>0</td></tr><tr><td>internal contract transfer logs</td><td>1,724, in 6.0% of successful transactions</td></tr></tbody></table>
+<p><em>Table 3 — Verification over 200 Sepolia blocks (author's measurement, 3 November 2026)<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup></em></p>
+<p>The last row is the reason the EIP exists. Forty-seven percent of transfer logs recorded movements inside contracts that the transaction list never showed<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. Transfer logs were 5.6% of all logs. That is a testnet mix and says little about mainnet growth.</p>
+<p>Gas was checked on plain transactions without calldata. A zero-value transfer to an existing account used 15,000 gas and no log, and a self-transfer used 12,000. A value transfer used 21,000 with one log, and a transfer that created an account used 204,600<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. The 6,000 difference between 21,000 and 15,000 is exactly <code>TX_VALUE_COST</code>. Subtracting 21,000 from 204,600 leaves the 183,600 of state gas that EIP-2780 lists for a new account<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<h2>6. Discussion</h2>
+<p><strong>Filter on the address, not the topic.</strong> Any contract can craft a LOG3 that looks like an ETH transfer, as a client developer warned<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. <code>SYSTEM_ADDRESS</code> answers that, since only the protocol can emit from it<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The protection holds only for consumers who filter on the address. The topic is the ERC-20 <code>Transfer</code> hash, so an indexer that collects by topic alone will mix ETH transfers, token transfers and forgeries together. That is the flip side of letting existing ERC-20 parsers read the logs unchanged.</p>
+<p><strong>These logs cannot rebuild balances on their own.</strong> Fees, the base-fee burn and withdrawals are excluded by design<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. A full balance ledger still has to add fees from headers and receipts. In November 2025 a co-author argued against shipping the logs without system logs along the lines of EIP-7799<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The EIP instead says clients "MAY" expose an aggregating RPC<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. That is enough to detect exchange deposits. Reconciling accounts still needs the fee data.</p>
+<p><strong>Tooling is already adjusting.</strong> Geth merged its implementation in March. In October it fixed <code>eth_simulateV1</code>, whose synthetic transfer logs duplicated the protocol's, so every transfer was being reported twice<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup><sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>. Other tools that synthesize similar logs should check for the same duplication after Glamsterdam.</p>
+<p><strong>The text still needs work at the end of Last Call.</strong> PR #12613, opened the day after the deadline, raises three gaps. Value-carrying contract-creation transactions are not in the list. Nothing says what happens to a log when its frame fails. Failures that occur before the transfer, such as an address collision, are not covered either. The reference implementation and tests already behave consistently on all three<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The sharper question is about cost. A creation transaction pays no <code>TX_VALUE_COST</code>, yet in t8n a creation used the same 207,606 gas at value 0 and value 7, emitting a log only in the second case. Is that log free<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>? No value-carrying creation appeared in this sample, so it could not be checked on chain.</p>
+<h2>7. Limitations</h2>
+<ul>
+<li>Measurements cover Sepolia: the latest 200 blocks and 200 blocks around the fork. Mainnet is not live, so log growth there was not measured.</li>
+<li>Only geth's implementation PRs were reviewed. Other clients are inferred only from their participation in Sepolia consensus.</li>
+<li>No value-carrying creation transaction or <code>SELFDESTRUCT</code> transfer appeared in the sample.</li>
+<li>Whether EIP-8038's numbers include the <code>CALL</code>-level log could not be confirmed from the documents.</li>
+<li>The outcomes of PR #12613 and of EIP-8246 (Last Call ends 4 November) were open at the time of writing. Under the working session's decision, burn logs could return if EIP-8246 is dropped<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</li>
+</ul>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Vitalik Buterin, Peter Davies, Etan Kissling, Gajinder Singh, Carson, Jared Wasinger</span>. <a href="https://eips.ethereum.org/EIPS/eip-7708">EIP-7708: ETH Transfers Emit a Log</a>. <span class="venue">Ethereum Improvement Proposals, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+      <li id="ref-2"><span class="authors">Ethereum Magicians</span>. <a href="https://ethereum-magicians.org/t/eip-7708-eth-transfers-emit-a-log/20034">EIP-7708: ETH transfers emit a log (Ethereum Magicians discussion)</a>. <span class="venue">Ethereum Magicians, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+      <li id="ref-3"><span class="authors">Ethernal</span>. <a href="https://tryethernal.com/blog/eip-7708-eth-transfers-emit-log">EIP-7708: ETH transfers emit a log (Ethernal blog)</a>. <span class="venue">tryethernal.com, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+      <li id="ref-4"><span class="authors">ethereum/execution-specs</span>. <a href="https://github.com/ethereum/execution-specs/tree/master/tests/amsterdam/eip7708_eth_transfer_logs">execution-specs: EIP-7708 implementation and tests (Amsterdam)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+      <li id="ref-5"><span class="authors">rifmj</span>. <a href="https://github.com/ethereum/EIPs/pull/12613">Update EIP-7708: cover contract-creation transactions and reverted frames (PR #12613)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+      <li id="ref-6"><span class="authors">ethereum/EIPs contributors</span>. <a href="https://github.com/ethereum/EIPs/commits/master/EIPS/eip-7708.md">EIP-7708 revision history</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+      <li id="ref-7"><span class="authors">Carson (host)</span>. <a href="https://hackmd.io/@nixorokish/eip7708-summary">EIP-7708 working session summary (Svalbard interop)</a>. <span class="venue">HackMD, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+      <li id="ref-8"><span class="authors">Paweł Bylica</span>. <a href="https://eips.ethereum.org/EIPS/eip-8246">EIP-8246: Remove SELFDESTRUCT Burn</a>. <span class="venue">Ethereum Improvement Proposals, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+      <li id="ref-9"><span class="authors">Tim Beiko, Alex Stokes, Ansgar Dietrichs, Nixo, Parithosh Jayanthi</span>. <a href="https://eips.ethereum.org/EIPS/eip-7773">EIP-7773: Hardfork Meta - Glamsterdam</a>. <span class="venue">Ethereum Improvement Proposals, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+      <li id="ref-10"><span class="authors">ethereum/EIPs</span>. <a href="https://eips.ethereum.org/EIPS/eip-2780">EIP-2780: Reduce intrinsic transaction gas</a>. <span class="venue">Ethereum Improvement Proposals, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+      <li id="ref-11"><span class="authors">ethereum/EIPs</span>. <a href="https://eips.ethereum.org/EIPS/eip-8038">EIP-8038: State-Access Gas Cost Update</a>. <span class="venue">Ethereum Improvement Proposals, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+      <li id="ref-12"><span class="authors">Sepolia (onchain data)</span>. <a href="https://sepolia.etherscan.io/block/11856337">Sepolia: EIP-7708 logs, fork boundary and gas (author measurement)</a>. <span class="venue">Sepolia via public RPC, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+      <li id="ref-13"><span class="authors">zsfelfoldi</span>. <a href="https://github.com/ethereum/go-ethereum/pull/33645">core, core/vm: implement EIP-7708 (go-ethereum PR #33645)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+      <li id="ref-14"><span class="authors">go-ethereum</span>. <a href="https://github.com/ethereum/go-ethereum/pull/35617">internal/ethapi: avoid duplicate transfer logs in eth_simulateV1 post-Amsterdam (go-ethereum PR #35617)</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-03.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-11-03. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
