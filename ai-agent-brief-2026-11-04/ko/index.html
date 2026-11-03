@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI 에이전트·개발자 도구·에이전트 결제 — 데일리 브리프, 2026-11-04 — Deepsearch</title>
+<meta name="description" content="재전송을 리플레이로 오판한 Tempo 결제, mppx 세션 결제 버그 6건, 닫힌 x402 SDK 드리프트 2건">
+<link rel="canonical" href="https://code0xff.github.io/reports/ai-agent-brief-2026-11-04/ko/">
+<link rel="alternate" hreflang="en" href="../index.html">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="AI 에이전트·개발자 도구·에이전트 결제 — 데일리 브리프, 2026-11-04">
+<meta property="og:description" content="재전송을 리플레이로 오판한 Tempo 결제, mppx 세션 결제 버그 6건, 닫힌 x402 SDK 드리프트 2건">
+<meta property="og:url" content="https://code0xff.github.io/reports/ai-agent-brief-2026-11-04/ko/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI 에이전트·개발자 도구·에이전트 결제 — 데일리 브리프, 2026-11-04">
+<meta name="twitter:description" content="재전송을 리플레이로 오판한 Tempo 결제, mppx 세션 결제 버그 6건, 닫힌 x402 SDK 드리프트 2건">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../ko/index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="en">English</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="GitHub에서 Deepsearch 보기" title="GitHub에서 Deepsearch 보기">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../ko/index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>AI 에이전트·개발자 도구·에이전트 결제 — 데일리 브리프, 2026-11-04</h1>
+    <p class="subtitle">재전송을 리플레이로 오판한 Tempo 결제, mppx 세션 결제 버그 6건, 닫힌 x402 SDK 드리프트 2건</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-11-04</span>
+      <span><strong>태그</strong> —</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="ai-agent-brief-2026-11-04.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>mppx가 실서비스에서 터진 버그를 고쳤다. 재전송된 브로드캐스트 하나 때문에 이미 채굴되고 이미 결제된 Tempo 트랜잭션이 새 402 챌린지로 되돌아가는 문제였고, Mercator는 한 시간 동안 자사의 유료 Exa 검색 중 약 4%가 이 문제를 겪었다고 밝혔다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 같은 48시간 동안 세션 결제 기능에 여섯 건의 추가 수정이 들어갔는데, 그중 둘은 단순 버그가 아니라 보안 구멍이었다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. 별개로 x402는 자체 SDK 드리프트 감지 봇이 며칠째 지적하던 두 항목을 닫았다. 결제 페이로드가 잘못됐을 때 SDK마다 다른 에러 코드를 반환하던 문제, 그리고 결제가 온체인에서 이미 성공한 뒤에도 Python facilitator 훅이 그 결과를 "실패"로 뒤집을 수 있던 문제다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. 다섯 번째 수정은 이 둘과 무관하다. x402의 TypeScript SDK가 캡처 성공 후 에스크로 잔액을 갱신하지 않아 환불이 막혀 있던 버그를 고쳤다<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+  </section>
+
+  <main class="body">
+<h2>서론</h2>
+<p>이번 호는 <strong>2026년 11월 1일부터 11월 4일까지</strong>를 다룬다. 결제 레일 전반의 배경은 사이트의 <a href="../agent-commerce-protocol/">에이전트 커머스 프로토콜 비교</a>에 있고, mppx의 설계는 <a href="../mpp-spec-and-payment-flows/">Machine Payments Protocol: 스펙과 결제 흐름</a>에서 다뤘다. 직전 호인 2026-11-03 호는 다른 x402·mppx 버그들을 다뤘고, 이번 호 항목과 겹치지 않는다.</p>
+<h2>이번 주 동향</h2>
+<h3>재전송된 Tempo 브로드캐스트가 이미 낸 돈을 다시 청구시켰다</h3>
+<p>2026-11-03에 머지된 PR #1164는 mppx의 Tempo 결제 정산 로직에 있던 버그를 고친다. 수수료 지불 서버가 서명된 결제 트랜잭션을 브로드캐스트해 채굴까지 끝난 뒤, 같은 브로드캐스트에 대한 재전송(전송 계층 재시도거나 폴백 RPC)이 <code>ExpiringNonceReplay</code> 에러로 되돌아오면 서버는 이를 확정적 거부로 처리했다. 트랜잭션 해시에 대한 소유권 주장을 풀어버리고 이미 결제를 마친 클라이언트에게 새 402 챌린지를 내보낸 것이다. PR은 실제 사례를 인용한다. <code>api.exa.ai</code>로 유료 트래픽을 중계하던 Mercator가 한 시간 동안 1,016건의 유료 Exa 검색 중 44건, 약 4%에서 이 문제를 겪었고, 그중 한 트랜잭션 해시는 동일한 raw 바이트를 Tempo RPC에 다시 보내면 원래의 성공 영수증이 그대로 돌아왔다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 수정은 모호한 브로드캐스트 에러와 실제 거부를 구분해, 소유권 주장을 버리는 대신 기존 영수증을 복구하도록 바꿨다.</p>
+<pre class="mermaid">sequenceDiagram
+    participant Client as 클라이언트
+    participant Server as mppx 서버
+    participant RPC as Tempo RPC
+    Client-&gt;&gt;Server: 서명된 결제 트랜잭션
+    Server-&gt;&gt;RPC: 브로드캐스트
+    RPC--&gt;&gt;Server: 채굴 완료, 결제 성공
+    Note over Server: 재시도 발생 (전송 재시도 / 폴백 RPC)
+    Server-&gt;&gt;RPC: 동일 서명 트랜잭션 재전송
+    RPC--&gt;&gt;Server: -32000 ExpiringNonceReplay
+    rect rgb(255,230,230)
+    Note over Server: 수정 전: 거부로 처리,&lt;br/&gt;해시 소유권 포기, 새 402 발급
+    end
+    rect rgb(230,255,230)
+    Note over Server: 수정 후: 모호한 에러로 인식,&lt;br/&gt;기존 영수증 복구
+    end
+    Server--&gt;&gt;Client: 결제된 결과 반환 (재청구 없음)</pre>
+<p><em>그림 1 — mppx의 수정은 이미 성공한 브로드캐스트와 실제로 거부된 브로드캐스트를 구분해, 이미 돈을 낸 클라이언트가 다시 결제하지 않도록 한다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</em></p>
+<h3>mppx, 48시간 동안 세션 결제 버그 여섯 건을 닫다. 그중 둘은 보안 구멍</h3>
+<p>여섯 건은 이렇다. 검증 프로브가 <code>skipPayment</code>를 요청했는데도 전역 결제 fetch 래퍼를 그대로 썼다가 실제 결제가 발생할 수 있던 문제(#1153)<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>, 세션 매니저를 다른 오리진에 재사용하면 기존 결제 채널이 노출되고 원래 대상이 아니었던 엔드포인트에 바우처를 승인해버릴 수 있던 문제(#1155)<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>, 요청당 가격이 매겨진 SSE 라우트가 채널에 돈이 있는지 확인하기 전에 핸들러를 실행해 반복 거부된 요청으로도 무상 작업이 가능했던 문제(#1156)<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>, 결제 거부 시 에러 본문이 프로토콜의 123바이트 종료 사유 제한을 넘으면 웹소켓이 닫히지 않고 남아있던 문제(#1152)<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>, 자체 구현이 내보내는 형식만 매칭해 RFC 9530 바이트 시퀀스 형식의 정상적인 본문 다이제스트를 검증 실패로 처리했던 문제(#1154)<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, 그리고 <code>tempo()</code> 클라이언트의 지출 한도(통화, 최대 금액, 수신자 제한)가 일회성 청구에는 적용되면서 세션 결제에는 적용되지 않던 문제(#1166)<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>다. 앞의 두 건은 단순 버그가 아니라 접근 제어 수정이다. 하나는 미승인 청구로 가는 경로를, 다른 하나는 오리진을 넘나드는 정보·권한 유출 경로를 막는다.</p>
+<h3>x402, 드리프트 봇이 지적한 두 항목을 닫다</h3>
+<p>#4052(TypeScript, exact 스킴), #4060(Python, upto 스킴), #4115(TypeScript, upto 스킴) 세 PR이 EIP-3009나 Permit2 결제 페이로드가 잘못됐을 때 세 SDK 모두 같은 구조화된 에러를 반환하도록 맞췄다. 2026-10-29 드리프트 리포트(#4050)가 지적했던 TypeScript exact 스킴의 공백을 메우고, 같은 작업을 Python·TypeScript의 upto 스킴까지 확장했다<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. 별개로 PR #4072는 TypeScript가 먼저 적용한 facilitator 훅 에러 격리(#3151)를 Python SDK로 포팅했다. <code>after_verify</code>, <code>after_settle</code>이나 실패 단계 훅이 예외를 던져도, 결제가 온체인에서 이미 실행된 뒤라면 <code>settle()</code> 호출을 더 이상 뒤집을 수 없다. 2026-10-31 드리프트 리포트(#4071)는 이 항목이 Python에서 여전히 열려 있다고 사흘 전에 지적한 바 있다<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+<h3>x402의 TypeScript SDK, 캡처 성공 뒤 에스크로 잔액을 놓치는 버그를 고치다</h3>
+<p>2026-11-02에 머지된 PR #4092는 동기식 auth-capture가 성공했는데도 TypeScript가 저장된 에스크로 잔액을 갱신하지 않던 버그를 고친다. Go는 이미 올바르게 처리하고 있었다. 이 불일치 때문에 캡처 자체는 성공했어도 같은 캡처에 대한 이후 환불이 결제 상태 에러로 실패했다<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</p>
+<h2>왜 중요한가</h2>
+<p>오늘 다룬 다섯 항목 중 셋은 코드 리뷰어가 diff를 읽다가 찾아낸 것이 아니다. 실제 수수료 지불 서버의 운영 트래픽(#1164), SDK끼리 비교하는 드리프트 감지 봇(#4052·#4060·#4115, #4072), 그리고 손으로 짠 구현이 스펙의 테스트 형식에서 조용히 벗어난 경우(#1154)에서 나왔다. 어제 호에서 수정 네 건이 한 사람이 백로그를 순서대로 처리하며 나온 것과는 다른 양상이다. mppx의 세션 결제 기능은 핵심 청구 로직보다 더 새롭고 덜 검증된 영역으로 보인다. 몇 달 전에는 존재하지 않았던 이 기능이 같은 기간에 평범한 정합성 버그 네 건과 접근 제어 버그 두 건을 동시에 냈다.</p>
+<h2>지켜볼 신호</h2>
+<ul>
+<li>x402 이슈 #4050이 이번 주 세 건의 페이로드 정합성 PR 이후에도 미해결 항목을 남기고 있는지, 아니면 완전히 닫혔는지.</li>
+<li>PR #1164에 적힌 Exa·Mercator 사고 수치의 독립적인 검증. 현재는 PR 작성자 본인의 설명에만 의존하고 있다.</li>
+<li>mppx의 세션 결제 수정이 특정 통합사의 트래픽에 묶여 몰아서 나오는 패턴을 계속 보일지, 아니면 운영 사례가 늘면서 더 다양한 엣지 케이스로 분산될지.</li>
+</ul>
+<h2>한계</h2>
+<p>Mastercard Agent Pay/AP4M, Visa Trusted Agent Protocol, Stripe의 Agentic Commerce Protocol, PayPal 등 카드사·PSP의 에이전트 커머스 제품은 이번 기간에도 날짜가 명시된 1차 발표를 내지 않았다. 여덟 번째 호째 이어지는 공백이며, 자세한 내용은 <code>working/gaps.md</code>에 있다. AP2와 UCP는 확인한 저장소에서 아무 활동이 없었다. 이번 호의 출처 열네 건은 모두 두 저장소(x402-foundation/x402, wevm/mppx)의 GitHub 풀 리퀘스트나 이슈이며, 다섯 항목 어디에도 독립적인 언론 보도가 없고, PR #1164의 사고 수치 역시 단일하고 검증되지 않은 보고에 기대고 있다.</p>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1164">fix(tempo): recover the receipt after an ExpiringNonceReplay broadcast</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">접근일 2026-11-04.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1153">fix: prevent automatic payments during validation probes</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">접근일 2026-11-04.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1155">fix: bind session manager payments to request origin</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">접근일 2026-11-04.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1156">fix: charge request-priced session content before handlers</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">접근일 2026-11-04.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1152">fix: bound websocket payment close reasons</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">접근일 2026-11-04.</span></li>
+      <li id="ref-6"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1154">fix: accept RFC 9530 byte-sequence digests in BodyDigest.verify</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">접근일 2026-11-04.</span></li>
+      <li id="ref-7"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1166">fix(tempo): apply client spending options to session payments</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">접근일 2026-11-04.</span></li>
+      <li id="ref-8"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/4052">fix(evm): return invalid_exact_evm_payload for malformed exact payloads</a>. <span class="venue">GitHub (x402-foundation/x402), 2026</span>. <span class="accessed">접근일 2026-11-04.</span></li>
+      <li id="ref-9"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/4060">fix(python): return structured invalid_upto_* errors for malformed upto Permit2 payloads</a>. <span class="venue">GitHub (x402-foundation/x402), 2026</span>. <span class="accessed">접근일 2026-11-04.</span></li>
+      <li id="ref-10"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/4115">fix(evm): return invalid_upto_evm_payload for malformed upto Permit2 payloads (TypeScript)</a>. <span class="venue">GitHub (x402-foundation/x402), 2026</span>. <span class="accessed">접근일 2026-11-04.</span></li>
+      <li id="ref-11"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/issues/4050">SDK drift detected 2026-10-29</a>. <span class="venue">GitHub (x402-foundation/x402), 2026</span>. <span class="accessed">접근일 2026-11-04.</span></li>
+      <li id="ref-12"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/4072">fix(python): isolate facilitator advisory hook errors</a>. <span class="venue">GitHub (x402-foundation/x402), 2026</span>. <span class="accessed">접근일 2026-11-04.</span></li>
+      <li id="ref-13"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/issues/4071">SDK drift detected 2026-10-31</a>. <span class="venue">GitHub (x402-foundation/x402), 2026</span>. <span class="accessed">접근일 2026-11-04.</span></li>
+      <li id="ref-14"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/4092">fix(evm): persist sync auth-capture balances for refunds</a>. <span class="venue">GitHub (x402-foundation/x402), 2026</span>. <span class="accessed">접근일 2026-11-04.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-11-04 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

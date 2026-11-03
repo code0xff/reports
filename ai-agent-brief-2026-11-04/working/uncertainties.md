@@ -1,0 +1,6 @@
+# Uncertainties — ai-agent-brief-2026-11-04
+
+- The 4%-of-paid-searches figure and the 44/1,016 count for the mppx `ExpiringNonceReplay` incident are vendor/reporter-stated, drawn from the PR body rather than an independent incident report from Exa or Mercator. Treat as directionally right, not as an audited figure.
+- Whether mppx's session-payment feature is in production use anywhere beyond the Tempo/Mercator/Exa chain referenced in these PRs is unconfirmed — the six fixes landing in one 48-hour window could reflect either a dedicated security review or a single integrator (plausibly Mercator, given #1164) hitting all six in normal use and filing them in sequence.
+- x402 PR #4052 explicitly states it tracks issue #4050 but "does not close it" — there may be remaining drift items in #4050 not covered by this edition's three payload-parity PRs; not confirmed either way without re-reading the live issue state.
+- The claim that x402 and mppx are "absorbing production feedback rather than just internal review" (the Why it matters framing) is an inference from the mix of production-incident language in PR #1164 and the otherwise-routine tone of the other PRs — it is not a claim either project has made about itself.

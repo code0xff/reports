@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI agents, developer tools, and agent payments — daily brief, 2026-11-04 — Deepsearch</title>
+<meta name="description" content="A mined Tempo payment misread as a replay, six session-payment bugs in mppx, and two closed SDK-drift items in x402">
+<link rel="canonical" href="https://code0xff.github.io/reports/ai-agent-brief-2026-11-04/">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="ko" href="ko/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="AI agents, developer tools, and agent payments — daily brief, 2026-11-04">
+<meta property="og:description" content="A mined Tempo payment misread as a replay, six session-payment bugs in mppx, and two closed SDK-drift items in x402">
+<meta property="og:url" content="https://code0xff.github.io/reports/ai-agent-brief-2026-11-04/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI agents, developer tools, and agent payments — daily brief, 2026-11-04">
+<meta name="twitter:description" content="A mined Tempo payment misread as a replay, six session-payment bugs in mppx, and two closed SDK-drift items in x402">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>AI agents, developer tools, and agent payments — daily brief, 2026-11-04</h1>
+    <p class="subtitle">A mined Tempo payment misread as a replay, six session-payment bugs in mppx, and two closed SDK-drift items in x402</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-11-04</span>
+      <span><strong>Tags</strong> —</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="ai-agent-brief-2026-11-04.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>mppx fixed a production bug where a retried broadcast could turn an already-mined, already-paid Tempo transaction into a fresh 402 — Mercator traced it to roughly 4% of its paid Exa searches in one hour<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The same 48 hours produced six more mppx fixes to its session-payment feature, two of them closing real security holes rather than correctness bugs<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. Separately, x402 closed out two items its own SDK-drift bot had been flagging for days: cross-SDK error codes for malformed payment payloads, and a Python facilitator hook that could still flip a settled payment to "failed" after the fact<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>. A fifth, unrelated fix stopped x402's TypeScript SDK from losing track of escrow balances after a successful capture, which was breaking refunds<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+  </section>
+
+  <main class="body">
+<h2>Introduction</h2>
+<p>This edition covers <strong>2026-11-01 through 2026-11-04</strong>. Background on the payment-rail landscape lives in the site's <a href="../agent-commerce-protocol/">agent commerce protocol comparison</a>; mppx's design is covered in <a href="../mpp-spec-and-payment-flows/">Machine Payments Protocol: spec and payment flows</a>. The previous edition, 2026-11-03, closed out a different set of x402 and mppx bugs; none of today's items overlap with it.</p>
+<h2>What moved</h2>
+<h3>A retried Tempo broadcast could turn a paid transaction into a second 402</h3>
+<p>PR #1164, merged 2026-11-03, fixes a bug in mppx's Tempo charge settlement: when a fee-payer server broadcasts a signed payment transaction, has it mined, and then a retry of that same broadcast (a transport retry, or a fallback RPC) comes back with <code>ExpiringNonceReplay</code>, the server treated that error as a definite rejection. It released its claim on the transaction hash and issued a new 402 challenge to the client — which had already paid. The PR cites a real incident: Mercator, routing paid traffic to <code>api.exa.ai</code>, hit this on about 4% of its paid Exa searches in a one-hour window (44 of 1,016), with one example transaction hash where re-sending the exact same raw bytes to the Tempo RPC returned the original, already-successful receipt<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The fix distinguishes an ambiguous broadcast error from a genuine rejection and recovers the receipt instead of discarding the claim.</p>
+<pre class="mermaid">sequenceDiagram
+    participant Client
+    participant Server as mppx server
+    participant RPC as Tempo RPC
+    Client-&gt;&gt;Server: signed payment transaction
+    Server-&gt;&gt;RPC: broadcast
+    RPC--&gt;&gt;Server: mined, paid
+    Note over Server: retry fires (transport retry / fallback RPC)
+    Server-&gt;&gt;RPC: re-broadcast same signed tx
+    RPC--&gt;&gt;Server: -32000 ExpiringNonceReplay
+    rect rgb(255,230,230)
+    Note over Server: before fix: treated as rejection,&lt;br/&gt;hash claim released, new 402 issued
+    end
+    rect rgb(230,255,230)
+    Note over Server: after fix: recognized as ambiguous,&lt;br/&gt;original receipt recovered
+    end
+    Server--&gt;&gt;Client: paid result (not a new charge)</pre>
+<p><em>Figure 1 — mppx's fix distinguishes a genuinely rejected broadcast from one that already succeeded before the retry, so a client that already paid is not asked to pay again<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>.</em></p>
+<h3>mppx closes six session-payment bugs in 48 hours, two of them security holes</h3>
+<p>The six: a validation probe could trigger a real payment despite asking the client to skip it, because the probe reused the global payment-aware fetch wrapper (#1153)<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>; a session manager reused against a second origin could disclose its existing payment channel and authorize vouchers for an endpoint it was never meant to pay (#1155)<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>; a request-priced SSE route could run the application handler before confirming the channel had funds, so repeatedly rejected requests could still perform unpaid work (#1156)<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>; a WebSocket could stay open after a rejected payment if the error body exceeded the protocol's 123-byte close-reason limit (#1152)<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>; a spec-valid RFC 9530 byte-sequence body digest failed verification because the code only matched the bare form it itself emitted (#1154)<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>; and the <code>tempo()</code> client's own spending limits (currency, max amount, expected recipient) were enforced on one-shot charges but not on session payments (#1166)<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. The first two are access-control fixes, not just bugs: one closes a path to an unauthorized charge, the other closes a path to a cross-origin information and authorization leak.</p>
+<h3>x402 closes two items its SDK-drift bot had flagged open</h3>
+<p>Three PRs, #4052 (TypeScript, exact scheme), #4060 (Python, upto scheme), and #4115 (TypeScript, upto scheme), bring all three x402 SDKs to the same structured error reasons for malformed EIP-3009 or Permit2 payment payloads, tracking the gap the 2026-10-29 drift report (#4050) opened for TypeScript's exact scheme and extending the same work to the upto scheme across Python and TypeScript<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup><sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup>. Separately, PR #4072 ports TypeScript's facilitator-hook error isolation (shipped as #3151) into the Python SDK: a throwing <code>after_verify</code>, <code>after_settle</code>, or failure-phase hook can no longer reject a <code>settle()</code> call after the underlying payment already executed onchain. The 2026-10-31 drift report (#4071) had flagged this as still open in Python three days before the fix landed<sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup><sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>.</p>
+<h3>x402's TypeScript SDK stops losing escrow balances after a successful capture</h3>
+<p>PR #4092, merged 2026-11-02, fixes a bug where a successful sync auth-capture left the stored escrow balance unchanged in TypeScript, while Go updated it correctly. The mismatch meant a later refund against that same capture failed with a payment-state error, even though the capture itself had gone through<sup class="footnote-ref"><a href="#ref-14" id="cite-14">[14]</a></sup>.</p>
+<h2>Why it matters</h2>
+<p>Three of today's five items trace back to something other than a code reviewer reading a diff: a real fee-payer's production traffic (#1164), a drift-detection bot comparing SDKs against each other (#4052/#4060/#4115, #4072), and a protocol spec test that a hand-written implementation quietly diverged from (#1154). That is a different failure mode than last edition's, where four of the fixes came from one reviewer working through a backlog in order. mppx's session-payment feature in particular reads as a newer, less-scrutinized surface than core charge handling — it shipped two access-control bugs in the same window that produced four plain correctness bugs, on a feature that did not exist a few months ago.</p>
+<h2>Signals to watch</h2>
+<ul>
+<li>Whether x402 issue #4050 still has open items after this week's three payload-parity PRs, or whether it is fully closed.</li>
+<li>Independent confirmation of the Exa/Mercator incident numbers in PR #1164, which currently rest on the PR author's own account.</li>
+<li>Whether mppx's session-payment fixes keep arriving in bursts tied to one integrator's traffic, or spread out as more production use surfaces more edge cases.</li>
+</ul>
+<h2>Limitations</h2>
+<p>Card-network and PSP agent-commerce products (Mastercard Agent Pay/AP4M, Visa Trusted Agent Protocol, Stripe's Agentic Commerce Protocol, PayPal) produced no dated primary announcement inside this window, for the eighth edition running; see <code>working/gaps.md</code>. AP2 and UCP had no activity in the repos checked. All fourteen sources in this edition are GitHub pull requests or issues across two repositories (x402-foundation/x402 and wevm/mppx); there is no independent trade-press coverage of any of today's five items, and the production-incident numbers in PR #1164 come from a single, unverified report.</p>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1164">fix(tempo): recover the receipt after an ExpiringNonceReplay broadcast</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-11-04.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1153">fix: prevent automatic payments during validation probes</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-11-04.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1155">fix: bind session manager payments to request origin</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-11-04.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1156">fix: charge request-priced session content before handlers</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-11-04.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1152">fix: bound websocket payment close reasons</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-11-04.</span></li>
+      <li id="ref-6"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1154">fix: accept RFC 9530 byte-sequence digests in BodyDigest.verify</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-11-04.</span></li>
+      <li id="ref-7"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1166">fix(tempo): apply client spending options to session payments</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-11-04.</span></li>
+      <li id="ref-8"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/4052">fix(evm): return invalid_exact_evm_payload for malformed exact payloads</a>. <span class="venue">GitHub (x402-foundation/x402), 2026</span>. <span class="accessed">Accessed 2026-11-04.</span></li>
+      <li id="ref-9"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/4060">fix(python): return structured invalid_upto_* errors for malformed upto Permit2 payloads</a>. <span class="venue">GitHub (x402-foundation/x402), 2026</span>. <span class="accessed">Accessed 2026-11-04.</span></li>
+      <li id="ref-10"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/4115">fix(evm): return invalid_upto_evm_payload for malformed upto Permit2 payloads (TypeScript)</a>. <span class="venue">GitHub (x402-foundation/x402), 2026</span>. <span class="accessed">Accessed 2026-11-04.</span></li>
+      <li id="ref-11"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/issues/4050">SDK drift detected 2026-10-29</a>. <span class="venue">GitHub (x402-foundation/x402), 2026</span>. <span class="accessed">Accessed 2026-11-04.</span></li>
+      <li id="ref-12"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/4072">fix(python): isolate facilitator advisory hook errors</a>. <span class="venue">GitHub (x402-foundation/x402), 2026</span>. <span class="accessed">Accessed 2026-11-04.</span></li>
+      <li id="ref-13"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/issues/4071">SDK drift detected 2026-10-31</a>. <span class="venue">GitHub (x402-foundation/x402), 2026</span>. <span class="accessed">Accessed 2026-11-04.</span></li>
+      <li id="ref-14"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/4092">fix(evm): persist sync auth-capture balances for refunds</a>. <span class="venue">GitHub (x402-foundation/x402), 2026</span>. <span class="accessed">Accessed 2026-11-04.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-11-04. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
