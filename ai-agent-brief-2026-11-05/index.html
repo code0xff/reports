@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI agents, developer tools, and agent payments — daily brief, 2026-11-05 — Deepsearch</title>
+<meta name="description" content="Uber&#x27;s own numbers, a fail-open payment bug closed, and three more mppx hardening fixes">
+<link rel="canonical" href="https://code0xff.github.io/reports/ai-agent-brief-2026-11-05/">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="ko" href="ko/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="AI agents, developer tools, and agent payments — daily brief, 2026-11-05">
+<meta property="og:description" content="Uber&#x27;s own numbers, a fail-open payment bug closed, and three more mppx hardening fixes">
+<meta property="og:url" content="https://code0xff.github.io/reports/ai-agent-brief-2026-11-05/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI agents, developer tools, and agent payments — daily brief, 2026-11-05">
+<meta name="twitter:description" content="Uber&#x27;s own numbers, a fail-open payment bug closed, and three more mppx hardening fixes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>AI agents, developer tools, and agent payments — daily brief, 2026-11-05</h1>
+    <p class="subtitle">Uber&#x27;s own numbers, a fail-open payment bug closed, and three more mppx hardening fixes</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-11-05</span>
+      <span><strong>Tags</strong> ai-agents, agent-payments, x402, mppx, cloudflare</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="ai-agent-brief-2026-11-05.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>Uber put a number on how little its agent-order traffic actually is: four rides and about 500 Eats orders placed by an AI agent during the week it calls its busiest, against roughly 320 million trips and orders overall<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. On the infrastructure side of the same gap, Cloudflare shipped per-agent visibility and access policies for "personal agents" acting on a user's behalf<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>, x402 closed a bug where a throwing payment gate hook failed open instead of rejecting the payment<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>, x402 separately fixed an XRPL spend cap that a whole-dollar price could bypass<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>, and mppx merged three more session-payment hardening fixes, including one that could let a session be reused across origins it was never authorized for<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup><sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup><sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>.</p>
+  </section>
+
+  <main class="body">
+<h2>Introduction</h2>
+<p>This edition covers <strong>2026-11-02 through 2026-11-05</strong>. Background on the payment-rail landscape lives in the site's <a href="../agent-commerce-protocol/">agent commerce protocol comparison</a>; mppx's design is covered in <a href="../mpp-spec-and-payment-flows/">Machine Payments Protocol: spec and payment flows</a>. The previous edition, 2026-11-04, covered a different Tempo receipt bug and six earlier mppx session-payment fixes; none of today's items repeat it.</p>
+<h2>What moved</h2>
+<h3>Uber's own numbers: four agent-booked rides in its busiest week</h3>
+<p>On Uber's 2026-11-04 Q3 earnings call, CFO Balaji Krishnamurthy said that during the week of Halloween, Uber's busiest week, an AI agent placed only four ride orders and about 500 Uber Eats orders, out of roughly 320 million trips and orders across both businesses that week<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. CEO Dara Khosrowshahi called the traction "very, very early and very limited," while saying Uber expects it to become a net positive for demand and is in talks with "every single AI system company." The figure echoes DoorDash's own disclosure a week earlier that it had received only a few hundred agent orders: the same adoption story, recurring with a second company's numbers. <em>(vendor-stated)</em></p>
+<h3>Cloudflare gives sites per-agent visibility and policy</h3>
+<p>Cloudflare's 2026-11-04 launch adds a "Personal Assistants" category to Security Analytics and Top statistics, so a site can isolate and inspect traffic from a specific AI agent acting on a user's behalf (a browser copilot booking something, for instance) instead of lumping it in with bots generally<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. The more consequential piece sits in Account Abuse Protection, currently in early access: every login or signup event now shows whether a personal agent made the request and which one, and a fraud team can filter accounts by that signal. Policy also gets finer-grained. Instead of one Allow/Block setting for "agents," a site can set Allow, Block on ad-monetized pages, or Block per supported agent, and can mitigate a single compromised account by its hashed user ID without blocking the agent for every other user who relies on it. x402 and mppx have spent months hardening who gets to authorize a charge; Cloudflare is now doing the equivalent for who gets to act as a given user at all.</p>
+<h3>x402's payment gate hooks stop failing open on a throw</h3>
+<p>x402's <code>beforeVerify</code> and <code>beforeSettle</code> hooks let a resource server reject a payment before it verifies or settles: an extension can return <code>{ abort: true }</code> to stop it. Issue #3689, filed 2026-10-04, pointed out that a hook which <em>threw</em> instead of returning normally was only logged, and the payment proceeded anyway. An extension gate that couldn't finish its check (a decode failure, a bad signature, an unresolved commitment) failed open instead of blocking anything<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. PR #3702, merged a month later on 2026-11-04, makes a throw in either phase reject the payment with a dedicated error reason instead<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. A same-day follow-up, #4133, renamed that reason from a generic "extension hook" code to phase-specific ones, since manual and scheme hooks run through the same gate and the original naming implied only extensions were affected<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>; #4132 updated the lifecycle-hooks docs to match<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Advisory hook phases (<code>after<em></code>, <code>on</em>Failure</code>, enrichment) still fail open by design. Only the two gating phases changed.</p>
+<pre class="mermaid">flowchart LR
+    H[&quot;gate hook: beforeVerify / beforeSettle&quot;] --&gt;|returns normally| R{&quot;abort true?&quot;}
+    R --&gt;|yes| Reject[&quot;payment rejected&quot;]
+    R --&gt;|no| Proceed[&quot;payment proceeds&quot;]
+    H --&gt;|throws exception| T{&quot;fixed by PR 3702?&quot;}
+    T --&gt;|no, old behavior| OldPath[&quot;logged only, payment proceeds&quot;]
+    T --&gt;|yes, current behavior| NewPath[&quot;rejected: before_verify / before_settle hook error&quot;]</pre>
+<p><em>Figure 1 — before the fix, a gate hook that threw an exception behaved the same as one that returned without aborting; after it, a throw is treated as a rejection<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>.</em></p>
+<h3>x402 fixes a spend cap that whole-dollar XRPL prices skipped</h3>
+<p>A separate x402 fix addresses the XRPL payment scheme's client-side spend cap. XRPL represents issued currencies like RLUSD at a fixed decimal scale, and the cap-checking code treated a scaled ledger value as if it were already in atomic units. A normal price such as $100 therefore compared against a $1 cap as if it were $0.000100, passing a check it should have failed. Fractional prices, which happened to go through the decimal-comparison path already, were unaffected. PR #4110, merged 2026-11-04, applies zero scaling so whole-number prices are compared correctly before signing<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>.</p>
+<h3>mppx merges three more session-payment fixes</h3>
+<p>Continuing the session-payment hardening from the prior two editions, mppx merged three fixes on 2026-11-04. PR #1167 fixed Tempo access-key sessions that failed to close: the close-authorization signature was being wrapped in a keychain envelope that TIP-1034 rejects for access-key signers, unlike the raw signature <code>Account.signVoucher</code> already used for vouchers<sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. PR #1172 addressed prepaid SSE streams that failed after the charge had already settled: those failures weren't being credited back, and merchants had no reconciliation hook for cases where a local credit can't safely reverse the charge<sup class="footnote-ref"><a href="#ref-9" id="cite-9">[9]</a></sup>. The third, PR #1168, is the most serious. Automatic payment paths could sign a relayed session challenge or reuse a stored channel against a second origin without checking that the channel actually belonged to that origin, and nested adapters could silently drop approval or payer-context policy they were supposed to enforce<sup class="footnote-ref"><a href="#ref-10" id="cite-10">[10]</a></sup>. That is the same class of bug as two fixes from the prior edition, a session manager leaking its channel across origins (#1155) and a route executing before confirming funds (#1156), recurring for a third time in the same subsystem<sup class="footnote-ref"><a href="#ref-11" id="cite-11">[11]</a></sup><sup class="footnote-ref"><a href="#ref-12" id="cite-12">[12]</a></sup>.</p>
+<h2>Why it matters</h2>
+<p>Split today's five items and the window tells two different stories at once. Uber's and DoorDash's own numbers say agent commerce barely exists yet in consumer transaction volume. The other four items are all infrastructure hardening for when it does, and three of them (x402's gate hooks, x402's XRPL cap, mppx's origin check) are bugs where the failure mode was "the protection silently did nothing," not "the protection was merely absent." mppx's session-payment feature has now produced that exact failure mode three times across three editions; it reads less like isolated bugs and more like a feature whose boundary-checking logic keeps growing new gaps as new transport paths (access keys, cross-origin reuse, nested adapters) get added to it.</p>
+<h2>Signals to watch</h2>
+<ul>
+<li>Whether Uber or DoorDash disclose agent-order volume again next quarter, and whether it moved.</li>
+<li>Whether x402's hook-chain gets the same fail-closed treatment for any phase beyond <code>beforeVerify</code>/<code>beforeSettle</code> — the advisory phases are documented as fail-open by design, but that is a design choice someone could revisit.</li>
+<li>mppx's session-payment subsystem: a fourth origin- or authorization-boundary bug in a fourth edition would make this worth its own scrutiny, not routine hardening.</li>
+<li>x402's facilitator-managed voucher custody feature (PR #4061)<sup class="footnote-ref"><a href="#ref-13" id="cite-13">[13]</a></sup>, ported from Go to TypeScript this window, changes who holds authoritative state for EVM batch settlement. Worth checking once it sees production use.</li>
+</ul>
+<h2>Limitations</h2>
+<p>Card-network and PSP agent-commerce products (Mastercard Agent Pay/AP4M, Visa Trusted Agent Protocol, Stripe's Agentic Commerce Protocol, PayPal) produced no dated primary announcement inside this window, for the ninth edition running; see <code>working/gaps.md</code>. AP2 and UCP had no activity in their canonical repos. Uber's and DoorDash's agent-order figures are vendor-stated, from the companies' own earnings calls, with no independent measurement. The Verge's parallel coverage of the Uber story could not be fetched, so that item rests on a single source (TechCrunch).</p>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">Sarah Perez</span>. <a href="https://techcrunch.com/2026/11/04/almost-no-one-uses-ai-agents-to-book-their-uber-company-says/">Almost no one uses AI agents to book their Uber, company says</a>. <span class="venue">TechCrunch, 2026</span>. <span class="accessed">Accessed 2026-11-05.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://blog.cloudflare.com/personal-agents-visibility-control/">See the agents, set the terms: new visibility and control for personal agents</a>. <span class="venue">Cloudflare Blog, 2026</span>. <span class="accessed">Accessed 2026-11-05.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/issues/3689">[Bug]: a throwing beforeVerify/beforeSettle hook is ignored, so extension gates fail open</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-05.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/3702">fix(core): fail closed when a gate hook throws</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-05.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/4133">fix(core): use phase-specific error codes for throwing gate hooks</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-05.</span></li>
+      <li id="ref-6"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/4132">Document fail-closed behavior for resource server gate hooks</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-05.</span></li>
+      <li id="ref-7"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/4110">fix(xrpl): enforce spend caps in issued-currency units</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-05.</span></li>
+      <li id="ref-8"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1167">fix: access key close authorization signing for Tempo sessions</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-05.</span></li>
+      <li id="ref-9"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1172">fix: credit failed prepaid streams and expose refund reconciliation</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-05.</span></li>
+      <li id="ref-10"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1168">fix: enforce session origin and payment policy boundaries</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-05.</span></li>
+      <li id="ref-11"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1155">fix: bind session manager payments to request origin</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-05.</span></li>
+      <li id="ref-12"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1156">fix: charge request-priced session content before handlers</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-05.</span></li>
+      <li id="ref-13"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/pull/4061">feat(ts): facilitator-managed voucher custody for EVM batch settlement</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-05.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-11-05. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+title: AI agents, developer tools, and agent payments — daily brief, 2026-11-05
+subtitle: Uber's own numbers, a fail-open payment bug closed, and three more mppx hardening fixes
+title_ko: AI 에이전트·개발자 도구·에이전트 결제 — 데일리 브리프, 2026-11-05
+subtitle_ko: 우버의 자체 수치, 열려 있던 결제 보안 구멍, mppx의 세 가지 추가 수정
+slug: ai-agent-brief-2026-11-05
+lang: en
+langs: [en, ko]
+date: 2026-11-05
+tags: [ai-agents, agent-payments, x402, mppx, cloudflare]
+status: ready
