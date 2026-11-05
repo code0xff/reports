@@ -1,0 +1,6 @@
+# Uncertainties
+
+- Claude Personal Finance: single-source (TechCrunch), no Anthropic primary confirmation found as of this writing. Could be real and simply not yet indexed on the newsroom's "Latest news" list, or could be inaccurate. Flagged `_(unverified — single source)_`.
+- Cloudflare's TAD coalition is framed as a standards-convening effort, not a shipped protocol — its practical effect depends entirely on which vendors actually join and what they bring to the IETF, neither of which the launch post specifies. The concrete product changes (Security Analytics category, access policies, early-access abuse signal) are real and shipping, but the "coalition" framing itself is aspirational until named participants or a charter appear. `_(vendor-stated)_`.
+- Google Cloud's Auth Manager GA claim and the "hundreds of customers" CodeMender figure are both vendor-stated from the announcement post, with no independent usage data. `_(vendor-stated)_`.
+- The mppx Tempo incident write-up is the PR author's own root-cause account (session payment hardening team), not an independently audited postmortem; the "about a quarter of paid calls" figure comes from the same source. `_(vendor-stated)_`.
