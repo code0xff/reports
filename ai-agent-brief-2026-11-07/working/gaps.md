@@ -1,0 +1,8 @@
+# Gaps
+
+- The Zalando Agentic Identity Broker's actual OAuth/RFC 8693 flow is described by the submitter (a Zalando engineer) in the Show HN post and by an interested Zalando employee's HackerNoon piece, not by independent documentation or a third-party security review. No maintainer replied to any of the three HN comments (including a direct question about how the broker handles transitive delegation), so the open technical questions about multi-hop delegation are unanswered.
+- x402-foundation/x402 merged a documentation-only PR (#4171, 2026-11-06) describing two already-shipped SVM facilitator features — Lighthouse guard identity classification by program ID + discriminator, and preflight/postflight instruction allowlists — but neither the PR (opened by the Mintlify docs bot) nor the doc page it edited explains what attack or limitation motivated either feature, and no linked issue was found. Dropped from "What moved" for that reason rather than folded in as an unexplained item.
+- Card-network and PSP agent-commerce products (Mastercard Agent Pay/AP4M, Visa Trusted Agent Protocol, Stripe's Agentic Commerce Protocol, PayPal) produced no dated primary announcement in this window; same gap as the 2026-11-06 edition.
+- AP2 and UCP had no activity beyond UCP's three documentation-only PRs (#1014, #1030, #1031) this window — not substantive enough to count as "what moved."
+- X/Twitter and LinkedIn are not read directly (see PROTOCOL.md §4.1); if either channel carried agent-payments news this window that no publisher blog or feed picked up, it is missed here.
+- Bluesky and Reddit are not credentialed in this environment; both aggregator searches returned only the missing-credential message, not actual results.

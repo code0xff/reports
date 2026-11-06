@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI agents, developer tools, and agent payments — daily brief, 2026-11-07 — Deepsearch</title>
+<meta name="description" content="An open-source agent identity broker, and mppx&#x27;s Cloudflare-native rebuild">
+<link rel="canonical" href="https://code0xff.github.io/reports/ai-agent-brief-2026-11-07/">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="ko" href="ko/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="AI agents, developer tools, and agent payments — daily brief, 2026-11-07">
+<meta property="og:description" content="An open-source agent identity broker, and mppx&#x27;s Cloudflare-native rebuild">
+<meta property="og:url" content="https://code0xff.github.io/reports/ai-agent-brief-2026-11-07/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI agents, developer tools, and agent payments — daily brief, 2026-11-07">
+<meta name="twitter:description" content="An open-source agent identity broker, and mppx&#x27;s Cloudflare-native rebuild">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>AI agents, developer tools, and agent payments — daily brief, 2026-11-07</h1>
+    <p class="subtitle">An open-source agent identity broker, and mppx&#x27;s Cloudflare-native rebuild</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-11-07</span>
+      <span><strong>Tags</strong> —</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="ai-agent-brief-2026-11-07.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>Zalando open-sourced an OAuth2 broker that lets a user hand an AI agent scoped, revocable access to MCP services without ever giving the agent the user's own token. It's a production identity pattern from inside a large e-commerce operator, released directly as MIT-licensed code<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. mppx spent the same window making itself deployable where x402-style payment proxies increasingly run: it shipped Durable Object and SQL backends for Cloudflare Workers, exposed two settlement-recovery primitives for integrators, and closed the exact diagnostic gap that slowed Thursday's (2026-11-05) sponsored-payment outage<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup><sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup><sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. Card networks, PSPs, AP2, and UCP stayed quiet.</p>
+  </section>
+
+  <main class="body">
+<h2>Introduction</h2>
+<p>This edition covers <strong>2026-11-05 through 2026-11-07</strong>. Background on the payment-rail landscape lives in the site's <a href="../agent-commerce-protocol/">agent commerce protocol comparison</a>; mppx's session design is covered in <a href="../mpp-spec-and-payment-flows/">Machine Payments Protocol: spec and payment flows</a>; agent identity schemes are compared in <a href="../ai-agent-identity-eas-vs-did/">AI agent identity: EAS vs. DID</a>. The previous edition, 2026-11-06, covered Cloudflare's and Google Cloud's agent-identity launches, a single-sourced Claude Personal Finance report, x402's cross-SDK porting, and the Tempo node upgrade that broke mppx's sponsored payments for several hours. None of today's items repeat it, though one directly follows up on it.</p>
+<h2>What moved</h2>
+<h3>Zalando open-sources an OAuth broker so an agent never holds the user's token</h3>
+<p>Zalando published the Agentic Identity Broker (AIB) under the MIT license on 2026-11-06, describing it as a component that "delegate[s] scoped, revocable access to AI agents — without handing them your credentials"<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. The submitter, a Zalando engineer posting to Show HN, filled in the mechanism the README only gestures at: the broker holds third-party tokens encrypted, and at request time a gateway such as Agentgateway performs an RFC 8693 token exchange; the stored token itself never reaches the agent<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. That design puts the broker, not the agent, in possession of the credential the agent is acting on behalf of: the agent authenticates as itself, and the broker vouches for the user, rather than the agent carrying a copy of whatever the user could do.</p>
+<pre class="mermaid">sequenceDiagram
+    participant Agent
+    participant Gateway as Agentgateway
+    participant AIB as Agentic Identity Broker
+    participant MCP as MCP service
+
+    Agent-&gt;&gt;Gateway: call MCP service, agent&#x27;s own token
+    Gateway-&gt;&gt;AIB: RFC 8693 token exchange, agent token + user grant
+    AIB-&gt;&gt;AIB: check live consent, decrypt stored user token
+    AIB--&gt;&gt;Gateway: scoped exchange token
+    Gateway-&gt;&gt;MCP: forward call with exchange token
+    MCP--&gt;&gt;Agent: response</pre>
+<p><em>Figure 1 — the agent never receives the user's underlying token; the gateway exchanges its own token for a scoped one at the broker, which releases it only against a live, revocable consent grant<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</em></p>
+<p>The submitter says the project already runs at production scale inside Zalando — "hundreds of our agents with dozens of internal and external MCP servers" — and is tagged v0.1<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>. <em>(vendor-stated)</em> Those counts come only from the submitter, who works on the project; a Zalando employee's separate HackerNoon piece corroborates that it's been running internally but doesn't repeat the specific numbers<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. The Show HN thread drew three comments and no reply from a maintainer, including a direct question about how the broker handles transitive delegation (an agent acting through another agent) that went unanswered. That is the same open problem Cloudflare named without solving in the same day's (2026-11-05) Trusted Agent Delegation post. Two different organizations have now put the multi-hop case on the record as unsolved within the same two-day window.</p>
+<h3>mppx makes itself deployable on Cloudflare Workers and gives integrators a recovery path</h3>
+<p>mppx shipped a built-in Durable Object store and a SQL store (Postgres, SQLite, D1) on 2026-11-06, so that <code>tempo.session()</code> channel state and replay protection also work when mppx runs inside a Cloudflare Worker, not just on a long-lived server<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. The Durable Object implementation gives each channel key its own object, so updates stay linearizable per channel while channels themselves scale out across isolates; a compare-and-swap with jittered retry backs <code>update</code>, matching the pattern tempoxyz/mpp-proxy already runs in production<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>.</p>
+<p>Alongside the new stores, mppx exposed two primitives for recovering from failures mppx itself couldn't resolve. <code>Errors.BroadcastOutcomeUnknownError</code> now carries the signed transaction hash after an ambiguous broadcast (a timeout, a dropped connection, an "already known" response) that mppx polled for and still couldn't confirm. Previously it rethrew the raw RPC error with no hash attached, so callers had to reclassify it themselves<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. A new <code>stripe.recordPayment</code> helper lets an integrator finish recording a settlement for a process that died between broadcasting a payment and logging it, using the same idempotency key mppx itself would have used<sup class="footnote-ref"><a href="#ref-6" id="cite-6">[6]</a></sup>. Both are aimed at the same audience: whoever runs mpp-proxy in production and has to clean up after mppx when something it can't control goes wrong.</p>
+<h3>A typed error closes the gap from Thursday's Tempo outage</h3>
+<p>Thursday's (2026-11-05) sponsored-payment outage on Tempo mainnet took hours to diagnose because mppx's preflight simulation couldn't distinguish a sender's insufficient balance from a sponsor's — it surfaced only a node-level error message<sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup><sup class="footnote-ref"><a href="#ref-8" id="cite-8">[8]</a></sup>. PR #1202, merged 2026-11-06, wraps both failure paths in a new <code>Errors.PaymentSimulationError</code> carrying a <code>phase</code> field (<code>sender</code> or <code>sponsored</code>), the resolved fee-payer address, and the original node error as <code>cause</code><sup class="footnote-ref"><a href="#ref-7" id="cite-7">[7]</a></sup>. The same PR also fixes a related signing gap: a deserialized transaction envelope drops a zero priority fee that the signed envelope encodes explicitly, which previously made some sponsored completions fail signature recovery. This fix shipped the day after the outage it answers, built from the exact failure mode Thursday exposed.</p>
+<h2>Why it matters</h2>
+<p>Today's identity and payment-rail progress both came from the companies running production traffic: Zalando built AIB to solve its own MCP-server delegation problem, and mppx's fixes came from whoever operates mpp-proxy needing better recovery tools and Cloudflare Workers support, with no new spec revision behind either. Multi-hop delegation keeps surfacing as the problem nobody has solved. Zalando's unanswered HN question is the same gap Cloudflare named on 2026-11-05, and now an open-source MIT project and a CDN vendor have both put it on the record in the same week — more organizations hitting the same wall than one company's roadmap would suggest.</p>
+<h2>Signals to watch</h2>
+<ul>
+<li>Whether AIB gets adoption or even engagement outside Zalando; three thin comments and no maintainer reply is not yet a signal either way.</li>
+<li>Anyone answering the transitive-delegation question AIB's own commenters and Cloudflare's post both left open.</li>
+<li>Whether mppx's new storage backends see use by a service other than tempoxyz/mpp-proxy, the operator the design was built around.</li>
+<li>A second Tempo-adjacent incident report, which would say whether PR #1202's typed errors actually shorten diagnosis time in practice.</li>
+</ul>
+<h2>Limitations</h2>
+<p>Card-network and PSP agent-commerce products (Mastercard Agent Pay/AP4M, Visa Trusted Agent Protocol, Stripe's Agentic Commerce Protocol, PayPal) produced no dated primary announcement inside this window, matching the previous edition. AP2's and UCP's canonical repos saw no activity beyond three documentation-only UCP PRs, not substantive enough to count as news. x402-foundation/x402 merged a bot-generated documentation PR describing two already-shipped SVM facilitator features without explaining what problem either solves; <code>working/gaps.md</code> has the detail, since it doesn't clear the bar for an item here. Bluesky and Reddit are not credentialed in this environment, and Hacker News had nothing on the standing topic's protocol terms beyond the AIB post itself.</p>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://github.com/zalando-incubator/agentic-identity-broker">Agentic Identity Broker</a>. <span class="venue">GitHub (zalando-incubator), 2026</span>. <span class="accessed">Accessed 2026-11-07.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://news.ycombinator.com/item?id=50393235">Show HN: Agentic Identity Broker, OAuth Delegation for AI Agents</a>. <span class="venue">Hacker News, 2026</span>. <span class="accessed">Accessed 2026-11-07.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://hackernoon.com/agent-security-and-identity-part-1-who-are-you-whos-your-agent-and-what-should-they-be-allowed">Agent Security and Identity, Part 1: Who Are You, Who&#x27;s Your Agent, and What Should They Be Allowed</a>. <span class="venue">HackerNoon, 2026</span>. <span class="accessed">Accessed 2026-11-07.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1182">feat(store): add Durable Object store with workerd integration tests</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-11-07.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1187">feat(store): add SQL store for Postgres, SQLite and D1</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-11-07.</span></li>
+      <li id="ref-6"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1199">feat(server): expose settlement recovery primitives</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-11-07.</span></li>
+      <li id="ref-7"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1202">fix(tempo): tag preflight simulation failures and keep the signed zero priority fee</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-11-07.</span></li>
+      <li id="ref-8"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1179">fix(tempo): simulate sponsored transactions with the fee payer signature</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-11-07.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-11-07. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
