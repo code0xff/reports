@@ -1,0 +1,8 @@
+# Claims
+
+- c01: mppx's new public `Attestation` module (PR #1250) turns what was a one-off email-OTP check (PR #1240) into a pluggable identity-verification extension point, so a route can accept several issuer types through one header contract rather than hand-coding each one.
+- c02: mppx's Link integration (PR #1258) is the first of the four November identity PRs that verifies an *agent's* identity specifically (via Privacy Pass tokens and SD-JWT claims), rather than verifying the human behind a payment.
+- c03: mppx's Persona KYC module (PR #1264) ties a wallet address to a KYC inquiry outcome rather than to a session, so the same approved inquiry gates every future paid request from that wallet without re-verifying each time.
+- c04: OpenAI's Business Agents change what a ChatGPT answer about a business is: instead of ChatGPT describing a company from indexed and modeled content, the company's own agent now answers inside the same conversation — but OpenAI still routes any purchase off-platform to the business's own site, so the agent itself does not take payment.
+- c05: Adobe's local MCP server is a continuation, not a new capability class: Adobe already had point integrations with ChatGPT and Claude for specific actions, and the MCP server generalizes that into a standard interface any MCP-speaking agent can call.
+- c06: Taken together, the three items move "is this an agent and is it allowed" from an implicit assumption to an explicit, machine-checkable step — in payments (mppx), in commerce (OpenAI), and in software control (Adobe) — in the same three-day window, without any of the three being coordinated with each other.
