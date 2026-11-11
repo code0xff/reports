@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI 에이전트·개발자 도구·에이전트 결제 — 데일리 브리핑, 2026-11-12 — Deepsearch</title>
+<meta name="description" content="유나이티드는 서드파티 예약 에이전트를 막고, A2UI는 1.0에 도달하고, mppx는 신원 검증 우회 버그를 고쳤다.">
+<link rel="canonical" href="https://code0xff.github.io/reports/ai-agent-brief-2026-11-12/ko/">
+<link rel="alternate" hreflang="en" href="../index.html">
+<link rel="alternate" hreflang="ko" href="./index.html">
+<link rel="alternate" hreflang="x-default" href="../index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="AI 에이전트·개발자 도구·에이전트 결제 — 데일리 브리핑, 2026-11-12">
+<meta property="og:description" content="유나이티드는 서드파티 예약 에이전트를 막고, A2UI는 1.0에 도달하고, mppx는 신원 검증 우회 버그를 고쳤다.">
+<meta property="og:url" content="https://code0xff.github.io/reports/ai-agent-brief-2026-11-12/ko/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI 에이전트·개발자 도구·에이전트 결제 — 데일리 브리핑, 2026-11-12">
+<meta name="twitter:description" content="유나이티드는 서드파티 예약 에이전트를 막고, A2UI는 1.0에 도달하고, mppx는 신원 검증 우회 버그를 고쳤다.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../../ko/index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="../index.html" hreflang="en">English</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="GitHub에서 Deepsearch 보기" title="GitHub에서 Deepsearch 보기">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="테마 전환" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../../ko/index.html">← 리포트 목록</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch 리포트</div>
+    <h1>AI 에이전트·개발자 도구·에이전트 결제 — 데일리 브리핑, 2026-11-12</h1>
+    <p class="subtitle">유나이티드는 서드파티 예약 에이전트를 막고, A2UI는 1.0에 도달하고, mppx는 신원 검증 우회 버그를 고쳤다.</p>
+    <div class="meta">
+      <span><strong>발행일</strong> 2026-11-12</span>
+      <span><strong>태그</strong> ai-agents, agent-payments, agent-identity, x402, mcp</span>
+      <span><strong>상태</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="ai-agent-brief-2026-11-12.html">HTML 다운로드</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>초록</h2>
+    <p>유나이티드 항공이 서드파티 AI 에이전트에게 예약 과정에 들어오지 말라고 선을 그었다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 구글은 에이전트가 텍스트로 UI를 설명하는 대신 직접 그려내게 하는 프로토콜, A2UI의 첫 안정 버전을 내놓았다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. 그리고 이 브리핑이 2주째 추적해온 결제·신원 스택 mppx는 거부된 자격증명이 공유 상태로 흘러들어 가 이후 요청이 신원 검증을 건너뛸 수 있던 버그를 막았다<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup>. 셋 다 서로 조율한 적 없지만 모양은 같다. 몇 달 전이라면 없던 문이, 이제는 행동하든 화면을 그리든 결제를 하든 에이전트가 반드시 통과해야 하는 자리에 생겼다.</p>
+  </section>
+
+  <main class="body">
+<h2>서론</h2>
+<p>이번 호는 <strong>2026년 11월 9일부터 12일까지</strong>를 다룬다. 결제 레일 전반의 배경은 사이트의 <a href="../agent-commerce-protocol/">에이전트 커머스 프로토콜 비교</a>에, mppx의 세션 설계는 <a href="../mpp-spec-and-payment-flows/">Machine Payments Protocol: spec and payment flows</a>에 정리돼 있다. 지난 11월 11일 호는 mppx의 신원 증명 확장(이메일 OTP, 범용 attestation 모듈, Link, Persona KYC), ChatGPT 안의 OpenAI Business Agents, 어도비의 Creative Cloud용 MCP 서버를 다뤘다. 카드 네트워크, AP2, UCP는 이번 창에서도 날짜가 붙은 소식을 내지 않았다.</p>
+<h2>무엇이 움직였나</h2>
+<h3>유나이티드 항공, 서드파티 AI 에이전트의 예약·체크인·계정 변경을 막다</h3>
+<p>유나이티드는 11월 11일, 자사 플랫폼과 자사 항공권을 다루는 여행사·애그리게이터를 통해서도 "승인받지 않은 서드파티 개인 AI 에이전트나 어시스턴트"가 여행자를 대신해 행동하지 못하도록 접근을 제한한다고 발표했다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 대상은 예약, 체크인, 그리고 마일리지플러스 마일이나 계정 설정을 건드리는 변경이다. 유나이티드가 내놓은 이유는 포괄적 선언이 아니라 구체적이다. 비밀번호를 에이전트에게 넘기면 민감한 계정 정보가 노출될 수 있고, 전체 맥락 없이 움직이는 에이전트는 의도치 않은 구매나 계정 변경을 일으킬 수 있으며, 체크인의 경우 승객이 직접 위탁 수하물 내용물을 확인해야 한다는 연방 규정과 충돌한다 — 에이전트가 대신해줄 수 없는 일이다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 유나이티드와 직접 예약한 항공권은 Kayak, Hopper, Google Flights 같은 중개 서비스에서 여전히 조회된다. 막힌 것은 에이전트가 거래를 끝까지 완료하는 것뿐이다<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup>. 이 소식은 같은 날 해커뉴스 첫 화면에서 199점, 댓글 200개 넘게 모았다<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup>.</p>
+<p>유나이티드가 하지 않은 것은 어떤 에이전트를 막는지 밝히거나, 무엇이 서드파티 에이전트를 "승인받은" 쪽으로 만드는지 설명하는 일이다. 누구를 들여보내느냐는 질문은 이베이, 아마존, 타깃이 지난 1년간 각자 다르게 답해온 바로 그 질문이고, 유나이티드의 발표는 자신이 어느 쪽에 설지 말하지 않았다.</p>
+<h3>구글, A2UI 1.0 출시</h3>
+<p>A2UI가 11월 11일 릴리스 후보에서 안정 버전 1.0으로 올라갔다. 양방향 함수 호출, 접근성 지원이 추가됐고 TypeScript, Dart, Python, React, Angular, Lit, Flutter, SwiftUI용 SDK와 렌더러가 새로 나왔다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 이 프로토콜은 에이전트에서 클라이언트로 UI를 설명하는 JSON 메시지 연속을 A2A, AG-UI, 또는 MCP 위에 흘려보낸다. 눈여겨볼 건 보안 모델이다. 클라이언트가 자신만의 신뢰된 UI 컴포넌트 목록을 유지하고, 에이전트는 그 목록에 이미 있는 것만 그려달라고 요청할 수 있다. 실행 코드를 직접 보내는 길은 없다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 신뢰할 수 없는 에이전트를 붙여도 안전하다고 주장할 수 있는 근거가 바로 이 제약이다.</p>
+<p>생태계 전체가 한꺼번에 1.0에 올라탄 건 아니다. Jetpack Compose 지원은 아직 0.9.1에 머물러 있고 "1.0은 곧"이라고만 돼 있으며, 구글 자신의 Gemini 연동도 오늘 기준 0.9.1로 돌아간다<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup>. 스펙은 안정됐지만 구글 자사 제품들의 전환은 아직 뒤따라가는 중이다.</p>
+<h3>mppx, 구독 디스패치의 신원 검증 우회 버그를 고치다</h3>
+<p>11월 11일 mppx에 병합된 PR #1274는 메인테이너가 담담하게 적어놓은 버그를 고친다. 거부된 구독 자격증명이 공유 디스패치 상태를 바꿔놓을 수 있었고, 그 뒤에 들어온 요청이 겹치는 결제 옵션을 고르면서도 그 옵션의 신원 정책을 거치지 않을 수 있었다는 것이다<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup>. 수정판은 각 요청이 풀어낸 디스패치 데이터를 공유하지 않고 요청별로 가둬두고, 검증이 필요한 옵션과 필요 없는 옵션이 겹칠 수 있는 조합은 요청 시점이 아니라 구성 시점에서 바로 실패하게 만든다. 설명은 한 줄이지만 문제는 간단하지 않다. 건너뛸 수 있는 신원 검증은 애초에 없는 신원 검증과 같다. 지난 2주 동안 attestation, Link 검증, Persona KYC를 쌓아 올려 결제 요청마다 '누가 요청하는지'를 증명하게 만든 바로 그 mppx 스택에서 나온 버그다.</p>
+<h2>왜 중요한가</h2>
+<p>서로 약속한 적 없는 세 시스템이 이번 창에서 에이전트가 할 수 있는 일의 경계를 각자 그었다. 유나이티드는 문 앞에서 결정한다. 여행자를 대신해 행동하게 할지, 말지. A2UI는 렌더링 단계에서 결정한다. 빈 캔버스 대신 정해진 컴포넌트 목록을 건넨다. mppx는 자기 요청 처리 파이프라인 안에서 결정한다. 건너뛴 신원 검증이 이제는 조용히 넘어가는 틈이 아니라 버그로 취급된다. 이 중 어느 것도 x402·AP2·UCP 같은 프로토콜 출시는 아니다. 기존 시스템 셋이 에이전트를 아무도 설계해두지 않은 예외가 아니라, 특정한 문을 통과해야 하는 일상적인 요청자로 다루기 시작했을 뿐이다.</p>
+<h2>지켜볼 지점</h2>
+<ul>
+<li>유나이티드가 "승인받은" 서드파티 에이전트의 기준을 발표하거나, 그 기준을 묻는 압박을 받을까. 이베이의 승인 파트너 목록, 아마존의 전면 차단 겸 소송이라는 접근과 비교할 거리다.</li>
+<li>A2UI 생태계가 1.0을 따라잡는 속도. Jetpack Compose의 안정 버전 출시 시점, Gemini가 0.9.1에서 언제 벗어나는지.</li>
+<li>PR #1274의 버그가 실제 운영 중인 mppx 연동에서 악용된 적이 있었는지, 아니면 운영에 닿기 전에 걸러졌는지 — PR 자체는 답하지 않는다.</li>
+<li>카드 네트워크와 PSP들은 이번에도 두 주 연속 날짜 있는 발표를 내지 않았다. 10월 실적 발표에서 언급된 마스터카드의 "11월 중 미국 발급사 전체 적용" Agent Pay 확대가 다음에 확인할 대상이다.</li>
+</ul>
+<h2>한계</h2>
+<p>유나이티드 자체 뉴스룸 발표문은 이번 작업에서 시도한 모든 가져오기 요청이 시간 초과로 실패했다. 이 글에 쓴 정책 문구는 유나이티드 페이지를 직접 읽은 것이 아니라 CBS 뉴스가 인용한 발췌문에서 나왔고, 다른 주요 매체로 교차 확인하지도 못했다. 피드 레인에서 2026년 11월 10일 자로 걸려든 Ars Technica의 Grok Build 코딩 에이전트 기밀 유출 기사는 해당 사이트가 모든 가져오기 요청을 거부해 읽을 수 없었고, 같은 제목을 다루는 다른 보도들을 보면 이는 2026년 7월 사건의 후속 보도일 가능성이 커서 새 소식이 아닐 수 있다. 날짜를 잘못 짚는 위험을 피하려 이번 호에서는 다루지 않았다. ADK·LangChain CLI 확장 시스템을 소개한 구글 블로그 글도 확인해보니 2026년 10월 21일 자로, 이번 창 밖이라 제외했다. AP2와 UCP 저장소는 이번에도 동작에 영향을 주는 변경이 없었고, UCP의 정식 메인테이너 저장소는 이 하니스의 깃허브 검색으로 찾아내지 못했다.</p>
+  </main>
+
+  <section class="references">
+    <h2>참고문헌</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://www.cbsnews.com/news/united-airlines-bans-ai-agents-booking-flights/">United Airlines bans AI agents from booking flights on behalf of travelers</a>. <span class="venue">CBS News, 2026</span>. <span class="accessed">접근일 2026-11-12.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://news.ycombinator.com/item?id=50458900">United Airlines bans AI agents from booking flights on behalf of travelers (HN discussion)</a>. <span class="venue">Hacker News, 2026</span>. <span class="accessed">접근일 2026-11-12.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://developers.googleblog.com/a2ui-10-build-delightful-fast-reliable-agentic-experiences/">A2UI 1.0: Build delightful, fast, reliable, agentic experiences</a>. <span class="venue">Google Developers Blog, 2026</span>. <span class="accessed">접근일 2026-11-12.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1274">fix: keep subscription dispatch bindings immutable</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">접근일 2026-11-12.</span></li>
+      <li id="ref-5"><span class="authors">—</span>. <a href="https://www.united.com/en/us/newsroom/announcements/cision-125496">United Airlines Restricts Access for Third-Party AI Agents</a>. <span class="venue">United Airlines Newsroom, 2026</span>. <span class="accessed">접근일 2026-11-12.</span> <span class="unverified">[접근 제한]</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Deepsearch 하네스로 생성된 리포트. 모든 출처는 2026-11-12 또는 그 이전에 확인되었습니다. 중간 산출물(아웃라인, 주장, 출처, 비평)은 이 리포트와 함께 저장소에 보존됩니다.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

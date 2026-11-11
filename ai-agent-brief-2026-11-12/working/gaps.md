@@ -1,0 +1,9 @@
+# Gaps
+
+- United's own newsroom announcement (s02) timed out on every WebFetch attempt in this run; the policy text used in the draft comes from CBS News' quoted excerpts, not a direct read of United's page. Cited as `access_limited` without a quote.
+- A second outlet corroborating the United story beyond CBS News was not pursued — the CBS account plus a 199-point/203-comment Hacker News discussion thread was judged sufficient for a single clear policy announcement, but no second newsroom-grade outlet (Reuters, AP, trade press) was checked against this harness's fetcher.
+- Card networks and PSPs (Mastercard, PayPal, Visa, Amex) produced no dated announcement inside this window; the most recent material found (Mastercard/PayPal Agent Pay rollout "in November") traces to an October 30 earnings call, not a dated release this week, so it is left out.
+- AP2's and x402's canonical repositories produced only routine SDK/network-support merges this window (new EVM network support, bug fixes); none cleared the bar for a standalone item.
+- A GitHub repo for "UCP" (Universal Commerce Protocol) could not be resolved to a canonical maintainer repo via `gh`; UCP coverage in this brief series has relied on secondary trackers (e.g. `awesome-agentic-commerce` lists), and that gap persists.
+- An Ars Technica piece ("Grok Build coding agent leaks oodles of confidential info, some belonging to SpaceX") surfaced in the feeds lane dated 2026-11-10, but arstechnica.com refused every fetch attempt in this environment, and background web search strongly suggests this is follow-up coverage of a July 2026 Grok Build data-upload incident rather than a new disclosure. It is left out rather than risk a false recency claim.
+- A Google Developers Blog post on an Agents CLI extension system (ADK/LangChain interop) surfaced in the feeds lane with no published date in its feed entry; on fetch it turned out to be dated 2026-10-21, outside the window, and is excluded.
