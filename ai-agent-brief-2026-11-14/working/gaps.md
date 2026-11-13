@@ -1,0 +1,7 @@
+# Gaps
+
+- The Verge's independent ChatGPT Wallet coverage (theverge.com/ai-artificial-intelligence/1033425/openai-chatgpt-wallet) could not be fetched — WebFetch refused the domain outright. The brief relies on TechCrunch as the sole independent corroboration of OpenAI's own post; both broadly agree, but a second independent account was not reached.
+- OpenAI's own ChatGPT Wallet post (openai.com/index/introducing-chatgpt-wallet) returned HTTP 403 to WebFetch. The claim about which agent surfaces use it (ChatGPT Work, Codex, dots) rests on the post's RSS summary line, not the fetched page body, since the page itself could not be read.
+- OpenAI's Commerce Partner Playbook (developers.openai.com/commerce), linked from TechCrunch's coverage, was not fetched. It likely has the retailer-integration detail behind the "limited retailer support" claim and is a natural follow-up source.
+- No independent (non-UCP) coverage of the Food Checkout launch was found this window — no trade press wrote it up. The item rests entirely on UCP's own repository and documentation, which is as a design decision from the project itself, not evidence that any retailer has adopted it.
+- Card-network and PSP agent-commerce products (Mastercard Agent Pay rollout, Visa Trusted Agent Protocol, AP2, Stripe/ACP) again produced nothing dated inside this window — the fifth straight edition without a card-network item, per the prior brief's running count.

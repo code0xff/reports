@@ -1,0 +1,9 @@
+# Claims
+
+- c01: OpenAI launched ChatGPT Wallet on 2026-11-13, letting its dots agents complete a purchase on a U.S.-issued Visa, Mastercard, or Amex card the user adds, with per-purchase approval via a biometric check, in a limited rollout to U.S. ChatGPT Pro subscribers 18+.
+- c02: ChatGPT Wallet moves OpenAI from agent-assisted shopping (browsing, recommending) to agent-executed checkout, but keeps a human-approval gate on every transaction rather than granting standing authorization — the opposite design choice from a pre-authorized spending-limit model.
+- c03: Retailer support for ChatGPT Wallet is limited at launch, with Amazon named as a merchant that blocks AI-agent purchases outright, so the feature's real reach depends on retailer opt-in that OpenAI does not control.
+- c04: UCP's Food Checkout capability (`dev.ucp.food.checkout`) went from a "coming soon" placeholder to a documented, versioned spec on ucp.dev on 2026-11-11, the protocol's first capability to ship past the four-week stall this brief has tracked in UCP's merge activity.
+- c05: UCP's Food Checkout spec requires manual buyer confirmation through a trusted UI unless the AP2 Mandates extension is present — so an agent can build a food order end-to-end but cannot, under the base spec, authorize payment on the user's behalf without AP2 layered on top.
+- c06: mppx's identity extensions (remote signers, Tempo ID, World ID) merged inside one 72-hour window, converging on a single `SigningKey` interface that treats a local key pair and a remote signer (KMS, HSM, Turnkey) as interchangeable across Web Bot Auth, TAP, attestations, and the new World ID issuer.
+- c07: mppx's remote-signer change is a breaking interface change (marked `!`) that migrates every existing identity prover from a bare private key to a key pair or signer object, requiring consuming code to update.
