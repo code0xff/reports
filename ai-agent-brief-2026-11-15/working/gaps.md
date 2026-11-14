@@ -1,0 +1,6 @@
+# Gaps — ai-agent-brief-2026-11-15
+
+- No independent/trade-press coverage of the x402 card-network binding proposal exists yet — it rests entirely on the project's own GitHub PRs. No card network (Visa, Mastercard) or named PSP has commented on or is named in the proposal.
+- Nothing from Visa (TAP, AP2-adjacent work) or Mastercard surfaced in feeds, web, or GitHub sweeps for 2026-11-12 through 2026-11-15. The silence itself is now six-plus straight editions long (see the 2026-11-14 brief, which logged five). A September 2025 American Banker piece on Mastercard's holiday-season AI push was checked as a possible lead and found to say nothing about a specific U.S. Agent Pay rollout date — it does not belong in this window and is excluded.
+- ChatGPT Wallet retailer adoption (flagged as a signal to watch in the 2026-11-14 brief) produced no update in this window — no new reporting on which retailers beyond the initial rollout have enabled it, or whether Amazon's block holds.
+- The x402 spec file's "five open items," referenced in the PR #3707 description, could not be read directly (GitHub's file-diff view did not load for the fetch attempts); the open items are known to exist but their content is not reflected in this brief.
