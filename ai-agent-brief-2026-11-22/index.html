@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI agents, developer tools, and agent payments — daily brief, 2026-11-22 — Deepsearch</title>
+<meta name="description" content="An independent audit finds x402 pays sellers twice on retry; Google and Apple both narrow blind spots without closing them.">
+<link rel="canonical" href="https://code0xff.github.io/reports/ai-agent-brief-2026-11-22/">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="ko" href="ko/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="AI agents, developer tools, and agent payments — daily brief, 2026-11-22">
+<meta property="og:description" content="An independent audit finds x402 pays sellers twice on retry; Google and Apple both narrow blind spots without closing them.">
+<meta property="og:url" content="https://code0xff.github.io/reports/ai-agent-brief-2026-11-22/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI agents, developer tools, and agent payments — daily brief, 2026-11-22">
+<meta name="twitter:description" content="An independent audit finds x402 pays sellers twice on retry; Google and Apple both narrow blind spots without closing them.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>AI agents, developer tools, and agent payments — daily brief, 2026-11-22</h1>
+    <p class="subtitle">An independent audit finds x402 pays sellers twice on retry; Google and Apple both narrow blind spots without closing them.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-11-22</span>
+      <span><strong>Tags</strong> ai-agents, agent-payments, x402, agent-identity, google-cloud, apple</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="ai-agent-brief-2026-11-22.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>The most concrete number in this brief did not come from a vendor. An independent researcher ran 25,011 real payments through x402 on Base mainnet over three weeks and found that 6.3% failed the buyer. A plain client retry, not an attacker, can make a seller get paid twice.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> Everything else this week is a vendor narrowing a blind spot, not closing one. Google Cloud's two new Preview features let an agent's operator watch it more closely.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> Apple is reportedly building the kind of agent it is simultaneously telling developers to ask users' explicit permission for.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup><sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> None of the three addresses what either of the others found.</p>
+  </section>
+
+  <main class="body">
+<h2>Introduction</h2>
+<p>This is the standing brief on AI agents, developer tooling, and agent payments: frameworks, the payment rails and protocols connecting agents to merchants (x402, AP2, ACP, UCP, MPP, L402, Trusted Agent Protocol and successors), the card networks' and PSPs' agentic-commerce products, and agent identity and authorization. It covers November 19–22, 2026, checked against the fourteen briefs before it back to August 31 so a story already told here does not run twice. The card-network and PSP side was quiet this cycle. No Visa, Mastercard, Stripe, or PayPal item survived the dedupe filter, which is notable after three straight weeks of announcements on that front; see <code>working/gaps.md</code>.</p>
+<h2>What moved</h2>
+<p>An independent black-box study is the first hard number this beat has seen on how often x402 payments actually fail the buyer, and it comes with a reproducible bug. A researcher paid real sellers through the Coinbase CDP Bazaar discovery API using the official <code>@x402/fetch</code> client with no modifications: 25,011 settled calls to 1,036 sellers since late October. 1,587 of those payments failed the buyer, meaning the money settled on-chain but the response was an error, empty, or priced above what the seller's own listing said.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> That is 6.3%, close enough to the 6.6% the same methodology found in a frozen study the month before to read as a floor the protocol sits at.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> The sharper finding is about retries. Sending one purchase intent twice produced two settlements at half the sellers tested, and so did the far more common case of a dropped connection followed by an ordinary client retry.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> x402 has no protocol-level idempotency key, so a seller that double-charges on retry is not violating the spec; the spec simply does not say it can't. It is the same shape of gap an unrelated October bug report found on the amount side: the official client pays whatever a 402 response declares, up to the caller's spend cap, with no separate price check.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> The issue is open on the foundation's repository as of November 21, with no foundation response yet. <em>(unverified — single source)</em></p>
+<pre class="mermaid">sequenceDiagram
+    participant Client as Client (ordinary retry logic)
+    participant Server as Seller server
+    participant Chain as Base mainnet
+
+    Client-&gt;&gt;Server: Purchase intent + signed authorization
+    Server-&gt;&gt;Chain: Submit settlement
+    Chain--&gt;&gt;Server: Settled
+    Note over Client,Server: Connection drops before the 200 response arrives
+    Client-&gt;&gt;Server: Same intent, fresh signature (ordinary retry)
+    Server-&gt;&gt;Chain: Submit settlement again
+    Chain--&gt;&gt;Server: Settled a second time
+    Server--&gt;&gt;Client: 200 OK</pre>
+<p><em>Figure 1 — x402 defines no protocol-level idempotency key, so an ordinary client retry after a dropped connection can produce two on-chain settlements for one purchase intent; the researcher's test reproduced this at 5 of 10 sellers.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></em></p>
+<p>Google Cloud shipped two Preview features this week, and both watch an agent more closely without changing what the agent is allowed to do. The first, Semantic Governance Policies, replaces a fixed permission list with an LLM judge: every tool call an agent proposes gets checked against plain-language rules and the user's stated intent before it runs, and a denied call returns a configurable message while the verdict and the judge's reasoning get logged.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> Google's own documentation recommends running it in dry-run mode first. The judge making the authorization decision is itself a probabilistic model call, the kind of thing semantic governance exists to catch, now sitting at the point where the catching happens.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> The second, Agent Anomaly Detection, used to see only agents running on Google Cloud. It now ingests OpenTelemetry traces from agents on AWS Lambda, Microsoft Foundry, or on-premises, connected through Workload Identity Federation so no service account key has to leave the other cloud.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> In testing, it caught a pasted "SYSTEM OVERRIDE" order note that had talked an agent into issuing a $999 refund. The detection ran after the fact: the agent still issued the refund before the anomaly surfaced in the console. <em>(vendor-stated)</em></p>
+<p>Apple is reportedly building the product category its own platform policy is getting stricter about. A Bloomberg report, relayed by TechCrunch and The Verge, says Apple is developing an in-house AI agent able to operate apps, the browser, and code. Separately, macOS 27.3 is set to require "very explicit user action" before a third-party AI agent gets full-system access.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> Apple told developers in October it would add these controls. Bloomberg's sourcing says the in-house agent is still early-stage, with no ship date.<sup class="footnote-ref"><a href="#ref-5" id="cite-5">[5]</a></sup> The overlap matters: whatever access threshold Apple is about to make harder for Anthropic's or OpenAI's agents to clear is a threshold Apple gets to set for its own agent unilaterally. <em>(early signal)</em></p>
+<h2>Why it matters</h2>
+<p>Line the three up and each one answers a different half of the trust problem, and none of them answers the other two's half. Google's anomaly detection would not have caught x402's double-settlement bug: the gap sits in the protocol itself, where no single agent's behavior looks anomalous. x402's measurement study says nothing about whether the agent calling a seller was authorized to spend that money in the first place; that question belongs to Google's governance policy, not to x402. Apple's access controls, however strict, apply to third-party agents on one operating system. They say nothing about a payment settling twice on a chain Apple has no say over. Each actor is hardening the part of the stack it controls. Nobody in this brief is working the seam between the three.</p>
+<h2>Signals to watch</h2>
+<ul>
+<li>Whether the x402 Foundation responds to issue #4367 with its own figures
+<p>or disputes the methodology, and whether issue #4198 (a standing proposal for a caller-supplied idempotency key) gets picked up as the fix.</p></li>
+<li>Whether Google's Semantic Governance Policies reaches General Availability
+<p>with the LLM-judge design intact, or whether a deterministic rule layer gets added once dry-run users report false denials.</p></li>
+<li>Confirmation from Apple itself, rather than a leaked job posting, of an
+<p>in-house agent, and whether the macOS 27.3 access controls apply to it the same way they apply to third-party agents.</p></li>
+<li>Whether any card network or PSP breaks this week's silence before the
+<p>next brief; three straight quiet cycles on that sub-beat would itself be a story.</p></li>
+</ul>
+<h2>Limitations</h2>
+<p>The x402 finding rests on one researcher's self-reported method and tooling; this brief did not independently reproduce the double-settlement test. The Verge source for the Apple item could not be fetched directly (a block was reported at the host) and is cited only as secondary corroboration of TechCrunch's reporting, not as an independent source; see <code>working/gaps.md</code>. The social aggregator lane (Bluesky, Reddit) was unreachable this cycle: both services' credentials are unset in this environment, not merely empty, so both scripts fell back to unauthenticated paths that were refused. Hacker News search ran normally and returned nothing usable in the window.</p>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">sarmadahsan</span>. <a href="https://github.com/x402-foundation/x402/issues/4367">Buyer-side measurements from 25,011 paid x402 calls on Base mainnet, including duplicate settlement on one intent</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-22.</span></li>
+      <li id="ref-2"><span class="authors">unknown</span>. <a href="https://github.com/x402-foundation/x402/issues/3866">[Bug]: @x402/fetch client signs and submits a payment for ANY amount the server declares in the 402 requirements</a>. <span class="venue">GitHub, 2026</span>. <span class="accessed">Accessed 2026-11-22.</span></li>
+      <li id="ref-3"><span class="authors">Deepti Sehrawat</span>. <a href="https://developers.googleblog.com/check-what-your-ai-agents-do-before-they-do-it-with-semantic-governance-policies/">Check what your AI agents do before they do it, with Semantic governance policies</a>. <span class="venue">Google Developers Blog, 2026</span>. <span class="accessed">Accessed 2026-11-22.</span></li>
+      <li id="ref-4"><span class="authors">Gopi Subburaja Alagar, Arvind Chaudhary</span>. <a href="https://developers.googleblog.com/agent-anomaly-detection-safeguarding-agents-across-other-clouds/">Agent Anomaly Detection: Safeguarding agents across other clouds</a>. <span class="venue">Google Developers Blog, 2026</span>. <span class="accessed">Accessed 2026-11-22.</span></li>
+      <li id="ref-5"><span class="authors">Lucas Ropek</span>. <a href="https://techcrunch.com/2026/11/19/apple-may-be-developing-its-own-ai-agent-that-runs-your-mac/">Apple may be developing its own AI agent that runs your Mac</a>. <span class="venue">TechCrunch, 2026</span>. <span class="accessed">Accessed 2026-11-22.</span></li>
+      <li id="ref-6"><span class="authors">The Verge staff</span>. <a href="https://www.theverge.com/tech/1038227/apple-ai-agent-engineer-job-listing">Apple is hiring engineers to build its own AI agent</a>. <span class="venue">The Verge, 2026</span>. <span class="accessed">Accessed 2026-11-22.</span> <span class="unverified">[access limited]</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-11-22. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>
