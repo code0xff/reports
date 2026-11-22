@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI agents, developer tools, and agent payments — daily brief, 2026-11-23 — Deepsearch</title>
+<meta name="description" content="Research report generated via the Deepsearch harness.">
+<link rel="canonical" href="https://code0xff.github.io/reports/ai-agent-brief-2026-11-23/">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="ko" href="ko/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="AI agents, developer tools, and agent payments — daily brief, 2026-11-23">
+<meta property="og:description" content="Research report generated via the Deepsearch harness.">
+<meta property="og:url" content="https://code0xff.github.io/reports/ai-agent-brief-2026-11-23/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI agents, developer tools, and agent payments — daily brief, 2026-11-23">
+<meta name="twitter:description" content="Research report generated via the Deepsearch harness.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>AI agents, developer tools, and agent payments — daily brief, 2026-11-23</h1>
+    <p class="subtitle">Research report generated via the Deepsearch harness.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-11-23</span>
+      <span><strong>Tags</strong> —</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="ai-agent-brief-2026-11-23.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>Nobody shipped a new product this week. Instead, three separate parts of the agent stack each closed a gap one layer below their headline feature. The most interesting is the one that isn't a vendor's: a working-group proposal now sitting unanswered in the x402 Foundation's repos would make it possible, for the first time, to check whether a payment address actually belongs to the domain quoting it — and an informal scan backing the proposal found the gap isn't just theoretical.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> OpenAI's Agents SDK took its first step past v0.x by folding its own coding agent into the runtime as a selectable provider.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> Google's ADK closed an argument-injection path in its MCP tool layer and, in the same release, tore out the visual builder it shipped a few versions ago.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup></p>
+  </section>
+
+  <main class="body">
+<h2>Introduction</h2>
+<p>This is the standing brief on AI agents, developer tooling, and agent payments: frameworks, the payment rails connecting agents to merchants (x402, AP2, ACP, UCP, MPP, L402, Trusted Agent Protocol and successors), the card networks' and PSPs' agentic-commerce products, and agent identity and authorization. It covers November 20–23, 2026, checked against the fourteen briefs before it so nothing already told here runs twice. Card networks and PSPs stayed quiet for a second straight cycle — no Visa, Mastercard, Stripe, or PayPal item cleared the dedupe filter, which is now worth watching rather than just noting; see <code>working/gaps.md</code>.</p>
+<h2>What moved</h2>
+<p>x402 and MPP sellers quote a payout address in their 402 response, and nothing before this week checked whether that address belonged to the domain quoting it. The manifest a buyer reads and the live 402 it pays against are both served by the same web server, so a compromised server, deploy pipeline, or front-end proxy can point every buyer at an attacker's wallet without the protocol objecting.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> A scan the proposal's author ran against listings on Coinbase's CDP Bazaar and Circle's Agent Marketplace found the gap already being exercised unevenly rather than sitting idle: of the hosts that published a signature meant to prove control of their payout address, a double-digit share turned out to be signed by a wallet that wasn't any of the host's actual payTo addresses, and a much larger group had put the raw address where the signature was supposed to go — a field left blank in substance, filled in form.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> Separately, 253 routes had changed their payout address within 30 days, which is either normal wallet rotation or exactly what the gap being described would look like in logs; the scan can't tell the two apart.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup></p>
+<p>The fix now on the table is a DNS TXT record, <code>_x402-payto</code>, published once per payout address and optionally signed by the wallet it names.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> DNS sits outside the web server a seller's own deploy pipeline controls, which is the whole point: a hijacked front end can still serve a bad manifest, but it can't rewrite the seller's zone file to match. The proposal spells out five checker verdicts: verified, mismatch, malformed, absent, unchecked. It is also explicit about what it doesn't try to solve. It proves an address belongs to whoever controls the domain, not who that person is, and it says nothing about trustworthiness or fraud history.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> Running code already exists (a client-side hook, a Python verifier, a CLI flag in an existing scanner), and the author counts ten to twenty sites that have adopted it against roughly 3,300 listed hosts total.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup> As of the fetch, no one from the x402 Foundation has responded to either the problem report or the proposed fix, both filed November 22.</p>
+<p><em>(unverified — single source; the scan's own numbers come from a linked issue this brief did not fetch directly)</em></p>
+<pre class="mermaid">sequenceDiagram
+    participant Agent as Buying agent
+    participant Server as Seller&#x27;s web server
+    participant DNS as Seller&#x27;s DNS zone
+
+    Server-&gt;&gt;Agent: 402 response quoting payTo address A
+    Note over Agent,Server: Today: nothing checks that A belongs to the domain
+    Agent-&gt;&gt;DNS: Look up _x402-payto TXT record (proposed)
+    DNS--&gt;&gt;Agent: &quot;v=x402payto1, a=A, s=signature&quot;
+    alt record matches and signature verifies
+        Agent-&gt;&gt;Server: Pay address A
+    else record absent, mismatched, or malformed
+        Agent-&gt;&gt;Agent: Treat as unverified, don&#x27;t pay blind
+    end</pre>
+<p><em>Figure 1 — The proposed <code>_x402-payto</code> DNS record would let a buying agent check a quoted payout address against a record the seller's own compromised web server cannot rewrite; today that check does not exist at all.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup><sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup></em></p>
+<p>OpenAI's Agents SDK jumped its version scheme to v1.0.0-alpha.1 by making Codex (the company's own coding-agent runtime) a model provider developers can select for any run, embedding Codex Core directly through PyO3 rather than shelling out to a separate process.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> That's a tighter coupling between OpenAI's general-purpose agent SDK and its coding-specific one than existed before: a Python agent can now hand work to Codex in-process, with approval pauses and sandboxed execution carried over from Codex's own runtime. The release comes with a compatibility reset to go with it. Session checkpoints saved under the new <code>SessionState</code> format can't be read by the prior <code>RunState</code> format, so anyone with native runs or approvals pending on the previous alpha has to finish them before upgrading.<sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> The release notes call this alpha.1 and give no semver policy or GA date, so whether this is the shape v1.0 ships in or a branch that gets reworked before then isn't something OpenAI has said yet. <em>(vendor-stated)</em></p>
+<p>Google's ADK 2.15.0 closed a narrower but concrete gap: <code>McpInstructionProvider</code> used to auto-fill a tool's prompt arguments from session state, which the release notes label a security fix without saying what exploit it closes.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> After this release, a caller has to pass those arguments explicitly — convenient automation becomes an opt-in step, which is usually what happens when the automatic version turned out to be an injection path. The same release removes the Visual Agent Builder from ADK Web outright; agents built with it keep running as ordinary Agent Config YAML, but the drag-and-drop editor itself is gone, a few versions after it shipped.</p>
+<h2>Why it matters</h2>
+<p>Each of these closes a gap sitting one layer under the part of the stack its owner actually controls. The x402 proposal addresses something no vendor owns: a payment address quoted by a server neither the buyer nor the protocol can independently audit. OpenAI's and Google's fixes sit entirely inside tools each company ships end to end, which is why they could ship a fix in a point release instead of a cross-organization proposal still waiting for a reply five days later. That gap in response time is the story underneath the story — a security hardening a vendor controls reaches production in one release cycle, while one that depends on an industry body adopting a shared DNS convention is still sitting in an unanswered GitHub issue.</p>
+<h2>Signals to watch</h2>
+<ul>
+<li>Does an x402 Foundation maintainer respond to wg-domain-discovery#17 or
+<p>wg-identity#52 at all, and does the Foundation pick <code>_x402-payto</code> or a competing binding method? The issue itself asks whether more than one method should be supported under a shared verdict vocabulary.</p></li>
+<li>Independent re-scanning of the numbers behind the payout-proof proposal —
+<p>this brief has not verified them itself.</p></li>
+<li>A published stability or semver policy for the Agents SDK v1.0.0 line
+<p>before it leaves alpha, and whether the Codex-as-provider path survives into a stable release unchanged.</p></li>
+<li>Anything beyond "security hardening" on Google's MCP argument auto-fill
+<p>fix: an advisory, a CVE, a conference talk that names the exploit it closed.</p></li>
+</ul>
+<h2>Limitations</h2>
+<p>This brief's card-network and PSP coverage is now quiet for a second consecutive cycle; that silence could mean nothing shipped, or could mean this cycle's feeds and search lanes missed something trade press covered. The x402 scan numbers are single-source and self-reported by the same person who filed the proposed fix, a structural conflict this brief could not resolve by fetching the underlying scan issue directly. Both GitHub issues at the center of this brief were fetched without authentication, so comments added after the fetch, or hidden behind a login wall, are not reflected here.</p>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.esm.min.mjs";
+(function(){
+  var nodes = Array.prototype.slice.call(document.querySelectorAll('pre.mermaid'));
+  if(!nodes.length) return;
+  nodes.forEach(function(n){
+    n.dataset.src = n.textContent;
+    n.style.visibility = 'hidden';
+  });
+  function effective(){
+    var t = document.documentElement.dataset.theme;
+    if(t === 'dark' || t === 'light') return t;
+    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  function draw(){
+    mermaid.initialize({startOnLoad:false, securityLevel:'strict',
+      theme: effective() === 'dark' ? 'dark' : 'neutral',
+      themeVariables:{fontSize:'15px'},
+      fontFamily:'"Noto Sans", "Noto Sans KR", system-ui, sans-serif'});
+    nodes.forEach(function(n){
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.run({nodes:nodes}).then(function(){
+      nodes.forEach(function(n){ n.style.visibility = 'visible'; });
+    });
+  }
+  draw();
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(btn) btn.addEventListener('click', function(){ setTimeout(draw, 0); });
+})();
+</script>
+
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/wg-domain-discovery/issues/17">Discovery tells agents where to pay; nothing yet proves the address is the domain&#x27;s</a>. <span class="venue">GitHub (x402-foundation/wg-domain-discovery), 2026</span>. <span class="accessed">Accessed 2026-11-23.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/wg-identity/issues/52">Solution - payout proof: a DNS record, optionally signed by the payout wallet, that binds a domain to its payTo</a>. <span class="venue">GitHub (x402-foundation/wg-identity), 2026</span>. <span class="accessed">Accessed 2026-11-23.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://github.com/openai/openai-agents-python/releases/tag/v1.0.0-alpha.1">openai-agents-python v1.0.0-alpha.1</a>. <span class="venue">GitHub (openai/openai-agents-python), 2026</span>. <span class="accessed">Accessed 2026-11-23.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://github.com/google/adk-python/releases/tag/v2.15.0">google/adk-python v2.15.0</a>. <span class="venue">GitHub (google/adk-python), 2026</span>. <span class="accessed">Accessed 2026-11-23.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-11-23. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

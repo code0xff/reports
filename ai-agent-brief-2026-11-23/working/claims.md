@@ -1,0 +1,8 @@
+# Claims
+
+c01. The x402/MPP ecosystem has no mechanism binding a quoted payout address to the domain that quotes it, and an independent scan of CDP Bazaar listings as of 2026-11-22 found address-signature fields misused or inconsistent at a meaningful share of hosts, not merely a theoretical gap.
+c02. A fix for c01 — a DNS TXT record (`_x402-payto`) optionally signed by the payout wallet — was filed as a formal working-group proposal to the x402 Foundation on 2026-11-22, with runnable checker code already published, but with no response yet from Foundation maintainers.
+c03. OpenAI's Agents SDK v1.0.0-alpha.1 (released 2026-11-20) moves the Codex coding-agent runtime into the general-purpose Python SDK as a selectable model provider, embedding Codex Core directly via PyO3 rather than shelling out to `codex app-server`.
+c04. The same OpenAI release resets session-state compatibility: `SessionState` checkpoints from the alpha.1 line use a different format than the prior `RunState` checkpoints, so pending native runs must finish on the old version before upgrading.
+c05. Google's ADK 2.15.0 (released 2026-11-19) closes an argument-injection path by removing the ability for an MCP tool's instruction provider to auto-fill prompt arguments from session state, and separately removes the Visual Agent Builder UI from ADK Web.
+c06. Taken together, this week's three items each harden a different layer of agent infrastructure that sits below the vendor's headline feature (payment-address trust, SDK session compatibility, tool-argument injection) rather than shipping a new user-facing capability, continuing a pattern this brief has tracked since mid-November of narrowing specific blind spots without closing the seams between them.

@@ -1,0 +1,6 @@
+# Uncertainties
+
+- The payout-proof proposal (s02) is single-author, filed by someone who also runs a commercial x402-monitoring service (Settle Watch / x402-trust-board). The adoption figures cited ("10 listed services" on one site, "9" on another, against "roughly 3,300 listed hosts") are the author's own count, not independently verified, and are early enough that the fix could stall or be superseded by a competing identity-WG proposal (the issue itself asks whether the WG should support more than one binding method).
+- Whether the OpenAI Agents SDK v1.0.0-alpha.1 Codex integration is a step toward a stable v1.0, or a separate experimental branch that never ships broadly, is not stated in the release notes — "alpha" is the only stability signal given, with no semver policy or GA timeline attached.
+- Google's ADK 2.15.0 change log attributes the MCP argument-injection fix to "security hardening" without describing the concrete attack it closes or whether it was found through disclosure, audit, or incident — so the severity of the gap it closes is unclear.
+- Whether the x402 Foundation treats the payout-proof binding as in-scope for its own spec (vs. an optional ecosystem add-on layered on top, as both linked IETF `_x402` discovery drafts are) is unresolved; the Foundation has not weighed in as of this brief.
