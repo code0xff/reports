@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI agents, developer tools, and agent payments — daily brief, 2026-11-27 — Deepsearch</title>
+<meta name="description" content="A Phantom wallet update breaks x402 payments on Solana by colliding with the protocol&#x27;s own anti-fraud check, mppx closes three identity-adjacent security holes, and Google rebuilds Workspace agent access around per-agent OAuth identities.">
+<link rel="canonical" href="https://code0xff.github.io/reports/ai-agent-brief-2026-11-27/">
+<link rel="alternate" hreflang="en" href="./index.html">
+<link rel="alternate" hreflang="ko" href="ko/index.html">
+<link rel="alternate" hreflang="x-default" href="./index.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Deepsearch">
+<meta property="og:title" content="AI agents, developer tools, and agent payments — daily brief, 2026-11-27">
+<meta property="og:description" content="A Phantom wallet update breaks x402 payments on Solana by colliding with the protocol&#x27;s own anti-fraud check, mppx closes three identity-adjacent security holes, and Google rebuilds Workspace agent access around per-agent OAuth identities.">
+<meta property="og:url" content="https://code0xff.github.io/reports/ai-agent-brief-2026-11-27/">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI agents, developer tools, and agent payments — daily brief, 2026-11-27">
+<meta name="twitter:description" content="A Phantom wallet update breaks x402 payments on Solana by colliding with the protocol&#x27;s own anti-fraud check, mppx closes three identity-adjacent security holes, and Google rebuilds Workspace agent access around per-agent OAuth identities.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<link rel="stylesheet" href="../assets/style.css">
+<script>(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}}catch(e){}})();</script>
+</head>
+<body>
+<header class="site-header">
+  <a class="site-header__brand" href="../index.html">Deepsearch</a>
+  <div class="site-header__controls">
+    <a class="site-header__lang" href="ko/index.html" hreflang="ko">한국어</a>
+    <a class="site-header__gh" href="https://github.com/code0xff/deepsearch" target="_blank" rel="noopener" aria-label="Deepsearch on GitHub" title="Deepsearch on GitHub">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1.001-.015-1.965-3.196.695-3.87-1.54-3.87-1.54-.523-1.33-1.277-1.684-1.277-1.684-1.044-.713.08-.699.08-.699 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.693 1.25 3.35.956.103-.743.401-1.25.73-1.538-2.553-.29-5.236-1.276-5.236-5.68 0-1.255.448-2.281 1.184-3.085-.119-.29-.513-1.46.112-3.044 0 0 .966-.31 3.165 1.178a11.02 11.02 0 0 1 5.762 0c2.198-1.489 3.163-1.178 3.163-1.178.626 1.584.232 2.754.114 3.044.737.804 1.183 1.83 1.183 3.085 0 4.415-2.687 5.387-5.247 5.671.412.355.78 1.056.78 2.128 0 1.537-.014 2.776-.014 3.154 0 .309.207.668.79.555A11.5 11.5 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+    </a>
+    <button class="site-header__theme" type="button" aria-label="Toggle theme" data-theme-toggle>
+      <svg class="site-header__theme-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+<article class="page">
+  <nav class="report-nav" aria-label="Report navigation">
+    <a class="report-back-link" href="../index.html">← Back to Reports</a>
+  </nav>
+  <header class="masthead">
+    <div class="kicker">Deepsearch report</div>
+    <h1>AI agents, developer tools, and agent payments — daily brief, 2026-11-27</h1>
+    <p class="subtitle">A Phantom wallet update breaks x402 payments on Solana by colliding with the protocol&#x27;s own anti-fraud check, mppx closes three identity-adjacent security holes, and Google rebuilds Workspace agent access around per-agent OAuth identities.</p>
+    <div class="meta">
+      <span><strong>Published</strong> 2026-11-27</span>
+      <span><strong>Tags</strong> —</span>
+      <span><strong>Status</strong> ready</span>
+    </div>
+    <p class="report-download"><a class="report-download-link" href="./index.html" download="ai-agent-brief-2026-11-27.html">Download HTML</a></p>
+  </header>
+
+  <section class="abstract">
+    <h2>Abstract</h2>
+    <p>Phantom's wallet now adds a security check of its own to every Solana transaction — and that check names the exact account that x402's own anti-fraud rule forbids naming, so paying an <code>exact</code> requirement through Phantom currently fails verification on at least one hosted facilitator.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> Separately, the library behind MPP's identity extensions shipped three small fixes in two days: a host-spoofing hole in signed identity requests, a private key that macOS's keychain tool was leaking to any other local process via <code>ps</code>, and four IP-identifying headers a proxy was passing through unstripped.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> And Google rebuilt how agents reach Google Workspace, moving the agent-facing surface off plain REST and onto MCP servers and a CLI that run under dedicated, revocable agent identities — with enforcement starting February 1, 2027.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> A fetched page from Google's own blog contained an embedded instruction trying to redirect this research process into creating an unrelated document; it was not followed, and is recorded here as a data point about what agents researching this beat now have to filter.</p>
+  </section>
+
+  <main class="body">
+<h2>Introduction</h2>
+<p>This is the standing brief on AI agents, developer tooling, and agent payments: frameworks, the payment rails connecting agents to merchants (x402, AP2, ACP, UCP, MPP, L402, Trusted Agent Protocol and successors), the card networks' and PSPs' agentic-commerce products, and agent identity and authorization. It covers November 24–27, 2026, checked against the fourteen briefs before it so nothing already told here runs twice.</p>
+<h2>What moved</h2>
+<h3>A wallet's own fraud check breaks x402 payments on Solana</h3>
+<p><code>@x402/svm</code> 2.32.0 added a rule, <code>assertFeePayerIsolatedFromInstructions</code>, that rejects any Solana transaction where a non-payment instruction touches the facilitator's fee-payer account, because that pattern is how a malicious instruction could siphon funds from the account paying network fees. On November 25, Phantom's Chrome extension started adding its own protective instructions to every transaction before signing: four Lighthouse assertions that check account state hasn't changed underneath the signature. One of those four names the fee payer. The two checks were each written to catch a different kind of attack, and together they now reject a transaction neither would reject alone. The result, reported by a facilitator operator who caught it on a production checkout page: Phantom users paying an <code>exact</code> requirement get <code>invalid_exact_svm_payload_transaction_fee_payer_transferring_funds</code> from Coinbase Developer Platform's hosted facilitator, and the payment does not go through. Phantom's iOS app changed its payment flow the next day too, and the reporter's own pre-check, which mirrors the facilitator's rule, already refuses it, though they could not capture the iOS transaction to confirm it carries the identical assertion.<sup class="footnote-ref"><a href="#ref-1" id="cite-1">[1]</a></sup> <em>(unverified, single source)</em> Neither Phantom, Coinbase, nor the x402 Foundation has responded as of this writing, and it isn't yet clear whether every x402 Solana facilitator enforces the same rule or just this one.</p>
+<h3>mppx closes three identity-adjacent holes in two days</h3>
+<p>Three smaller fixes, same library, same week, none disclosed as a CVE. PR #1353 (merged November 24) stops a server from reconstructing a signed identity request's URL purely from the incoming <code>Host</code> header, which had let a relay present one service's signed request as though it belonged to another — a classic host-header-confusion bug, just applied to signed identity rather than login. Release 0.22.1 (November 25) fixed the CLI's macOS keychain integration, which had been passing the user's private key as a command-line argument to <code>security</code>, visible to any other process on the same machine through <code>ps</code>; it now goes over stdin instead. The same release stripped <code>Forwarded</code>, <code>X-Real-IP</code>, <code>True-Client-IP</code>, and <code>CF-Connecting-IP</code> from proxied requests, closing a path by which a proxy was handing the client's real IP to the identity or payment endpoint on the other end.<sup class="footnote-ref"><a href="#ref-2" id="cite-2">[2]</a></sup><sup class="footnote-ref"><a href="#ref-3" id="cite-3">[3]</a></sup> None of the three looks like it followed a disclosed incident; they read as routine hardening of a protocol that increasingly sits underneath real money movement.</p>
+<h3>Google puts agent access to Workspace behind its own identity layer</h3>
+<p>Google's Workspace and Cloud teams made two things generally available on November 25: remote MCP servers for Gmail, Drive, Docs, Sheets, Slides, Calendar, Chat, and Tasks, and a CLI for local agents — both of which reject OAuth clients that aren't flagged as agent clients. New terms require agents to use these paths instead of Workspace's existing REST APIs, with technical enforcement beginning February 1, 2027. A new Agent Gateway verifies agent identities against a Google Cloud Agent Registry and applies default-deny outbound policy to LLM, MCP, and Agent2Agent traffic. <em>(vendor-stated)</em> Google frames this as a shift from "a valid token is enough" to a model where every agent carries its own identity, scope, and audit trail — a framing that is itself a claim about what the old model got wrong, not a measured fact.<sup class="footnote-ref"><a href="#ref-4" id="cite-4">[4]</a></sup> Admins can see, audit, and revoke agents today; a user-facing version of the same controls, along with per-file access restrictions, is listed as "coming soon" rather than shipped.</p>
+<h2>Why it matters</h2>
+<p>Three different layers of the agent stack tightened identity enforcement this week, and one of them broke something in the process. Google's change and mppx's three fixes are the kind of hardening nobody notices unless it's pointed out: a platform deciding tokens aren't enough, a library closing holes before anyone exploits them. The Phantom collision is the same instinct running into itself — a wallet and a payment protocol each adding a check meant to stop fraud, neither aware the other exists, producing a transaction that is secure by both standards and payable by neither. As more of the stack adds its own verification layer independently, that kind of collision gets more likely, not less: the more parties checking, the more chances for two correct checks to disagree.</p>
+<h2>Signals to watch</h2>
+<ul>
+<li>Whether Phantom, Coinbase, or the x402 Foundation acknowledges the
+<p>fee-payer collision, and whether the fix lands in <code>@x402/svm</code> (relaxing the rule for wallet-added Lighthouse assertions) or in Phantom (dropping the fee-payer assertion) — the choice says which side considers itself responsible for compatibility.</p></li>
+<li>Whether mppx's TAP pull requests (#1363, #1364) merge, which would put
+<p>Visa's Trusted Agent Protocol identity verification into a payment library already shipping its own identity hardening.</p></li>
+<li>Whether Google's February 1, 2027 enforcement date holds, and whether the
+<p>"coming soon" user-facing revocation controls ship before it does.</p></li>
+</ul>
+<h2>Limitations</h2>
+<p>This brief is sourced to three primary artifacts (two GitHub items, one vendor blog) and found no independent reporting on any of them; see <code>working/gaps.md</code> for what that leaves unconfirmed, including a third day running without access to Ars Technica's Amazon zero-day report. Visa, Mastercard, Stripe, and PayPal produced nothing dated inside this window.</p>
+  </main>
+
+  <section class="references">
+    <h2>References</h2>
+    <ol>
+      <li id="ref-1"><span class="authors">—</span>. <a href="https://github.com/x402-foundation/x402/issues/4437">[Bug]: SVM exact: Phantom adds a Lighthouse assertion on the facilitator&#x27;s fee payer, so Phantom payments fail verify (fee_payer_transferring_funds)</a>. <span class="venue">GitHub (x402-foundation/x402), 2026</span>. <span class="accessed">Accessed 2026-11-27.</span></li>
+      <li id="ref-2"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/pull/1353">fix: require trusted hosts for signed identity requests</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-11-27.</span></li>
+      <li id="ref-3"><span class="authors">—</span>. <a href="https://github.com/wevm/mppx/releases/tag/mppx@0.22.1">mppx@0.22.1 release notes</a>. <span class="venue">GitHub (wevm/mppx), 2026</span>. <span class="accessed">Accessed 2026-11-27.</span></li>
+      <li id="ref-4"><span class="authors">—</span>. <a href="https://cloud.google.com/blog/products/identity-security/deploying-agents-safely-in-your-enterprise/">Built for trust and control: Powering the next wave of AI agents across Google Workspace and Google Cloud</a>. <span class="venue">Google Cloud Blog, 2026</span>. <span class="accessed">Accessed 2026-11-27.</span></li>
+    </ol>
+  </section>
+
+  <footer class="report-footer-note">
+    <p>Report generated by the Deepsearch harness. Sources last accessed on or before 2026-11-27. Intermediate research artefacts (outline, claims, sources, critique) are preserved in the repository alongside this report.</p>
+  </footer>
+</article>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false});"></script>
+<script>
+(function(){
+  var btn = document.querySelector('[data-theme-toggle]');
+  if(!btn) return;
+  btn.addEventListener('click', function(){
+    var cur = document.documentElement.dataset.theme;
+    if(!cur){
+      cur = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

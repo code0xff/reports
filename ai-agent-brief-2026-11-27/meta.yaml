@@ -1,0 +1,10 @@
+title: AI agents, developer tools, and agent payments — daily brief, 2026-11-27
+subtitle: A Phantom wallet update breaks x402 payments on Solana by colliding with the protocol's own anti-fraud check, mppx closes three identity-adjacent security holes, and Google rebuilds Workspace agent access around per-agent OAuth identities.
+title_ko: AI 에이전트·개발자 도구·에이전트 결제 — 데일리 브리프, 2026-11-27
+subtitle_ko: 팬텀 지갑 업데이트가 x402의 자체 사기 방지 검사와 충돌해 솔라나 결제를 막고, mppx는 신원 관련 보안 구멍 세 곳을 막았고, 구글은 워크스페이스 에이전트 접근을 에이전트별 OAuth 신원 체계로 재편했다.
+slug: ai-agent-brief-2026-11-27
+lang: en
+langs: [en, ko]
+date: 2026-11-27
+tags: []
+status: ready
