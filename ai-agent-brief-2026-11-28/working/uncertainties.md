@@ -1,0 +1,5 @@
+# Uncertainties
+
+- The Amazon-Meta talks are sourced to TechCrunch citing Fortune's original report; neither Amazon nor Meta has confirmed the talks, and TechCrunch notes both declined to comment. The outcome (a deal, no deal, or continued stalemate) is unknown, and the specific sticking points (ad revenue, result presentation) are reported, not confirmed by either party.
+- The Notion MCP claim is vendor-unconfirmed and single-source by origin (see gaps.md). Whether the behavior was deliberate, an accident ("probably slipped through the cracks," per one commenter), or a third-party integration layer rather than Notion's own server, is not established.
+- The x402 fixes read as routine hardening rather than a disclosed-incident response — none of the three PRs references a CVE, a bug bounty report, or evidence of exploitation in the wild. The severity assessment (memory-amplification "DoS," header "leak") is this brief's characterization of the PR's own description of the bug, not a vendor or third-party security rating.
